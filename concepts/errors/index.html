@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/tokens/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/errors/">
       
       
-        <link rel="prev" href="../..">
+        <link rel="prev" href="../lexer/">
       
-      
-        <link rel="next" href="../lexer/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Tokens - Pebble</title>
+        <title>Error Messages - Pebble</title>
       
     
     
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tokens" class="md-skip">
+        <a href="#error-messages" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tokens
+              Error Messages
             
           </span>
         </div>
@@ -340,37 +338,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Tokens
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../tokens/" class="md-nav__link">
         
   
   
@@ -386,153 +357,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-token" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Token?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-not-just-read-characters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Not Just Read Characters?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#token-categories" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Token Categories
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Token Categories">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#literals-the-raw-values" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Literals -- The Raw Values
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#keywords-reserved-words" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Keywords -- Reserved Words
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#operators-the-action-symbols" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Operators -- The Action Symbols
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#comparisons-asking-questions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comparisons -- Asking Questions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#delimiters-the-punctuation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Delimiters -- The Punctuation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#special-tokens" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Special Tokens
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#a-token-has-three-parts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A Token Has Three Parts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -570,10 +394,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../errors/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Messages
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -589,6 +440,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-do-errors-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Do Errors Matter?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pebble-error-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Pebble Error System
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anatomy-of-an-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anatomy of an Error
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-caret-pointer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Caret Pointer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#collecting-multiple-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collecting Multiple Errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -621,342 +558,114 @@
   
 
 
-<h1 id="tokens">Tokens</h1>
-<h2 id="what-is-a-token">What Is a Token?</h2>
-<p>Imagine you have a big box of <strong>Lego bricks</strong>. Before you can build anything,
-you need to sort them: red bricks in one pile, blue bricks in another, flat
-pieces here, wheels there. Once they're sorted, you know exactly what you have
-to work with.</p>
-<p>A <strong>token</strong> is a sorted Lego brick. The compiler reads your source code --
-which is just a long string of characters -- and sorts each piece into a
-labelled category. The number <code>42</code> becomes an "integer token". The word <code>let</code>
-becomes a "keyword token". The symbol <code>+</code> becomes an "operator token".</p>
-<p>This sorting step is called <strong>tokenization</strong> (or <em>lexical analysis</em>, if you
-want the fancy name), and the program that does it is called a <strong>lexer</strong>.</p>
-<h2 id="why-not-just-read-characters">Why Not Just Read Characters?</h2>
-<p>You <em>could</em> try to understand code one character at a time, but it would be
-like trying to read a book one letter at a time instead of one word at a time.
-By grouping characters into tokens first, the rest of the compiler can think in
-terms of whole words and symbols, which is much easier.</p>
-<h2 id="token-categories">Token Categories</h2>
-<p>Pebble groups its tokens into several families:</p>
-<h3 id="literals-the-raw-values">Literals -- The Raw Values</h3>
-<p>These are the actual data values in your code:</p>
+<h1 id="error-messages">Error Messages</h1>
+<h2 id="why-do-errors-matter">Why Do Errors Matter?</h2>
+<p>Imagine you're doing a maths test and your teacher marks one answer wrong --
+but doesn't tell you <em>which</em> question, <em>which</em> part, or <em>what</em> went wrong.
+Frustrating, right?</p>
+<p>A good compiler is like a helpful teacher. When something goes wrong, it
+doesn't just say "Error!" -- it circles the exact mistake on your homework,
+underlines the word, and explains what it expected instead.</p>
+<h2 id="the-pebble-error-system">The Pebble Error System</h2>
+<p>Pebble has a family of error types, one for each stage of the compiler:</p>
 <table>
 <thead>
 <tr>
-<th>Token</th>
+<th>Error Type</th>
+<th>When It Happens</th>
 <th>Example</th>
-<th>What It Means</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>INTEGER</code></td>
-<td><code>42</code></td>
-<td>A whole number</td>
+<td><strong>LexerError</strong></td>
+<td>Scanning characters</td>
+<td>Unterminated string <code>"hello</code></td>
 </tr>
 <tr>
-<td><code>STRING</code></td>
-<td><code>"hello"</code></td>
-<td>A piece of text</td>
+<td><strong>ParseError</strong></td>
+<td>Arranging tokens into a tree</td>
+<td>Missing closing <code>)</code></td>
 </tr>
 <tr>
-<td><code>IDENTIFIER</code></td>
-<td><code>score</code></td>
-<td>A name you gave to something</td>
+<td><strong>SemanticError</strong></td>
+<td>Checking the tree for logic mistakes</td>
+<td>Using a variable that doesn't exist</td>
+</tr>
+<tr>
+<td><strong>PebbleRuntimeError</strong></td>
+<td>Running the bytecode</td>
+<td>Dividing by zero</td>
 </tr>
 </tbody>
 </table>
-<h3 id="keywords-reserved-words">Keywords -- Reserved Words</h3>
-<p>Keywords are special words that Pebble has claimed for itself. You can't use
-them as variable names because they already mean something:</p>
-<table>
-<thead>
-<tr>
-<th>Token</th>
-<th>Word</th>
-<th>What It Does</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>LET</code></td>
-<td><code>let</code></td>
-<td>Declare a new variable</td>
-</tr>
-<tr>
-<td><code>IF</code></td>
-<td><code>if</code></td>
-<td>Start a conditional branch</td>
-</tr>
-<tr>
-<td><code>ELSE</code></td>
-<td><code>else</code></td>
-<td>The alternative branch</td>
-</tr>
-<tr>
-<td><code>WHILE</code></td>
-<td><code>while</code></td>
-<td>Start a loop</td>
-</tr>
-<tr>
-<td><code>FOR</code></td>
-<td><code>for</code></td>
-<td>Start a counting loop</td>
-</tr>
-<tr>
-<td><code>IN</code></td>
-<td><code>in</code></td>
-<td>Used with <code>for</code> loops</td>
-</tr>
-<tr>
-<td><code>FN</code></td>
-<td><code>fn</code></td>
-<td>Define a function</td>
-</tr>
-<tr>
-<td><code>RETURN</code></td>
-<td><code>return</code></td>
-<td>Send a value back from a function</td>
-</tr>
-<tr>
-<td><code>TRUE</code></td>
-<td><code>true</code></td>
-<td>The boolean value true</td>
-</tr>
-<tr>
-<td><code>FALSE</code></td>
-<td><code>false</code></td>
-<td>The boolean value false</td>
-</tr>
-<tr>
-<td><code>AND</code></td>
-<td><code>and</code></td>
-<td>Logical "both must be true"</td>
-</tr>
-<tr>
-<td><code>OR</code></td>
-<td><code>or</code></td>
-<td>Logical "at least one must be true"</td>
-</tr>
-<tr>
-<td><code>NOT</code></td>
-<td><code>not</code></td>
-<td>Logical "flip true to false"</td>
-</tr>
-</tbody>
-</table>
-<h3 id="operators-the-action-symbols">Operators -- The Action Symbols</h3>
-<p>Operators tell Pebble to <em>do</em> something with values:</p>
-<table>
-<thead>
-<tr>
-<th>Token</th>
-<th>Symbol</th>
-<th>What It Does</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>PLUS</code></td>
-<td><code>+</code></td>
-<td>Add two numbers</td>
-</tr>
-<tr>
-<td><code>MINUS</code></td>
-<td><code>-</code></td>
-<td>Subtract (or negate)</td>
-</tr>
-<tr>
-<td><code>STAR</code></td>
-<td><code>*</code></td>
-<td>Multiply</td>
-</tr>
-<tr>
-<td><code>SLASH</code></td>
-<td><code>/</code></td>
-<td>Divide</td>
-</tr>
-<tr>
-<td><code>PERCENT</code></td>
-<td><code>%</code></td>
-<td>Remainder after division</td>
-</tr>
-</tbody>
-</table>
-<h3 id="comparisons-asking-questions">Comparisons -- Asking Questions</h3>
-<p>These produce <code>true</code> or <code>false</code> answers:</p>
-<table>
-<thead>
-<tr>
-<th>Token</th>
-<th>Symbol</th>
-<th>Question</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>EQUAL_EQUAL</code></td>
-<td><code>==</code></td>
-<td>Are these the same?</td>
-</tr>
-<tr>
-<td><code>BANG_EQUAL</code></td>
-<td><code>!=</code></td>
-<td>Are these different?</td>
-</tr>
-<tr>
-<td><code>LESS</code></td>
-<td><code>&lt;</code></td>
-<td>Is the left smaller?</td>
-</tr>
-<tr>
-<td><code>LESS_EQUAL</code></td>
-<td><code>&lt;=</code></td>
-<td>Is the left smaller or equal?</td>
-</tr>
-<tr>
-<td><code>GREATER</code></td>
-<td><code>&gt;</code></td>
-<td>Is the left bigger?</td>
-</tr>
-<tr>
-<td><code>GREATER_EQUAL</code></td>
-<td><code>&gt;=</code></td>
-<td>Is the left bigger or equal?</td>
-</tr>
-</tbody>
-</table>
-<h3 id="delimiters-the-punctuation">Delimiters -- The Punctuation</h3>
-<p>These are the brackets, braces, and commas that organise your code:</p>
-<table>
-<thead>
-<tr>
-<th>Token</th>
-<th>Symbol</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>LEFT_PAREN</code></td>
-<td><code>(</code></td>
-<td>Start a group or function call</td>
-</tr>
-<tr>
-<td><code>RIGHT_PAREN</code></td>
-<td><code>)</code></td>
-<td>End a group or function call</td>
-</tr>
-<tr>
-<td><code>LEFT_BRACE</code></td>
-<td><code>{</code></td>
-<td>Start a block of code</td>
-</tr>
-<tr>
-<td><code>RIGHT_BRACE</code></td>
-<td><code>}</code></td>
-<td>End a block of code</td>
-</tr>
-<tr>
-<td><code>COMMA</code></td>
-<td><code>,</code></td>
-<td>Separate items in a list</td>
-</tr>
-<tr>
-<td><code>EQUAL</code></td>
-<td><code>=</code></td>
-<td>Assign a value</td>
-</tr>
-</tbody>
-</table>
-<h3 id="special-tokens">Special Tokens</h3>
-<table>
-<thead>
-<tr>
-<th>Token</th>
-<th>What It Means</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>NEWLINE</code></td>
-<td>End of a statement (like a full stop)</td>
-</tr>
-<tr>
-<td><code>EOF</code></td>
-<td>End of the file -- there's nothing left to read</td>
-</tr>
-</tbody>
-</table>
-<h2 id="a-token-has-three-parts">A Token Has Three Parts</h2>
-<p>Every token carries three pieces of information:</p>
+<p>All of them are part of the same family (they inherit from <code>PebbleError</code>), so
+the compiler can catch <em>any</em> Pebble error when it needs to.</p>
+<h2 id="anatomy-of-an-error">Anatomy of an Error</h2>
+<p>Every Pebble error carries three pieces of information:</p>
 <ol>
-<li><strong>Kind</strong> -- What category is it? (<code>INTEGER</code>, <code>PLUS</code>, <code>LET</code>, etc.)</li>
-<li><strong>Value</strong> -- What was the original text? (<code>"42"</code>, <code>"+"</code>, <code>"let"</code>)</li>
-<li><strong>Location</strong> -- Where in the source file did it appear? (line 3, column 5)</li>
+<li><strong>Message</strong> -- What went wrong, in plain English</li>
+<li><strong>Line</strong> -- Which line of your code has the problem</li>
+<li><strong>Column</strong> -- Which column (character position) on that line</li>
 </ol>
-<p>The location is important for error messages. If something goes wrong, the
-compiler can point to the exact spot in your code and say "the problem is
-<em>here</em>".</p>
-<h2 id="example">Example</h2>
-<p>Given this Pebble code:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let x = 42
+<h2 id="the-caret-pointer">The Caret Pointer</h2>
+<p>When Pebble reports an error, it shows you the broken line from your source
+code and draws a little arrow (<code>^</code>) pointing to the exact spot:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1 | let x = @
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        ^
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Unexpected character &#39;@&#39;
 </code></pre></div>
-<p>The lexer produces these tokens:</p>
+<p>This is like a teacher using a red pen to circle the mistake. You don't have to
+hunt through your whole program -- the compiler shows you right where to look.</p>
+<p>Here's one from line 3 of a longer program:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>3 | print(x + )
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>               ^
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Expected expression after &#39;+&#39;
+</code></pre></div>
+<h2 id="collecting-multiple-errors">Collecting Multiple Errors</h2>
+<p>Some compilers stop at the first error they find. That's like a teacher who
+reads one sentence of your essay, finds a spelling mistake, and hands it
+straight back without reading the rest.</p>
+<p>Pebble's <strong>ErrorCollector</strong> is smarter. It gathers up all the errors it can
+find and reports them all at once. That way, you can fix several mistakes in one
+go instead of playing whack-a-mole -- fix one, run again, find the next, fix
+it, run again...</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>1 | let x = @
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>            ^
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Unexpected character &#39;@&#39;
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>3 | print(y
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            ^
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Expected &#39;)&#39; after argument
+</code></pre></div>
+<p>Two errors, reported together. Much more efficient!</p>
+<h2 id="summary">Summary</h2>
 <table>
 <thead>
 <tr>
-<th>Kind</th>
-<th>Value</th>
-<th>Line</th>
-<th>Column</th>
+<th>Concept</th>
+<th>Analogy</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>LET</code></td>
-<td><code>let</code></td>
-<td>1</td>
-<td>1</td>
+<td>Error message</td>
+<td>A teacher circling mistakes on your homework</td>
 </tr>
 <tr>
-<td><code>IDENTIFIER</code></td>
-<td><code>x</code></td>
-<td>1</td>
-<td>5</td>
+<td>Line &amp; column</td>
+<td>"Page 3, second paragraph, fifth word"</td>
 </tr>
 <tr>
-<td><code>EQUAL</code></td>
-<td><code>=</code></td>
-<td>1</td>
-<td>7</td>
+<td>Caret pointer</td>
+<td>A red arrow drawn under the mistake</td>
 </tr>
 <tr>
-<td><code>INTEGER</code></td>
-<td><code>42</code></td>
-<td>1</td>
-<td>9</td>
-</tr>
-<tr>
-<td><code>NEWLINE</code></td>
-<td><code>\n</code></td>
-<td>1</td>
-<td>11</td>
-</tr>
-<tr>
-<td><code>EOF</code></td>
-<td></td>
-<td>1</td>
-<td>12</td>
+<td>ErrorCollector</td>
+<td>Marking all mistakes at once, not just the first</td>
 </tr>
 </tbody>
 </table>
-<p>Notice how the raw text <code>let x = 42</code> has been broken into six clearly labelled
-pieces. Each one knows exactly what it is and where it came from. The parser
-(which we'll meet next) can now work with these tidy, sorted bricks instead of
-raw characters.</p>
 
 
 
