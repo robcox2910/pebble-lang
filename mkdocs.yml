@@ -43,3 +43,4 @@ nav:
   - Home: index.md
   - Concepts:
       - Tokens: concepts/tokens.md
+      - Lexer: concepts/lexer.md
