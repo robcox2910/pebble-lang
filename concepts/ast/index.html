@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/lexer/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/ast/">
       
       
-        <link rel="prev" href="../tokens/">
+        <link rel="prev" href="../errors/">
       
-      
-        <link rel="next" href="../errors/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Lexer - Pebble</title>
+        <title>AST - Pebble</title>
       
     
     
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-lexer" class="md-skip">
+        <a href="#the-abstract-syntax-tree-ast" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Lexer
+              AST
             
           </span>
         </div>
@@ -368,37 +366,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Lexer
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../lexer/" class="md-nav__link">
         
   
   
@@ -414,142 +385,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-lexer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Lexer?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-the-pebble-lexer-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How the Pebble Lexer Works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#a-walk-through-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A Walk-Through Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keeping-track-of-position" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Keeping Track of Position
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What Can Go Wrong?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#unterminated-strings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unterminated strings
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#unexpected-characters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unexpected characters
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#newline-smarts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Newline Smarts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-about-keywords" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What About Keywords?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -587,10 +422,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../ast/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AST
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -606,6 +468,131 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-bricks-to-a-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From Bricks to a Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-a-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why a Tree?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Node Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#expression-nodes-produce-a-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expression Nodes (produce a value)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statement-nodes-do-something" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statement Nodes (do something)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expressions-vs-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expressions vs Statements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#every-node-knows-where-it-came-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Every Node Knows Where It Came From
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frozen-and-immutable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frozen and Immutable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-complete-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Complete Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -638,173 +625,179 @@
   
 
 
-<h1 id="the-lexer">The Lexer</h1>
-<h2 id="what-is-a-lexer">What Is a Lexer?</h2>
-<p>Imagine a <strong>postal worker</strong> at a sorting office. A huge bag of letters arrives
-and the worker's job is to read each address and toss the letter into the right
-bin: one bin for local deliveries, one for international, one for parcels, and
-so on.</p>
-<p>A <strong>lexer</strong> (also called a <em>scanner</em> or <em>tokenizer</em>) does the same thing with
-source code. It reads your program one character at a time and sorts the
-characters into labelled groups called <strong>tokens</strong>. Once the sorting is done, the
-rest of the compiler never has to look at individual characters again -- it
-works with tidy, labelled tokens instead.</p>
-<h2 id="how-the-pebble-lexer-works">How the Pebble Lexer Works</h2>
-<p>The Pebble lexer is a <strong>single-pass scanner</strong>. That means it walks through your
-source code from the first character to the last, exactly once, left to right.
-No going back, no second pass. One trip through the mail bag.</p>
-<p>Here's what happens at each step:</p>
-<pre class="mermaid"><code>graph TD
-    A[Read character] --&gt; B{What is it?}
-    B --&gt;|digit| C[Collect all digits → INTEGER token]
-    B --&gt;|quote| D[Collect until closing quote → STRING token]
-    B --&gt;|letter / _| E[Collect word → keyword or IDENTIFIER]
-    B --&gt;|symbol| F[Match operator → PLUS, LESS_EQUAL, etc.]
-    B --&gt;|#| G[Skip everything until end of line]
-    B --&gt;|space / tab| H[Skip it]
-    B --&gt;|newline| I[Emit NEWLINE token]
-    B --&gt;|anything else| J[Report error!]</code></pre>
-<h2 id="a-walk-through-example">A Walk-Through Example</h2>
-<p>Let's trace what the lexer does with this code:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let age = 12
+<h1 id="the-abstract-syntax-tree-ast">The Abstract Syntax Tree (AST)</h1>
+<h2 id="from-bricks-to-a-model">From Bricks to a Model</h2>
+<p>In the <a href="../tokens/">Tokens</a> chapter we compared tokens to Lego bricks sorted
+by colour and shape. Now imagine you've finished sorting and it's time to
+<strong>build something</strong>. You follow the instructions and snap the bricks together
+into a spaceship, a house, or a dragon.</p>
+<p>The <strong>Abstract Syntax Tree</strong> (or AST) is that assembled model. It's a tree-
+shaped structure where each piece knows what it is and how it connects to the
+pieces around it. The parser reads the flat list of tokens and builds this
+tree.</p>
+<h2 id="why-a-tree">Why a Tree?</h2>
+<p>Consider this expression:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1 + 2 * 3
 </code></pre></div>
+<p>If you read left to right, you might think the answer is 9 (do <code>1 + 2</code> first,
+then <code>* 3</code>). But maths says multiplication comes before addition, so the
+answer is actually 7 (<code>2 * 3</code> first, then <code>1 +</code>).</p>
+<p>A flat list of tokens can't show this. But a tree can:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    +
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   / \
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  1   *
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>     / \
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    2   3
+</code></pre></div>
+<p>The <code>*</code> is deeper in the tree, so it gets evaluated first. The tree
+<strong>encodes the rules</strong> of the language -- no ambiguity, no guessing.</p>
+<h2 id="node-types">Node Types</h2>
+<p>Every piece of the tree is called a <strong>node</strong>. Pebble has two families of
+nodes:</p>
+<h3 id="expression-nodes-produce-a-value">Expression Nodes (produce a value)</h3>
 <table>
 <thead>
 <tr>
-<th>Step</th>
-<th>Character(s)</th>
-<th>Action</th>
-<th>Token produced</th>
+<th>Node</th>
+<th>Example</th>
+<th>What It Holds</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1</td>
-<td><code>l</code>, <code>e</code>, <code>t</code></td>
-<td>Letters → collect word → it's a keyword!</td>
-<td><code>LET "let"</code></td>
+<td><code>IntegerLiteral</code></td>
+<td><code>42</code></td>
+<td>The number value</td>
 </tr>
 <tr>
-<td>2</td>
-<td><code></code></td>
-<td>Space → skip</td>
-<td><em>(none)</em></td>
+<td><code>StringLiteral</code></td>
+<td><code>"hello"</code></td>
+<td>The string value</td>
 </tr>
 <tr>
-<td>3</td>
-<td><code>a</code>, <code>g</code>, <code>e</code></td>
-<td>Letters → collect word → not a keyword</td>
-<td><code>IDENTIFIER "age"</code></td>
+<td><code>BooleanLiteral</code></td>
+<td><code>true</code></td>
+<td>True or false</td>
 </tr>
 <tr>
-<td>4</td>
-<td><code></code></td>
-<td>Space → skip</td>
-<td><em>(none)</em></td>
+<td><code>Identifier</code></td>
+<td><code>score</code></td>
+<td>A variable name</td>
 </tr>
 <tr>
-<td>5</td>
-<td><code>=</code></td>
-<td>Symbol → is the next char <code>=</code>? No → assignment</td>
-<td><code>EQUAL "="</code></td>
+<td><code>UnaryOp</code></td>
+<td><code>-x</code>, <code>not flag</code></td>
+<td>An operator and one operand</td>
 </tr>
 <tr>
-<td>6</td>
-<td><code></code></td>
-<td>Space → skip</td>
-<td><em>(none)</em></td>
+<td><code>BinaryOp</code></td>
+<td><code>a + b</code></td>
+<td>Left operand, operator, right operand</td>
 </tr>
 <tr>
-<td>7</td>
-<td><code>1</code>, <code>2</code></td>
-<td>Digits → collect all digits</td>
-<td><code>INTEGER "12"</code></td>
-</tr>
-<tr>
-<td>8</td>
-<td><em>(end)</em></td>
-<td>Nothing left to read</td>
-<td><code>EOF ""</code></td>
+<td><code>FunctionCall</code></td>
+<td><code>print(x)</code></td>
+<td>Function name and argument list</td>
 </tr>
 </tbody>
 </table>
-<p>Notice step 5: the lexer peeks at the <em>next</em> character before deciding. If it
-saw <code>==</code> it would produce an <code>EQUAL_EQUAL</code> token instead of <code>EQUAL</code>. This
-"look-ahead" trick is how it tells <code>=</code> (assignment) apart from <code>==</code>
-(comparison).</p>
-<h2 id="keeping-track-of-position">Keeping Track of Position</h2>
-<p>Every token remembers <strong>where</strong> it came from: the line number and column
-number. The lexer keeps a running count:</p>
+<h3 id="statement-nodes-do-something">Statement Nodes (do something)</h3>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Example</th>
+<th>What It Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Assignment</code></td>
+<td><code>let x = 42</code></td>
+<td>Variable name and initial value</td>
+</tr>
+<tr>
+<td><code>Reassignment</code></td>
+<td><code>x = 10</code></td>
+<td>Variable name and new value</td>
+</tr>
+<tr>
+<td><code>PrintStatement</code></td>
+<td><code>print("hi")</code></td>
+<td>The expression to print</td>
+</tr>
+<tr>
+<td><code>IfStatement</code></td>
+<td><code>if cond { } else { }</code></td>
+<td>Condition, then-body, else-body</td>
+</tr>
+<tr>
+<td><code>WhileLoop</code></td>
+<td><code>while cond { }</code></td>
+<td>Condition and loop body</td>
+</tr>
+<tr>
+<td><code>ForLoop</code></td>
+<td><code>for i in range(10) { }</code></td>
+<td>Variable, iterable, loop body</td>
+</tr>
+<tr>
+<td><code>FunctionDef</code></td>
+<td><code>fn add(a, b) { }</code></td>
+<td>Name, parameters, body</td>
+</tr>
+<tr>
+<td><code>ReturnStatement</code></td>
+<td><code>return 42</code></td>
+<td>The value to return (or nothing)</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>Program</strong> node sits at the very top and holds the list of all top-level
+statements.</p>
+<h2 id="expressions-vs-statements">Expressions vs Statements</h2>
+<p>This is a really important difference:</p>
 <ul>
-<li><strong>Column</strong> goes up by one for every character</li>
-<li><strong>Line</strong> goes up by one for every newline, and the column resets to 1</li>
+<li>
+<p>An <strong>expression</strong> produces a value. <code>2 + 3</code> produces <code>5</code>. <code>"hello"</code> produces
+  the string <code>hello</code>. You can put an expression anywhere a value is expected.</p>
+</li>
+<li>
+<p>A <strong>statement</strong> <em>does</em> something but doesn't produce a value you can use.
+  <code>let x = 5</code> creates a variable. <code>print("hi")</code> outputs text. You can't write
+  <code>let y = let x = 5</code> because <code>let x = 5</code> isn't an expression.</p>
+</li>
 </ul>
-<p>This matters for error messages. If something goes wrong later, the compiler
-can say exactly <em>where</em> the mistake is in your code.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>The lexer catches two kinds of mistakes:</p>
-<h3 id="unterminated-strings">Unterminated strings</h3>
-<p>If you open a string with <code>"</code> but forget to close it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let name = &quot;Alice
+<p>Think of it like this: an expression is an <strong>answer</strong> on a test, and a
+statement is an <strong>instruction</strong> on a to-do list.</p>
+<h2 id="every-node-knows-where-it-came-from">Every Node Knows Where It Came From</h2>
+<p>Just like tokens, every AST node carries a <strong>source location</strong> (line and
+column). This means if something goes wrong later -- say you try to add a
+number to a string -- the compiler can point to the exact <code>+</code> in your code
+and say "this is the problem".</p>
+<h2 id="frozen-and-immutable">Frozen and Immutable</h2>
+<p>All AST nodes are <strong>frozen</strong> (immutable). Once the parser builds the tree,
+nobody can change it. This is important because later stages of the compiler
+(the analyser, the code generator) need to trust that the tree won't change
+out from under them. It's like laminating a document -- once it's sealed, it
+stays exactly as it is.</p>
+<h2 id="a-complete-example">A Complete Example</h2>
+<p>Here's what the AST looks like for this tiny program:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 1 + 2
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(x)
 </code></pre></div>
-<p>The lexer reaches the end of the file while still inside the string and
-reports: <strong>"Unterminated string at line 1, column 12"</strong></p>
-<h3 id="unexpected-characters">Unexpected characters</h3>
-<p>If you use a character that Pebble doesn't understand:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 5 @ 3
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Program
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── Assignment
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>│   ├── name: &quot;x&quot;
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>│   └── value: BinaryOp
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>│       ├── left: IntegerLiteral(1)
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>│       ├── operator: &quot;+&quot;
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>│       └── right: IntegerLiteral(2)
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>└── PrintStatement
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    └── expression: Identifier(&quot;x&quot;)
 </code></pre></div>
-<p>The <code>@</code> symbol isn't part of Pebble, so the lexer reports:
-<strong>"Unexpected character '@' at line 1, column 11"</strong></p>
-<h2 id="newline-smarts">Newline Smarts</h2>
-<p>Pebble uses newlines to separate statements (instead of semicolons like C or
-Java). The lexer does a few clever things with newlines:</p>
-<ol>
-<li><strong>Collapse duplicates</strong> -- Three blank lines in a row produce just one
-   <code>NEWLINE</code> token, not three</li>
-<li><strong>Skip leading newlines</strong> -- Blank lines at the very start of a file are
-   ignored</li>
-<li><strong>Comments are transparent</strong> -- A <code># comment</code> line doesn't produce its own
-   token; the newline after it behaves as if the comment wasn't there</li>
-</ol>
-<h2 id="what-about-keywords">What About Keywords?</h2>
-<p>When the lexer collects a word (like <code>let</code>, <code>while</code>, or <code>myVariable</code>), it
-checks a dictionary called <code>KEYWORDS</code>. If the word is in the dictionary, it
-gets the keyword's token kind (like <code>LET</code> or <code>WHILE</code>). If not, it's just a
-regular <code>IDENTIFIER</code>.</p>
-<p>This is why you can't name a variable <code>let</code> or <code>while</code> -- those words are
-<em>reserved</em> by the language. But <code>letter</code> or <code>whileLoop</code> are perfectly fine,
-because the lexer only matches <em>whole</em> words.</p>
-<h2 id="summary">Summary</h2>
-<table>
-<thead>
-<tr>
-<th>Concept</th>
-<th>Analogy</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Lexer</td>
-<td>A postal worker sorting mail into labelled bins</td>
-</tr>
-<tr>
-<td>Token</td>
-<td>A letter with its bin label attached</td>
-</tr>
-<tr>
-<td>Single-pass</td>
-<td>One trip through the mail bag, left to right</td>
-</tr>
-<tr>
-<td>Look-ahead</td>
-<td>Peeking at the next letter to decide the bin</td>
-</tr>
-<tr>
-<td>Source location</td>
-<td>The return address on each letter</td>
-</tr>
-</tbody>
-</table>
+<p>The flat text has been transformed into a structured tree that the rest of the
+compiler can walk through, node by node.</p>
 
 
 
