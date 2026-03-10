@@ -257,9 +257,7 @@ class TestIfStatement:
         else_stmt = PrintStatement(
             expression=StringLiteral(value="no", location=_loc()), location=_loc()
         )
-        node = IfStatement(
-            condition=cond, body=[then_stmt], else_body=[else_stmt], location=_loc()
-        )
+        node = IfStatement(condition=cond, body=[then_stmt], else_body=[else_stmt], location=_loc())
         assert node.else_body == [else_stmt]
 
     def test_is_frozen(self) -> None:
@@ -343,9 +341,7 @@ class TestProgram:
         stmt1 = Assignment(
             name="x", value=IntegerLiteral(value=FIRST_LINE, location=_loc()), location=_loc()
         )
-        stmt2 = PrintStatement(
-            expression=Identifier(name="x", location=_loc()), location=_loc()
-        )
+        stmt2 = PrintStatement(expression=Identifier(name="x", location=_loc()), location=_loc())
         node = Program(statements=[stmt1, stmt2])
         assert len(node.statements) == SECOND_LINE
         assert node.statements[0] is stmt1

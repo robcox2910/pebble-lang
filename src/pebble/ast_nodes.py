@@ -175,13 +175,7 @@ class Program:
 # ---------------------------------------------------------------------------
 
 Expression = (
-    IntegerLiteral
-    | StringLiteral
-    | BooleanLiteral
-    | Identifier
-    | UnaryOp
-    | BinaryOp
-    | FunctionCall
+    IntegerLiteral | StringLiteral | BooleanLiteral | Identifier | UnaryOp | BinaryOp | FunctionCall
 )
 
 Statement = (
