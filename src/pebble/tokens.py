@@ -1,0 +1,110 @@
+"""Token types, source locations, and keyword mapping for the Pebble language.
+
+This module defines the building blocks of lexical analysis:
+
+- ``TokenKind`` — every category of token the lexer can produce
+- ``SourceLocation`` — a line/column position in source code
+- ``Token`` — a classified piece of source text with its location
+- ``KEYWORDS`` — a mapping from keyword strings to their token kinds
+"""
+
+from dataclasses import dataclass
+from enum import StrEnum
+
+
+class TokenKind(StrEnum):
+    """Every category of token the Pebble lexer can produce."""
+
+    # -- Literals -------------------------------------------------------------
+    INTEGER = "INTEGER"
+    STRING = "STRING"
+    IDENTIFIER = "IDENTIFIER"
+
+    # -- Keywords -------------------------------------------------------------
+    LET = "LET"
+    IF = "IF"
+    ELSE = "ELSE"
+    WHILE = "WHILE"
+    FOR = "FOR"
+    IN = "IN"
+    FN = "FN"
+    RETURN = "RETURN"
+    TRUE = "TRUE"
+    FALSE = "FALSE"
+
+    # -- Operators ------------------------------------------------------------
+    PLUS = "PLUS"
+    MINUS = "MINUS"
+    STAR = "STAR"
+    SLASH = "SLASH"
+    PERCENT = "PERCENT"
+
+    # -- Comparison -----------------------------------------------------------
+    EQUAL_EQUAL = "EQUAL_EQUAL"
+    BANG_EQUAL = "BANG_EQUAL"
+    LESS = "LESS"
+    LESS_EQUAL = "LESS_EQUAL"
+    GREATER = "GREATER"
+    GREATER_EQUAL = "GREATER_EQUAL"
+
+    # -- Logical --------------------------------------------------------------
+    AND = "AND"
+    OR = "OR"
+    NOT = "NOT"
+
+    # -- Delimiters -----------------------------------------------------------
+    LEFT_PAREN = "LEFT_PAREN"
+    RIGHT_PAREN = "RIGHT_PAREN"
+    LEFT_BRACE = "LEFT_BRACE"
+    RIGHT_BRACE = "RIGHT_BRACE"
+    COMMA = "COMMA"
+    EQUAL = "EQUAL"
+
+    # -- Special --------------------------------------------------------------
+    NEWLINE = "NEWLINE"
+    EOF = "EOF"
+
+
+@dataclass(frozen=True)
+class SourceLocation:
+    """A line/column position in source code.
+
+    Both ``line`` and ``column`` are 1-based to match how editors display
+    positions.
+    """
+
+    line: int
+    column: int
+
+
+@dataclass(frozen=True)
+class Token:
+    """A classified piece of source text with its location.
+
+    Attributes:
+        kind: The category of this token.
+        value: The raw text that produced this token.
+        location: Where the token starts in the source.
+
+    """
+
+    kind: TokenKind
+    value: str
+    location: SourceLocation
+
+
+KEYWORDS: dict[str, TokenKind] = {
+    "let": TokenKind.LET,
+    "if": TokenKind.IF,
+    "else": TokenKind.ELSE,
+    "while": TokenKind.WHILE,
+    "for": TokenKind.FOR,
+    "in": TokenKind.IN,
+    "fn": TokenKind.FN,
+    "return": TokenKind.RETURN,
+    "true": TokenKind.TRUE,
+    "false": TokenKind.FALSE,
+    "and": TokenKind.AND,
+    "or": TokenKind.OR,
+    "not": TokenKind.NOT,
+}
