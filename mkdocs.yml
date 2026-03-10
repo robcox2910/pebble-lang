@@ -45,3 +45,4 @@ nav:
       - Tokens: concepts/tokens.md
       - Lexer: concepts/lexer.md
       - Error Messages: concepts/errors.md
+      - AST: concepts/ast.md
