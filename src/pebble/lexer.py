@@ -4,25 +4,10 @@ The lexer reads source text character by character and produces a list of
 :class:`~pebble.tokens.Token` objects ready for the parser.
 """
 
+from pebble.errors import LexerError
 from pebble.tokens import KEYWORDS, SourceLocation, Token, TokenKind
 
-
-class LexerError(Exception):
-    """Raise when the lexer encounters invalid input.
-
-    Attributes:
-        message: Human-readable description of the error.
-        line: 1-based line number where the error occurred.
-        column: 1-based column number where the error occurred.
-
-    """
-
-    def __init__(self, message: str, line: int, column: int) -> None:
-        """Create a LexerError with location information."""
-        self.message = message
-        self.line = line
-        self.column = column
-        super().__init__(f"{message} at line {line}, column {column}")
+__all__ = ["Lexer", "LexerError"]
 
 
 # -- Single-character token mapping -------------------------------------------
