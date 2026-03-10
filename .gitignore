@@ -1,0 +1,39 @@
+# Byte-compiled / optimised
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# mypy / pyright
+.mypy_cache/
+.pyright/
+
+# mkdocs
+site/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# hatch-vcs generated
+src/pebble/_version.py
