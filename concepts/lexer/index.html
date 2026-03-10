@@ -10,25 +10,29 @@
       
       
       
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/lexer/">
+      
+      
+        <link rel="prev" href="../tokens/">
       
       
       
         
       
       
-      <link rel="icon" href="/pebble-lang/assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
-        <title>Pebble</title>
+        <title>Lexer - Pebble</title>
       
     
     
-      <link rel="stylesheet" href="/pebble-lang/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/pebble-lang/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -47,7 +51,7 @@
       
     
     
-    <script>__md_scope=new URL("/pebble-lang/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -71,6 +75,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#the-lexer" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -83,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/pebble-lang/." title="Pebble" class="md-header__button md-logo" aria-label="Pebble" data-md-component="logo">
+    <a href="../.." title="Pebble" class="md-header__button md-logo" aria-label="Pebble" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -103,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Lexer
             
           </span>
         </div>
@@ -221,7 +230,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/pebble-lang/." title="Pebble" class="md-nav__button md-logo" aria-label="Pebble" data-md-component="logo">
+    <a href="../.." title="Pebble" class="md-nav__button md-logo" aria-label="Pebble" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -251,7 +260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/pebble-lang/." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -275,8 +284,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -287,13 +298,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -314,7 +323,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -332,7 +341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/pebble-lang/concepts/tokens/" class="md-nav__link">
+      <a href="../tokens/" class="md-nav__link">
         
   
   
@@ -357,10 +366,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/pebble-lang/concepts/lexer/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lexer
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -376,6 +412,142 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-lexer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Is a Lexer?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-pebble-lexer-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the Pebble Lexer Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-walk-through-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Walk-Through Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-track-of-position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keeping Track of Position
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-can-go-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Can Go Wrong?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What Can Go Wrong?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unterminated-strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unterminated strings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unexpected-characters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unexpected characters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#newline-smarts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Newline Smarts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-about-keywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What About Keywords?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -401,8 +573,193 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+  
+  
+
+
+<h1 id="the-lexer">The Lexer</h1>
+<h2 id="what-is-a-lexer">What Is a Lexer?</h2>
+<p>Imagine a <strong>postal worker</strong> at a sorting office. A huge bag of letters arrives
+and the worker's job is to read each address and toss the letter into the right
+bin: one bin for local deliveries, one for international, one for parcels, and
+so on.</p>
+<p>A <strong>lexer</strong> (also called a <em>scanner</em> or <em>tokenizer</em>) does the same thing with
+source code. It reads your program one character at a time and sorts the
+characters into labelled groups called <strong>tokens</strong>. Once the sorting is done, the
+rest of the compiler never has to look at individual characters again -- it
+works with tidy, labelled tokens instead.</p>
+<h2 id="how-the-pebble-lexer-works">How the Pebble Lexer Works</h2>
+<p>The Pebble lexer is a <strong>single-pass scanner</strong>. That means it walks through your
+source code from the first character to the last, exactly once, left to right.
+No going back, no second pass. One trip through the mail bag.</p>
+<p>Here's what happens at each step:</p>
+<pre class="mermaid"><code>graph TD
+    A[Read character] --&gt; B{What is it?}
+    B --&gt;|digit| C[Collect all digits → INTEGER token]
+    B --&gt;|quote| D[Collect until closing quote → STRING token]
+    B --&gt;|letter / _| E[Collect word → keyword or IDENTIFIER]
+    B --&gt;|symbol| F[Match operator → PLUS, LESS_EQUAL, etc.]
+    B --&gt;|#| G[Skip everything until end of line]
+    B --&gt;|space / tab| H[Skip it]
+    B --&gt;|newline| I[Emit NEWLINE token]
+    B --&gt;|anything else| J[Report error!]</code></pre>
+<h2 id="a-walk-through-example">A Walk-Through Example</h2>
+<p>Let's trace what the lexer does with this code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let age = 12
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Character(s)</th>
+<th>Action</th>
+<th>Token produced</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>l</code>, <code>e</code>, <code>t</code></td>
+<td>Letters → collect word → it's a keyword!</td>
+<td><code>LET "let"</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code></code></td>
+<td>Space → skip</td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>a</code>, <code>g</code>, <code>e</code></td>
+<td>Letters → collect word → not a keyword</td>
+<td><code>IDENTIFIER "age"</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code></code></td>
+<td>Space → skip</td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>=</code></td>
+<td>Symbol → is the next char <code>=</code>? No → assignment</td>
+<td><code>EQUAL "="</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code></code></td>
+<td>Space → skip</td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>1</code>, <code>2</code></td>
+<td>Digits → collect all digits</td>
+<td><code>INTEGER "12"</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><em>(end)</em></td>
+<td>Nothing left to read</td>
+<td><code>EOF ""</code></td>
+</tr>
+</tbody>
+</table>
+<p>Notice step 5: the lexer peeks at the <em>next</em> character before deciding. If it
+saw <code>==</code> it would produce an <code>EQUAL_EQUAL</code> token instead of <code>EQUAL</code>. This
+"look-ahead" trick is how it tells <code>=</code> (assignment) apart from <code>==</code>
+(comparison).</p>
+<h2 id="keeping-track-of-position">Keeping Track of Position</h2>
+<p>Every token remembers <strong>where</strong> it came from: the line number and column
+number. The lexer keeps a running count:</p>
+<ul>
+<li><strong>Column</strong> goes up by one for every character</li>
+<li><strong>Line</strong> goes up by one for every newline, and the column resets to 1</li>
+</ul>
+<p>This matters for error messages. If something goes wrong later, the compiler
+can say exactly <em>where</em> the mistake is in your code.</p>
+<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
+<p>The lexer catches two kinds of mistakes:</p>
+<h3 id="unterminated-strings">Unterminated strings</h3>
+<p>If you open a string with <code>"</code> but forget to close it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let name = &quot;Alice
+</code></pre></div>
+<p>The lexer reaches the end of the file while still inside the string and
+reports: <strong>"Unterminated string at line 1, column 12"</strong></p>
+<h3 id="unexpected-characters">Unexpected characters</h3>
+<p>If you use a character that Pebble doesn't understand:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 5 @ 3
+</code></pre></div>
+<p>The <code>@</code> symbol isn't part of Pebble, so the lexer reports:
+<strong>"Unexpected character '@' at line 1, column 11"</strong></p>
+<h2 id="newline-smarts">Newline Smarts</h2>
+<p>Pebble uses newlines to separate statements (instead of semicolons like C or
+Java). The lexer does a few clever things with newlines:</p>
+<ol>
+<li><strong>Collapse duplicates</strong> -- Three blank lines in a row produce just one
+   <code>NEWLINE</code> token, not three</li>
+<li><strong>Skip leading newlines</strong> -- Blank lines at the very start of a file are
+   ignored</li>
+<li><strong>Comments are transparent</strong> -- A <code># comment</code> line doesn't produce its own
+   token; the newline after it behaves as if the comment wasn't there</li>
+</ol>
+<h2 id="what-about-keywords">What About Keywords?</h2>
+<p>When the lexer collects a word (like <code>let</code>, <code>while</code>, or <code>myVariable</code>), it
+checks a dictionary called <code>KEYWORDS</code>. If the word is in the dictionary, it
+gets the keyword's token kind (like <code>LET</code> or <code>WHILE</code>). If not, it's just a
+regular <code>IDENTIFIER</code>.</p>
+<p>This is why you can't name a variable <code>let</code> or <code>while</code> -- those words are
+<em>reserved</em> by the language. But <code>letter</code> or <code>whileLoop</code> are perfectly fine,
+because the lexer only matches <em>whole</em> words.</p>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Analogy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lexer</td>
+<td>A postal worker sorting mail into labelled bins</td>
+</tr>
+<tr>
+<td>Token</td>
+<td>A letter with its bin label attached</td>
+</tr>
+<tr>
+<td>Single-pass</td>
+<td>One trip through the mail bag, left to right</td>
+</tr>
+<tr>
+<td>Look-ahead</td>
+<td>Peeking at the next letter to decide the bin</td>
+</tr>
+<tr>
+<td>Source location</td>
+<td>The return address on each letter</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -439,10 +796,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/pebble-lang/", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "/pebble-lang/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="/pebble-lang/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
