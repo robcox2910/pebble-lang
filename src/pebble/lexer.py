@@ -106,7 +106,7 @@ class Lexer:
             return
 
         # Skip if the last token is already a NEWLINE (collapse duplicates).
-        if self._tokens and self._tokens[-1].kind == TokenKind.NEWLINE:
+        if self._tokens[-1].kind == TokenKind.NEWLINE:
             self._advance_newline()
             return
 
@@ -148,11 +148,11 @@ class Lexer:
     def _scan_integer(self) -> None:
         """Scan an integer literal (sequence of digits)."""
         start_col = self._column
-        start: list[str] = []
+        digits: list[str] = []
         while not self._at_end() and self._peek().isdigit():
-            start.append(self._peek())
+            digits.append(self._peek())
             self._advance()
-        value = "".join(start)
+        value = "".join(digits)
         self._tokens.append(
             Token(
                 kind=TokenKind.INTEGER,

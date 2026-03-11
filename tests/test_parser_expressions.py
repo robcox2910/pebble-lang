@@ -11,6 +11,7 @@ import pytest
 from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
+    Expression,
     Identifier,
     IntegerLiteral,
     StringLiteral,
@@ -32,7 +33,7 @@ TEN = 10
 FIVE = 5
 
 
-def _parse_expr(source: str) -> object:
+def _parse_expr(source: str) -> Expression:
     """Lex and parse a single expression from *source*."""
     tokens = Lexer(source).tokenize()
     return Parser(tokens).parse_expression()
@@ -169,24 +170,40 @@ class TestParserArithmetic:
         node = _parse_expr("5 - 3")
         assert isinstance(node, BinaryOp)
         assert node.operator == "-"
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == FIVE
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == THREE
 
     def test_multiplication(self) -> None:
         """Verify '2 * 3' parses to BinaryOp with '*'."""
         node = _parse_expr("2 * 3")
         assert isinstance(node, BinaryOp)
         assert node.operator == "*"
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == TWO
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == THREE
 
     def test_division(self) -> None:
         """Verify '10 / 2' parses to BinaryOp with '/'."""
         node = _parse_expr("10 / 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == "/"
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == TEN
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == TWO
 
     def test_modulo(self) -> None:
         """Verify '7 % 3' parses to BinaryOp with '%'."""
         node = _parse_expr("7 % 3")
         assert isinstance(node, BinaryOp)
         assert node.operator == "%"
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == SEVEN
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == THREE
 
 
 # -- Precedence ---------------------------------------------------------------
@@ -204,12 +221,18 @@ class TestParserPrecedence:
         assert node.left.value == ONE
         assert isinstance(node.right, BinaryOp)
         assert node.right.operator == "*"
+        assert isinstance(node.right.left, IntegerLiteral)
+        assert node.right.left.value == TWO
+        assert isinstance(node.right.right, IntegerLiteral)
+        assert node.right.right.value == THREE
 
     def test_div_before_sub(self) -> None:
         """Verify '10 - 6 / 2' groups as '10 - (6 / 2)'."""
         node = _parse_expr("10 - 6 / 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == "-"
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == TEN
         assert isinstance(node.right, BinaryOp)
         assert node.right.operator == "/"
 
@@ -323,40 +346,64 @@ class TestParserComparisons:
     """Verify parsing of comparison operators."""
 
     def test_equal_equal(self) -> None:
-        """Verify '1 == 2' parses to BinaryOp."""
+        """Verify '1 == 2' parses to BinaryOp with correct operands."""
         node = _parse_expr("1 == 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == "=="
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == ONE
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == TWO
 
     def test_bang_equal(self) -> None:
-        """Verify '1 != 2' parses to BinaryOp."""
+        """Verify '1 != 2' parses to BinaryOp with correct operands."""
         node = _parse_expr("1 != 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == "!="
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == ONE
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == TWO
 
     def test_less_than(self) -> None:
-        """Verify '1 < 2' parses to BinaryOp."""
+        """Verify '1 < 2' parses to BinaryOp with correct operands."""
         node = _parse_expr("1 < 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == "<"
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == ONE
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == TWO
 
     def test_less_equal(self) -> None:
-        """Verify '1 <= 2' parses to BinaryOp."""
+        """Verify '1 <= 2' parses to BinaryOp with correct operands."""
         node = _parse_expr("1 <= 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == "<="
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == ONE
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == TWO
 
     def test_greater_than(self) -> None:
-        """Verify '1 > 2' parses to BinaryOp."""
+        """Verify '1 > 2' parses to BinaryOp with correct operands."""
         node = _parse_expr("1 > 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == ">"
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == ONE
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == TWO
 
     def test_greater_equal(self) -> None:
-        """Verify '1 >= 2' parses to BinaryOp."""
+        """Verify '1 >= 2' parses to BinaryOp with correct operands."""
         node = _parse_expr("1 >= 2")
         assert isinstance(node, BinaryOp)
         assert node.operator == ">="
+        assert isinstance(node.left, IntegerLiteral)
+        assert node.left.value == ONE
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == TWO
 
 
 # -- Error handling -----------------------------------------------------------
@@ -379,3 +426,47 @@ class TestParserExpressionErrors:
         """Verify '1 +' without right operand raises ParseError."""
         with pytest.raises(ParseError):
             _parse_expr("1 +")
+
+
+# -- Edge cases ---------------------------------------------------------------
+
+
+class TestParserExpressionEdgeCases:
+    """Verify edge-case expressions are handled correctly."""
+
+    def test_mixed_unary_not_minus(self) -> None:
+        """Verify 'not -5' parses to nested UnaryOp."""
+        node = _parse_expr("not -5")
+        assert isinstance(node, UnaryOp)
+        assert node.operator == "not"
+        assert isinstance(node.operand, UnaryOp)
+        assert node.operand.operator == "-"
+
+    def test_all_arithmetic_precedence(self) -> None:
+        """Verify '1 + 2 * 3 - 4 / 5' respects full precedence chain."""
+        node = _parse_expr("1 + 2 * 3 - 4")
+        assert isinstance(node, BinaryOp)
+        assert node.operator == "-"
+        assert isinstance(node.left, BinaryOp)
+        assert node.left.operator == "+"
+
+    def test_deeply_nested_parens(self) -> None:
+        """Verify '((((1))))' unwraps to IntegerLiteral."""
+        node = _parse_expr("((((1))))")
+        assert isinstance(node, IntegerLiteral)
+        assert node.value == ONE
+
+    def test_group_with_trailing_operator_raises(self) -> None:
+        """Verify '(1 +)' raises ParseError."""
+        with pytest.raises(ParseError):
+            _parse_expr("(1 +)")
+
+    def test_chained_comparisons_left_associative(self) -> None:
+        """Verify '1 < 2 < 3' groups as '(1 < 2) < 3'."""
+        node = _parse_expr("1 < 2 < 3")
+        assert isinstance(node, BinaryOp)
+        assert node.operator == "<"
+        assert isinstance(node.left, BinaryOp)
+        assert node.left.operator == "<"
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == THREE
