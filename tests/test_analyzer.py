@@ -102,9 +102,7 @@ class TestBlockScoping:
 
     def test_sibling_blocks_reuse_same_name(self) -> None:
         """Pass when sibling blocks each declare a variable with the same name."""
-        _analyze(
-            "if true {\n  let x = 1\n}\nif true {\n  let x = 2\n}"
-        )
+        _analyze("if true {\n  let x = 1\n}\nif true {\n  let x = 2\n}")
 
 
 # -- Function definitions ----------------------------------------------------
