@@ -16,12 +16,16 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     Expression,
+    ForLoop,
+    FunctionCall,
+    FunctionDef,
     Identifier,
     IfStatement,
     IntegerLiteral,
     PrintStatement,
     Program,
     Reassignment,
+    ReturnStatement,
     Statement,
     StringLiteral,
     UnaryOp,
@@ -107,20 +111,17 @@ class Parser:
         """Parse a single statement."""
         kind = self._peek().kind
 
-        if kind == TokenKind.LET:
-            return self._parse_let()
-        if kind == TokenKind.IF:
-            return self._parse_if()
-        if kind == TokenKind.WHILE:
-            return self._parse_while()
+        # Keyword-driven dispatch
+        keyword_parser = self._statement_parsers.get(kind)
+        if keyword_parser is not None:
+            return keyword_parser(self)
 
-        # Check for print(expr) — 'print' is an identifier, not a keyword
-        if kind == TokenKind.IDENTIFIER and self._peek().value == "print":
-            return self._parse_print()
-
-        # Check for reassignment: identifier followed by '='
-        if kind == TokenKind.IDENTIFIER and self._peek_next_kind() == TokenKind.EQUAL:
-            return self._parse_reassignment()
+        # Identifier-specific: print or reassignment
+        if kind == TokenKind.IDENTIFIER:
+            if self._peek().value == "print":
+                return self._parse_print()
+            if self._peek_next_kind() == TokenKind.EQUAL:
+                return self._parse_reassignment()
 
         # Fall through to expression statement
         return self._parse_expression_statement()
@@ -175,6 +176,60 @@ class Parser:
         condition = self.parse_expression()
         body = self._parse_block()
         return WhileLoop(condition=condition, body=body, location=while_token.location)
+
+    def _parse_for(self) -> ForLoop:
+        """Parse a ``for variable in iterable { body }`` loop."""
+        for_token = self._advance()  # consume 'for'
+        var_token = self._expect(TokenKind.IDENTIFIER, "Expected loop variable after 'for'")
+        self._expect(TokenKind.IN, "Expected 'in' after loop variable")
+        iterable = self.parse_expression()
+        body = self._parse_block()
+        return ForLoop(
+            variable=var_token.value,
+            iterable=iterable,
+            body=body,
+            location=for_token.location,
+        )
+
+    def _parse_return(self) -> ReturnStatement:
+        """Parse a ``return [expr]`` statement."""
+        return_token = self._advance()  # consume 'return'
+
+        # Bare return: next token is newline, closing brace, or end of file
+        if (
+            self._at_end()
+            or self._peek().kind == TokenKind.NEWLINE
+            or self._peek().kind == TokenKind.RIGHT_BRACE
+        ):
+            return ReturnStatement(value=None, location=return_token.location)
+
+        value = self.parse_expression()
+        self._consume_newline()
+        return ReturnStatement(value=value, location=return_token.location)
+
+    def _parse_function_def(self) -> FunctionDef:
+        """Parse a ``fn name(params) { body }`` function definition."""
+        fn_token = self._advance()  # consume 'fn'
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected function name after 'fn'")
+        self._expect(TokenKind.LEFT_PAREN, "Expected '(' after function name")
+
+        parameters: list[str] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
+            param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
+            parameters.append(param.value)
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
+                parameters.append(param.value)
+
+        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
+        body = self._parse_block()
+        return FunctionDef(
+            name=name_token.value,
+            parameters=parameters,
+            body=body,
+            location=fn_token.location,
+        )
 
     def _parse_block(self) -> list[Statement]:
         """Parse a ``{ stmt; ... }`` block and return the statement list."""
@@ -256,10 +311,28 @@ class Parser:
         token = self._advance()
         return BooleanLiteral(value=token.kind == TokenKind.TRUE, location=token.location)
 
-    def _parse_identifier(self) -> Identifier:
-        """Parse an identifier."""
+    def _parse_identifier(self) -> Identifier | FunctionCall:
+        """Parse an identifier, or a function call if followed by ``(``."""
         token = self._advance()
+        if not self._at_end() and self._peek().kind == TokenKind.LEFT_PAREN:
+            return self._parse_call(token)
         return Identifier(name=token.value, location=token.location)
+
+    def _parse_call(self, name_token: Token) -> FunctionCall:
+        """Parse a function call argument list after the name has been consumed."""
+        self._advance()  # consume '('
+        arguments: list[Expression] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
+            arguments.append(self._parse_precedence(min_precedence=0))
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                arguments.append(self._parse_precedence(min_precedence=0))
+        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after arguments")
+        return FunctionCall(
+            name=name_token.value,
+            arguments=arguments,
+            location=name_token.location,
+        )
 
     def _parse_negate(self) -> UnaryOp:
         """Parse a unary negation (-x)."""
@@ -291,6 +364,17 @@ class Parser:
         TokenKind.MINUS: _parse_negate,
         TokenKind.NOT: _parse_not,
         TokenKind.LEFT_PAREN: _parse_grouped,
+    }
+
+    # -- Statement dispatch table ---------------------------------------------
+
+    _statement_parsers: ClassVar[dict[TokenKind, Callable[[Parser], Statement]]] = {
+        TokenKind.LET: _parse_let,
+        TokenKind.IF: _parse_if,
+        TokenKind.WHILE: _parse_while,
+        TokenKind.FOR: _parse_for,
+        TokenKind.FN: _parse_function_def,
+        TokenKind.RETURN: _parse_return,
     }
 
     # -- Token helpers --------------------------------------------------------

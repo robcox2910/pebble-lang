@@ -48,3 +48,4 @@ nav:
       - AST: concepts/ast.md
       - Parser: concepts/parser.md
       - Statements: concepts/statements.md
+      - Functions: concepts/functions.md

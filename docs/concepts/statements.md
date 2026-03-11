@@ -110,8 +110,8 @@ if condition {
 }
 ```
 
-Blocks appear after `if`, `else`, and `while`. Each block can contain any
-number of statements (even zero!).
+Blocks appear after `if`, `else`, `while`, `for`, and `fn`. Each block can
+contain any number of statements (even zero!).
 
 ## Newlines as Separators
 
@@ -136,6 +136,9 @@ of statement it is:
 | `let` | Variable declaration |
 | `if` | If/else statement |
 | `while` | While loop |
+| `for` | For loop |
+| `fn` | Function definition |
+| `return` | Return statement |
 | `print` | Print statement |
 | identifier followed by `=` | Reassignment |
 | anything else | Expression statement |
@@ -167,5 +170,9 @@ problem was found.
 | Reassignment | Replacing what's inside an existing box |
 | `if/else` | A fork in the road |
 | `while` | A broken record that keeps replaying |
+| `for` | Roll call -- go through each item one by one |
+| `fn` / `return` | A recipe card you can reuse |
 | Block `{ }` | Walls of a room grouping things together |
 | Newlines | Periods at the end of sentences |
+
+For more on functions and for loops, see [Functions](functions.md).
