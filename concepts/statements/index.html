@@ -16,6 +16,8 @@
         <link rel="prev" href="../parser/">
       
       
+        <link rel="next" href="../functions/">
+      
       
         
       
@@ -670,6 +672,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -775,8 +805,8 @@ together.</p>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    print(x)
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>}
 </code></pre></div>
-<p>Blocks appear after <code>if</code>, <code>else</code>, and <code>while</code>. Each block can contain any
-number of statements (even zero!).</p>
+<p>Blocks appear after <code>if</code>, <code>else</code>, <code>while</code>, <code>for</code>, and <code>fn</code>. Each block can
+contain any number of statements (even zero!).</p>
 <h2 id="newlines-as-separators">Newlines as Separators</h2>
 <p>In Pebble, each statement goes on its own line. There are no semicolons --
 newlines tell the parser "that statement is done, start the next one."</p>
@@ -807,6 +837,18 @@ of statement it is:</p>
 <tr>
 <td><code>while</code></td>
 <td>While loop</td>
+</tr>
+<tr>
+<td><code>for</code></td>
+<td>For loop</td>
+</tr>
+<tr>
+<td><code>fn</code></td>
+<td>Function definition</td>
+</tr>
+<tr>
+<td><code>return</code></td>
+<td>Return statement</td>
 </tr>
 <tr>
 <td><code>print</code></td>
@@ -870,6 +912,14 @@ problem was found.</p>
 <td>A broken record that keeps replaying</td>
 </tr>
 <tr>
+<td><code>for</code></td>
+<td>Roll call -- go through each item one by one</td>
+</tr>
+<tr>
+<td><code>fn</code> / <code>return</code></td>
+<td>A recipe card you can reuse</td>
+</tr>
+<tr>
 <td>Block <code>{ }</code></td>
 <td>Walls of a room grouping things together</td>
 </tr>
@@ -879,6 +929,7 @@ problem was found.</p>
 </tr>
 </tbody>
 </table>
+<p>For more on functions and for loops, see <a href="../functions/">Functions</a>.</p>
 
 
 

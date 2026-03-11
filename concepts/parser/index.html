@@ -592,6 +592,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#function-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function Calls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#beyond-expressions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -637,6 +648,34 @@
     
   
     Statements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
   
 
     
@@ -794,6 +833,16 @@ precedence reset to zero), and then continues with <code>* 3</code>. The result 
 <li><strong>Unexpected token</strong>: <code>)</code> at the start → "Unexpected token ')'"</li>
 </ul>
 <p>Each error includes the exact line and column where the problem was found.</p>
+<h2 id="function-calls">Function Calls</h2>
+<p>When the parser sees an identifier followed by <code>(</code>, it knows this is a
+<strong>function call</strong>, not just a variable name. It parses the comma-separated
+arguments between the parentheses and wraps everything in a <code>FunctionCall</code>
+node:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>add(1 + 2, x)  →  FunctionCall(&quot;add&quot;, [BinaryOp(1, +, 2), Identifier(&quot;x&quot;)])
+</code></pre></div>
+<p>Function calls are expressions, so they can appear anywhere an expression is
+valid -- as an argument to another call, on the right side of <code>=</code>, or as part
+of a larger expression like <code>add(1, 2) + 3</code>.</p>
 <h2 id="beyond-expressions">Beyond Expressions</h2>
 <p>Expressions are only half the story. The parser also handles <strong>statements</strong> --
 instructions like creating variables, printing values, and controlling the flow
