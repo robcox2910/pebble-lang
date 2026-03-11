@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/statements/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/analyzer/">
       
       
-        <link rel="prev" href="../parser/">
+        <link rel="prev" href="../functions/">
       
-      
-        <link rel="next" href="../functions/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Statements - Pebble</title>
+        <title>Semantic Analysis - Pebble</title>
       
     
     
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#statements" class="md-skip">
+        <a href="#semantic-analysis" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Statements
+              Semantic Analysis
             
           </span>
         </div>
@@ -480,37 +478,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Statements
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../statements/" class="md-nav__link">
         
   
   
@@ -526,147 +497,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#expressions-vs-statements" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Expressions vs Statements
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#variable-declarations-let" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Variable Declarations: let
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reassignment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reassignment
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#printing-print" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Printing: print()
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#making-decisions-if-else" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Making Decisions: if / else
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#repeating-things-while" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Repeating Things: while
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#blocks-curly-braces" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Blocks: Curly Braces
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#newlines-as-separators" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Newlines as Separators
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-the-parser-handles-statements" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How the Parser Handles Statements
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -704,10 +534,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../analyzer/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic Analysis
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -723,6 +580,231 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-semantic-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Is Semantic Analysis?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-the-parser-isnt-enough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the Parser Isn't Enough
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scopes-rooms-in-a-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scopes: Rooms in a Building
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scopes: Rooms in a Building">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-creates-a-new-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Creates a New Scope?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variable-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable Checks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Variable Checks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#declaration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declaration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-a-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reassignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reassignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function Checks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Checks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#declaring-a-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declaring a Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calling-a-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Calling a Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-before-you-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Define Before You Call
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#return-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-scoping-in-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Block Scoping in Action
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -755,160 +837,247 @@
   
 
 
-<h1 id="statements">Statements</h1>
-<h2 id="expressions-vs-statements">Expressions vs Statements</h2>
-<p>Think of a kitchen. An <strong>expression</strong> is like asking "How much is 2 + 3?" --
-you get an answer back (5). A <strong>statement</strong> is like saying "Put the eggs in the
-fridge" -- it's an instruction that <em>does</em> something but doesn't give you an
-answer.</p>
-<p>In Pebble:</p>
-<ul>
-<li><strong>Expressions</strong> produce a value: <code>1 + 2</code>, <code>x &gt; 10</code>, <code>true</code></li>
-<li><strong>Statements</strong> perform an action: create a variable, print something, make a
-  decision</li>
-</ul>
-<h2 id="variable-declarations-let">Variable Declarations: <code>let</code></h2>
-<p>To create a new variable, use <code>let</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let name = &quot;Alice&quot;
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>let age = 12
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let score = 80 + 15
+<h1 id="semantic-analysis">Semantic Analysis</h1>
+<h2 id="what-is-semantic-analysis">What Is Semantic Analysis?</h2>
+<p>Imagine you write an essay and run spell-check. It catches misspelt words and
+broken grammar, but it can't tell you whether your sentences <em>make sense</em>. You
+could write "The cat drove the ocean to school" -- every word is spelt right and
+the grammar is fine, but the meaning is nonsense.</p>
+<p>The <strong>semantic analyzer</strong> is the sense-checker for your program. (<em>Semantic</em>
+means "about meaning".) The parser already checked the grammar (syntax), but the
+analyzer walks through the AST and asks: "Does this program actually make
+logical sense?"</p>
+<h2 id="why-the-parser-isnt-enough">Why the Parser Isn't Enough</h2>
+<p>The parser makes sure your code <em>looks right</em>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let x = 5
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(y)
 </code></pre></div>
-<p>This is like writing a label on a box and putting something inside. The <code>let</code>
-keyword says "I'm creating something new", the name is the label, and the value
-after <code>=</code> is what goes in the box.</p>
-<h2 id="reassignment">Reassignment</h2>
-<p>Once a variable exists, you can change what's inside:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let count = 0
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>count = count + 1
-</code></pre></div>
-<p>Notice there's no <code>let</code> the second time -- you're not creating a new box, just
-replacing what's inside an existing one.</p>
-<h2 id="printing-print">Printing: <code>print()</code></h2>
-<p>To display a value on screen:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(42)
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(&quot;Hello, world!&quot;)
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(x + y)
-</code></pre></div>
-<p>The parentheses are required -- <code>print</code> is written like a function call. You can
-put any expression inside.</p>
-<h2 id="making-decisions-if-else">Making Decisions: <code>if</code> / <code>else</code></h2>
-<p>Sometimes your program needs to choose between two paths, like a fork in a road:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>if score &gt; 90 {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    print(&quot;Excellent!&quot;)
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>} else {
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    print(&quot;Keep trying!&quot;)
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
-</code></pre></div>
-<p>The condition (<code>score &gt; 90</code>) is an expression that produces <code>true</code> or <code>false</code>.
-If it's <code>true</code>, the first block runs. If it's <code>false</code>, the <code>else</code> block runs.</p>
-<p>The <code>else</code> part is optional:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>if raining {
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    print(&quot;Bring an umbrella&quot;)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>}
-</code></pre></div>
-<h2 id="repeating-things-while">Repeating Things: <code>while</code></h2>
-<p>A <code>while</code> loop is like a broken record -- it keeps doing the same thing until
-you tell it to stop:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let i = 0
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>while i &lt; 5 {
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    print(i)
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    i = i + 1
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>}
-</code></pre></div>
-<p>This prints <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>. Each time around the loop, the condition
-is checked again. When <code>i</code> reaches <code>5</code>, the condition <code>i &lt; 5</code> becomes <code>false</code>
-and the loop stops.</p>
-<div class="admonition warning">
-<p class="admonition-title">Infinite loops</p>
-<p>If the condition never becomes <code>false</code>, the loop runs forever! Always make
-sure something inside the loop changes so the condition will eventually
-fail.</p>
-</div>
-<h2 id="blocks-curly-braces">Blocks: Curly Braces</h2>
-<p>The <code>{ }</code> curly braces group statements together into a <strong>block</strong>. Think of
-them like the walls of a room -- everything between <code>{</code> and <code>}</code> belongs
-together.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>if condition {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    let x = 10
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    print(x)
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>}
-</code></pre></div>
-<p>Blocks appear after <code>if</code>, <code>else</code>, <code>while</code>, <code>for</code>, and <code>fn</code>. Each block can
-contain any number of statements (even zero!).</p>
-<h2 id="newlines-as-separators">Newlines as Separators</h2>
-<p>In Pebble, each statement goes on its own line. There are no semicolons --
-newlines tell the parser "that statement is done, start the next one."</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let x = 1
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>let y = 2
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>print(x + y)
-</code></pre></div>
-<p>Blank lines between statements are fine -- the parser simply skips them.</p>
-<h2 id="how-the-parser-handles-statements">How the Parser Handles Statements</h2>
-<p>When the parser sees a new line, it peeks at the first token to decide what kind
-of statement it is:</p>
+<p>The parser is perfectly happy with this -- every token is in the right place.
+But wait: we never declared <code>y</code>! The program's grammar is fine, but its <em>meaning</em>
+is broken. That's where the analyzer steps in and says: "Hold on, <code>y</code> doesn't
+exist."</p>
+<p>Here are some things the parser <strong>cannot</strong> catch:</p>
 <table>
 <thead>
 <tr>
-<th>First token</th>
-<th>Statement type</th>
+<th>Problem</th>
+<th>Example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>let</code></td>
-<td>Variable declaration</td>
+<td>Using a variable that doesn't exist</td>
+<td><code>print(y)</code> when <code>y</code> was never declared</td>
 </tr>
 <tr>
-<td><code>if</code></td>
-<td>If/else statement</td>
+<td>Declaring the same variable twice</td>
+<td><code>let x = 1</code> then <code>let x = 2</code> in the same block</td>
 </tr>
 <tr>
-<td><code>while</code></td>
-<td>While loop</td>
+<td>Calling a function that doesn't exist</td>
+<td><code>foo()</code> when <code>foo</code> was never defined</td>
 </tr>
 <tr>
-<td><code>for</code></td>
-<td>For loop</td>
+<td>Wrong number of arguments</td>
+<td><code>add(1)</code> when <code>add</code> takes two parameters</td>
 </tr>
 <tr>
-<td><code>fn</code></td>
-<td>Function definition</td>
-</tr>
-<tr>
-<td><code>return</code></td>
-<td>Return statement</td>
-</tr>
-<tr>
-<td><code>print</code></td>
-<td>Print statement</td>
-</tr>
-<tr>
-<td>identifier followed by <code>=</code></td>
-<td>Reassignment</td>
-</tr>
-<tr>
-<td>anything else</td>
-<td>Expression statement</td>
+<td>Returning outside a function</td>
+<td><code>return 42</code> at the top level</td>
 </tr>
 </tbody>
 </table>
-<p>This is called <strong>recursive descent</strong> -- the parser looks at the next token and
-"descends" into the right parsing function. Each function knows exactly how its
-statement is structured and what tokens to expect.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>After parsing, the <a href="../analyzer/">semantic analyzer</a> checks that declarations
-make sense -- for example, that every variable you use was declared, and that
-functions get the right number of arguments.</p>
-<p>The parser catches <em>syntax</em> mistakes like:</p>
+<h2 id="scopes-rooms-in-a-building">Scopes: Rooms in a Building</h2>
+<p>A <strong>scope</strong> is like a room in a building. When you declare a variable, you're
+writing its name on a whiteboard in that room. Anyone in the room can see it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let x = 10
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>if true {
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    let y = 20
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    print(x)    # Can see x (it&#39;s in the hallway)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    print(y)    # Can see y (it&#39;s in this room)
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>print(x)        # Fine -- x is still on the hallway whiteboard
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>print(y)        # Error! y&#39;s whiteboard is in the if-room, and we left
+</code></pre></div>
+<p>The rules are simple:</p>
 <ul>
-<li><code>let = 5</code> -- "Expected variable name after 'let'"</li>
-<li><code>let x 5</code> -- "Expected '=' after variable name"</li>
-<li><code>print 42</code> -- "Expected '(' after 'print'"</li>
-<li><code>print(42</code> -- "Expected ')' after print argument"</li>
-<li><code>if true print(1)</code> -- "Expected '{'"</li>
+<li><strong>You can always look outward</strong> -- from a room into the hallway, from the
+  hallway into the lobby</li>
+<li><strong>You can never look inward</strong> -- from the hallway into a room</li>
+<li><strong>Sibling rooms can't see each other</strong> -- the <code>if</code> room and the <code>else</code> room
+  are separate</li>
 </ul>
-<p>Each error message tells you exactly what the parser expected and where the
-problem was found.</p>
+<h3 id="what-creates-a-new-scope">What Creates a New Scope?</h3>
+<table>
+<thead>
+<tr>
+<th>Construct</th>
+<th>New scope for...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>if { }</code></td>
+<td>The if-body</td>
+</tr>
+<tr>
+<td><code>else { }</code></td>
+<td>The else-body</td>
+</tr>
+<tr>
+<td><code>while { }</code></td>
+<td>The loop body</td>
+</tr>
+<tr>
+<td><code>for i in ... { }</code></td>
+<td>The loop variable and body</td>
+</tr>
+<tr>
+<td><code>fn f() { }</code></td>
+<td>The parameters and body</td>
+</tr>
+</tbody>
+</table>
+<h2 id="variable-checks">Variable Checks</h2>
+<h3 id="declaration">Declaration</h3>
+<p>When you write <code>let x = 5</code>, the analyzer writes <code>x</code> on the current room's
+whiteboard. If <code>x</code> is already there, it raises an error:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 1
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>let x = 2    # Error: Variable &#39;x&#39; already declared
+</code></pre></div>
+<p>But if you're in a <em>different</em> room (an inner scope), you can use the same name.
+This is called <strong>shadowing</strong> -- your local <code>x</code> temporarily hides the outer one:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let x = 1
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>if true {
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    let x = 99   # Fine -- this is a different room
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    print(x)     # Prints 99
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>print(x)         # Prints 1 -- the outer x was never changed
+</code></pre></div>
+<h3 id="using-a-variable">Using a Variable</h3>
+<p>When you use a variable name, the analyzer checks: "Is this name on any
+whiteboard I can see?" It starts in the current room and walks outward through
+every enclosing scope until it reaches the global scope. If it never finds the
+name, you get an error -- like trying to pick up a package that isn't addressed
+to you:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(z)    # Error: Undeclared variable &#39;z&#39;
+</code></pre></div>
+<h3 id="reassignment">Reassignment</h3>
+<p>Reassignment (<code>x = 10</code>) only works if <code>x</code> was already declared somewhere
+visible. You can't reassign a variable that doesn't exist:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>x = 5    # Error: Undeclared variable &#39;x&#39;
+</code></pre></div>
+<h2 id="function-checks">Function Checks</h2>
+<h3 id="declaring-a-function">Declaring a Function</h3>
+<p>When you write <code>fn greet() { ... }</code>, the analyzer registers <code>greet</code> as a
+function. Each room actually has <em>two</em> whiteboards -- one for variables and one
+for functions. That means you could have a variable called <code>greet</code> and a
+function called <code>greet</code> without conflict.</p>
+<p>Just like variables, you can't declare two functions with the same name in the
+same scope:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn greet() { print(&quot;hi&quot;) }
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>fn greet() { print(&quot;bye&quot;) }   # Error: Function &#39;greet&#39; already defined
+</code></pre></div>
+<h3 id="calling-a-function">Calling a Function</h3>
+<p>When you call a function, the analyzer checks two things:</p>
+<ol>
+<li><strong>Does the function exist?</strong> If you call <code>foo()</code> but never defined <code>foo</code>,
+   that's an error.</li>
+<li><strong>Did you pass the right number of arguments?</strong> Think of it like a recipe
+   that needs exactly 2 eggs -- you can't use 1 or 3. If <code>add</code> takes two
+   parameters but you only pass one, that's an error.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn add(a, b) {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return a + b
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>add(1)        # Error: Function &#39;add&#39; expects 2 arguments, got 1
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>add(1, 2, 3)  # Error: Function &#39;add&#39; expects 2 arguments, got 3
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>add(1, 2)     # Fine!
+</code></pre></div>
+<h3 id="define-before-you-call">Define Before You Call</h3>
+<p>Pebble reads your program from top to bottom. You must define a function
+<em>before</em> you call it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>greet()                    # Error: Undeclared function &#39;greet&#39;
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn greet() { print(&quot;hi&quot;) }
+</code></pre></div>
+<h3 id="built-in-functions">Built-in Functions</h3>
+<p><code>print</code> and <code>range</code> are built-in -- they're already on the whiteboard when your
+program starts. You never need to declare them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(&quot;hello&quot;)    # Works -- print is built in (1 argument)
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>range(10)         # Works -- range is built in (1 argument)
+</code></pre></div>
+<h2 id="return-checks">Return Checks</h2>
+<p>A <code>return</code> statement can only appear inside a function. Using it at the top
+level is like trying to "send back" an answer when nobody asked you a question
+-- there's no function to return from:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>return 42    # Error: Return statement outside function
+</code></pre></div>
+<p>Inside a function, you can return from any depth of nesting:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn check(x) {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    if x &gt; 0 {
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        return x     # Fine -- we&#39;re inside fn check
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    }
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    return 0
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>}
+</code></pre></div>
+<h2 id="block-scoping-in-action">Block Scoping in Action</h2>
+<p>Here's a bigger example showing how scopes nest:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let total = 0                # Global scope
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>fn process(n) {              # New scope: n is a parameter
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    for i in range(n) {      # New scope: i is the loop variable
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        if i &gt; 0 {           # New scope
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>            let temp = i     # Only visible inside this if-block
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>            total = total + temp
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        }
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    }
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    # i is gone here (left the for-room)
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    # temp is gone here (left the if-room)
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    # n is still visible (we&#39;re still in the function)
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>}
+</code></pre></div>
+<h2 id="error-examples">Error Examples</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>print(x)</code></td>
+<td>Undeclared variable 'x'</td>
+</tr>
+<tr>
+<td><code>let x = 1</code> then <code>let x = 2</code></td>
+<td>Variable 'x' already declared</td>
+</tr>
+<tr>
+<td><code>x = 5</code> (no <code>let</code>)</td>
+<td>Undeclared variable 'x'</td>
+</tr>
+<tr>
+<td><code>foo()</code></td>
+<td>Undeclared function 'foo'</td>
+</tr>
+<tr>
+<td><code>fn f(a) {}</code> then <code>f(1, 2)</code></td>
+<td>Function 'f' expects 1 argument, got 2</td>
+</tr>
+<tr>
+<td><code>return 42</code> (top level)</td>
+<td>Return statement outside function</td>
+</tr>
+<tr>
+<td><code>let x = x</code></td>
+<td>Undeclared variable 'x' (x isn't declared yet when the value is evaluated)</td>
+</tr>
+</tbody>
+</table>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
@@ -919,48 +1088,39 @@ problem was found.</p>
 </thead>
 <tbody>
 <tr>
-<td>Expression</td>
-<td>A question that gives you an answer</td>
+<td>Semantic analysis</td>
+<td>A teacher checking your essay for sense, not just spelling</td>
 </tr>
 <tr>
-<td>Statement</td>
-<td>An instruction on a to-do list</td>
+<td>Scope</td>
+<td>A room in a building with whiteboards</td>
 </tr>
 <tr>
-<td><code>let</code></td>
-<td>Writing a label on a new box</td>
+<td>Declaration</td>
+<td>Writing a name on the whiteboard</td>
 </tr>
 <tr>
-<td>Reassignment</td>
-<td>Replacing what's inside an existing box</td>
+<td>Using a variable</td>
+<td>Looking for a name on whiteboards you can see</td>
 </tr>
 <tr>
-<td><code>if/else</code></td>
-<td>A fork in the road</td>
+<td>Shadowing</td>
+<td>An inner room's whiteboard hiding an outer one</td>
 </tr>
 <tr>
-<td><code>while</code></td>
-<td>A broken record that keeps replaying</td>
+<td>Undeclared variable</td>
+<td>Trying to pick up a package that isn't addressed to you</td>
 </tr>
 <tr>
-<td><code>for</code></td>
-<td>Roll call -- go through each item one by one</td>
+<td>Argument count</td>
+<td>A recipe that needs exactly 2 eggs -- you can't use 1 or 3</td>
 </tr>
 <tr>
-<td><code>fn</code> / <code>return</code></td>
-<td>A recipe card you can reuse</td>
-</tr>
-<tr>
-<td>Block <code>{ }</code></td>
-<td>Walls of a room grouping things together</td>
-</tr>
-<tr>
-<td>Newlines</td>
-<td>Periods at the end of sentences</td>
+<td>Return outside function</td>
+<td>Trying to "send back" when nobody asked you a question</td>
 </tr>
 </tbody>
 </table>
-<p>For more on functions and for loops, see <a href="../functions/">Functions</a>.</p>
 
 
 
