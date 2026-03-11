@@ -7,9 +7,10 @@ broken grammar, but it can't tell you whether your sentences *make sense*. You
 could write "The cat drove the ocean to school" -- every word is spelt right and
 the grammar is fine, but the meaning is nonsense.
 
-The **semantic analyzer** is the sense-checker for your program. The parser
-already checked the grammar (syntax), but the analyzer walks through the AST and
-asks: "Does this program actually make logical sense?"
+The **semantic analyzer** is the sense-checker for your program. (*Semantic*
+means "about meaning".) The parser already checked the grammar (syntax), but the
+analyzer walks through the AST and asks: "Does this program actually make
+logical sense?"
 
 ## Why the Parser Isn't Enough
 
@@ -100,7 +101,8 @@ print(x)         # Prints 1 -- the outer x was never changed
 When you use a variable name, the analyzer checks: "Is this name on any
 whiteboard I can see?" It starts in the current room and walks outward through
 every enclosing scope until it reaches the global scope. If it never finds the
-name, you get an error:
+name, you get an error -- like trying to pick up a package that isn't addressed
+to you:
 
 ```pebble
 print(z)    # Error: Undeclared variable 'z'
@@ -120,8 +122,9 @@ x = 5    # Error: Undeclared variable 'x'
 ### Declaring a Function
 
 When you write `fn greet() { ... }`, the analyzer registers `greet` as a
-function. Functions live in a separate namespace from variables, so you could
-have a variable called `greet` and a function called `greet` without conflict.
+function. Each room actually has *two* whiteboards -- one for variables and one
+for functions. That means you could have a variable called `greet` and a
+function called `greet` without conflict.
 
 Just like variables, you can't declare two functions with the same name in the
 same scope:
@@ -137,8 +140,9 @@ When you call a function, the analyzer checks two things:
 
 1. **Does the function exist?** If you call `foo()` but never defined `foo`,
    that's an error.
-2. **Did you pass the right number of arguments?** If `add` takes two
-   parameters but you only pass one, that's an error too.
+2. **Did you pass the right number of arguments?** Think of it like a recipe
+   that needs exactly 2 eggs -- you can't use 1 or 3. If `add` takes two
+   parameters but you only pass one, that's an error.
 
 ```pebble
 fn add(a, b) {
@@ -150,7 +154,7 @@ add(1, 2, 3)  # Error: Function 'add' expects 2 arguments, got 3
 add(1, 2)     # Fine!
 ```
 
-### No Hoisting
+### Define Before You Call
 
 Pebble reads your program from top to bottom. You must define a function
 *before* you call it:
@@ -173,7 +177,8 @@ range(10)         # Works -- range is built in (1 argument)
 ## Return Checks
 
 A `return` statement can only appear inside a function. Using it at the top
-level makes no sense -- there's no function to return from:
+level is like trying to "send back" an answer when nobody asked you a question
+-- there's no function to return from:
 
 ```pebble
 return 42    # Error: Return statement outside function
@@ -227,10 +232,10 @@ fn process(n) {              # New scope: n is a parameter
 | Concept | Analogy |
 |---------|---------|
 | Semantic analysis | A teacher checking your essay for sense, not just spelling |
-| Scope | A room in a building with a whiteboard |
+| Scope | A room in a building with whiteboards |
 | Declaration | Writing a name on the whiteboard |
-| Resolution | Looking for a name on whiteboards you can see |
+| Using a variable | Looking for a name on whiteboards you can see |
 | Shadowing | An inner room's whiteboard hiding an outer one |
 | Undeclared variable | Trying to pick up a package that isn't addressed to you |
-| Arity check | A recipe that needs 2 eggs -- you can't use 1 or 3 |
+| Argument count | A recipe that needs exactly 2 eggs -- you can't use 1 or 3 |
 | Return outside function | Trying to "send back" when nobody asked you a question |
