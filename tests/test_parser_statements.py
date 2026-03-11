@@ -1,7 +1,8 @@
 """Tests for the Pebble parser — statement parsing.
 
 Covers ``let`` declarations, reassignments, ``print()``, ``if/else``,
-``while``, block parsing, and the ``Program`` root node.
+``while``, ``for``, ``fn``, ``return``, block parsing, and the ``Program``
+root node.
 """
 
 import pytest
@@ -10,12 +11,16 @@ from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
     BooleanLiteral,
+    ForLoop,
+    FunctionCall,
+    FunctionDef,
     Identifier,
     IfStatement,
     IntegerLiteral,
     PrintStatement,
     Program,
     Reassignment,
+    ReturnStatement,
     Statement,
     StringLiteral,
     WhileLoop,
@@ -244,6 +249,194 @@ class TestWhileLoop:
             _parse("while true print(1)")
 
 
+# -- For loop -----------------------------------------------------------------
+
+
+class TestForLoop:
+    """Verify parsing of ``for`` loops."""
+
+    def test_for_with_function_call_iterable(self) -> None:
+        """Verify 'for i in range(10) { print(i) }' parses to ForLoop."""
+        source = "for i in range(10) {\n    print(i)\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, ForLoop)
+        assert stmt.variable == "i"
+        assert isinstance(stmt.iterable, FunctionCall)
+        assert stmt.iterable.name == "range"
+        assert len(stmt.body) == ONE
+        assert isinstance(stmt.body[0], PrintStatement)
+
+    def test_for_with_identifier_iterable(self) -> None:
+        """Verify 'for x in items { print(x) }' parses with Identifier iterable."""
+        source = "for x in items {\n    print(x)\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, ForLoop)
+        assert stmt.variable == "x"
+        assert isinstance(stmt.iterable, Identifier)
+        assert stmt.iterable.name == "items"
+
+    def test_for_empty_body(self) -> None:
+        """Verify 'for i in items { }' parses with empty body."""
+        stmts = _stmts("for i in items {\n}")
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, ForLoop)
+        assert stmt.body == []
+
+    def test_for_multiple_body_statements(self) -> None:
+        """Verify for loop with multiple body statements parses correctly."""
+        source = "for i in range(5) {\n    print(i)\n    x = x + 1\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, ForLoop)
+        assert len(stmt.body) == TWO
+        assert isinstance(stmt.body[0], PrintStatement)
+        assert isinstance(stmt.body[1], Reassignment)
+
+    def test_for_missing_variable_raises(self) -> None:
+        """Verify 'for in items { }' raises ParseError."""
+        with pytest.raises(ParseError, match="Expected loop variable"):
+            _parse("for in items {\n}")
+
+    def test_for_missing_in_raises(self) -> None:
+        """Verify 'for i items { }' raises ParseError."""
+        with pytest.raises(ParseError, match="Expected 'in'"):
+            _parse("for i items {\n}")
+
+    def test_for_missing_brace_raises(self) -> None:
+        """Verify 'for i in items print(i)' raises ParseError."""
+        with pytest.raises(ParseError, match="Expected '\\{'"):
+            _parse("for i in items print(i)")
+
+
+# -- Function definition ------------------------------------------------------
+
+
+class TestFunctionDef:
+    """Verify parsing of ``fn`` function definitions."""
+
+    def test_no_params(self) -> None:
+        """Verify 'fn greet() { print("hi") }' parses to FunctionDef."""
+        source = 'fn greet() {\n    print("hi")\n}'
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, FunctionDef)
+        assert stmt.name == "greet"
+        assert stmt.parameters == []
+        assert len(stmt.body) == ONE
+        assert isinstance(stmt.body[0], PrintStatement)
+
+    def test_one_param(self) -> None:
+        """Verify 'fn square(x) { return x * x }' parses with one parameter."""
+        source = "fn square(x) {\n    return x * x\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, FunctionDef)
+        assert stmt.name == "square"
+        assert stmt.parameters == ["x"]
+
+    def test_multiple_params(self) -> None:
+        """Verify 'fn add(a, b) { return a + b }' parses with two parameters."""
+        source = "fn add(a, b) {\n    return a + b\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, FunctionDef)
+        assert stmt.name == "add"
+        assert stmt.parameters == ["a", "b"]
+
+    def test_empty_body(self) -> None:
+        """Verify 'fn noop() { }' parses with empty body."""
+        stmts = _stmts("fn noop() {\n}")
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, FunctionDef)
+        assert stmt.name == "noop"
+        assert stmt.body == []
+
+    def test_multiple_body_statements(self) -> None:
+        """Verify function with multiple body statements parses correctly."""
+        source = "fn f(x) {\n    let y = x + 1\n    return y\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, FunctionDef)
+        assert len(stmt.body) == TWO
+        assert isinstance(stmt.body[0], Assignment)
+        assert isinstance(stmt.body[1], ReturnStatement)
+
+    def test_missing_name_raises(self) -> None:
+        """Verify 'fn () { }' raises ParseError."""
+        with pytest.raises(ParseError, match="Expected function name"):
+            _parse("fn () {\n}")
+
+    def test_missing_open_paren_raises(self) -> None:
+        """Verify 'fn greet { }' raises ParseError."""
+        with pytest.raises(ParseError, match="Expected '\\('"):
+            _parse("fn greet {\n}")
+
+    def test_missing_close_paren_raises(self) -> None:
+        """Verify 'fn greet(x { }' raises ParseError."""
+        with pytest.raises(ParseError, match="Expected '\\)'"):
+            _parse("fn greet(x {\n}")
+
+
+# -- Return statement ---------------------------------------------------------
+
+
+class TestReturnStatement:
+    """Verify parsing of ``return`` statements."""
+
+    def test_return_integer(self) -> None:
+        """Verify 'return 42' inside a function parses to ReturnStatement."""
+        source = "fn f() {\n    return 42\n}"
+        stmts = _stmts(source)
+        fn = stmts[0]
+        assert isinstance(fn, FunctionDef)
+        ret = fn.body[0]
+        assert isinstance(ret, ReturnStatement)
+        assert isinstance(ret.value, IntegerLiteral)
+        assert ret.value.value == ANSWER
+
+    def test_return_expression(self) -> None:
+        """Verify 'return x + 1' parses with BinaryOp value."""
+        source = "fn f(x) {\n    return x + 1\n}"
+        stmts = _stmts(source)
+        fn = stmts[0]
+        assert isinstance(fn, FunctionDef)
+        ret = fn.body[0]
+        assert isinstance(ret, ReturnStatement)
+        assert isinstance(ret.value, BinaryOp)
+        assert ret.value.operator == "+"
+
+    def test_bare_return(self) -> None:
+        """Verify bare 'return' with no expression sets value to None."""
+        source = "fn f() {\n    return\n}"
+        stmts = _stmts(source)
+        fn = stmts[0]
+        assert isinstance(fn, FunctionDef)
+        ret = fn.body[0]
+        assert isinstance(ret, ReturnStatement)
+        assert ret.value is None
+
+    def test_return_before_closing_brace(self) -> None:
+        """Verify 'return' right before '}' sets value to None."""
+        source = "fn f() { return }"
+        stmts = _stmts(source)
+        fn = stmts[0]
+        assert isinstance(fn, FunctionDef)
+        ret = fn.body[0]
+        assert isinstance(ret, ReturnStatement)
+        assert ret.value is None
+
+
 # -- Multiple statements ------------------------------------------------------
 
 
@@ -365,3 +558,57 @@ class TestParserEdgeCases:
         inner = outer.body[0]
         assert isinstance(inner, IfStatement)
         assert len(inner.body) == ONE
+
+
+# -- Functions integration ----------------------------------------------------
+
+
+class TestFunctionsIntegration:
+    """Verify combined parsing of functions, for-loops, and return."""
+
+    def test_function_call_as_expression_statement(self) -> None:
+        """Verify 'greet()' on its own line parses as FunctionCall."""
+        stmts = _stmts("greet()")
+        assert len(stmts) == ONE
+        assert isinstance(stmts[0], FunctionCall)
+        assert stmts[0].name == "greet"
+
+    def test_for_loop_containing_if(self) -> None:
+        """Verify a for loop with a nested if statement parses correctly."""
+        source = "for i in items {\n    if i > 0 {\n        print(i)\n    }\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        loop = stmts[0]
+        assert isinstance(loop, ForLoop)
+        assert len(loop.body) == ONE
+        assert isinstance(loop.body[0], IfStatement)
+
+    def test_function_containing_for_loop(self) -> None:
+        """Verify a function definition containing a for loop parses."""
+        source = "fn process(items) {\n    for x in items {\n        print(x)\n    }\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        fn = stmts[0]
+        assert isinstance(fn, FunctionDef)
+        assert len(fn.body) == ONE
+        assert isinstance(fn.body[0], ForLoop)
+
+    def test_multiple_function_definitions(self) -> None:
+        """Verify two function definitions parse as separate FunctionDef nodes."""
+        source = "fn first() {\n    print(1)\n}\nfn second() {\n    print(2)\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == TWO
+        assert isinstance(stmts[0], FunctionDef)
+        assert stmts[0].name == "first"
+        assert isinstance(stmts[1], FunctionDef)
+        assert stmts[1].name == "second"
+
+    def test_range_as_for_loop_iterable(self) -> None:
+        """Verify 'range(10)' as for-loop iterable parses as FunctionCall."""
+        source = "for i in range(10) {\n    print(i)\n}"
+        stmts = _stmts(source)
+        loop = stmts[0]
+        assert isinstance(loop, ForLoop)
+        assert isinstance(loop.iterable, FunctionCall)
+        assert loop.iterable.name == "range"
+        assert len(loop.iterable.arguments) == ONE

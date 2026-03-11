@@ -11,12 +11,13 @@ compilers work, built incrementally using TDD.
 - Integers, strings, booleans
 - Variables (`let` declarations, reassignment)
 - Arithmetic, comparison, and logical operators (`and`, `or`, `not`)
-- Control flow: `if/else`, `while`
+- Control flow: `if/else`, `while`, `for` loops
+- Functions (`fn`, `return`)
 - `print()` built-in
 - Comments (`#`)
 - Curly-brace blocks, newline-delimited statements (no semicolons)
 
-**Coming soon:** `for` loops, functions with `return`, bytecode compiler, VM
+**Coming soon:** bytecode compiler, VM
 
 ## Example
 

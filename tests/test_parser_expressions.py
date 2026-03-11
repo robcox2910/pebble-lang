@@ -12,6 +12,7 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     Expression,
+    FunctionCall,
     Identifier,
     IntegerLiteral,
     StringLiteral,
@@ -470,3 +471,81 @@ class TestParserExpressionEdgeCases:
         assert node.left.operator == "<"
         assert isinstance(node.right, IntegerLiteral)
         assert node.right.value == THREE
+
+
+# -- Function calls -----------------------------------------------------------
+
+
+class TestFunctionCall:
+    """Verify parsing of function call expressions."""
+
+    def test_no_args(self) -> None:
+        """Verify 'foo()' parses to FunctionCall with empty args."""
+        node = _parse_expr("foo()")
+        assert isinstance(node, FunctionCall)
+        assert node.name == "foo"
+        assert node.arguments == []
+
+    def test_single_arg(self) -> None:
+        """Verify 'add(1)' parses to FunctionCall with one arg."""
+        node = _parse_expr("add(1)")
+        assert isinstance(node, FunctionCall)
+        assert node.name == "add"
+        assert len(node.arguments) == ONE
+        assert isinstance(node.arguments[0], IntegerLiteral)
+        assert node.arguments[0].value == ONE
+
+    def test_multiple_args(self) -> None:
+        """Verify 'add(1, 2, 3)' parses to FunctionCall with three args."""
+        node = _parse_expr("add(1, 2, 3)")
+        assert isinstance(node, FunctionCall)
+        assert node.name == "add"
+        assert len(node.arguments) == THREE
+        assert isinstance(node.arguments[0], IntegerLiteral)
+        assert node.arguments[0].value == ONE
+        assert isinstance(node.arguments[1], IntegerLiteral)
+        assert node.arguments[1].value == TWO
+        assert isinstance(node.arguments[2], IntegerLiteral)
+        assert node.arguments[2].value == THREE
+
+    def test_expression_args(self) -> None:
+        """Verify 'foo(1 + 2, x)' parses expressions as arguments."""
+        node = _parse_expr("foo(1 + 2, x)")
+        assert isinstance(node, FunctionCall)
+        assert node.name == "foo"
+        assert len(node.arguments) == TWO
+        assert isinstance(node.arguments[0], BinaryOp)
+        assert node.arguments[0].operator == "+"
+        assert isinstance(node.arguments[1], Identifier)
+        assert node.arguments[1].name == "x"
+
+    def test_nested_calls(self) -> None:
+        """Verify 'foo(bar(1))' parses nested function calls."""
+        node = _parse_expr("foo(bar(1))")
+        assert isinstance(node, FunctionCall)
+        assert node.name == "foo"
+        assert len(node.arguments) == ONE
+        inner = node.arguments[0]
+        assert isinstance(inner, FunctionCall)
+        assert inner.name == "bar"
+        assert len(inner.arguments) == ONE
+
+    def test_call_in_binary_expression(self) -> None:
+        """Verify 'add(1, 2) + 3' parses call as left side of BinaryOp."""
+        node = _parse_expr("add(1, 2) + 3")
+        assert isinstance(node, BinaryOp)
+        assert node.operator == "+"
+        assert isinstance(node.left, FunctionCall)
+        assert node.left.name == "add"
+        assert isinstance(node.right, IntegerLiteral)
+        assert node.right.value == THREE
+
+    def test_missing_close_paren_raises(self) -> None:
+        """Verify 'foo(1, 2' raises ParseError."""
+        with pytest.raises(ParseError, match="Expected '\\)'"):
+            _parse_expr("foo(1, 2")
+
+    def test_trailing_comma_raises(self) -> None:
+        """Verify 'foo(1,)' raises ParseError."""
+        with pytest.raises(ParseError, match="Unexpected token '\\)'"):
+            _parse_expr("foo(1,)")

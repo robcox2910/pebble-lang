@@ -111,6 +111,21 @@ The parser catches mistakes like:
 
 Each error includes the exact line and column where the problem was found.
 
+## Function Calls
+
+When the parser sees an identifier followed by `(`, it knows this is a
+**function call**, not just a variable name. It parses the comma-separated
+arguments between the parentheses and wraps everything in a `FunctionCall`
+node:
+
+```
+add(1 + 2, x)  →  FunctionCall("add", [BinaryOp(1, +, 2), Identifier("x")])
+```
+
+Function calls are expressions, so they can appear anywhere an expression is
+valid -- as an argument to another call, on the right side of `=`, or as part
+of a larger expression like `add(1, 2) + 3`.
+
 ## Beyond Expressions
 
 Expressions are only half the story. The parser also handles **statements** --
