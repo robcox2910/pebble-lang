@@ -47,3 +47,4 @@ nav:
       - Error Messages: concepts/errors.md
       - AST: concepts/ast.md
       - Parser: concepts/parser.md
+      - Statements: concepts/statements.md

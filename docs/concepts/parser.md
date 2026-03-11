@@ -111,6 +111,12 @@ The parser catches mistakes like:
 
 Each error includes the exact line and column where the problem was found.
 
+## Beyond Expressions
+
+Expressions are only half the story. The parser also handles **statements** --
+instructions like creating variables, printing values, and controlling the flow
+of your program. See [Statements](statements.md) for the full picture.
+
 ## Summary
 
 | Concept | Analogy |

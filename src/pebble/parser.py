@@ -2,9 +2,6 @@
 
 The parser consumes a list of :class:`~pebble.tokens.Token` objects produced
 by the lexer and builds an :class:`~pebble.ast_nodes.Program` AST.
-
-This module currently handles **expression parsing** only (Phase 5).
-Statement parsing is added in later phases.
 """
 
 from __future__ import annotations
@@ -15,13 +12,20 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 from pebble.ast_nodes import (
+    Assignment,
     BinaryOp,
     BooleanLiteral,
     Expression,
     Identifier,
+    IfStatement,
     IntegerLiteral,
+    PrintStatement,
+    Program,
+    Reassignment,
+    Statement,
     StringLiteral,
     UnaryOp,
+    WhileLoop,
 )
 from pebble.errors import ParseError
 from pebble.tokens import Token, TokenKind
@@ -69,12 +73,12 @@ _OPERATOR_TEXT: dict[TokenKind, str] = {
 
 
 class Parser:
-    """Recursive-descent parser that builds an AST from a token list.
+    r"""Recursive-descent parser that builds an AST from a token list.
 
     Usage::
 
-        tokens = Lexer("1 + 2 * 3").tokenize()
-        expr = Parser(tokens).parse_expression()
+        tokens = Lexer("let x = 42\nprint(x)").tokenize()
+        program = Parser(tokens).parse()
     """
 
     def __init__(self, tokens: list[Token]) -> None:
@@ -84,9 +88,118 @@ class Parser:
 
     # -- Public API -----------------------------------------------------------
 
+    def parse(self) -> Program:
+        """Parse the full token stream into a Program AST."""
+        self._skip_newlines()
+        statements: list[Statement] = []
+        while not self._at_end():
+            statements.append(self._parse_statement())
+            self._skip_newlines()
+        return Program(statements=statements)
+
     def parse_expression(self) -> Expression:
         """Parse and return a single expression."""
         return self._parse_precedence(min_precedence=0)
+
+    # -- Statement parsing ----------------------------------------------------
+
+    def _parse_statement(self) -> Statement:
+        """Parse a single statement."""
+        kind = self._peek().kind
+
+        if kind == TokenKind.LET:
+            return self._parse_let()
+        if kind == TokenKind.IF:
+            return self._parse_if()
+        if kind == TokenKind.WHILE:
+            return self._parse_while()
+
+        # Check for print(expr) — 'print' is an identifier, not a keyword
+        if kind == TokenKind.IDENTIFIER and self._peek().value == "print":
+            return self._parse_print()
+
+        # Check for reassignment: identifier followed by '='
+        if kind == TokenKind.IDENTIFIER and self._peek_next_kind() == TokenKind.EQUAL:
+            return self._parse_reassignment()
+
+        # Fall through to expression statement
+        return self._parse_expression_statement()
+
+    def _parse_let(self) -> Assignment:
+        """Parse a ``let name = expr`` declaration."""
+        let_token = self._advance()  # consume 'let'
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'let'")
+        self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
+        value = self.parse_expression()
+        self._consume_newline()
+        return Assignment(name=name_token.value, value=value, location=let_token.location)
+
+    def _parse_reassignment(self) -> Reassignment:
+        """Parse a ``name = expr`` reassignment."""
+        name_token = self._advance()  # consume identifier
+        self._advance()  # consume '='
+        value = self.parse_expression()
+        self._consume_newline()
+        return Reassignment(name=name_token.value, value=value, location=name_token.location)
+
+    def _parse_print(self) -> PrintStatement:
+        """Parse a ``print(expr)`` statement."""
+        print_token = self._advance()  # consume 'print'
+        self._expect(TokenKind.LEFT_PAREN, "Expected '(' after 'print'")
+        expr = self.parse_expression()
+        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after print argument")
+        self._consume_newline()
+        return PrintStatement(expression=expr, location=print_token.location)
+
+    def _parse_if(self) -> IfStatement:
+        """Parse an ``if cond { body } [else { body }]`` statement."""
+        if_token = self._advance()  # consume 'if'
+        condition = self.parse_expression()
+        body = self._parse_block()
+
+        else_body: list[Statement] | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.ELSE:
+            self._advance()  # consume 'else'
+            else_body = self._parse_block()
+
+        return IfStatement(
+            condition=condition,
+            body=body,
+            else_body=else_body,
+            location=if_token.location,
+        )
+
+    def _parse_while(self) -> WhileLoop:
+        """Parse a ``while cond { body }`` loop."""
+        while_token = self._advance()  # consume 'while'
+        condition = self.parse_expression()
+        body = self._parse_block()
+        return WhileLoop(condition=condition, body=body, location=while_token.location)
+
+    def _parse_block(self) -> list[Statement]:
+        """Parse a ``{ stmt; ... }`` block and return the statement list."""
+        self._expect(TokenKind.LEFT_BRACE, "Expected '{'")
+        self._skip_newlines()
+
+        statements: list[Statement] = []
+        while not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACE:
+            statements.append(self._parse_statement())
+            self._skip_newlines()
+
+        self._expect(TokenKind.RIGHT_BRACE, "Expected '}'")
+        self._consume_newline()
+        return statements
+
+    def _parse_expression_statement(self) -> Statement:
+        """Parse a bare expression as a statement.
+
+        This is a fallback for expressions used as statements (e.g. function
+        calls). The expression node is returned directly since it also
+        satisfies the Statement type.
+        """
+        expr = self.parse_expression()
+        self._consume_newline()
+        return expr  # type: ignore[return-value]
 
     # -- Pratt precedence climbing --------------------------------------------
 
@@ -126,7 +239,7 @@ class Parser:
 
         return self._error(f"Unexpected token '{token.value}'")
 
-    # -- Individual parsers ---------------------------------------------------
+    # -- Individual expression parsers ----------------------------------------
 
     def _parse_integer(self) -> IntegerLiteral:
         """Parse an integer literal."""
@@ -186,6 +299,13 @@ class Parser:
         """Return the current token without advancing."""
         return self._tokens[self._pos]
 
+    def _peek_next_kind(self) -> TokenKind:
+        """Return the kind of the next token (after the current one)."""
+        next_pos = self._pos + 1
+        if next_pos < len(self._tokens):
+            return self._tokens[next_pos].kind
+        return TokenKind.EOF
+
     def _advance(self) -> Token:
         """Return the current token and advance to the next."""
         token = self._tokens[self._pos]
@@ -201,6 +321,18 @@ class Parser:
         if self._at_end() or self._peek().kind != kind:
             self._error(message)
         return self._advance()
+
+    def _skip_newlines(self) -> None:
+        """Skip any NEWLINE tokens at the current position."""
+        while not self._at_end() and self._peek().kind == TokenKind.NEWLINE:
+            self._advance()
+
+    def _consume_newline(self) -> None:
+        """Consume a NEWLINE or EOF (statement terminator)."""
+        if self._at_end():
+            return
+        if self._peek().kind == TokenKind.NEWLINE:
+            self._advance()
 
     def _error(self, message: str) -> Never:
         """Raise a ParseError at the current token's location."""
