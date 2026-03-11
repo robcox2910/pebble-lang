@@ -46,3 +46,4 @@ nav:
       - Lexer: concepts/lexer.md
       - Error Messages: concepts/errors.md
       - AST: concepts/ast.md
+      - Parser: concepts/parser.md
