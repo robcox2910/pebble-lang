@@ -16,6 +16,8 @@
         <link rel="prev" href="../ast/">
       
       
+        <link rel="next" href="../statements/">
+      
       
         
       
@@ -590,6 +592,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#beyond-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beyond Expressions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -604,6 +617,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../statements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Statements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -753,6 +794,10 @@ precedence reset to zero), and then continues with <code>* 3</code>. The result 
 <li><strong>Unexpected token</strong>: <code>)</code> at the start → "Unexpected token ')'"</li>
 </ul>
 <p>Each error includes the exact line and column where the problem was found.</p>
+<h2 id="beyond-expressions">Beyond Expressions</h2>
+<p>Expressions are only half the story. The parser also handles <strong>statements</strong> --
+instructions like creating variables, printing values, and controlling the flow
+of your program. See <a href="../statements/">Statements</a> for the full picture.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>

@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/errors/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/statements/">
       
       
-        <link rel="prev" href="../lexer/">
+        <link rel="prev" href="../parser/">
       
-      
-        <link rel="next" href="../ast/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Error Messages - Pebble</title>
+        <title>Statements - Pebble</title>
       
     
     
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#error-messages" class="md-skip">
+        <a href="#statements" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Error Messages
+              Statements
             
           </span>
         </div>
@@ -396,37 +394,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Error Messages
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
         
   
   
@@ -442,92 +413,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#why-do-errors-matter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Do Errors Matter?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-pebble-error-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Pebble Error System
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#anatomy-of-an-error" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Anatomy of an Error
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-caret-pointer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Caret Pointer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#collecting-multiple-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Collecting Multiple Errors
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -593,10 +478,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../statements/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Statements
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -612,6 +524,147 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#expressions-vs-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expressions vs Statements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variable-declarations-let" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable Declarations: let
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reassignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reassignment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#printing-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Printing: print()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#making-decisions-if-else" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Making Decisions: if / else
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repeating-things-while" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repeating Things: while
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blocks-curly-braces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blocks: Curly Braces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#newlines-as-separators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Newlines as Separators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-parser-handles-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the Parser Handles Statements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-can-go-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Can Go Wrong?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -644,87 +697,145 @@
   
 
 
-<h1 id="error-messages">Error Messages</h1>
-<h2 id="why-do-errors-matter">Why Do Errors Matter?</h2>
-<p>Imagine you're doing a maths test and your teacher marks one answer wrong --
-but doesn't tell you <em>which</em> question, <em>which</em> part, or <em>what</em> went wrong.
-Frustrating, right?</p>
-<p>A good compiler is like a helpful teacher. When something goes wrong, it
-doesn't just say "Error!" -- it circles the exact mistake on your homework,
-underlines the word, and explains what it expected instead.</p>
-<h2 id="the-pebble-error-system">The Pebble Error System</h2>
-<p>Pebble has a family of error types, one for each stage of the compiler:</p>
+<h1 id="statements">Statements</h1>
+<h2 id="expressions-vs-statements">Expressions vs Statements</h2>
+<p>Think of a kitchen. An <strong>expression</strong> is like asking "How much is 2 + 3?" --
+you get an answer back (5). A <strong>statement</strong> is like saying "Put the eggs in the
+fridge" -- it's an instruction that <em>does</em> something but doesn't give you an
+answer.</p>
+<p>In Pebble:</p>
+<ul>
+<li><strong>Expressions</strong> produce a value: <code>1 + 2</code>, <code>x &gt; 10</code>, <code>true</code></li>
+<li><strong>Statements</strong> perform an action: create a variable, print something, make a
+  decision</li>
+</ul>
+<h2 id="variable-declarations-let">Variable Declarations: <code>let</code></h2>
+<p>To create a new variable, use <code>let</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let name = &quot;Alice&quot;
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>let age = 12
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let score = 80 + 15
+</code></pre></div>
+<p>This is like writing a label on a box and putting something inside. The <code>let</code>
+keyword says "I'm creating something new", the name is the label, and the value
+after <code>=</code> is what goes in the box.</p>
+<h2 id="reassignment">Reassignment</h2>
+<p>Once a variable exists, you can change what's inside:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let count = 0
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>count = count + 1
+</code></pre></div>
+<p>Notice there's no <code>let</code> the second time -- you're not creating a new box, just
+replacing what's inside an existing one.</p>
+<h2 id="printing-print">Printing: <code>print()</code></h2>
+<p>To display a value on screen:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(42)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(&quot;Hello, world!&quot;)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(x + y)
+</code></pre></div>
+<p>The parentheses are required -- <code>print</code> is written like a function call. You can
+put any expression inside.</p>
+<h2 id="making-decisions-if-else">Making Decisions: <code>if</code> / <code>else</code></h2>
+<p>Sometimes your program needs to choose between two paths, like a fork in a road:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>if score &gt; 90 {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    print(&quot;Excellent!&quot;)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>} else {
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    print(&quot;Keep trying!&quot;)
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
+</code></pre></div>
+<p>The condition (<code>score &gt; 90</code>) is an expression that produces <code>true</code> or <code>false</code>.
+If it's <code>true</code>, the first block runs. If it's <code>false</code>, the <code>else</code> block runs.</p>
+<p>The <code>else</code> part is optional:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>if raining {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    print(&quot;Bring an umbrella&quot;)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>}
+</code></pre></div>
+<h2 id="repeating-things-while">Repeating Things: <code>while</code></h2>
+<p>A <code>while</code> loop is like a broken record -- it keeps doing the same thing until
+you tell it to stop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let i = 0
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>while i &lt; 5 {
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    print(i)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    i = i + 1
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>}
+</code></pre></div>
+<p>This prints <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>. Each time around the loop, the condition
+is checked again. When <code>i</code> reaches <code>5</code>, the condition <code>i &lt; 5</code> becomes <code>false</code>
+and the loop stops.</p>
+<div class="admonition warning">
+<p class="admonition-title">Infinite loops</p>
+<p>If the condition never becomes <code>false</code>, the loop runs forever! Always make
+sure something inside the loop changes so the condition will eventually
+fail.</p>
+</div>
+<h2 id="blocks-curly-braces">Blocks: Curly Braces</h2>
+<p>The <code>{ }</code> curly braces group statements together into a <strong>block</strong>. Think of
+them like the walls of a room -- everything between <code>{</code> and <code>}</code> belongs
+together.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>if condition {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    let x = 10
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    print(x)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>}
+</code></pre></div>
+<p>Blocks appear after <code>if</code>, <code>else</code>, and <code>while</code>. Each block can contain any
+number of statements (even zero!).</p>
+<h2 id="newlines-as-separators">Newlines as Separators</h2>
+<p>In Pebble, each statement goes on its own line. There are no semicolons --
+newlines tell the parser "that statement is done, start the next one."</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let x = 1
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>let y = 2
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>print(x + y)
+</code></pre></div>
+<p>Blank lines between statements are fine -- the parser simply skips them.</p>
+<h2 id="how-the-parser-handles-statements">How the Parser Handles Statements</h2>
+<p>When the parser sees a new line, it peeks at the first token to decide what kind
+of statement it is:</p>
 <table>
 <thead>
 <tr>
-<th>Error Type</th>
-<th>When It Happens</th>
-<th>Example</th>
+<th>First token</th>
+<th>Statement type</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>LexerError</strong></td>
-<td>Scanning characters</td>
-<td>Unterminated string <code>"hello</code></td>
+<td><code>let</code></td>
+<td>Variable declaration</td>
 </tr>
 <tr>
-<td><strong>ParseError</strong></td>
-<td>Arranging tokens into a tree</td>
-<td>Missing closing <code>)</code></td>
+<td><code>if</code></td>
+<td>If/else statement</td>
 </tr>
 <tr>
-<td><strong>SemanticError</strong></td>
-<td>Checking the tree for logic mistakes</td>
-<td>Using a variable that doesn't exist</td>
+<td><code>while</code></td>
+<td>While loop</td>
 </tr>
 <tr>
-<td><strong>PebbleRuntimeError</strong></td>
-<td>Running the bytecode</td>
-<td>Dividing by zero</td>
+<td><code>print</code></td>
+<td>Print statement</td>
+</tr>
+<tr>
+<td>identifier followed by <code>=</code></td>
+<td>Reassignment</td>
+</tr>
+<tr>
+<td>anything else</td>
+<td>Expression statement</td>
 </tr>
 </tbody>
 </table>
-<p>All of them are part of the same family (they inherit from <code>PebbleError</code>), so
-the compiler can catch <em>any</em> Pebble error when it needs to.</p>
-<h2 id="anatomy-of-an-error">Anatomy of an Error</h2>
-<p>Every Pebble error carries three pieces of information:</p>
-<ol>
-<li><strong>Message</strong> -- What went wrong, in plain English</li>
-<li><strong>Line</strong> -- Which line of your code has the problem</li>
-<li><strong>Column</strong> -- Which column (character position) on that line</li>
-</ol>
-<h2 id="the-caret-pointer">The Caret Pointer</h2>
-<p>When Pebble reports an error, it shows you the broken line from your source
-code and draws a little arrow (<code>^</code>) pointing to the exact spot:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1 | let x = @
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        ^
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Unexpected character &#39;@&#39;
-</code></pre></div>
-<p>This is like a teacher using a red pen to circle the mistake. You don't have to
-hunt through your whole program -- the compiler shows you right where to look.</p>
-<p>Here's one from line 3 of a longer program:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>3 | print(x + )
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>               ^
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Expected expression after &#39;+&#39;
-</code></pre></div>
-<h2 id="collecting-multiple-errors">Collecting Multiple Errors</h2>
-<p>Some compilers stop at the first error they find. That's like a teacher who
-reads one sentence of your essay, finds a spelling mistake, and hands it
-straight back without reading the rest.</p>
-<p>Pebble's <strong>ErrorCollector</strong> is smarter. It gathers up all the errors it can
-find and reports them all at once. That way, you can fix several mistakes in one
-go instead of playing whack-a-mole -- fix one, run again, find the next, fix
-it, run again...</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>1 | let x = @
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>            ^
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Unexpected character &#39;@&#39;
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>3 | print(y
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            ^
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Expected &#39;)&#39; after argument
-</code></pre></div>
-<p>Two errors, reported together. Much more efficient!</p>
+<p>This is called <strong>recursive descent</strong> -- the parser looks at the next token and
+"descends" into the right parsing function. Each function knows exactly how its
+statement is structured and what tokens to expect.</p>
+<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
+<p>The parser catches mistakes like:</p>
+<ul>
+<li><code>let = 5</code> -- "Expected variable name after 'let'"</li>
+<li><code>let x 5</code> -- "Expected '=' after variable name"</li>
+<li><code>print 42</code> -- "Expected '(' after 'print'"</li>
+<li><code>print(42</code> -- "Expected ')' after print argument"</li>
+<li><code>if true print(1)</code> -- "Expected '{'"</li>
+</ul>
+<p>Each error message tells you exactly what the parser expected and where the
+problem was found.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
@@ -735,20 +846,36 @@ it, run again...</p>
 </thead>
 <tbody>
 <tr>
-<td>Error message</td>
-<td>A teacher circling mistakes on your homework</td>
+<td>Expression</td>
+<td>A question that gives you an answer</td>
 </tr>
 <tr>
-<td>Line &amp; column</td>
-<td>"Page 3, second paragraph, fifth word"</td>
+<td>Statement</td>
+<td>An instruction on a to-do list</td>
 </tr>
 <tr>
-<td>Caret pointer</td>
-<td>A red arrow drawn under the mistake</td>
+<td><code>let</code></td>
+<td>Writing a label on a new box</td>
 </tr>
 <tr>
-<td>ErrorCollector</td>
-<td>Marking all mistakes at once, not just the first</td>
+<td>Reassignment</td>
+<td>Replacing what's inside an existing box</td>
+</tr>
+<tr>
+<td><code>if/else</code></td>
+<td>A fork in the road</td>
+</tr>
+<tr>
+<td><code>while</code></td>
+<td>A broken record that keeps replaying</td>
+</tr>
+<tr>
+<td>Block <code>{ }</code></td>
+<td>Walls of a room grouping things together</td>
+</tr>
+<tr>
+<td>Newlines</td>
+<td>Periods at the end of sentences</td>
 </tr>
 </tbody>
 </table>
