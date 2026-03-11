@@ -10,6 +10,7 @@ from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
     BooleanLiteral,
+    Identifier,
     IfStatement,
     IntegerLiteral,
     PrintStatement,
@@ -69,6 +70,7 @@ class TestLetDeclaration:
         assert isinstance(stmt, Assignment)
         assert stmt.name == "msg"
         assert isinstance(stmt.value, StringLiteral)
+        assert stmt.value.value == "hello"
 
     def test_let_expression(self) -> None:
         """Verify 'let sum = 1 + 2' parses to Assignment with BinaryOp value."""
@@ -112,7 +114,9 @@ class TestReassignment:
         assert len(stmts) == ONE
         stmt = stmts[0]
         assert isinstance(stmt, Reassignment)
+        assert stmt.name == "x"
         assert isinstance(stmt.value, BinaryOp)
+        assert stmt.value.operator == "+"
 
 
 # -- Print statement ----------------------------------------------------------
@@ -137,6 +141,7 @@ class TestPrintStatement:
         stmt = stmts[0]
         assert isinstance(stmt, PrintStatement)
         assert isinstance(stmt.expression, StringLiteral)
+        assert stmt.expression.value == "hello"
 
     def test_print_expression(self) -> None:
         """Verify 'print(1 + 2)' parses to PrintStatement with BinaryOp."""
@@ -145,6 +150,7 @@ class TestPrintStatement:
         stmt = stmts[0]
         assert isinstance(stmt, PrintStatement)
         assert isinstance(stmt.expression, BinaryOp)
+        assert stmt.expression.operator == "+"
 
     def test_print_missing_paren_raises(self) -> None:
         """Verify 'print 42' raises ParseError."""
@@ -182,8 +188,11 @@ class TestIfStatement:
         assert len(stmts) == ONE
         stmt = stmts[0]
         assert isinstance(stmt, IfStatement)
+        assert isinstance(stmt.condition, BinaryOp)
+        assert stmt.condition.operator == ">"
         assert stmt.else_body is not None
         assert len(stmt.else_body) == ONE
+        assert isinstance(stmt.else_body[0], PrintStatement)
 
     def test_if_empty_body(self) -> None:
         """Verify 'if true { }' parses with empty body."""
@@ -246,12 +255,18 @@ class TestMultipleStatements:
         stmts = _stmts("let x = 1\nprint(x)")
         assert len(stmts) == TWO
         assert isinstance(stmts[0], Assignment)
+        assert stmts[0].name == "x"
         assert isinstance(stmts[1], PrintStatement)
 
     def test_three_statements(self) -> None:
         """Verify three statements parse correctly."""
         stmts = _stmts("let x = 1\nlet y = 2\nprint(x)")
         assert len(stmts) == THREE
+        assert isinstance(stmts[0], Assignment)
+        assert stmts[0].name == "x"
+        assert isinstance(stmts[1], Assignment)
+        assert stmts[1].name == "y"
+        assert isinstance(stmts[2], PrintStatement)
 
     def test_empty_program(self) -> None:
         """Verify empty source parses to Program with no statements."""
@@ -283,3 +298,70 @@ class TestExpressionStatements:
         """Verify a bare expression (e.g. function call) is a statement."""
         stmts = _stmts("1 + 2")
         assert len(stmts) == ONE
+
+
+# -- Edge cases ---------------------------------------------------------------
+
+
+class TestParserEdgeCases:
+    """Verify edge cases and error paths in statement parsing."""
+
+    def test_let_missing_expression_at_eof(self) -> None:
+        """Verify 'let x =' with no expression raises ParseError."""
+        with pytest.raises(ParseError, match="Expected expression"):
+            _parse("let x = ")
+
+    def test_let_newline_after_equals(self) -> None:
+        """Verify 'let x =' followed by newline raises ParseError."""
+        with pytest.raises(ParseError):
+            _parse("let x =\n")
+
+    def test_while_with_multiple_body_statements(self) -> None:
+        """Verify a while loop with multiple body statements parses correctly."""
+        source = "while x < 10 {\n    print(x)\n    x = x + 1\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, WhileLoop)
+        assert len(stmt.body) == TWO
+        assert isinstance(stmt.body[0], PrintStatement)
+        assert isinstance(stmt.body[1], Reassignment)
+
+    def test_nested_if_in_while(self) -> None:
+        """Verify an if statement nested inside a while loop parses."""
+        source = "while true {\n    if x > 0 {\n        print(x)\n    }\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        stmt = stmts[0]
+        assert isinstance(stmt, WhileLoop)
+        assert len(stmt.body) == ONE
+        assert isinstance(stmt.body[0], IfStatement)
+
+    def test_while_missing_closing_brace_raises(self) -> None:
+        """Verify missing '}' in while loop raises ParseError."""
+        with pytest.raises(ParseError, match="Expected '\\}'"):
+            _parse("while true {\n    print(1)")
+
+    def test_bare_identifier_is_expression_statement(self) -> None:
+        """Verify a bare identifier parses as an Identifier expression."""
+        stmts = _stmts("myvar")
+        assert len(stmts) == ONE
+        assert isinstance(stmts[0], Identifier)
+        assert stmts[0].name == "myvar"
+
+    def test_only_newlines_is_empty_program(self) -> None:
+        """Verify source with only newlines is an empty program."""
+        program = _parse("\n\n\n")
+        assert program.statements == []
+
+    def test_deeply_nested_blocks(self) -> None:
+        """Verify nested if/while blocks parse correctly."""
+        source = "if true {\n    if false {\n        print(1)\n    }\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        outer = stmts[0]
+        assert isinstance(outer, IfStatement)
+        assert len(outer.body) == ONE
+        inner = outer.body[0]
+        assert isinstance(inner, IfStatement)
+        assert len(inner.body) == ONE

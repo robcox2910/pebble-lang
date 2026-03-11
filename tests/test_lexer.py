@@ -414,16 +414,74 @@ class TestLexerEof:
         assert tokens[0].kind == TokenKind.EOF
 
 
+class TestLexerEdgeCases:
+    """Verify edge-case inputs are handled correctly."""
+
+    def test_leading_zero_integer(self) -> None:
+        """Verify '007' is tokenized as a single INTEGER."""
+        assert _kind_value_pairs("007") == [(TokenKind.INTEGER, "007")]
+
+    def test_triple_equals_splits_correctly(self) -> None:
+        """Verify '===' is tokenized as EQUAL_EQUAL + EQUAL."""
+        assert _kind_value_pairs("===") == [
+            (TokenKind.EQUAL_EQUAL, "=="),
+            (TokenKind.EQUAL, "="),
+        ]
+
+    def test_bang_equal_equal_splits_correctly(self) -> None:
+        """Verify '!==' is tokenized as BANG_EQUAL + EQUAL."""
+        assert _kind_value_pairs("!==") == [
+            (TokenKind.BANG_EQUAL, "!="),
+            (TokenKind.EQUAL, "="),
+        ]
+
+    def test_less_equal_equal_splits_correctly(self) -> None:
+        """Verify '<==' is tokenized as LESS_EQUAL + EQUAL."""
+        assert _kind_value_pairs("<==") == [
+            (TokenKind.LESS_EQUAL, "<="),
+            (TokenKind.EQUAL, "="),
+        ]
+
+    def test_greater_equal_equal_splits_correctly(self) -> None:
+        """Verify '>==' is tokenized as GREATER_EQUAL + EQUAL."""
+        assert _kind_value_pairs(">==") == [
+            (TokenKind.GREATER_EQUAL, ">="),
+            (TokenKind.EQUAL, "="),
+        ]
+
+    def test_windows_line_endings(self) -> None:
+        r"""Verify '\r\n' line endings are handled correctly."""
+        assert _kinds("1\r\n2") == [
+            TokenKind.INTEGER,
+            TokenKind.NEWLINE,
+            TokenKind.INTEGER,
+        ]
+
+    def test_keywords_are_case_sensitive(self) -> None:
+        """Verify uppercase variants of keywords are identifiers."""
+        assert _kinds("Let") == [TokenKind.IDENTIFIER]
+        assert _kinds("IF") == [TokenKind.IDENTIFIER]
+        assert _kinds("While") == [TokenKind.IDENTIFIER]
+
+    def test_comment_with_special_characters(self) -> None:
+        """Verify comments with special characters are skipped."""
+        assert _kinds("42 # @#$%^&*()") == [TokenKind.INTEGER]
+
+    def test_comment_at_eof_without_newline(self) -> None:
+        """Verify a comment at EOF without trailing newline works."""
+        assert _kinds("42 # end") == [TokenKind.INTEGER]
+
+
 class TestLexerCompoundExpressions:
     """Verify tokenization of realistic multi-token expressions."""
 
     def test_let_declaration(self) -> None:
-        """Verify 'let x = 42' tokenizes correctly."""
-        assert _kinds("let x = 42") == [
-            TokenKind.LET,
-            TokenKind.IDENTIFIER,
-            TokenKind.EQUAL,
-            TokenKind.INTEGER,
+        """Verify 'let x = 42' tokenizes with correct kinds and values."""
+        assert _kind_value_pairs("let x = 42") == [
+            (TokenKind.LET, "let"),
+            (TokenKind.IDENTIFIER, "x"),
+            (TokenKind.EQUAL, "="),
+            (TokenKind.INTEGER, "42"),
         ]
 
     def test_arithmetic_expression(self) -> None:

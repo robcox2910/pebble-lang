@@ -10,36 +10,33 @@ compilers work, built incrementally using TDD.
 
 - Integers, strings, booleans
 - Variables (`let` declarations, reassignment)
-- Arithmetic and comparison operators
-- Control flow: `if/else`, `while`, `for`
-- Functions with `return`
+- Arithmetic, comparison, and logical operators (`and`, `or`, `not`)
+- Control flow: `if/else`, `while`
 - `print()` built-in
 - Comments (`#`)
 - Curly-brace blocks, newline-delimited statements (no semicolons)
 
+**Coming soon:** `for` loops, functions with `return`, bytecode compiler, VM
+
 ## Example
 
 ```
-# Fibonacci sequence
-fn fib(n) {
-    if n < 2 {
-        return n
+let count = 0
+while count < 5 {
+    if count > 0 {
+        print(count)
     }
-    return fib(n - 1) + fib(n - 2)
-}
-
-let i = 0
-while i < 10 {
-    print(fib(i))
-    i = i + 1
+    count = count + 1
 }
 ```
 
 ## Pipeline
 
 ```
-Source -> Lexer -> Parser -> Analyzer -> Code Generator -> VM
+Source -> Lexer -> Parser -> [Analyzer -> Code Generator -> VM]
 ```
+
+Stages in `[ ]` are planned but not yet implemented.
 
 ## Quick Start
 
