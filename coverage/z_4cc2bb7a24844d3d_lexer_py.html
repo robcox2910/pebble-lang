@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_4cc2bb7a24844d3d_parser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-11 19:55 +0000
+            created at 2026-03-11 20:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -190,7 +190,7 @@
     <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">        <span class="com"># Skip if the last token is already a NEWLINE (collapse duplicates).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_tokens</span> <span class="key">and</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_tokens</span><span class="op">[</span><span class="op">-</span><span class="num">1</span><span class="op">]</span><span class="op">.</span><span class="nam">kind</span> <span class="op">==</span> <span class="nam">TokenKind</span><span class="op">.</span><span class="nam">NEWLINE</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_tokens</span><span class="op">[</span><span class="op">-</span><span class="num">1</span><span class="op">]</span><span class="op">.</span><span class="nam">kind</span> <span class="op">==</span> <span class="nam">TokenKind</span><span class="op">.</span><span class="nam">NEWLINE</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">_advance_newline</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -232,11 +232,11 @@
     <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t">    <span class="key">def</span> <span class="nam">_scan_integer</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t">        <span class="str">"""Scan an integer literal (sequence of digits)."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t">        <span class="nam">start_col</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_column</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t">        <span class="nam">start</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t">        <span class="nam">digits</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t">        <span class="key">while</span> <span class="key">not</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_at_end</span><span class="op">(</span><span class="op">)</span> <span class="key">and</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_peek</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">isdigit</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t">            <span class="nam">start</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_peek</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t">            <span class="nam">digits</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_peek</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">_advance</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t">        <span class="nam">value</span> <span class="op">=</span> <span class="str">""</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">start</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t">        <span class="nam">value</span> <span class="op">=</span> <span class="str">""</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">digits</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_tokens</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t">            <span class="nam">Token</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t">                <span class="nam">kind</span><span class="op">=</span><span class="nam">TokenKind</span><span class="op">.</span><span class="nam">INTEGER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -397,7 +397,7 @@
             <a class="nav" href="z_4cc2bb7a24844d3d_parser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-11 19:55 +0000
+            created at 2026-03-11 20:16 +0000
         </p>
     </div>
 </footer>
