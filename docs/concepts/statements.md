@@ -149,7 +149,11 @@ statement is structured and what tokens to expect.
 
 ## What Can Go Wrong?
 
-The parser catches mistakes like:
+After parsing, the [semantic analyzer](analyzer.md) checks that declarations
+make sense -- for example, that every variable you use was declared, and that
+functions get the right number of arguments.
+
+The parser catches *syntax* mistakes like:
 
 - `let = 5` -- "Expected variable name after 'let'"
 - `let x 5` -- "Expected '=' after variable name"

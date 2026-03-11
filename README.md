@@ -34,7 +34,7 @@ while count < 5 {
 ## Pipeline
 
 ```
-Source -> Lexer -> Parser -> [Analyzer -> Code Generator -> VM]
+Source -> Lexer -> Parser -> Analyzer -> [Code Generator -> VM]
 ```
 
 Stages in `[ ]` are planned but not yet implemented.

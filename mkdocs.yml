@@ -49,3 +49,4 @@ nav:
       - Parser: concepts/parser.md
       - Statements: concepts/statements.md
       - Functions: concepts/functions.md
+      - Semantic Analysis: concepts/analyzer.md
