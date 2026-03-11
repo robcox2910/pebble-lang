@@ -89,11 +89,8 @@ class Lexer:
         elif ch == ">":
             self._scan_greater()
         else:
-            raise LexerError(
-                f"Unexpected character '{ch}'",
-                line=self._line,
-                column=self._column,
-            )
+            msg = f"Unexpected character '{ch}'"
+            raise LexerError(msg, line=self._line, column=self._column)
 
     # -- Individual scanners --------------------------------------------------
 
@@ -133,7 +130,8 @@ class Lexer:
                 self._advance()
 
         if self._at_end():
-            raise LexerError("Unterminated string", line=start_line, column=start_col)
+            msg = "Unterminated string"
+            raise LexerError(msg, line=start_line, column=start_col)
 
         self._advance()  # skip closing quote
         value = "".join(value_chars)
@@ -221,11 +219,8 @@ class Lexer:
                 )
             )
         else:
-            raise LexerError(
-                "Unexpected character '!'",
-                line=self._line,
-                column=start_col,
-            )
+            msg = "Unexpected character '!'"
+            raise LexerError(msg, line=self._line, column=start_col)
 
     def _scan_less(self) -> None:
         """Scan '<' or '<='."""

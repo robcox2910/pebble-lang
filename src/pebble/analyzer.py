@@ -74,11 +74,8 @@ class Scope:
         """Declare *name* in this scope, raising if it already exists here."""
         if name in self.variables:
             prev = self.variables[name]
-            raise SemanticError(
-                f"Variable '{name}' already declared at line {prev.line}",
-                line=location.line,
-                column=location.column,
-            )
+            msg = f"Variable '{name}' already declared at line {prev.line}"
+            raise SemanticError(msg, line=location.line, column=location.column)
         self.variables[name] = location
 
     def resolve_variable(self, name: str) -> SourceLocation | None:
@@ -100,11 +97,8 @@ class Scope:
         """Declare a function in this scope, raising if it already exists here."""
         if name in self.functions:
             prev = self.functions[name][1]
-            raise SemanticError(
-                f"Function '{name}' already defined at line {prev.line}",
-                line=location.line,
-                column=location.column,
-            )
+            msg = f"Function '{name}' already defined at line {prev.line}"
+            raise SemanticError(msg, line=location.line, column=location.column)
         self.functions[name] = (param_count, location)
 
     def resolve_function(self, name: str) -> tuple[int, SourceLocation] | None:
@@ -191,11 +185,8 @@ class SemanticAnalyzer:
     def _visit_reassignment(self, node: Reassignment) -> None:
         """Visit a reassignment — resolve name, then check value."""
         if self._scope.resolve_variable(node.name) is None:
-            raise SemanticError(
-                f"Undeclared variable '{node.name}'",
-                line=node.location.line,
-                column=node.location.column,
-            )
+            msg = f"Undeclared variable '{node.name}'"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
         self._visit_expression(node.value)
 
     def _visit_if(self, node: IfStatement) -> None:
@@ -235,11 +226,8 @@ class SemanticAnalyzer:
     def _visit_return(self, node: ReturnStatement) -> None:
         """Visit a ``return`` statement — must be inside a function."""
         if not self._in_function:
-            raise SemanticError(
-                "Return statement outside function",
-                line=node.location.line,
-                column=node.location.column,
-            )
+            msg = "Return statement outside function"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
         if node.value is not None:
             self._visit_expression(node.value)
 
@@ -274,29 +262,20 @@ class SemanticAnalyzer:
     def _visit_identifier(self, node: Identifier) -> None:
         """Resolve a variable reference, raising if undeclared."""
         if self._scope.resolve_variable(node.name) is None:
-            raise SemanticError(
-                f"Undeclared variable '{node.name}'",
-                line=node.location.line,
-                column=node.location.column,
-            )
+            msg = f"Undeclared variable '{node.name}'"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
 
     def _visit_function_call(self, node: FunctionCall) -> None:
         """Resolve a function call, checking existence and arity."""
         resolved = self._scope.resolve_function(node.name)
         if resolved is None:
-            raise SemanticError(
-                f"Undeclared function '{node.name}'",
-                line=node.location.line,
-                column=node.location.column,
-            )
+            msg = f"Undeclared function '{node.name}'"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
         expected, _ = resolved
         actual = len(node.arguments)
         if actual != expected:
             s = "" if expected == 1 else "s"
-            raise SemanticError(
-                f"Function '{node.name}' expects {expected} argument{s}, got {actual}",
-                line=node.location.line,
-                column=node.location.column,
-            )
+            msg = f"Function '{node.name}' expects {expected} argument{s}, got {actual}"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
         for arg in node.arguments:
             self._visit_expression(arg)
