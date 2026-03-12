@@ -10,6 +10,8 @@ compiler does not duplicate error checking.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pebble.ast_nodes import (
     ArrayLiteral,
     Assignment,
@@ -35,6 +37,9 @@ from pebble.ast_nodes import (
     WhileLoop,
 )
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
+
+if TYPE_CHECKING:
+    from pebble.tokens import SourceLocation
 
 # -- Operator mapping ---------------------------------------------------------
 
@@ -88,15 +93,26 @@ class Compiler:
 
     # -- Emit helpers ---------------------------------------------------------
 
-    def _emit(self, opcode: OpCode, operand: int | str | None = None) -> int:
+    def _emit(
+        self,
+        opcode: OpCode,
+        operand: int | str | None = None,
+        *,
+        location: SourceLocation | None = None,
+    ) -> int:
         """Append an instruction and return its index."""
-        self._current.instructions.append(Instruction(opcode, operand))
+        self._current.instructions.append(Instruction(opcode, operand, location=location))
         return len(self._current.instructions) - 1
 
-    def _emit_constant(self, value: int | str | bool) -> None:  # noqa: FBT001
+    def _emit_constant(
+        self,
+        value: int | str | bool,  # noqa: FBT001
+        *,
+        location: SourceLocation | None = None,
+    ) -> None:
         """Add *value* to the constant pool and emit LOAD_CONST."""
         idx = self._current.add_constant(value)
-        self._emit(OpCode.LOAD_CONST, idx)
+        self._emit(OpCode.LOAD_CONST, idx, location=location)
 
     def _current_index(self) -> int:
         """Return the index where the *next* instruction will be emitted."""
@@ -106,7 +122,7 @@ class Compiler:
         """Backpatch the jump at *instruction_index* to the current position."""
         old = self._current.instructions[instruction_index]
         self._current.instructions[instruction_index] = Instruction(
-            old.opcode, self._current_index()
+            old.opcode, self._current_index(), location=old.location
         )
 
     # -- Statement dispatch ---------------------------------------------------
@@ -142,22 +158,22 @@ class Compiler:
     def _compile_assignment(self, node: Assignment) -> None:
         """Compile ``let name = value``."""
         self._compile_expression(node.value)
-        self._emit(OpCode.STORE_NAME, node.name)
+        self._emit(OpCode.STORE_NAME, node.name, location=node.location)
 
     def _compile_reassignment(self, node: Reassignment) -> None:
         """Compile ``name = value``."""
         self._compile_expression(node.value)
-        self._emit(OpCode.STORE_NAME, node.name)
+        self._emit(OpCode.STORE_NAME, node.name, location=node.location)
 
     def _compile_print(self, node: PrintStatement) -> None:
         """Compile ``print(expr)``."""
         self._compile_expression(node.expression)
-        self._emit(OpCode.PRINT)
+        self._emit(OpCode.PRINT, location=node.location)
 
     def _compile_if(self, node: IfStatement) -> None:
         """Compile ``if condition { body } else { else_body }``."""
         self._compile_expression(node.condition)
-        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0)
+        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=node.location)
 
         for stmt in node.body:
             self._compile_statement(stmt)
@@ -175,18 +191,19 @@ class Compiler:
         """Compile ``while condition { body }``."""
         loop_start = self._current_index()
         self._compile_expression(node.condition)
-        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0)
+        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=node.location)
 
         for stmt in node.body:
             self._compile_statement(stmt)
 
-        self._emit(OpCode.JUMP, loop_start)
+        self._emit(OpCode.JUMP, loop_start, location=node.location)
         self._patch_jump(jump_if_false)
 
     def _compile_for(self, node: ForLoop) -> None:
         """Compile ``for var in range(n) { body }`` as a counted while loop."""
         limit_name = f"$for_limit_{self._for_counter}"
         self._for_counter += 1
+        loc = node.location
 
         # Evaluate range argument and store as hidden limit variable
         match node.iterable:
@@ -194,28 +211,28 @@ class Compiler:
                 self._compile_expression(node.iterable.arguments[0])
             case _:  # pragma: no cover
                 self._compile_expression(node.iterable)
-        self._emit(OpCode.STORE_NAME, limit_name)
+        self._emit(OpCode.STORE_NAME, limit_name, location=loc)
 
         # Initialize loop variable to 0
-        self._emit_constant(0)
-        self._emit(OpCode.STORE_NAME, node.variable)
+        self._emit_constant(0, location=loc)
+        self._emit(OpCode.STORE_NAME, node.variable, location=loc)
 
         loop_start = self._current_index()
-        self._emit(OpCode.LOAD_NAME, node.variable)
-        self._emit(OpCode.LOAD_NAME, limit_name)
-        self._emit(OpCode.LESS_THAN)
-        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0)
+        self._emit(OpCode.LOAD_NAME, node.variable, location=loc)
+        self._emit(OpCode.LOAD_NAME, limit_name, location=loc)
+        self._emit(OpCode.LESS_THAN, location=loc)
+        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
         # Body
         for stmt in node.body:
             self._compile_statement(stmt)
 
-        self._emit(OpCode.LOAD_NAME, node.variable)
-        self._emit_constant(1)
-        self._emit(OpCode.ADD)
-        self._emit(OpCode.STORE_NAME, node.variable)
+        self._emit(OpCode.LOAD_NAME, node.variable, location=loc)
+        self._emit_constant(1, location=loc)
+        self._emit(OpCode.ADD, location=loc)
+        self._emit(OpCode.STORE_NAME, node.variable, location=loc)
 
-        self._emit(OpCode.JUMP, loop_start)
+        self._emit(OpCode.JUMP, loop_start, location=loc)
         self._patch_jump(jump_if_false)
 
     def _compile_function_def(self, node: FunctionDef) -> None:
@@ -244,8 +261,8 @@ class Compiler:
         if node.value is not None:
             self._compile_expression(node.value)
         else:
-            self._emit_constant(0)
-        self._emit(OpCode.RETURN)
+            self._emit_constant(0, location=node.location)
+        self._emit(OpCode.RETURN, location=node.location)
 
     # -- Expression dispatch --------------------------------------------------
 
@@ -253,13 +270,13 @@ class Compiler:
         """Dispatch to the appropriate expression compiler."""
         match expr:
             case IntegerLiteral():
-                self._emit_constant(expr.value)
+                self._emit_constant(expr.value, location=expr.location)
             case StringLiteral():
-                self._emit_constant(expr.value)
+                self._emit_constant(expr.value, location=expr.location)
             case BooleanLiteral():
-                self._emit_constant(expr.value)
+                self._emit_constant(expr.value, location=expr.location)
             case Identifier():
-                self._emit(OpCode.LOAD_NAME, expr.name)
+                self._emit(OpCode.LOAD_NAME, expr.name, location=expr.location)
             case BinaryOp():
                 self._compile_binary(expr)
             case UnaryOp():
@@ -279,40 +296,40 @@ class Compiler:
         """Compile a binary operation: left, right, then operator."""
         self._compile_expression(node.left)
         self._compile_expression(node.right)
-        self._emit(_BINARY_OPS[node.operator])
+        self._emit(_BINARY_OPS[node.operator], location=node.location)
 
     def _compile_unary(self, node: UnaryOp) -> None:
         """Compile a unary operation: operand, then operator."""
         self._compile_expression(node.operand)
-        self._emit(_UNARY_OPS[node.operator])
+        self._emit(_UNARY_OPS[node.operator], location=node.location)
 
     def _compile_call(self, node: FunctionCall) -> None:
         """Compile a function call: push arguments, then CALL."""
         for arg in node.arguments:
             self._compile_expression(arg)
-        self._emit(OpCode.CALL, node.name)
+        self._emit(OpCode.CALL, node.name, location=node.location)
 
     def _compile_string_interpolation(self, node: StringInterpolation) -> None:
         """Compile a string interpolation: push each part, then BUILD_STRING."""
         for part in node.parts:
             self._compile_expression(part)
-        self._emit(OpCode.BUILD_STRING, len(node.parts))
+        self._emit(OpCode.BUILD_STRING, len(node.parts), location=node.location)
 
     def _compile_array_literal(self, node: ArrayLiteral) -> None:
         """Compile an array literal: push elements, then BUILD_LIST."""
         for element in node.elements:
             self._compile_expression(element)
-        self._emit(OpCode.BUILD_LIST, len(node.elements))
+        self._emit(OpCode.BUILD_LIST, len(node.elements), location=node.location)
 
     def _compile_index_access(self, node: IndexAccess) -> None:
         """Compile an index access: push target and index, then INDEX_GET."""
         self._compile_expression(node.target)
         self._compile_expression(node.index)
-        self._emit(OpCode.INDEX_GET)
+        self._emit(OpCode.INDEX_GET, location=node.location)
 
     def _compile_index_assignment(self, node: IndexAssignment) -> None:
         """Compile an index assignment: push target, index, value, then INDEX_SET."""
         self._compile_expression(node.target)
         self._compile_expression(node.index)
         self._compile_expression(node.value)
-        self._emit(OpCode.INDEX_SET)
+        self._emit(OpCode.INDEX_SET, location=node.location)

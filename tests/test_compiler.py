@@ -43,9 +43,14 @@ def _compile(source: str) -> CompiledProgram:
     return Compiler().compile(analyzed)
 
 
+def _strip_locations(instructions: list[Instruction]) -> list[Instruction]:
+    """Strip location fields from instructions for comparison."""
+    return [Instruction(i.opcode, i.operand) for i in instructions]
+
+
 def _instructions(source: str) -> list[Instruction]:
-    """Return the main instruction list for *source*."""
-    return _compile(source).main.instructions
+    """Return the main instruction list for *source*, locations stripped."""
+    return _strip_locations(_compile(source).main.instructions)
 
 
 def _constants(source: str) -> list[int | str | bool]:
@@ -407,7 +412,7 @@ class TestCompileFunctionDef:
         assert "add" in result.functions
         fn = result.functions["add"]
         assert fn.name == "add"
-        assert fn.instructions == [
+        assert _strip_locations(fn.instructions) == [
             Instruction(OpCode.LOAD_NAME, "a"),
             Instruction(OpCode.LOAD_NAME, "b"),
             Instruction(OpCode.ADD),
@@ -458,7 +463,7 @@ class TestCompileReturn:
         """``return 42`` loads the value and returns."""
         result = _compile("fn f() { return 42 }")
         fn = result.functions["f"]
-        assert fn.instructions == [
+        assert _strip_locations(fn.instructions) == [
             Instruction(OpCode.LOAD_CONST, ZERO),
             Instruction(OpCode.RETURN),
         ]
@@ -468,7 +473,7 @@ class TestCompileReturn:
         """``return`` without a value returns 0."""
         result = _compile("fn f() { return }")
         fn = result.functions["f"]
-        assert fn.instructions == [
+        assert _strip_locations(fn.instructions) == [
             Instruction(OpCode.LOAD_CONST, ZERO),
             Instruction(OpCode.RETURN),
         ]

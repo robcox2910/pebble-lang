@@ -14,6 +14,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import StrEnum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pebble.tokens import SourceLocation
 
 
 class OpCode(StrEnum):
@@ -84,11 +88,14 @@ class Instruction:
         opcode: The operation to perform.
         operand: Optional argument — a constant-pool index (int), variable or
             function name (str), or jump target (int).
+        location: Source location this instruction was compiled from, used for
+            runtime error reporting.
 
     """
 
     opcode: OpCode
     operand: int | str | None = None
+    location: SourceLocation | None = None
 
 
 @dataclass
