@@ -215,12 +215,12 @@ class Compiler:
     def _compile_function_def(self, node: FunctionDef) -> None:
         """Compile a function definition into a separate CodeObject."""
         fn_code = CodeObject(name=node.name)
+        fn_code.parameters = list(node.parameters)
         previous = self._current
         previous_counter = self._for_counter
         self._current = fn_code
         self._for_counter = 0
 
-        # Store parameters as named variables (VM will populate them from stack)
         for stmt in node.body:
             self._compile_statement(stmt)
 

@@ -430,6 +430,27 @@ class TestCompileFunctionDef:
         assert fn.instructions[-ONE] == Instruction(OpCode.RETURN)
 
 
+class TestCompileFunctionParameters:
+    """Verify function parameters are stored in CodeObject."""
+
+    def test_function_stores_parameters(self) -> None:
+        """``fn add(a, b)`` stores ["a", "b"] in CodeObject.parameters."""
+        result = _compile("fn add(a, b) { return a + b }")
+        fn = result.functions["add"]
+        assert fn.parameters == ["a", "b"]
+
+    def test_no_parameters_function(self) -> None:
+        """``fn greet()`` stores an empty parameter list."""
+        result = _compile("fn greet() { print(1) }")
+        fn = result.functions["greet"]
+        assert fn.parameters == []
+
+    def test_main_has_no_parameters(self) -> None:
+        """The main CodeObject always has empty parameters."""
+        result = _compile("print(1)")
+        assert result.main.parameters == []
+
+
 class TestCompileReturn:
     """Verify return statement compilation."""
 

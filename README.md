@@ -17,8 +17,6 @@ compilers work, built incrementally using TDD.
 - Comments (`#`)
 - Curly-brace blocks, newline-delimited statements (no semicolons)
 
-**Coming soon:** VM execution
-
 ## Example
 
 ```
@@ -34,10 +32,8 @@ while count < 5 {
 ## Pipeline
 
 ```
-Source -> Lexer -> Parser -> Analyzer -> Compiler -> [VM]
+Source -> Lexer -> Parser -> Analyzer -> Compiler -> VM
 ```
-
-Stages in `[ ]` are planned but not yet implemented.
 
 ## Quick Start
 

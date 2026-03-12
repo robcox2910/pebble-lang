@@ -51,3 +51,4 @@ nav:
       - Functions: concepts/functions.md
       - Semantic Analysis: concepts/analyzer.md
       - Compiler: concepts/compiler.md
+      - VM: concepts/vm.md

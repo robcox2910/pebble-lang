@@ -108,6 +108,17 @@ class TestCodeObject:
         code = CodeObject(name="main")
         assert code.instructions == []
 
+    def test_parameters_defaults_to_empty_list(self) -> None:
+        """A fresh CodeObject has no parameters."""
+        code = CodeObject(name="main")
+        assert code.parameters == []
+
+    def test_parameters_stores_names(self) -> None:
+        """Parameters can be set to a list of parameter names."""
+        code = CodeObject(name="add")
+        code.parameters = ["a", "b"]
+        assert code.parameters == ["a", "b"]
+
     def test_instructions_are_mutable(self) -> None:
         """Instructions can be appended during compilation."""
         code = CodeObject(name="main")
