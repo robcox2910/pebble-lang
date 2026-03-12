@@ -214,9 +214,9 @@ class TestCompileBinaryOps:
         # AST: BinaryOp(+, 1, BinaryOp(*, 2, 3))
         # → LOAD 1, LOAD 2, LOAD 3, MULTIPLY, ADD
         assert ins == [
-            Instruction(OpCode.LOAD_CONST, ZERO),   # 1
-            Instruction(OpCode.LOAD_CONST, ONE),     # 2
-            Instruction(OpCode.LOAD_CONST, TWO),     # 3
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 1
+            Instruction(OpCode.LOAD_CONST, ONE),  # 2
+            Instruction(OpCode.LOAD_CONST, TWO),  # 3
             Instruction(OpCode.MULTIPLY),
             Instruction(OpCode.ADD),
             Instruction(OpCode.STORE_NAME, "x"),
@@ -262,25 +262,25 @@ class TestCompileIfStatement:
         """``if true { print(1) }`` jumps past the body when false."""
         ins = _instructions("if true { print(1) }")
         assert ins == [
-            Instruction(OpCode.LOAD_CONST, ZERO),       # 0: true
-            Instruction(OpCode.JUMP_IF_FALSE, FOUR),     # 1: skip body
-            Instruction(OpCode.LOAD_CONST, ONE),         # 2: 1
-            Instruction(OpCode.PRINT),                   # 3
-            Instruction(OpCode.HALT),                    # 4
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 0: true
+            Instruction(OpCode.JUMP_IF_FALSE, FOUR),  # 1: skip body
+            Instruction(OpCode.LOAD_CONST, ONE),  # 2: 1
+            Instruction(OpCode.PRINT),  # 3
+            Instruction(OpCode.HALT),  # 4
         ]
 
     def test_if_else(self) -> None:
         """``if true { print(1) } else { print(2) }`` has both branches."""
         ins = _instructions("if true { print(1) } else { print(2) }")
         assert ins == [
-            Instruction(OpCode.LOAD_CONST, ZERO),       # 0: true
-            Instruction(OpCode.JUMP_IF_FALSE, FIVE),     # 1: skip to else
-            Instruction(OpCode.LOAD_CONST, ONE),         # 2: 1
-            Instruction(OpCode.PRINT),                   # 3
-            Instruction(OpCode.JUMP, SEVEN),             # 4: skip else
-            Instruction(OpCode.LOAD_CONST, TWO),         # 5: 2
-            Instruction(OpCode.PRINT),                   # 6
-            Instruction(OpCode.HALT),                    # 7
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 0: true
+            Instruction(OpCode.JUMP_IF_FALSE, FIVE),  # 1: skip to else
+            Instruction(OpCode.LOAD_CONST, ONE),  # 2: 1
+            Instruction(OpCode.PRINT),  # 3
+            Instruction(OpCode.JUMP, SEVEN),  # 4: skip else
+            Instruction(OpCode.LOAD_CONST, TWO),  # 5: 2
+            Instruction(OpCode.PRINT),  # 6
+            Instruction(OpCode.HALT),  # 7
         ]
 
     def test_nested_if(self) -> None:
@@ -315,18 +315,18 @@ class TestCompileWhileLoop:
         source = "let x = 0\nwhile x < 5 { x = x + 1 }"
         ins = _instructions(source)
         assert ins == [
-            Instruction(OpCode.LOAD_CONST, ZERO),       # 0: 0
-            Instruction(OpCode.STORE_NAME, "x"),         # 1
-            Instruction(OpCode.LOAD_NAME, "x"),          # 2: loop_start
-            Instruction(OpCode.LOAD_CONST, ONE),         # 3: 5
-            Instruction(OpCode.LESS_THAN),               # 4
-            Instruction(OpCode.JUMP_IF_FALSE, ELEVEN),   # 5: exit
-            Instruction(OpCode.LOAD_NAME, "x"),          # 6
-            Instruction(OpCode.LOAD_CONST, TWO),         # 7: 1
-            Instruction(OpCode.ADD),                     # 8
-            Instruction(OpCode.STORE_NAME, "x"),         # 9
-            Instruction(OpCode.JUMP, TWO),               # 10: back to start
-            Instruction(OpCode.HALT),                    # 11
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 0: 0
+            Instruction(OpCode.STORE_NAME, "x"),  # 1
+            Instruction(OpCode.LOAD_NAME, "x"),  # 2: loop_start
+            Instruction(OpCode.LOAD_CONST, ONE),  # 3: 5
+            Instruction(OpCode.LESS_THAN),  # 4
+            Instruction(OpCode.JUMP_IF_FALSE, ELEVEN),  # 5: exit
+            Instruction(OpCode.LOAD_NAME, "x"),  # 6
+            Instruction(OpCode.LOAD_CONST, TWO),  # 7: 1
+            Instruction(OpCode.ADD),  # 8
+            Instruction(OpCode.STORE_NAME, "x"),  # 9
+            Instruction(OpCode.JUMP, TWO),  # 10: back to start
+            Instruction(OpCode.HALT),  # 11
         ]
         assert _constants(source) == [0, 5, 1]
 
@@ -353,22 +353,22 @@ class TestCompileForLoop:
         source = "for i in range(3) { print(i) }"
         ins = _instructions(source)
         assert ins == [
-            Instruction(OpCode.LOAD_CONST, ZERO),         # 0: 3
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 0: 3
             Instruction(OpCode.STORE_NAME, "$for_limit_0"),  # 1
-            Instruction(OpCode.LOAD_CONST, ONE),           # 2: 0
-            Instruction(OpCode.STORE_NAME, "i"),           # 3
-            Instruction(OpCode.LOAD_NAME, "i"),            # 4: loop_start
-            Instruction(OpCode.LOAD_NAME, "$for_limit_0"), # 5
-            Instruction(OpCode.LESS_THAN),                 # 6
-            Instruction(OpCode.JUMP_IF_FALSE, FIFTEEN),    # 7: exit
-            Instruction(OpCode.LOAD_NAME, "i"),            # 8: body
-            Instruction(OpCode.PRINT),                     # 9
-            Instruction(OpCode.LOAD_NAME, "i"),            # 10: increment
-            Instruction(OpCode.LOAD_CONST, TWO),           # 11: 1
-            Instruction(OpCode.ADD),                       # 12
-            Instruction(OpCode.STORE_NAME, "i"),           # 13
-            Instruction(OpCode.JUMP, FOUR),                # 14: back to start
-            Instruction(OpCode.HALT),                      # 15
+            Instruction(OpCode.LOAD_CONST, ONE),  # 2: 0
+            Instruction(OpCode.STORE_NAME, "i"),  # 3
+            Instruction(OpCode.LOAD_NAME, "i"),  # 4: loop_start
+            Instruction(OpCode.LOAD_NAME, "$for_limit_0"),  # 5
+            Instruction(OpCode.LESS_THAN),  # 6
+            Instruction(OpCode.JUMP_IF_FALSE, FIFTEEN),  # 7: exit
+            Instruction(OpCode.LOAD_NAME, "i"),  # 8: body
+            Instruction(OpCode.PRINT),  # 9
+            Instruction(OpCode.LOAD_NAME, "i"),  # 10: increment
+            Instruction(OpCode.LOAD_CONST, TWO),  # 11: 1
+            Instruction(OpCode.ADD),  # 12
+            Instruction(OpCode.STORE_NAME, "i"),  # 13
+            Instruction(OpCode.JUMP, FOUR),  # 14: back to start
+            Instruction(OpCode.HALT),  # 15
         ]
         assert _constants(source) == [3, 0, 1]
 
@@ -379,7 +379,9 @@ class TestCompileForLoop:
         names = [
             i.operand
             for i in result.main.instructions
-            if i.opcode is OpCode.STORE_NAME and isinstance(i.operand, str) and i.operand.startswith("$")
+            if i.opcode is OpCode.STORE_NAME
+            and isinstance(i.operand, str)
+            and i.operand.startswith("$")
         ]
         assert "$for_limit_0" in names
         assert "$for_limit_1" in names
@@ -460,11 +462,11 @@ class TestCompileFunctionCall:
         source = "fn add(a, b) { return a + b }\nprint(add(1, 2))"
         ins = _instructions(source)
         assert ins == [
-            Instruction(OpCode.LOAD_CONST, ZERO),   # 0: 1
-            Instruction(OpCode.LOAD_CONST, ONE),     # 1: 2
-            Instruction(OpCode.CALL, "add"),          # 2
-            Instruction(OpCode.PRINT),                # 3
-            Instruction(OpCode.HALT),                 # 4
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 0: 1
+            Instruction(OpCode.LOAD_CONST, ONE),  # 1: 2
+            Instruction(OpCode.CALL, "add"),  # 2
+            Instruction(OpCode.PRINT),  # 3
+            Instruction(OpCode.HALT),  # 4
         ]
 
     def test_call_no_args(self) -> None:
@@ -482,7 +484,9 @@ class TestCompileExpressionStatements:
         """``greet()`` as a statement emits CALL then POP."""
         source = "fn greet() { print(1) }\ngreet()"
         ins = _instructions(source)
-        call_idx = next(i for i, inst in enumerate(ins) if inst == Instruction(OpCode.CALL, "greet"))
+        call_idx = next(
+            i for i, inst in enumerate(ins) if inst == Instruction(OpCode.CALL, "greet")
+        )
         assert ins[call_idx + 1] == Instruction(OpCode.POP)
 
 
