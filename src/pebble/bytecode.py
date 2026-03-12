@@ -95,6 +95,7 @@ class CodeObject:
         name: Human-readable label (``"<main>"`` or the function name).
         instructions: Mutable list built up during compilation.
         constants: Deduplicated pool of literal values.
+        parameters: Ordered list of parameter names for function code objects.
 
     """
 
@@ -103,6 +104,9 @@ class CodeObject:
         default_factory=lambda: [],  # noqa: PIE807
     )
     constants: list[int | str | bool] = field(
+        default_factory=lambda: [],  # noqa: PIE807
+    )
+    parameters: list[str] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
 

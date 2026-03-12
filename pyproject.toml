@@ -123,6 +123,7 @@ max-args = 9
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "S101",   # Use of assert
+    "S603",   # subprocess with trusted input (testing our own CLI)
     "SLF001", # Accessing private members in tests is fine
 ]
 
