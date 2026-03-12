@@ -11,6 +11,7 @@ compiler does not duplicate error checking.
 from __future__ import annotations
 
 from pebble.ast_nodes import (
+    ArrayLiteral,
     Assignment,
     BinaryOp,
     BooleanLiteral,
@@ -20,6 +21,8 @@ from pebble.ast_nodes import (
     FunctionDef,
     Identifier,
     IfStatement,
+    IndexAccess,
+    IndexAssignment,
     IntegerLiteral,
     PrintStatement,
     Program,
@@ -127,6 +130,8 @@ class Compiler:
                 self._compile_function_def(stmt)
             case ReturnStatement():
                 self._compile_return(stmt)
+            case IndexAssignment():
+                self._compile_index_assignment(stmt)
             case _:
                 # Expression statement (e.g. bare function call)
                 self._compile_expression(stmt)  # type: ignore[arg-type]
@@ -263,6 +268,10 @@ class Compiler:
                 self._compile_call(expr)
             case StringInterpolation():
                 self._compile_string_interpolation(expr)
+            case ArrayLiteral():
+                self._compile_array_literal(expr)
+            case IndexAccess():
+                self._compile_index_access(expr)
 
     # -- Expression compilers -------------------------------------------------
 
@@ -288,3 +297,22 @@ class Compiler:
         for part in node.parts:
             self._compile_expression(part)
         self._emit(OpCode.BUILD_STRING, len(node.parts))
+
+    def _compile_array_literal(self, node: ArrayLiteral) -> None:
+        """Compile an array literal: push elements, then BUILD_LIST."""
+        for element in node.elements:
+            self._compile_expression(element)
+        self._emit(OpCode.BUILD_LIST, len(node.elements))
+
+    def _compile_index_access(self, node: IndexAccess) -> None:
+        """Compile an index access: push target and index, then INDEX_GET."""
+        self._compile_expression(node.target)
+        self._compile_expression(node.index)
+        self._emit(OpCode.INDEX_GET)
+
+    def _compile_index_assignment(self, node: IndexAssignment) -> None:
+        """Compile an index assignment: push target, index, value, then INDEX_SET."""
+        self._compile_expression(node.target)
+        self._compile_expression(node.index)
+        self._compile_expression(node.value)
+        self._emit(OpCode.INDEX_SET)

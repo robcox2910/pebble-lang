@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from pebble.ast_nodes import (
+    ArrayLiteral,
     Assignment,
     BinaryOp,
     BooleanLiteral,
@@ -23,6 +24,8 @@ from pebble.ast_nodes import (
     FunctionDef,
     Identifier,
     IfStatement,
+    IndexAccess,
+    IndexAssignment,
     IntegerLiteral,
     PrintStatement,
     Program,
@@ -42,6 +45,7 @@ from pebble.tokens import SourceLocation
 _BUILTIN_LOCATION = SourceLocation(line=0, column=0)
 _PRINT_ARITY = 1
 _RANGE_ARITY = 1
+_LEN_ARITY = 1
 
 
 # -- Scope --------------------------------------------------------------------
@@ -130,6 +134,7 @@ class SemanticAnalyzer:
         self._scope = Scope()
         self._scope.functions["print"] = (_PRINT_ARITY, _BUILTIN_LOCATION)
         self._scope.functions["range"] = (_RANGE_ARITY, _BUILTIN_LOCATION)
+        self._scope.functions["len"] = (_LEN_ARITY, _BUILTIN_LOCATION)
         self._in_function = False
 
     # -- Public API -----------------------------------------------------------
@@ -172,6 +177,8 @@ class SemanticAnalyzer:
                 self._visit_function_def(stmt)
             case ReturnStatement():
                 self._visit_return(stmt)
+            case IndexAssignment():
+                self._visit_index_assignment(stmt)
             case _:
                 # Expression statements (e.g. bare function calls)
                 self._visit_expression(stmt)  # type: ignore[arg-type]
@@ -224,6 +231,12 @@ class SemanticAnalyzer:
         self._in_function = prev_in_function
         self._pop_scope()
 
+    def _visit_index_assignment(self, node: IndexAssignment) -> None:
+        """Visit an index assignment — check target, index, and value."""
+        self._visit_expression(node.target)
+        self._visit_expression(node.index)
+        self._visit_expression(node.value)
+
     def _visit_return(self, node: ReturnStatement) -> None:
         """Visit a ``return`` statement — must be inside a function."""
         if not self._in_function:
@@ -258,6 +271,12 @@ class SemanticAnalyzer:
             case StringInterpolation():
                 for part in expr.parts:
                     self._visit_expression(part)
+            case ArrayLiteral():
+                for element in expr.elements:
+                    self._visit_expression(element)
+            case IndexAccess():
+                self._visit_expression(expr.target)
+                self._visit_expression(expr.index)
             case IntegerLiteral() | StringLiteral() | BooleanLiteral():
                 pass  # Literals need no semantic checks
 

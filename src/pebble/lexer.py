@@ -22,6 +22,8 @@ _SINGLE_CHARS: dict[str, TokenKind] = {
     ")": TokenKind.RIGHT_PAREN,
     "{": TokenKind.LEFT_BRACE,
     "}": TokenKind.RIGHT_BRACE,
+    "[": TokenKind.LEFT_BRACKET,
+    "]": TokenKind.RIGHT_BRACKET,
     ",": TokenKind.COMMA,
 }
 

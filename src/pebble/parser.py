@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 from pebble.ast_nodes import (
+    ArrayLiteral,
     Assignment,
     BinaryOp,
     BooleanLiteral,
@@ -21,6 +22,8 @@ from pebble.ast_nodes import (
     FunctionDef,
     Identifier,
     IfStatement,
+    IndexAccess,
+    IndexAssignment,
     IntegerLiteral,
     PrintStatement,
     Program,
@@ -250,10 +253,26 @@ class Parser:
         """Parse a bare expression as a statement.
 
         This is a fallback for expressions used as statements (e.g. function
-        calls). The expression node is returned directly since it also
-        satisfies the Statement type.
+        calls). Also handles index assignment: ``expr[index] = value``.
         """
         expr = self.parse_expression()
+
+        # Check for index assignment: expr[index] = value
+        if (
+            isinstance(expr, IndexAccess)
+            and not self._at_end()
+            and self._peek().kind == TokenKind.EQUAL
+        ):
+            self._advance()  # consume '='
+            value = self.parse_expression()
+            self._consume_newline()
+            return IndexAssignment(
+                target=expr.target,
+                index=expr.index,
+                value=value,
+                location=expr.location,
+            )
+
         self._consume_newline()
         return expr  # type: ignore[return-value]
 
@@ -263,7 +282,14 @@ class Parser:
         """Parse an expression with at least *min_precedence* binding power."""
         left = self._parse_prefix()
 
-        while not self._at_end() and self._peek().kind in _INFIX_PRECEDENCE:
+        while not self._at_end():
+            # Postfix index access: expr[index]
+            if self._peek().kind == TokenKind.LEFT_BRACKET:
+                left = self._parse_index_access(left)
+                continue
+
+            if self._peek().kind not in _INFIX_PRECEDENCE:
+                break
             prec = _INFIX_PRECEDENCE[self._peek().kind]
             if prec < min_precedence:
                 break
@@ -354,6 +380,25 @@ class Parser:
         self._expect(TokenKind.RIGHT_PAREN, "Expected ')'")
         return expr
 
+    def _parse_array(self) -> ArrayLiteral:
+        """Parse an array literal: ``[expr, expr, ...]``."""
+        bracket_token = self._advance()  # consume '['
+        elements: list[Expression] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACKET:
+            elements.append(self._parse_precedence(min_precedence=0))
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                elements.append(self._parse_precedence(min_precedence=0))
+        self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after array elements")
+        return ArrayLiteral(elements=elements, location=bracket_token.location)
+
+    def _parse_index_access(self, target: Expression) -> IndexAccess:
+        """Parse a postfix index access: ``target[index]``."""
+        bracket_token = self._advance()  # consume '['
+        index = self._parse_precedence(min_precedence=0)
+        self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after index")
+        return IndexAccess(target=target, index=index, location=bracket_token.location)
+
     def _parse_string_interpolation(self) -> StringInterpolation:
         """Parse an interpolated string: STRING_START expr (STRING_MIDDLE expr)* STRING_END."""
         start_token = self._advance()  # consume STRING_START
@@ -392,6 +437,7 @@ class Parser:
         TokenKind.MINUS: _parse_negate,
         TokenKind.NOT: _parse_not,
         TokenKind.LEFT_PAREN: _parse_grouped,
+        TokenKind.LEFT_BRACKET: _parse_array,
     }
 
     # -- Statement dispatch table ---------------------------------------------
