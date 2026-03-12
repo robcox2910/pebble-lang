@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/functions/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/vm/">
       
       
-        <link rel="prev" href="../statements/">
+        <link rel="prev" href="../compiler/">
       
-      
-        <link rel="next" href="../analyzer/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Functions - Pebble</title>
+        <title>VM - Pebble</title>
       
     
     
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#functions-for-loops" class="md-skip">
+        <a href="#virtual-machine" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Functions
+              VM
             
           </span>
         </div>
@@ -508,37 +506,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Functions
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../functions/" class="md-nav__link">
         
   
   
@@ -554,148 +525,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Function?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#defining-a-function-fn" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Defining a Function: fn
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Defining a Function: fn">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#parameters-the-ingredient-slots" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parameters: The Ingredient Slots
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#calling-a-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calling a Function
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#giving-back-a-result-return" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Giving Back a Result: return
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#going-through-items-for-loops" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Going Through Items: for Loops
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Going Through Items: for Loops">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#for-vs-while" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For vs While
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#putting-it-all-together" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Putting It All Together
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -761,10 +590,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../vm/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VM
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -780,6 +636,142 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Is a Virtual Machine?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-value-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Value Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frames-bookmarks-for-function-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frames: Bookmarks for Function Calls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frames: Bookmarks for Function Calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-call-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How CALL works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-return-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How RETURN works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-variables-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Variables Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#print-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Print Formatting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime Errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#putting-it-all-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Putting It All Together
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-complete-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Complete Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -812,214 +804,183 @@
   
 
 
-<h1 id="functions-for-loops">Functions &amp; For Loops</h1>
-<h2 id="what-is-a-function">What Is a Function?</h2>
-<p>A <strong>function</strong> is like a <strong>recipe card</strong>. You write down the steps once, give
-it a name, and then use that recipe whenever you need it -- without rewriting
-the whole thing.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn greet() {
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    print(&quot;Hello!&quot;)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>greet()
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>greet()
-</code></pre></div>
-<p>Here <code>greet</code> is a recipe that prints "Hello!". We <strong>call</strong> (use) it twice, so
-"Hello!" appears twice.</p>
-<h2 id="defining-a-function-fn">Defining a Function: <code>fn</code></h2>
-<p>To create a function, use the <code>fn</code> keyword:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>fn name(parameters) {
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    body
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>}
-</code></pre></div>
+<h1 id="virtual-machine">Virtual Machine</h1>
+<p>The <strong>virtual machine</strong> (VM) is the part of Pebble that actually <em>runs</em>
+your program. The compiler turned your code into a list of numbered
+instructions. The VM reads those instructions one by one and does what
+they say.</p>
+<h2 id="what-is-a-virtual-machine">What Is a Virtual Machine?</h2>
+<p>Imagine a robot sitting at a desk. On the desk is:</p>
 <ul>
-<li><strong><code>fn</code></strong> -- tells Pebble "I'm writing a new recipe"</li>
-<li><strong>name</strong> -- the label on the recipe card (e.g. <code>greet</code>, <code>add</code>, <code>square</code>)</li>
-<li><strong>parameters</strong> -- ingredient slots (more on these below)</li>
-<li><strong>body</strong> -- the instructions inside <code>{ }</code></li>
+<li><strong>An instruction sheet</strong> — the numbered list the compiler made</li>
+<li><strong>A finger</strong> pointing to the current step (the <em>instruction pointer</em>)</li>
+<li><strong>A pile of plates</strong> where it can stack numbers (the <em>value stack</em>)</li>
 </ul>
-<h3 id="parameters-the-ingredient-slots">Parameters: The Ingredient Slots</h3>
-<p>Parameters are like blank spaces on a recipe card where you write in the
-specific ingredients each time you use it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>fn add(a, b) {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    return a + b
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
+<p>The robot reads the step its finger is on, does it, moves its finger to
+the next step, and repeats. When it reaches <code>HALT</code>, it stops.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Instruction pointer
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>     ↓
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> 0:  LOAD_CONST 0     # push 3 onto the stack
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a> 1:  LOAD_CONST 1     # push 5 onto the stack
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> 2:  ADD              # pop 3 and 5, push 8
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a> 3:  PRINT            # pop 8 and print it
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a> 4:  HALT             # stop
 </code></pre></div>
-<p><code>a</code> and <code>b</code> are <strong>parameters</strong> -- placeholders that get filled in when you
-call the function.</p>
-<h2 id="calling-a-function">Calling a Function</h2>
-<p>To use a function, write its name followed by parentheses with the values
-(called <strong>arguments</strong>) you want to pass in:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>add(3, 4)
-</code></pre></div>
-<p>Here <code>3</code> and <code>4</code> are <strong>arguments</strong> -- the actual ingredients you hand to the
-recipe. They fill the parameter slots: <code>a</code> gets <code>3</code>, <code>b</code> gets <code>4</code>.</p>
-<p>You can call functions with zero, one, or many arguments:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>greet()           # no arguments
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>square(5)         # one argument
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>add(10, 20)       # two arguments
-</code></pre></div>
-<p>Arguments can be any expression, not just simple values:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>add(1 + 2, x)
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>add(square(3), 4)
-</code></pre></div>
-<p>That second line shows <strong>nested calls</strong> -- a function call inside another
-function call, like a recipe that says "first make the sauce (another recipe),
-then add it to the dish."</p>
-<h2 id="giving-back-a-result-return">Giving Back a Result: <code>return</code></h2>
-<p>The <code>return</code> keyword is like handing back the finished dish. It sends a value
-out of the function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn square(x) {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    return x * x
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>}
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>let result = square(5)
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>print(result)
-</code></pre></div>
-<p>A function can also <code>return</code> without a value (a bare return), which just
-means "stop here, I'm done":</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn maybe_print(x) {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    if x &lt; 0 {
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        return
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    }
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    print(x)
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>}
-</code></pre></div>
-<h2 id="going-through-items-for-loops">Going Through Items: <code>for</code> Loops</h2>
-<p>A <strong>for loop</strong> is like doing a <strong>roll call</strong> -- you go through a list of items
-one by one, doing something with each one:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>for i in range(5) {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    print(i)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
-</code></pre></div>
-<p>This prints <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>. Each time around the loop, <code>i</code> takes
-the next value from <code>range(5)</code>.</p>
-<p>The structure is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>for variable in iterable {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    body
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
-</code></pre></div>
+<h2 id="the-value-stack">The Value Stack</h2>
+<p>The stack is a pile of plates. You can only touch the <strong>top</strong>:</p>
 <ul>
-<li><strong>variable</strong> -- a name that holds the current item (like <code>i</code>)</li>
-<li><strong>iterable</strong> -- something that produces items to loop over</li>
-<li><strong>body</strong> -- what to do with each item</li>
+<li><strong>Push</strong> = put a plate on top</li>
+<li><strong>Pop</strong> = take the top plate off</li>
 </ul>
-<h3 id="for-vs-while">For vs While</h3>
-<p>Both <code>for</code> and <code>while</code> repeat things, but they're suited for different jobs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>LOAD_CONST 0 (= 3)     →  [3]
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>LOAD_CONST 1 (= 5)     →  [3, 5]
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>ADD                     →  [8]         ← popped 3 and 5, pushed 8
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>PRINT                   →  []          ← popped 8, printed &quot;8&quot;
+</code></pre></div>
+<p>This is called <strong>LIFO</strong>: Last In, First Out. The last plate you put on
+is the first one you take off — just like a real pile of plates.</p>
+<h2 id="frames-bookmarks-for-function-calls">Frames: Bookmarks for Function Calls</h2>
+<p>When the VM calls a function, it needs to remember where it was in the
+main program so it can come back later. It does this with <strong>frames</strong>.</p>
+<p>A <strong>frame</strong> is like a bookmark. It remembers:</p>
+<ul>
+<li>Which instruction sheet you were following (the function's <code>CodeObject</code>)</li>
+<li>Which step you were on (the instruction pointer)</li>
+<li>Your local variables</li>
+</ul>
+<h3 id="how-call-works">How CALL works</h3>
+<p>When the VM sees <code>CALL "add"</code>:</p>
+<ol>
+<li>It looks up the function <code>"add"</code> and finds its instruction sheet</li>
+<li>It pops the arguments from the stack and pairs them with parameter names</li>
+<li>It creates a new frame (a new bookmark) for the function</li>
+<li>It puts the new frame on top of a <em>frame stack</em> (a pile of bookmarks!)</li>
+<li>It starts following the function's instructions</li>
+</ol>
+<h3 id="how-return-works">How RETURN works</h3>
+<p>When the VM sees <code>RETURN</code>:</p>
+<ol>
+<li>It pops the return value from the stack</li>
+<li>It removes the current frame (throws away the bookmark)</li>
+<li>It pushes the return value back onto the stack</li>
+<li>It's now back in the calling function's frame — right where it left off</li>
+</ol>
+<p>Think of it like asking a friend for help:</p>
+<blockquote>
+<p>"Hey, can you add 3 and 5 for me?"</p>
+<p>Your friend goes away, works it out, comes back and says "8".</p>
+<p>You write down 8 and carry on with your own recipe.</p>
+</blockquote>
+<h2 id="how-variables-work">How Variables Work</h2>
+<p>Each frame has its own set of variables — a private notebook. When the
+VM sees <code>STORE_NAME "x"</code>, it writes the value in the current frame's
+notebook. When it sees <code>LOAD_NAME "x"</code>, it reads from the current
+frame's notebook.</p>
+<p>Because each frame has its <em>own</em> notebook, a variable called <code>x</code> inside
+one function doesn't interfere with a variable called <code>x</code> in another
+function. They're on separate pages.</p>
+<h2 id="print-formatting">Print Formatting</h2>
+<p>Pebble has its own rules for printing values:</p>
 <table>
 <thead>
 <tr>
-<th></th>
-<th><code>for</code></th>
-<th><code>while</code></th>
+<th>Pebble value</th>
+<th>What gets printed</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Best for</td>
-<td>Going through a collection</td>
-<td>Repeating until a condition changes</td>
+<td><code>42</code></td>
+<td><code>42</code></td>
 </tr>
 <tr>
-<td>Counter needed?</td>
-<td>Built-in (<code>i</code> in <code>for i in ...</code>)</td>
-<td>You manage it yourself</td>
+<td><code>"hello"</code></td>
+<td><code>hello</code> (no quotes)</td>
 </tr>
 <tr>
-<td>Analogy</td>
-<td>Roll call</td>
-<td>Broken record</td>
+<td><code>true</code></td>
+<td><code>true</code> (lowercase)</td>
+</tr>
+<tr>
+<td><code>false</code></td>
+<td><code>false</code> (lowercase)</td>
 </tr>
 </tbody>
 </table>
+<p>This is different from Python, which would print <code>True</code> and <code>False</code>
+with capital letters.</p>
+<h2 id="runtime-errors">Runtime Errors</h2>
+<p>Some problems can't be caught until the program is actually running.
+These are called <strong>runtime errors</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Error message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>1 / 0</code></td>
+<td>Division by zero</td>
+</tr>
+<tr>
+<td><code>1 % 0</code></td>
+<td>Division by zero</td>
+</tr>
+<tr>
+<td><code>"hi" - 1</code></td>
+<td>Unsupported operand types for -: str and int</td>
+</tr>
+<tr>
+<td><code>-"hi"</code></td>
+<td>Unsupported operand type for negation: str</td>
+</tr>
+</tbody>
+</table>
+<p>When a runtime error happens, the VM stops and reports what went wrong.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
-<p>Here's a program that uses functions and for loops together:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn greet(name) {
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print(name)
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>}
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>fn count_up(n) {
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    for i in range(n) {
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        print(i)
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    }
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>}
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>greet(&quot;Alice&quot;)
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>count_up(3)
+<p>Here's what happens when you run <code>pebble hello.pbl</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>hello.pbl → Lexer → Parser → Analyzer → Compiler → VM → output
 </code></pre></div>
-<p>Functions can contain for loops, for loops can contain if statements -- you can
-nest them however you like to build up complex behaviour from simple pieces.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>The parser catches several mistakes:</p>
-<table>
-<thead>
-<tr>
-<th>Code</th>
-<th>Error</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>foo(1, 2</code></td>
-<td>Expected ')' after arguments</td>
-</tr>
-<tr>
-<td><code>foo(1,)</code></td>
-<td>Unexpected token ')'</td>
-</tr>
-<tr>
-<td><code>for in items { }</code></td>
-<td>Expected loop variable after 'for'</td>
-</tr>
-<tr>
-<td><code>for i items { }</code></td>
-<td>Expected 'in' after loop variable</td>
-</tr>
-<tr>
-<td><code>fn () { }</code></td>
-<td>Expected function name after 'fn'</td>
-</tr>
-<tr>
-<td><code>fn greet { }</code></td>
-<td>Expected '(' after function name</td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<table>
-<thead>
-<tr>
-<th>Concept</th>
-<th>Analogy</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Function</td>
-<td>A recipe card</td>
-</tr>
-<tr>
-<td>Parameter</td>
-<td>An ingredient slot on the recipe</td>
-</tr>
-<tr>
-<td>Argument</td>
-<td>The actual ingredient you hand over</td>
-</tr>
-<tr>
-<td><code>return</code></td>
-<td>Handing back the finished dish</td>
-</tr>
-<tr>
-<td><code>for</code> loop</td>
-<td>Roll call -- go through each item one by one</td>
-</tr>
-<tr>
-<td>Function call <code>()</code></td>
-<td>Using a recipe</td>
-</tr>
-</tbody>
-</table>
+<ol>
+<li>The <strong>lexer</strong> breaks the source into tokens</li>
+<li>The <strong>parser</strong> builds a tree (AST)</li>
+<li>The <strong>analyzer</strong> checks for mistakes</li>
+<li>The <strong>compiler</strong> turns the tree into bytecode instructions</li>
+<li>The <strong>VM</strong> follows those instructions and produces output</li>
+</ol>
+<h2 id="a-complete-example">A Complete Example</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn double(n) {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    return n * 2
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>}
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>print(double(5))
+</code></pre></div>
+<p>The compiler produces:</p>
+<p><strong>Main instructions:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>0  LOAD_CONST 0     # push 5
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>1  CALL &quot;double&quot;    # call the function
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>2  PRINT            # print the result
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>3  HALT
+</code></pre></div>
+<p><strong>double instructions:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>0  LOAD_NAME &quot;n&quot;    # push the parameter
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>1  LOAD_CONST 0     # push 2
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>2  MULTIPLY         # n * 2
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>3  RETURN           # hand back the result
+</code></pre></div>
+<p>The VM runs it like this:</p>
+<ol>
+<li>Push <code>5</code> → stack: <code>[5]</code></li>
+<li>CALL <code>"double"</code> → new frame, <code>n = 5</code>, stack: <code>[]</code></li>
+<li>Push <code>n</code> (which is <code>5</code>) → stack: <code>[5]</code></li>
+<li>Push <code>2</code> → stack: <code>[5, 2]</code></li>
+<li>MULTIPLY → stack: <code>[10]</code></li>
+<li>RETURN → pop frame, push <code>10</code> → stack: <code>[10]</code></li>
+<li>PRINT → pop and print <code>10</code></li>
+<li>HALT → done!</li>
+</ol>
+<p>Output: <code>10</code></p>
 
 
 
