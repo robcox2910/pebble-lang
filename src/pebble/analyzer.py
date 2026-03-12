@@ -37,15 +37,13 @@ from pebble.ast_nodes import (
     UnaryOp,
     WhileLoop,
 )
+from pebble.builtins import BUILTIN_ARITIES
 from pebble.errors import SemanticError
 from pebble.tokens import SourceLocation
 
 # -- Built-in declarations ---------------------------------------------------
 
 _BUILTIN_LOCATION = SourceLocation(line=0, column=0)
-_PRINT_ARITY = 1
-_RANGE_ARITY = 1
-_LEN_ARITY = 1
 
 
 # -- Scope --------------------------------------------------------------------
@@ -132,9 +130,8 @@ class SemanticAnalyzer:
     def __init__(self) -> None:
         """Create an analyzer with a global scope and built-in declarations."""
         self._scope = Scope()
-        self._scope.functions["print"] = (_PRINT_ARITY, _BUILTIN_LOCATION)
-        self._scope.functions["range"] = (_RANGE_ARITY, _BUILTIN_LOCATION)
-        self._scope.functions["len"] = (_LEN_ARITY, _BUILTIN_LOCATION)
+        for name, arity in BUILTIN_ARITIES.items():
+            self._scope.functions[name] = (arity, _BUILTIN_LOCATION)
         self._in_function = False
 
     # -- Public API -----------------------------------------------------------

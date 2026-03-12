@@ -12,6 +12,7 @@ import sys
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Never
 
+from pebble.builtins import BUILTINS, Value, format_value
 from pebble.bytecode import Instruction, OpCode
 from pebble.errors import PebbleRuntimeError
 
@@ -20,8 +21,6 @@ if TYPE_CHECKING:
     from typing import TextIO
 
     from pebble.bytecode import CodeObject, CompiledProgram
-
-type Value = int | str | bool | list[Value]
 
 _DIVISION_BY_ZERO = "Division by zero"
 
@@ -289,14 +288,11 @@ class VirtualMachine:
         name = _str_operand(instruction)
 
         # Built-in function dispatch
-        if name == "len":
-            arg = self._stack.pop()
-            if isinstance(arg, list | str):
-                self._stack.append(len(arg))
-            else:
-                type_name = type(arg).__name__
-                msg = f"len() not supported for {type_name}"
-                raise PebbleRuntimeError(msg, line=0, column=0)
+        if name in BUILTINS:
+            arity, handler = BUILTINS[name]
+            builtin_args = [self._stack.pop() for _ in range(arity)]
+            builtin_args.reverse()
+            self._stack.append(handler(builtin_args))
             return
 
         fn_code = self._functions[name]
@@ -344,16 +340,7 @@ class VirtualMachine:
     @staticmethod
     def _format_value(value: Value) -> str:
         """Format *value* for Pebble-native output."""
-        match value:
-            case bool():
-                return "true" if value else "false"
-            case int():
-                return str(value)
-            case str():
-                return value
-            case list():
-                items = ", ".join(VirtualMachine._format_value(v) for v in value)
-                return f"[{items}]"
+        return format_value(value)
 
 
 # -- Module-level helpers (no self needed) ------------------------------------
