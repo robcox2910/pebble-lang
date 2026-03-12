@@ -50,3 +50,4 @@ nav:
       - Statements: concepts/statements.md
       - Functions: concepts/functions.md
       - Semantic Analysis: concepts/analyzer.md
+      - Compiler: concepts/compiler.md
