@@ -53,3 +53,4 @@ nav:
       - Compiler: concepts/compiler.md
       - VM: concepts/vm.md
       - String Interpolation: concepts/string-interpolation.md
+      - Arrays: concepts/arrays.md

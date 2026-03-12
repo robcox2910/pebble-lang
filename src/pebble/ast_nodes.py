@@ -97,6 +97,23 @@ class StringInterpolation:
     location: SourceLocation
 
 
+@dataclass(frozen=True)
+class ArrayLiteral:
+    """An array literal like ``[1, 2, 3]``."""
+
+    elements: list[Expression]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class IndexAccess:
+    """An index access like ``xs[0]``."""
+
+    target: Expression
+    index: Expression
+    location: SourceLocation
+
+
 # ---------------------------------------------------------------------------
 # Statement nodes
 # ---------------------------------------------------------------------------
@@ -168,6 +185,16 @@ class FunctionDef:
 
 
 @dataclass(frozen=True)
+class IndexAssignment:
+    """An index assignment like ``xs[0] = 42``."""
+
+    target: Expression
+    index: Expression
+    value: Expression
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class ReturnStatement:
     """A ``return`` statement, optionally with a value."""
 
@@ -195,6 +222,8 @@ Expression = (
     | BinaryOp
     | FunctionCall
     | StringInterpolation
+    | ArrayLiteral
+    | IndexAccess
 )
 
 Statement = (
@@ -206,4 +235,5 @@ Statement = (
     | ForLoop
     | FunctionDef
     | ReturnStatement
+    | IndexAssignment
 )

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from pebble.bytecode import CodeObject, CompiledProgram
 
-type Value = int | str | bool
+type Value = int | str | bool | list[Value]
 
 _DIVISION_BY_ZERO = "Division by zero"
 
@@ -39,7 +39,7 @@ class Frame:
 
     code: CodeObject
     ip: int = 0
-    variables: dict[str, int | str | bool] = field(
+    variables: dict[str, Value] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )
 
@@ -102,8 +102,8 @@ class VirtualMachine:
                     self._exec_logic(instruction)
                 case OpCode.JUMP | OpCode.JUMP_IF_FALSE | OpCode.POP:
                     self._exec_control(instruction, frame)
-                case OpCode.BUILD_STRING:
-                    self._exec_build_string(instruction)
+                case OpCode.BUILD_STRING | OpCode.BUILD_LIST | OpCode.INDEX_GET | OpCode.INDEX_SET:
+                    self._exec_collection(instruction)
                 case OpCode.PRINT:
                     self._output.write(self._format_value(self._stack.pop()) + "\n")
                 case OpCode.CALL:
@@ -221,6 +221,20 @@ class VirtualMachine:
             case _:  # pragma: no cover
                 pass
 
+    def _exec_collection(self, instruction: Instruction) -> None:
+        """Handle BUILD_STRING, BUILD_LIST, INDEX_GET, and INDEX_SET."""
+        match instruction.opcode:
+            case OpCode.BUILD_STRING:
+                self._exec_build_string(instruction)
+            case OpCode.BUILD_LIST:
+                self._exec_build_list(instruction)
+            case OpCode.INDEX_GET:
+                self._exec_index_get()
+            case OpCode.INDEX_SET:
+                self._exec_index_set()
+            case _:  # pragma: no cover
+                pass
+
     def _exec_build_string(self, instruction: Instruction) -> None:
         """Handle BUILD_STRING — pop *n* values, stringify and concatenate."""
         count = _int_operand(instruction)
@@ -228,9 +242,63 @@ class VirtualMachine:
         parts.reverse()
         self._stack.append("".join(parts))
 
+    def _exec_build_list(self, instruction: Instruction) -> None:
+        """Handle BUILD_LIST — pop *n* values and create a list."""
+        count = _int_operand(instruction)
+        elements = [self._stack.pop() for _ in range(count)]
+        elements.reverse()
+        self._stack.append(elements)
+
+    def _exec_index_get(self) -> None:
+        """Handle INDEX_GET — pop index and target, push target[index]."""
+        index = self._stack.pop()
+        target = self._stack.pop()
+        if not isinstance(target, list):
+            type_name = type(target).__name__
+            msg = f"Cannot index into {type_name}"
+            raise PebbleRuntimeError(msg, line=0, column=0)
+        if not isinstance(index, int) or isinstance(index, bool):
+            type_name = type(index).__name__
+            msg = f"List index must be an integer, got {type_name}"
+            raise PebbleRuntimeError(msg, line=0, column=0)
+        if index < 0 or index >= len(target):
+            msg = f"Index {index} out of bounds for list of length {len(target)}"
+            raise PebbleRuntimeError(msg, line=0, column=0)
+        self._stack.append(target[index])
+
+    def _exec_index_set(self) -> None:
+        """Handle INDEX_SET — pop value, index, target; mutate target[index]."""
+        value = self._stack.pop()
+        index = self._stack.pop()
+        target = self._stack.pop()
+        if not isinstance(target, list):
+            type_name = type(target).__name__
+            msg = f"Cannot index into {type_name}"
+            raise PebbleRuntimeError(msg, line=0, column=0)
+        if not isinstance(index, int) or isinstance(index, bool):
+            type_name = type(index).__name__
+            msg = f"List index must be an integer, got {type_name}"
+            raise PebbleRuntimeError(msg, line=0, column=0)
+        if index < 0 or index >= len(target):
+            msg = f"Index {index} out of bounds for list of length {len(target)}"
+            raise PebbleRuntimeError(msg, line=0, column=0)
+        target[index] = value
+
     def _exec_call(self, instruction: Instruction) -> None:
-        """Handle CALL — push a new frame with bound parameters."""
+        """Handle CALL — check builtins first, then user functions."""
         name = _str_operand(instruction)
+
+        # Built-in function dispatch
+        if name == "len":
+            arg = self._stack.pop()
+            if isinstance(arg, list | str):
+                self._stack.append(len(arg))
+            else:
+                type_name = type(arg).__name__
+                msg = f"len() not supported for {type_name}"
+                raise PebbleRuntimeError(msg, line=0, column=0)
+            return
+
         fn_code = self._functions[name]
         args: dict[str, Value] = {}
         for param in reversed(fn_code.parameters):
@@ -283,6 +351,9 @@ class VirtualMachine:
                 return str(value)
             case str():
                 return value
+            case list():
+                items = ", ".join(VirtualMachine._format_value(v) for v in value)
+                return f"[{items}]"
 
 
 # -- Module-level helpers (no self needed) ------------------------------------

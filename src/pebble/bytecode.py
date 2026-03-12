@@ -64,6 +64,11 @@ class OpCode(StrEnum):
     # -- Strings --------------------------------------------------------------
     BUILD_STRING = "BUILD_STRING"
 
+    # -- Lists ----------------------------------------------------------------
+    BUILD_LIST = "BUILD_LIST"
+    INDEX_GET = "INDEX_GET"
+    INDEX_SET = "INDEX_SET"
+
     # -- I/O ------------------------------------------------------------------
     PRINT = "PRINT"
 
