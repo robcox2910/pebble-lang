@@ -61,6 +61,9 @@ class OpCode(StrEnum):
     CALL = "CALL"
     RETURN = "RETURN"
 
+    # -- Strings --------------------------------------------------------------
+    BUILD_STRING = "BUILD_STRING"
+
     # -- I/O ------------------------------------------------------------------
     PRINT = "PRINT"
 

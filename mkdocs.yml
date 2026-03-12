@@ -52,3 +52,4 @@ nav:
       - Semantic Analysis: concepts/analyzer.md
       - Compiler: concepts/compiler.md
       - VM: concepts/vm.md
+      - String Interpolation: concepts/string-interpolation.md
