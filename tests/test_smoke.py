@@ -118,4 +118,4 @@ class TestCLI:
             check=False,
         )
         assert result.returncode == EXIT_FAILURE
-        assert "Error:" in result.stderr
+        assert "Expected variable name" in result.stderr

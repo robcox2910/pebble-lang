@@ -57,6 +57,7 @@ class VirtualMachine:
         self._frames: list[Frame] = []
         self._functions: dict[str, CodeObject] = {}
         self._output: TextIO = output or sys.stdout
+        self._current_instruction: Instruction | None = None
 
     # -- Public API -----------------------------------------------------------
 
@@ -66,6 +67,16 @@ class VirtualMachine:
         self._frames = [Frame(code=program.main)]
         self._execute()
 
+    # -- Error helper ---------------------------------------------------------
+
+    def _runtime_error(self, msg: str) -> Never:
+        """Raise a PebbleRuntimeError with the current instruction's location."""
+        line, column = 0, 0
+        if self._current_instruction and self._current_instruction.location:
+            loc = self._current_instruction.location
+            line, column = loc.line, loc.column
+        raise PebbleRuntimeError(msg, line=line, column=column)
+
     # -- Execution loop -------------------------------------------------------
 
     def _execute(self) -> None:
@@ -74,6 +85,7 @@ class VirtualMachine:
             frame = self._frames[-1]
             instruction = frame.code.instructions[frame.ip]
             frame.ip += 1
+            self._current_instruction = instruction
 
             match instruction.opcode:
                 case OpCode.LOAD_CONST | OpCode.STORE_NAME | OpCode.LOAD_NAME:
@@ -142,11 +154,11 @@ class VirtualMachine:
                 self._apply_arithmetic("*", left, right, lambda a, b: a * b)
             case OpCode.DIVIDE:
                 right, left = self._stack.pop(), self._stack.pop()
-                _check_zero_divisor(right)
+                self._check_zero_divisor(right)
                 self._apply_arithmetic("/", left, right, lambda a, b: a // b)
             case OpCode.MODULO:
                 right, left = self._stack.pop(), self._stack.pop()
-                _check_zero_divisor(right)
+                self._check_zero_divisor(right)
                 self._apply_arithmetic("%", left, right, lambda a, b: a % b)
             case OpCode.NEGATE:
                 self._exec_negate()
@@ -163,15 +175,14 @@ class VirtualMachine:
             # explicit narrowing since _both_int is a plain bool return.
             self._stack.append(left + right)  # type: ignore[operator]
         else:
-            _type_error("+", left, right)
+            self._type_error("+", left, right)
 
     def _exec_negate(self) -> None:
         """Handle NEGATE — only valid on integers."""
         operand = self._stack.pop()
         if not isinstance(operand, int) or isinstance(operand, bool):
             type_name = type(operand).__name__
-            msg = f"Unsupported operand type for negation: {type_name}"
-            raise PebbleRuntimeError(msg, line=0, column=0)
+            self._runtime_error(f"Unsupported operand type for negation: {type_name}")
         self._stack.append(-operand)
 
     def _exec_logic(self, instruction: Instruction) -> None:
@@ -254,15 +265,12 @@ class VirtualMachine:
         target = self._stack.pop()
         if not isinstance(target, list):
             type_name = type(target).__name__
-            msg = f"Cannot index into {type_name}"
-            raise PebbleRuntimeError(msg, line=0, column=0)
+            self._runtime_error(f"Cannot index into {type_name}")
         if not isinstance(index, int) or isinstance(index, bool):
             type_name = type(index).__name__
-            msg = f"List index must be an integer, got {type_name}"
-            raise PebbleRuntimeError(msg, line=0, column=0)
+            self._runtime_error(f"List index must be an integer, got {type_name}")
         if index < 0 or index >= len(target):
-            msg = f"Index {index} out of bounds for list of length {len(target)}"
-            raise PebbleRuntimeError(msg, line=0, column=0)
+            self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
         self._stack.append(target[index])
 
     def _exec_index_set(self) -> None:
@@ -272,15 +280,12 @@ class VirtualMachine:
         target = self._stack.pop()
         if not isinstance(target, list):
             type_name = type(target).__name__
-            msg = f"Cannot index into {type_name}"
-            raise PebbleRuntimeError(msg, line=0, column=0)
+            self._runtime_error(f"Cannot index into {type_name}")
         if not isinstance(index, int) or isinstance(index, bool):
             type_name = type(index).__name__
-            msg = f"List index must be an integer, got {type_name}"
-            raise PebbleRuntimeError(msg, line=0, column=0)
+            self._runtime_error(f"List index must be an integer, got {type_name}")
         if index < 0 or index >= len(target):
-            msg = f"Index {index} out of bounds for list of length {len(target)}"
-            raise PebbleRuntimeError(msg, line=0, column=0)
+            self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
         target[index] = value
 
     def _exec_call(self, instruction: Instruction) -> None:
@@ -292,7 +297,10 @@ class VirtualMachine:
             arity, handler = BUILTINS[name]
             builtin_args = [self._stack.pop() for _ in range(arity)]
             builtin_args.reverse()
-            self._stack.append(handler(builtin_args))
+            try:
+                self._stack.append(handler(builtin_args))
+            except PebbleRuntimeError as exc:
+                self._runtime_error(exc.message)
             return
 
         fn_code = self._functions[name]
@@ -309,6 +317,17 @@ class VirtualMachine:
 
     # -- Typed operation helpers -----------------------------------------------
 
+    def _check_zero_divisor(self, right: Value) -> None:
+        """Raise PebbleRuntimeError if *right* is integer zero."""
+        if isinstance(right, int) and not isinstance(right, bool) and right == 0:
+            self._runtime_error(_DIVISION_BY_ZERO)
+
+    def _type_error(self, symbol: str, left: Value, right: Value) -> Never:
+        """Raise a PebbleRuntimeError for an unsupported operand pair."""
+        left_type = type(left).__name__
+        right_type = type(right).__name__
+        self._runtime_error(f"Unsupported operand types for {symbol}: {left_type} and {right_type}")
+
     def _apply_arithmetic(
         self,
         symbol: str,
@@ -320,7 +339,7 @@ class VirtualMachine:
         if _both_int(left, right):
             self._stack.append(op(left, right))  # type: ignore[arg-type]
         else:
-            _type_error(symbol, left, right)
+            self._type_error(symbol, left, right)
 
     def _apply_comparison(
         self,
@@ -333,7 +352,7 @@ class VirtualMachine:
         if _both_int(left, right):
             self._stack.append(op(left, right))  # type: ignore[arg-type]
         else:
-            _type_error(symbol, left, right)
+            self._type_error(symbol, left, right)
 
     # -- Formatting -----------------------------------------------------------
 
@@ -354,20 +373,6 @@ def _both_int(left: Value, right: Value) -> bool:
         and not isinstance(left, bool)
         and not isinstance(right, bool)
     )
-
-
-def _check_zero_divisor(right: Value) -> None:
-    """Raise PebbleRuntimeError if *right* is integer zero."""
-    if isinstance(right, int) and not isinstance(right, bool) and right == 0:
-        raise PebbleRuntimeError(_DIVISION_BY_ZERO, line=0, column=0)
-
-
-def _type_error(symbol: str, left: Value, right: Value) -> Never:
-    """Raise a PebbleRuntimeError for an unsupported operand pair."""
-    left_type = type(left).__name__
-    right_type = type(right).__name__
-    msg = f"Unsupported operand types for {symbol}: {left_type} and {right_type}"
-    raise PebbleRuntimeError(msg, line=0, column=0)
 
 
 def _int_operand(instruction: Instruction) -> int:
