@@ -27,6 +27,7 @@ from pebble.ast_nodes import (
     Reassignment,
     ReturnStatement,
     Statement,
+    StringInterpolation,
     StringLiteral,
     UnaryOp,
     WhileLoop,
@@ -353,11 +354,38 @@ class Parser:
         self._expect(TokenKind.RIGHT_PAREN, "Expected ')'")
         return expr
 
+    def _parse_string_interpolation(self) -> StringInterpolation:
+        """Parse an interpolated string: STRING_START expr (STRING_MIDDLE expr)* STRING_END."""
+        start_token = self._advance()  # consume STRING_START
+        parts: list[Expression] = []
+
+        # First text segment (may be empty)
+        if start_token.value:
+            parts.append(StringLiteral(value=start_token.value, location=start_token.location))
+
+        # First expression
+        parts.append(self._parse_precedence(min_precedence=0))
+
+        # Middle segments: STRING_MIDDLE text + expression
+        while not self._at_end() and self._peek().kind == TokenKind.STRING_MIDDLE:
+            mid_token = self._advance()
+            if mid_token.value:
+                parts.append(StringLiteral(value=mid_token.value, location=mid_token.location))
+            parts.append(self._parse_precedence(min_precedence=0))
+
+        # Final segment
+        end_token = self._expect(TokenKind.STRING_END, "Expected end of interpolated string")
+        if end_token.value:
+            parts.append(StringLiteral(value=end_token.value, location=end_token.location))
+
+        return StringInterpolation(parts=parts, location=start_token.location)
+
     # -- Prefix dispatch table ------------------------------------------------
 
     _prefix_parsers: ClassVar[dict[TokenKind, Callable[[Parser], Expression]]] = {
         TokenKind.INTEGER: _parse_integer,
         TokenKind.STRING: _parse_string,
+        TokenKind.STRING_START: _parse_string_interpolation,
         TokenKind.TRUE: _parse_boolean,
         TokenKind.FALSE: _parse_boolean,
         TokenKind.IDENTIFIER: _parse_identifier,

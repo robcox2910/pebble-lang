@@ -18,6 +18,9 @@ class TokenKind(StrEnum):
     # -- Literals -------------------------------------------------------------
     INTEGER = "INTEGER"
     STRING = "STRING"
+    STRING_START = "STRING_START"
+    STRING_MIDDLE = "STRING_MIDDLE"
+    STRING_END = "STRING_END"
     IDENTIFIER = "IDENTIFIER"
 
     # -- Keywords -------------------------------------------------------------

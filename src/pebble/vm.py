@@ -102,6 +102,8 @@ class VirtualMachine:
                     self._exec_logic(instruction)
                 case OpCode.JUMP | OpCode.JUMP_IF_FALSE | OpCode.POP:
                     self._exec_control(instruction, frame)
+                case OpCode.BUILD_STRING:
+                    self._exec_build_string(instruction)
                 case OpCode.PRINT:
                     self._output.write(self._format_value(self._stack.pop()) + "\n")
                 case OpCode.CALL:
@@ -218,6 +220,13 @@ class VirtualMachine:
                 self._stack.pop()
             case _:  # pragma: no cover
                 pass
+
+    def _exec_build_string(self, instruction: Instruction) -> None:
+        """Handle BUILD_STRING — pop *n* values, stringify and concatenate."""
+        count = _int_operand(instruction)
+        parts = [self._format_value(self._stack.pop()) for _ in range(count)]
+        parts.reverse()
+        self._stack.append("".join(parts))
 
     def _exec_call(self, instruction: Instruction) -> None:
         """Handle CALL — push a new frame with bound parameters."""

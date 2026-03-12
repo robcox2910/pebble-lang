@@ -115,13 +115,127 @@ class Lexer:
             self._advance_newline()
 
     def _scan_string(self) -> None:
-        """Scan a double-quoted string literal."""
+        """Scan a double-quoted string literal, handling interpolation.
+
+        Plain strings produce a single ``STRING`` token. Strings containing
+        unescaped ``{`` switch into interpolation mode, producing a sequence
+        of ``STRING_START``, expression tokens, ``STRING_MIDDLE`` (for further
+        segments), and ``STRING_END``.
+        """
         start_line = self._line
         start_col = self._column
         self._advance()  # skip opening quote
 
+        # First pass: check whether this string contains interpolation.
         value_chars: list[str] = []
+        has_interpolation = False
+
         while not self._at_end() and self._peek() != '"':
+            if self._peek() == "\\" and self._pos + 1 < len(self._source):
+                next_ch = self._source[self._pos + 1]
+                if next_ch == "{":
+                    # Escaped brace — literal character
+                    self._advance()  # skip backslash
+                    value_chars.append("{")
+                    self._advance()  # skip '{'
+                    continue
+            if self._peek() == "{":
+                has_interpolation = True
+                break
+            if self._peek() == "\n":
+                value_chars.append("\n")
+                self._advance_newline()
+            else:
+                value_chars.append(self._peek())
+                self._advance()
+
+        if not has_interpolation:
+            # No interpolation — finish as a plain STRING.
+            if self._at_end():
+                msg = "Unterminated string"
+                raise LexerError(msg, line=start_line, column=start_col)
+            self._advance()  # skip closing quote
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.STRING,
+                    value="".join(value_chars),
+                    location=SourceLocation(line=start_line, column=start_col),
+                )
+            )
+            return
+
+        # Interpolation mode — emit STRING_START for the segment before '{'
+        self._tokens.append(
+            Token(
+                kind=TokenKind.STRING_START,
+                value="".join(value_chars),
+                location=SourceLocation(line=start_line, column=start_col),
+            )
+        )
+        self._advance()  # skip '{'
+
+        # Now scan expression tokens until matching '}', then resume string.
+        self._scan_interpolation_body(start_line, start_col)
+
+    def _scan_interpolation_body(
+        self,
+        string_start_line: int,
+        string_start_col: int,
+    ) -> None:
+        """Scan expression tokens inside ``{…}`` and the remaining string segments."""
+        brace_depth = 1
+        while not self._at_end() and brace_depth > 0:
+            ch = self._peek()
+            if ch == "{":
+                brace_depth += 1
+                self._scan_single_char()
+            elif ch == "}":
+                brace_depth -= 1
+                if brace_depth == 0:
+                    self._advance()  # skip closing '}'
+                    break
+                self._scan_single_char()
+            else:
+                self._scan_token()
+
+        if brace_depth > 0:
+            msg = "Unterminated interpolation expression"
+            raise LexerError(msg, line=string_start_line, column=string_start_col)
+
+        # Now we are back inside the string after '}'.
+        # Scan the next string segment.
+        self._scan_string_continuation(string_start_line, string_start_col)
+
+    def _scan_string_continuation(
+        self,
+        string_start_line: int,
+        string_start_col: int,
+    ) -> None:
+        """Scan the remaining string after a ``}`` closes an interpolation."""
+        seg_line = self._line
+        seg_col = self._column
+        value_chars: list[str] = []
+
+        while not self._at_end() and self._peek() != '"':
+            if self._peek() == "\\" and self._pos + 1 < len(self._source):
+                next_ch = self._source[self._pos + 1]
+                if next_ch == "{":
+                    self._advance()  # skip backslash
+                    value_chars.append("{")
+                    self._advance()  # skip '{'
+                    continue
+            if self._peek() == "{":
+                # Another interpolation segment — emit STRING_MIDDLE
+                self._tokens.append(
+                    Token(
+                        kind=TokenKind.STRING_MIDDLE,
+                        value="".join(value_chars),
+                        location=SourceLocation(line=seg_line, column=seg_col),
+                    )
+                )
+                self._advance()  # skip '{'
+                self._scan_interpolation_body(string_start_line, string_start_col)
+                return
             if self._peek() == "\n":
                 value_chars.append("\n")
                 self._advance_newline()
@@ -131,15 +245,14 @@ class Lexer:
 
         if self._at_end():
             msg = "Unterminated string"
-            raise LexerError(msg, line=start_line, column=start_col)
+            raise LexerError(msg, line=string_start_line, column=string_start_col)
 
         self._advance()  # skip closing quote
-        value = "".join(value_chars)
         self._tokens.append(
             Token(
-                kind=TokenKind.STRING,
-                value=value,
-                location=SourceLocation(line=start_line, column=start_col),
+                kind=TokenKind.STRING_END,
+                value="".join(value_chars),
+                location=SourceLocation(line=seg_line, column=seg_col),
             )
         )
 

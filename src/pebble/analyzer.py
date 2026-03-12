@@ -29,6 +29,7 @@ from pebble.ast_nodes import (
     Reassignment,
     ReturnStatement,
     Statement,
+    StringInterpolation,
     StringLiteral,
     UnaryOp,
     WhileLoop,
@@ -254,6 +255,9 @@ class SemanticAnalyzer:
                 self._visit_expression(expr.operand)
             case FunctionCall():
                 self._visit_function_call(expr)
+            case StringInterpolation():
+                for part in expr.parts:
+                    self._visit_expression(part)
             case IntegerLiteral() | StringLiteral() | BooleanLiteral():
                 pass  # Literals need no semantic checks
 

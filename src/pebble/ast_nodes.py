@@ -85,6 +85,18 @@ class FunctionCall:
     location: SourceLocation
 
 
+@dataclass(frozen=True)
+class StringInterpolation:
+    """An interpolated string like ``"hello {name}"``.
+
+    Parts alternate between string segments (``StringLiteral``) and
+    embedded expressions.
+    """
+
+    parts: list[Expression]
+    location: SourceLocation
+
+
 # ---------------------------------------------------------------------------
 # Statement nodes
 # ---------------------------------------------------------------------------
@@ -175,7 +187,14 @@ class Program:
 # ---------------------------------------------------------------------------
 
 Expression = (
-    IntegerLiteral | StringLiteral | BooleanLiteral | Identifier | UnaryOp | BinaryOp | FunctionCall
+    IntegerLiteral
+    | StringLiteral
+    | BooleanLiteral
+    | Identifier
+    | UnaryOp
+    | BinaryOp
+    | FunctionCall
+    | StringInterpolation
 )
 
 Statement = (

@@ -26,6 +26,7 @@ from pebble.ast_nodes import (
     Reassignment,
     ReturnStatement,
     Statement,
+    StringInterpolation,
     StringLiteral,
     UnaryOp,
     WhileLoop,
@@ -260,6 +261,8 @@ class Compiler:
                 self._compile_unary(expr)
             case FunctionCall():
                 self._compile_call(expr)
+            case StringInterpolation():
+                self._compile_string_interpolation(expr)
 
     # -- Expression compilers -------------------------------------------------
 
@@ -279,3 +282,9 @@ class Compiler:
         for arg in node.arguments:
             self._compile_expression(arg)
         self._emit(OpCode.CALL, node.name)
+
+    def _compile_string_interpolation(self, node: StringInterpolation) -> None:
+        """Compile a string interpolation: push each part, then BUILD_STRING."""
+        for part in node.parts:
+            self._compile_expression(part)
+        self._emit(OpCode.BUILD_STRING, len(node.parts))
