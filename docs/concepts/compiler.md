@@ -209,6 +209,53 @@ while i < $for_limit_0 {
 }
 ```
 
+### Break and Continue
+
+`break` and `continue` are compiled using the same `JUMP` instruction --
+no new opcodes needed! The trick is knowing *where* to jump.
+
+**Break** exits the loop, so it jumps to the instruction *after* the loop.
+**Continue** skips to the next iteration:
+
+- In a `while` loop, `continue` jumps back to the **condition check**
+- In a `for` loop, `continue` jumps to the **increment** section
+  (so the loop variable still gets updated)
+
+The compiler uses **backpatching** for both. When it sees `break` or
+`continue`, it emits `JUMP 0` with a placeholder target. After the loop
+is fully compiled, it goes back and fills in the real target.
+
+```
+WHILE with break/continue:
+
+0  [condition]               ← continue jumps here
+1  JUMP_IF_FALSE exit
+2  [body]
+3  JUMP 0 (break → exit)    ← break emits this
+4  JUMP 0 (continue → 0)    ← continue emits this
+5  JUMP 0                    ← back to condition
+exit:                        ← break targets here
+```
+
+```
+FOR with break/continue:
+
+0  [init limit + variable]
+4  [condition: var < limit]  ← loop start
+7  JUMP_IF_FALSE exit
+8  [body]
+   JUMP 0 (continue → inc)  ← continue emits this
+   JUMP 0 (break → exit)    ← break emits this
+inc:                         ← continue targets here
+   [var = var + 1]
+   JUMP 4                   ← back to condition
+exit:                        ← break targets here
+```
+
+The compiler keeps a **stack of loop contexts** so that nested loops
+work correctly -- `break` in an inner loop only exits that inner loop,
+not the outer one.
+
 ### Functions
 
 ```pebble

@@ -297,6 +297,143 @@ while x < 5 {
         assert _run_source("while false { print(1) }") == ""
 
 
+# -- Break and Continue ------------------------------------------------------
+
+
+class TestVMBreak:
+    """Verify break statement execution."""
+
+    def test_break_in_while(self) -> None:
+        """``break`` exits a while loop early."""
+        source = """\
+let x = 0
+while true {
+    if x == 3 { break }
+    x = x + 1
+}
+print(x)"""
+        assert _run_source(source) == "3\n"
+
+    def test_break_in_for(self) -> None:
+        """``break`` exits a for loop early."""
+        source = """\
+for i in range(10) {
+    if i == 3 { break }
+    print(i)
+}"""
+        assert _run_source(source) == "0\n1\n2\n"
+
+    def test_break_as_first_statement(self) -> None:
+        """``break`` as the first statement exits immediately."""
+        source = """\
+let x = 0
+while true {
+    break
+    x = x + 1
+}
+print(x)"""
+        assert _run_source(source) == "0\n"
+
+    def test_break_in_nested_loops(self) -> None:
+        """``break`` in inner loop doesn't affect outer loop."""
+        source = """\
+for i in range(3) {
+    for j in range(3) {
+        if j == 1 { break }
+        print(j)
+    }
+}"""
+        assert _run_source(source) == "0\n0\n0\n"
+
+    def test_multiple_breaks_in_same_loop(self) -> None:
+        """Multiple break statements in same loop all work correctly."""
+        source = """\
+let x = 0
+while true {
+    if x == 1 { break }
+    if x == 2 { break }
+    x = x + 1
+}
+print(x)"""
+        assert _run_source(source) == "1\n"
+
+
+class TestVMContinue:
+    """Verify continue statement execution."""
+
+    def test_continue_in_while(self) -> None:
+        """``continue`` skips to condition check in while loop."""
+        source = """\
+let total = 0
+let i = 0
+while i < 5 {
+    i = i + 1
+    if i == 3 { continue }
+    total = total + i
+}
+print(total)"""
+        assert _run_source(source) == "12\n"
+
+    def test_continue_in_for(self) -> None:
+        """``continue`` skips to increment in for loop."""
+        source = """\
+for i in range(5) {
+    if i == 2 { continue }
+    print(i)
+}"""
+        assert _run_source(source) == "0\n1\n3\n4\n"
+
+    def test_continue_as_last_statement(self) -> None:
+        """``continue`` as the last statement is valid (no-op)."""
+        source = """\
+for i in range(3) {
+    print(i)
+    continue
+}"""
+        assert _run_source(source) == "0\n1\n2\n"
+
+    def test_continue_in_nested_for_loops(self) -> None:
+        """``continue`` in inner loop doesn't affect outer loop."""
+        source = """\
+for i in range(3) {
+    for j in range(3) {
+        if j == 1 { continue }
+        print(j)
+    }
+}"""
+        assert _run_source(source) == "0\n2\n0\n2\n0\n2\n"
+
+    def test_break_and_continue_together(self) -> None:
+        """``break`` and ``continue`` work together in the same loop."""
+        source = """\
+let total = 0
+let i = 0
+while i < 10 {
+    i = i + 1
+    if i == 3 { continue }
+    if i == 6 { break }
+    total = total + i
+}
+print(total)"""
+        assert _run_source(source) == "12\n"
+
+    def test_break_in_for_inside_function(self) -> None:
+        """``break`` works inside a for loop inside a function."""
+        source = """\
+fn first_even(n) {
+    for i in range(n) {
+        if i % 2 == 0 {
+            if i > 0 {
+                return i
+            }
+        }
+    }
+    return 0
+}
+print(first_even(10))"""
+        assert _run_source(source) == "2\n"
+
+
 # -- Cycle 6: Functions ------------------------------------------------------
 
 

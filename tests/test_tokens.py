@@ -12,8 +12,8 @@ FIRST_LINE = 1
 FIRST_COLUMN = 1
 SECOND_LINE = 2
 FIFTH_COLUMN = 5
-KEYWORD_COUNT = 13
-TOTAL_TOKEN_KINDS = 40
+KEYWORD_COUNT = 15
+TOTAL_TOKEN_KINDS = 42
 
 
 class TestTokenKind:
@@ -74,6 +74,14 @@ class TestTokenKind:
     def test_keyword_true(self) -> None:
         """Verify TRUE keyword token kind exists."""
         assert TokenKind.TRUE == "TRUE"
+
+    def test_keyword_break(self) -> None:
+        """Verify BREAK keyword token kind exists."""
+        assert TokenKind.BREAK == "BREAK"
+
+    def test_keyword_continue(self) -> None:
+        """Verify CONTINUE keyword token kind exists."""
+        assert TokenKind.CONTINUE == "CONTINUE"
 
     def test_keyword_false(self) -> None:
         """Verify FALSE keyword token kind exists."""
@@ -320,6 +328,14 @@ class TestKeywords:
     def test_not_keyword(self) -> None:
         """Verify 'not' maps to TokenKind.NOT."""
         assert KEYWORDS["not"] == TokenKind.NOT
+
+    def test_break_keyword(self) -> None:
+        """Verify 'break' maps to TokenKind.BREAK."""
+        assert KEYWORDS["break"] == TokenKind.BREAK
+
+    def test_continue_keyword(self) -> None:
+        """Verify 'continue' maps to TokenKind.CONTINUE."""
+        assert KEYWORDS["continue"] == TokenKind.CONTINUE
 
     def test_non_keyword_returns_none(self) -> None:
         """Verify a non-keyword string is not in the mapping."""

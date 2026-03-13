@@ -32,6 +32,8 @@ class TokenKind(StrEnum):
     IN = "IN"
     FN = "FN"
     RETURN = "RETURN"
+    BREAK = "BREAK"
+    CONTINUE = "CONTINUE"
     TRUE = "TRUE"
     FALSE = "FALSE"
 
@@ -107,6 +109,8 @@ KEYWORDS: dict[str, TokenKind] = {
     "in": TokenKind.IN,
     "fn": TokenKind.FN,
     "return": TokenKind.RETURN,
+    "break": TokenKind.BREAK,
+    "continue": TokenKind.CONTINUE,
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
     "and": TokenKind.AND,

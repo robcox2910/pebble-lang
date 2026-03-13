@@ -60,6 +60,8 @@ them as variable names because they already mean something:
 | `IN` | `in` | Used with `for` loops |
 | `FN` | `fn` | Define a function |
 | `RETURN` | `return` | Send a value back from a function |
+| `BREAK` | `break` | Exit a loop early |
+| `CONTINUE` | `continue` | Skip to the next loop iteration |
 | `TRUE` | `true` | The boolean value true |
 | `FALSE` | `false` | The boolean value false |
 | `AND` | `and` | Logical "both must be true" |

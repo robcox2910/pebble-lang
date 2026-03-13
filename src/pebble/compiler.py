@@ -10,6 +10,7 @@ compiler does not duplicate error checking.
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pebble.ast_nodes import (
@@ -17,6 +18,8 @@ from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
     BooleanLiteral,
+    BreakStatement,
+    ContinueStatement,
     Expression,
     ForLoop,
     FunctionCall,
@@ -65,6 +68,18 @@ _UNARY_OPS: dict[str, OpCode] = {
 }
 
 
+@dataclass
+class _LoopContext:
+    """Track pending break/continue jump patches for the current loop."""
+
+    break_patches: list[int] = field(
+        default_factory=lambda: [],  # noqa: PIE807
+    )
+    continue_patches: list[int] = field(
+        default_factory=lambda: [],  # noqa: PIE807
+    )
+
+
 class Compiler:
     """Compile a validated AST into stack-based bytecode.
 
@@ -86,6 +101,7 @@ class Compiler:
         self._functions: dict[str, CodeObject] = {}
         self._current = self._main
         self._loop_var_counter = 0
+        self._loop_contexts: list[_LoopContext] = []
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
 
@@ -152,12 +168,16 @@ class Compiler:
         """Return the index where the *next* instruction will be emitted."""
         return len(self._current.instructions)
 
-    def _patch_jump(self, instruction_index: int) -> None:
-        """Backpatch the jump at *instruction_index* to the current position."""
+    def _patch_jump_to(self, instruction_index: int, target: int) -> None:
+        """Backpatch the jump at *instruction_index* to *target*."""
         old = self._current.instructions[instruction_index]
         self._current.instructions[instruction_index] = Instruction(
-            old.opcode, self._current_index(), location=old.location
+            old.opcode, target, location=old.location
         )
+
+    def _patch_jump(self, instruction_index: int) -> None:
+        """Backpatch the jump at *instruction_index* to the current position."""
+        self._patch_jump_to(instruction_index, self._current_index())
 
     # -- Statement dispatch ---------------------------------------------------
 
@@ -182,6 +202,10 @@ class Compiler:
                 self._compile_return(stmt)
             case IndexAssignment():
                 self._compile_index_assignment(stmt)
+            case BreakStatement():
+                self._compile_break(stmt)
+            case ContinueStatement():
+                self._compile_continue(stmt)
             case _:
                 # Expression statement (e.g. bare function call)
                 self._compile_expression(stmt)  # type: ignore[arg-type]
@@ -225,13 +249,23 @@ class Compiler:
         """Compile ``while condition { body }``."""
         loop_start = self._current_index()
         self._compile_expression(node.condition)
-        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=node.location)
+        exit_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=node.location)
 
+        self._loop_contexts.append(_LoopContext())
         for stmt in node.body:
             self._compile_statement(stmt)
+        ctx = self._loop_contexts.pop()
+
+        # continue → back to condition check
+        for patch in ctx.continue_patches:
+            self._patch_jump_to(patch, loop_start)
 
         self._emit(OpCode.JUMP, loop_start, location=node.location)
-        self._patch_jump(jump_if_false)
+
+        # break + normal exit → here (after loop)
+        self._patch_jump(exit_jump)
+        for patch in ctx.break_patches:
+            self._patch_jump(patch)
 
     def _compile_for(self, node: ForLoop) -> None:
         """Compile ``for var in range(n) { body }`` as a counted while loop."""
@@ -255,19 +289,30 @@ class Compiler:
         self._emit_load(node.variable, location=loc)
         self._emit_load(limit_name, location=loc)
         self._emit(OpCode.LESS_THAN, location=loc)
-        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+        exit_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
         # Body
+        self._loop_contexts.append(_LoopContext())
         for stmt in node.body:
             self._compile_statement(stmt)
+        ctx = self._loop_contexts.pop()
 
+        # continue → increment section (current position)
+        for patch in ctx.continue_patches:
+            self._patch_jump(patch)
+
+        # Increment loop variable
         self._emit_load(node.variable, location=loc)
         self._emit_constant(1, location=loc)
         self._emit(OpCode.ADD, location=loc)
         self._emit_store(node.variable, location=loc)
 
         self._emit(OpCode.JUMP, loop_start, location=loc)
-        self._patch_jump(jump_if_false)
+
+        # break + normal exit → here (after loop)
+        self._patch_jump(exit_jump)
+        for patch in ctx.break_patches:
+            self._patch_jump(patch)
 
     def _compile_function_def(self, node: FunctionDef) -> None:
         """Compile a function definition into a separate CodeObject."""
@@ -277,8 +322,10 @@ class Compiler:
         fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
         previous = self._current
         previous_counter = self._loop_var_counter
+        previous_loop_contexts = self._loop_contexts
         self._current = fn_code
         self._loop_var_counter = 0
+        self._loop_contexts = []
 
         for stmt in node.body:
             self._compile_statement(stmt)
@@ -291,6 +338,7 @@ class Compiler:
         self._functions[node.name] = fn_code
         self._current = previous
         self._loop_var_counter = previous_counter
+        self._loop_contexts = previous_loop_contexts
 
         # If the function captures variables, it's a closure — emit MAKE_CLOSURE
         if fn_code.free_variables:
@@ -304,6 +352,16 @@ class Compiler:
         else:
             self._emit_constant(0, location=node.location)
         self._emit(OpCode.RETURN, location=node.location)
+
+    def _compile_break(self, node: BreakStatement) -> None:
+        """Compile ``break`` — emit a forward JUMP to be patched after the loop."""
+        patch = self._emit(OpCode.JUMP, 0, location=node.location)
+        self._loop_contexts[-1].break_patches.append(patch)
+
+    def _compile_continue(self, node: ContinueStatement) -> None:
+        """Compile ``continue`` — emit a JUMP to be patched to the continue target."""
+        patch = self._emit(OpCode.JUMP, 0, location=node.location)
+        self._loop_contexts[-1].continue_patches.append(patch)
 
     # -- Expression dispatch --------------------------------------------------
 

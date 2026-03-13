@@ -203,6 +203,20 @@ class ReturnStatement:
 
 
 @dataclass(frozen=True)
+class BreakStatement:
+    """A ``break`` statement to exit a loop."""
+
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class ContinueStatement:
+    """A ``continue`` statement to skip to next iteration."""
+
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class Program:
     """The root AST node containing the top-level statements."""
 
@@ -236,4 +250,6 @@ Statement = (
     | FunctionDef
     | ReturnStatement
     | IndexAssignment
+    | BreakStatement
+    | ContinueStatement
 )
