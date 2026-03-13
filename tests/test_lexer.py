@@ -161,6 +161,24 @@ class TestLexerIdentifiersAndKeywords:
         """Verify 'not' is tokenized as NOT keyword."""
         assert _kinds("not") == [TokenKind.NOT]
 
+    def test_keyword_break(self) -> None:
+        """Verify 'break' is tokenized as BREAK keyword."""
+        assert _kinds("break") == [TokenKind.BREAK]
+
+    def test_keyword_continue(self) -> None:
+        """Verify 'continue' is tokenized as CONTINUE keyword."""
+        assert _kinds("continue") == [TokenKind.CONTINUE]
+
+    def test_break_cannot_be_identifier(self) -> None:
+        """Verify 'break' is reserved and tokenizes as BREAK, not IDENTIFIER."""
+        tokens = Lexer("break").tokenize()
+        assert tokens[0].kind == TokenKind.BREAK
+
+    def test_continue_cannot_be_identifier(self) -> None:
+        """Verify 'continue' is reserved and tokenizes as CONTINUE, not IDENTIFIER."""
+        tokens = Lexer("continue").tokenize()
+        assert tokens[0].kind == TokenKind.CONTINUE
+
     def test_keyword_prefix_is_identifier(self) -> None:
         """Verify a word starting with a keyword is still an IDENTIFIER."""
         assert _kinds("letter") == [TokenKind.IDENTIFIER]

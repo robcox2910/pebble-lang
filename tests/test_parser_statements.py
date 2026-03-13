@@ -11,6 +11,8 @@ from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
     BooleanLiteral,
+    BreakStatement,
+    ContinueStatement,
     ForLoop,
     FunctionCall,
     FunctionDef,
@@ -312,6 +314,59 @@ class TestForLoop:
         """Verify 'for i in items print(i)' raises ParseError."""
         with pytest.raises(ParseError, match="Expected '\\{'"):
             _parse("for i in items print(i)")
+
+
+# -- Break and Continue -------------------------------------------------------
+
+
+class TestBreakStatement:
+    """Verify parsing of ``break`` statements."""
+
+    def test_break_parses_to_break_statement(self) -> None:
+        """Verify 'break' inside a block parses to BreakStatement."""
+        source = "while true {\n    break\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        loop = stmts[0]
+        assert isinstance(loop, WhileLoop)
+        assert len(loop.body) == ONE
+        assert isinstance(loop.body[0], BreakStatement)
+
+    def test_break_has_source_location(self) -> None:
+        """Verify BreakStatement carries the correct source location."""
+        source = "while true {\n    break\n}"
+        stmts = _stmts(source)
+        loop = stmts[0]
+        assert isinstance(loop, WhileLoop)
+        brk = loop.body[0]
+        assert isinstance(brk, BreakStatement)
+        assert brk.location.line == TWO
+        assert brk.location.column == FIVE
+
+
+class TestContinueStatement:
+    """Verify parsing of ``continue`` statements."""
+
+    def test_continue_parses_to_continue_statement(self) -> None:
+        """Verify 'continue' inside a block parses to ContinueStatement."""
+        source = "while true {\n    continue\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        loop = stmts[0]
+        assert isinstance(loop, WhileLoop)
+        assert len(loop.body) == ONE
+        assert isinstance(loop.body[0], ContinueStatement)
+
+    def test_continue_has_source_location(self) -> None:
+        """Verify ContinueStatement carries the correct source location."""
+        source = "while true {\n    continue\n}"
+        stmts = _stmts(source)
+        loop = stmts[0]
+        assert isinstance(loop, WhileLoop)
+        cont = loop.body[0]
+        assert isinstance(cont, ContinueStatement)
+        assert cont.location.line == TWO
+        assert cont.location.column == FIVE
 
 
 # -- Function definition ------------------------------------------------------

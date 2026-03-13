@@ -404,6 +404,91 @@ class TestCompileForLoop:
         assert ins[THREE] == Instruction(OpCode.STORE_NAME, "$for_limit_0")
 
 
+# -- Break and Continue -------------------------------------------------------
+
+
+class TestCompileBreakWhile:
+    """Verify break compilation in while loops."""
+
+    def test_break_in_while(self) -> None:
+        """``break`` in while loop emits JUMP patched past the loop."""
+        source = "while true { break }"
+        ins = _instructions(source)
+        assert ins == [
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 0: true
+            Instruction(OpCode.JUMP_IF_FALSE, FOUR),  # 1: exit
+            Instruction(OpCode.JUMP, FOUR),  # 2: break → exit
+            Instruction(OpCode.JUMP, ZERO),  # 3: back to start
+            Instruction(OpCode.HALT),  # 4
+        ]
+
+    def test_break_in_while_with_condition(self) -> None:
+        """``break`` inside ``if`` inside ``while`` — break jumps past loop."""
+        source = """\
+let x = 0
+while true {
+    if x == 3 { break }
+    x = x + 1
+}"""
+        ins = _instructions(source)
+        # Find the break JUMP — it should target the instruction after the loop
+        halt_idx = len(ins) - 1
+        # The break JUMP should target halt_idx (after the loop)
+        break_jumps = [i for i in ins if i.opcode is OpCode.JUMP and i.operand == halt_idx]
+        assert len(break_jumps) >= ONE
+
+
+class TestCompileContinueWhile:
+    """Verify continue compilation in while loops."""
+
+    def test_continue_in_while(self) -> None:
+        """``continue`` in while loop jumps back to condition check."""
+        source = "while true { continue }"
+        ins = _instructions(source)
+        assert ins == [
+            Instruction(OpCode.LOAD_CONST, ZERO),  # 0: true
+            Instruction(OpCode.JUMP_IF_FALSE, FOUR),  # 1: exit
+            Instruction(OpCode.JUMP, ZERO),  # 2: continue → loop_start
+            Instruction(OpCode.JUMP, ZERO),  # 3: back to start
+            Instruction(OpCode.HALT),  # 4
+        ]
+
+
+class TestCompileBreakFor:
+    """Verify break compilation in for loops."""
+
+    def test_break_in_for(self) -> None:
+        """``break`` in for loop emits JUMP patched past the loop."""
+        source = "for i in range(10) { break }"
+        ins = _instructions(source)
+        # break JUMP should target the HALT instruction (past loop)
+        halt_idx = len(ins) - 1
+        assert ins[halt_idx] == Instruction(OpCode.HALT)
+        # Find break JUMP (the one in the body that targets halt_idx)
+        break_jumps = [i for i in ins if i.opcode is OpCode.JUMP and i.operand == halt_idx]
+        assert len(break_jumps) >= ONE
+
+
+class TestCompileContinueFor:
+    """Verify continue compilation in for loops."""
+
+    def test_continue_in_for(self) -> None:
+        """``continue`` in for loop jumps to increment section."""
+        source = "for i in range(5) { continue }"
+        ins = _instructions(source)
+        # continue JUMP should target the increment section (LOAD i, LOAD 1, ADD, STORE i)
+        # Find the index of the first LOAD_NAME "i" after the body starts
+        # The continue jump should point to the increment section
+        body_start = EIGHT  # After init+condition setup (0-7)
+        continue_jump = ins[body_start]
+        assert continue_jump.opcode is OpCode.JUMP
+        # The target should be the increment section (body_start + 1)
+        target = continue_jump.operand
+        assert isinstance(target, int)
+        # At the target, we should find LOAD_NAME "i" (start of increment)
+        assert ins[target] == Instruction(OpCode.LOAD_NAME, "i")
+
+
 # -- Cycle 7: Functions -------------------------------------------------------
 
 

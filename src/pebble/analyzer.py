@@ -18,6 +18,8 @@ from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
     BooleanLiteral,
+    BreakStatement,
+    ContinueStatement,
     Expression,
     ForLoop,
     FunctionCall,
@@ -152,6 +154,7 @@ class SemanticAnalyzer:
         for name, arity in BUILTIN_ARITIES.items():
             self._scope.functions[name] = (arity, _BUILTIN_LOCATION)
         self._in_function = False
+        self._loop_depth = 0
         self._cell_vars: dict[str, set[str]] = {}
         self._free_vars: dict[str, set[str]] = {}
 
@@ -209,6 +212,10 @@ class SemanticAnalyzer:
                 self._visit_return(stmt)
             case IndexAssignment():
                 self._visit_index_assignment(stmt)
+            case BreakStatement():
+                self._visit_break(stmt)
+            case ContinueStatement():
+                self._visit_continue(stmt)
             case _:
                 # Expression statements (e.g. bare function calls)
                 self._visit_expression(stmt)  # type: ignore[arg-type]
@@ -238,15 +245,19 @@ class SemanticAnalyzer:
     def _visit_while(self, node: WhileLoop) -> None:
         """Visit a ``while`` loop — condition in current scope, body in new scope."""
         self._visit_expression(node.condition)
+        self._loop_depth += 1
         self._visit_block(node.body)
+        self._loop_depth -= 1
 
     def _visit_for(self, node: ForLoop) -> None:
         """Visit a ``for`` loop — iterable in current scope, variable + body in new scope."""
         self._visit_expression(node.iterable)
         self._push_scope()
         self._scope.declare_variable(node.variable, node.location)
+        self._loop_depth += 1
         for stmt in node.body:
             self._visit_statement(stmt)
+        self._loop_depth -= 1
         self._pop_scope()
 
     def _visit_function_def(self, node: FunctionDef) -> None:
@@ -281,6 +292,18 @@ class SemanticAnalyzer:
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         if node.value is not None:
             self._visit_expression(node.value)
+
+    def _visit_break(self, node: BreakStatement) -> None:
+        """Visit a ``break`` statement — must be inside a loop."""
+        if self._loop_depth == 0:
+            msg = "'break' outside loop"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+    def _visit_continue(self, node: ContinueStatement) -> None:
+        """Visit a ``continue`` statement — must be inside a loop."""
+        if self._loop_depth == 0:
+            msg = "'continue' outside loop"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
 
     # -- Block helper ---------------------------------------------------------
 

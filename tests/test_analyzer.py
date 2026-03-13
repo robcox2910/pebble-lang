@@ -243,6 +243,65 @@ class TestForLoop:
         _analyze("let i = 99\nfor i in range(5) {\n  print(i)\n}")
 
 
+# -- Break and Continue -------------------------------------------------------
+
+
+class TestBreakStatement:
+    """Verify break statement placement rules."""
+
+    def test_break_outside_loop_raises(self) -> None:
+        """Raise SemanticError for a break statement at the top level."""
+        with pytest.raises(SemanticError, match="'break' outside loop"):
+            _analyze("break")
+
+    def test_break_in_function_not_in_loop_raises(self) -> None:
+        """Raise SemanticError for break inside a function but not a loop."""
+        with pytest.raises(SemanticError, match="'break' outside loop"):
+            _analyze("fn f() {\n    break\n}")
+
+    def test_break_inside_while(self) -> None:
+        """Pass for a break statement inside a while loop."""
+        _analyze("while true {\n    break\n}")
+
+    def test_break_inside_for(self) -> None:
+        """Pass for a break statement inside a for loop."""
+        _analyze("for i in range(10) {\n    break\n}")
+
+    def test_break_inside_if_inside_while(self) -> None:
+        """Pass for a break inside an if inside a while loop."""
+        _analyze("let x = 0\nwhile true {\n    if x == 3 {\n        break\n    }\n}")
+
+    def test_break_in_nested_loop(self) -> None:
+        """Pass for break in inner loop — loop depth correctly tracked."""
+        _analyze("for i in range(3) {\n    for j in range(3) {\n        break\n    }\n}")
+
+
+class TestContinueStatement:
+    """Verify continue statement placement rules."""
+
+    def test_continue_outside_loop_raises(self) -> None:
+        """Raise SemanticError for a continue statement at the top level."""
+        with pytest.raises(SemanticError, match="'continue' outside loop"):
+            _analyze("continue")
+
+    def test_continue_in_function_not_in_loop_raises(self) -> None:
+        """Raise SemanticError for continue inside a function but not a loop."""
+        with pytest.raises(SemanticError, match="'continue' outside loop"):
+            _analyze("fn f() {\n    continue\n}")
+
+    def test_continue_inside_while(self) -> None:
+        """Pass for a continue statement inside a while loop."""
+        _analyze("let i = 0\nwhile i < 5 {\n    i = i + 1\n    continue\n}")
+
+    def test_continue_inside_for(self) -> None:
+        """Pass for a continue statement inside a for loop."""
+        _analyze("for i in range(5) {\n    continue\n}")
+
+    def test_continue_inside_if_inside_for(self) -> None:
+        """Pass for a continue inside an if inside a for loop."""
+        _analyze("for i in range(5) {\n    if i == 2 {\n        continue\n    }\n}")
+
+
 # -- Integration tests -------------------------------------------------------
 
 

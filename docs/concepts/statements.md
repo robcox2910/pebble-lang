@@ -125,6 +125,89 @@ Behind the scenes, the compiler turns a `for` loop into a `while` loop with
 a hidden counter variable. You don't need to worry about that — just think
 of it as "do this N times, and give me the number each time".
 
+## Exiting Early: `break`
+
+Sometimes you want to stop a loop before it finishes all its repetitions,
+like leaving a cinema in the middle of a film. That's what `break` does --
+it immediately exits the nearest loop:
+
+```pebble
+let x = 0
+while true {
+    if x == 3 { break }
+    x = x + 1
+}
+print(x)
+```
+
+This prints `3`. Without `break`, the `while true` loop would run forever.
+But as soon as `x` reaches 3, `break` jumps out of the loop.
+
+`break` works in `for` loops too:
+
+```pebble
+for i in range(10) {
+    if i == 3 { break }
+    print(i)
+}
+```
+
+This prints `0`, `1`, `2` and then stops -- even though `range(10)` would
+normally count all the way to 9.
+
+!!! warning "Only inside loops"
+    You can only use `break` inside a `while` or `for` loop. Writing it
+    outside a loop is an error.
+
+## Skipping Ahead: `continue`
+
+Sometimes you don't want to stop the whole loop, just skip the rest of
+*this particular go-around* and move on to the next one. Think of it like
+flipping past a song you don't like on a playlist -- you skip the song but
+keep listening to the rest. That's `continue`:
+
+```pebble
+for i in range(5) {
+    if i == 2 { continue }
+    print(i)
+}
+```
+
+This prints `0`, `1`, `3`, `4` -- it skips `2` but keeps going through
+the rest of the numbers.
+
+In a `while` loop, `continue` jumps back to the condition check:
+
+```pebble
+let total = 0
+let i = 0
+while i < 5 {
+    i = i + 1
+    if i == 3 { continue }
+    total = total + i
+}
+print(total)
+```
+
+This prints `12` (1 + 2 + 4 + 5 -- skipping 3).
+
+### Nested Loops
+
+When `break` or `continue` is inside nested loops, it only affects the
+**innermost** loop:
+
+```pebble
+for i in range(3) {
+    for j in range(3) {
+        if j == 1 { break }
+        print(j)
+    }
+}
+```
+
+This prints `0`, `0`, `0`. The `break` exits the inner `j` loop each time,
+but the outer `i` loop keeps going.
+
 ## Blocks: Curly Braces
 
 The `{ }` curly braces group statements together into a **block**. Think of
@@ -167,6 +250,8 @@ of statement it is:
 | `for` | For loop |
 | `fn` | Function definition |
 | `return` | Return statement |
+| `break` | Break statement |
+| `continue` | Continue statement |
 | `print` | Print statement |
 | identifier followed by `=` | Reassignment |
 | anything else | Expression statement |
@@ -203,6 +288,8 @@ problem was found.
 | `if/else` | A fork in the road |
 | `while` | A broken record that keeps replaying |
 | `for` | Roll call -- go through each item one by one |
+| `break` | Walking out of a cinema early |
+| `continue` | Skipping a song on a playlist |
 | `fn` / `return` | A recipe card you can reuse |
 | Block `{ }` | Walls of a room grouping things together |
 | Newlines | Periods at the end of sentences |

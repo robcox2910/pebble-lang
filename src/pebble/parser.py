@@ -16,6 +16,8 @@ from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
     BooleanLiteral,
+    BreakStatement,
+    ContinueStatement,
     Expression,
     ForLoop,
     FunctionCall,
@@ -194,6 +196,18 @@ class Parser:
             body=body,
             location=for_token.location,
         )
+
+    def _parse_break(self) -> BreakStatement:
+        """Parse a ``break`` statement."""
+        token = self._advance()  # consume 'break'
+        self._consume_newline()
+        return BreakStatement(location=token.location)
+
+    def _parse_continue(self) -> ContinueStatement:
+        """Parse a ``continue`` statement."""
+        token = self._advance()  # consume 'continue'
+        self._consume_newline()
+        return ContinueStatement(location=token.location)
 
     def _parse_return(self) -> ReturnStatement:
         """Parse a ``return [expr]`` statement."""
@@ -449,6 +463,8 @@ class Parser:
         TokenKind.FOR: _parse_for,
         TokenKind.FN: _parse_function_def,
         TokenKind.RETURN: _parse_return,
+        TokenKind.BREAK: _parse_break,
+        TokenKind.CONTINUE: _parse_continue,
     }
 
     # -- Token helpers --------------------------------------------------------
