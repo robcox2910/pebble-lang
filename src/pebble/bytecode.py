@@ -65,6 +65,11 @@ class OpCode(StrEnum):
     CALL = "CALL"
     RETURN = "RETURN"
 
+    # -- Closures -------------------------------------------------------------
+    MAKE_CLOSURE = "MAKE_CLOSURE"
+    LOAD_CELL = "LOAD_CELL"
+    STORE_CELL = "STORE_CELL"
+
     # -- Strings --------------------------------------------------------------
     BUILD_STRING = "BUILD_STRING"
 
@@ -122,6 +127,12 @@ class CodeObject:
         default_factory=lambda: [],  # noqa: PIE807
     )
     parameters: list[str] = field(
+        default_factory=lambda: [],  # noqa: PIE807
+    )
+    cell_variables: list[str] = field(
+        default_factory=lambda: [],  # noqa: PIE807
+    )
+    free_variables: list[str] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
 

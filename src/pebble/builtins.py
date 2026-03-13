@@ -13,10 +13,44 @@ single source of truth.
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pebble.errors import PebbleRuntimeError
 
-type Value = int | str | bool | list[Value]
+if TYPE_CHECKING:
+    from pebble.bytecode import CodeObject
+
+type Value = int | str | bool | list[Value] | Closure
+
+
+# -- Closure types ------------------------------------------------------------
+
+
+@dataclass
+class Cell:
+    """Mutable container for a captured variable.
+
+    Enclosing and inner functions share the same ``Cell`` object so that
+    mutations in either scope are visible to both.
+    """
+
+    value: Value
+
+
+@dataclass(frozen=True)
+class Closure:
+    """A function bundled with its captured variable cells.
+
+    Attributes:
+        code: The compiled :class:`CodeObject` for the function body.
+        cells: Captured :class:`Cell` references, one per free variable.
+
+    """
+
+    code: CodeObject
+    cells: list[Cell]
+
 
 # -- Value formatting ----------------------------------------------------------
 
@@ -33,6 +67,8 @@ def format_value(value: Value) -> str:
         case list():
             items = ", ".join(format_value(v) for v in value)
             return f"[{items}]"
+        case Closure():
+            return f"<fn {value.code.name}>"
 
 
 # -- Builtin handlers ---------------------------------------------------------
@@ -71,6 +107,8 @@ def _builtin_type(args: list[Value]) -> Value:
             return "str"
         case list():
             return "list"
+        case Closure():
+            return "fn"
 
 
 def _builtin_len(args: list[Value]) -> Value:

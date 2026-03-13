@@ -30,8 +30,12 @@ def main() -> None:
     try:
         tokens = Lexer(source).tokenize()
         program = Parser(tokens).parse()
-        analyzed = SemanticAnalyzer().analyze(program)
-        compiled = Compiler().compile(analyzed)
+        analyzer = SemanticAnalyzer()
+        analyzed = analyzer.analyze(program)
+        compiled = Compiler(
+            cell_vars=analyzer.cell_vars,
+            free_vars=analyzer.free_vars,
+        ).compile(analyzed)
         VirtualMachine().run(compiled)
     except PebbleError as exc:
         if exc.line > 0:

@@ -32,8 +32,12 @@ def _compile_program(source: str):
     """Return the CompiledProgram for *source*."""
     tokens = Lexer(source).tokenize()
     program = Parser(tokens).parse()
-    analyzed = SemanticAnalyzer().analyze(program)
-    return Compiler().compile(analyzed)
+    analyzer = SemanticAnalyzer()
+    analyzed = analyzer.analyze(program)
+    return Compiler(
+        cell_vars=analyzer.cell_vars,
+        free_vars=analyzer.free_vars,
+    ).compile(analyzed)
 
 
 def _run_source(source: str) -> str:

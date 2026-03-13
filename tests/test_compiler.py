@@ -39,8 +39,12 @@ def _compile(source: str) -> CompiledProgram:
     """Lex, parse, analyze, and compile *source*."""
     tokens = Lexer(source).tokenize()
     program = Parser(tokens).parse()
-    analyzed = SemanticAnalyzer().analyze(program)
-    return Compiler().compile(analyzed)
+    analyzer = SemanticAnalyzer()
+    analyzed = analyzer.analyze(program)
+    return Compiler(
+        cell_vars=analyzer.cell_vars,
+        free_vars=analyzer.free_vars,
+    ).compile(analyzed)
 
 
 def _strip_locations(instructions: list[Instruction]) -> list[Instruction]:
