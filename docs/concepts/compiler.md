@@ -256,5 +256,12 @@ just knows the function exists so it can `CALL` it later.
 | `POP` | — | Discard the top value on the stack |
 | `CALL` | name | Call a function by name |
 | `RETURN` | — | Return from a function |
+| `BUILD_STRING` | count | Pop *count* values, convert to text, join them |
+| `BUILD_LIST` | count | Pop *count* values and create a list |
+| `INDEX_GET` | — | Pop an index and a list, push the element |
+| `INDEX_SET` | — | Pop value, index, list; change the element |
+| `MAKE_CLOSURE` | name | Create a closure from a function + captured Cells |
+| `LOAD_CELL` | name | Push a captured variable's value |
+| `STORE_CELL` | name | Pop and store into a captured variable |
 | `PRINT` | — | Pop and print the top value |
 | `HALT` | — | Stop the program |

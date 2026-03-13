@@ -47,8 +47,12 @@ print(counter())   # prints: 3
 ```
 
 Each time you call `counter()`, the captured `count` variable goes up by one.
-The variable lives inside a special container called a **Cell** that the
-closure and its parent function share.
+
+The variable lives inside a special container called a **Cell**. Think of a
+Cell like a shared whiteboard on a wall — both the outer function and the
+closure can look at it and erase-and-rewrite the number on it. Because they
+share the same whiteboard (not separate copies), changes made by one are
+seen by the other.
 
 ## Independent Closures
 

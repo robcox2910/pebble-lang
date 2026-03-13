@@ -26,8 +26,8 @@ class TestOpCode:
         """Each OpCode value is also a str."""
         assert isinstance(OpCode.ADD, str)
 
-    def test_has_24_members(self) -> None:
-        """The enum defines exactly 24 opcodes."""
+    def test_has_expected_members(self) -> None:
+        """The enum defines the expected number of opcodes."""
         assert len(OpCode) == OPCODE_COUNT
 
     def test_representative_values(self) -> None:

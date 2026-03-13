@@ -69,9 +69,11 @@ def format_error(source: str, *, line: int, column: int, message: str) -> str:
 
     """
     source_lines = source.split("\n") if source else []
-    source_line = source_lines[line - 1] if line <= len(source_lines) else ""
+    if line < 1 or line > len(source_lines):
+        return message
+    source_line = source_lines[line - 1]
 
-    caret = " " * (column - 1) + "^"
+    caret = " " * (max(column, 1) - 1) + "^"
 
     return f"{line} | {source_line}\n{caret}\n{message}"
 
