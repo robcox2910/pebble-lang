@@ -70,6 +70,20 @@ class VirtualMachine:
         self._frames = [Frame(code=program.main)]
         self._execute()
 
+    def run_repl(
+        self,
+        program: CompiledProgram,
+        variables: dict[str, Value],
+    ) -> dict[str, Value]:
+        """Execute *program* with initial *variables*, return updated state.
+
+        Used by the REPL to carry variable bindings across inputs.
+        """
+        self._functions = dict(program.functions)
+        self._frames = [Frame(code=program.main, variables=dict(variables))]
+        self._execute()
+        return dict(self._frames[-1].variables)
+
     # -- Error helper ---------------------------------------------------------
 
     def _runtime_error(self, msg: str) -> Never:

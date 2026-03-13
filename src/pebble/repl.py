@@ -1,0 +1,135 @@
+"""Interactive REPL for the Pebble language.
+
+Start a read-eval-print loop that compiles and executes each input line
+immediately, persisting variables and function definitions between inputs.
+
+Usage::
+
+    pebble          # starts the REPL
+    pebble> let x = 42
+    pebble> print(x + 1)
+    43
+
+"""
+
+from __future__ import annotations
+
+import sys
+from typing import TYPE_CHECKING
+
+from pebble.analyzer import SemanticAnalyzer
+from pebble.bytecode import CompiledProgram
+from pebble.compiler import Compiler
+from pebble.errors import PebbleError
+from pebble.lexer import Lexer
+from pebble.parser import Parser
+from pebble.vm import VirtualMachine
+
+if TYPE_CHECKING:
+    from typing import TextIO
+
+    from pebble.builtins import Value
+    from pebble.bytecode import CodeObject
+
+_PROMPT = "pebble> "
+_CONTINUATION = "... "
+
+
+class Repl:
+    """Maintain persistent state across REPL evaluations.
+
+    Each call to :meth:`eval_line` compiles and executes one input,
+    carrying forward variables, functions, and analyzer scope.
+
+    Args:
+        output: Writable text stream for ``print`` output (default ``sys.stdout``).
+
+    """
+
+    def __init__(self, output: TextIO | None = None) -> None:
+        """Create a REPL with empty state."""
+        self._analyzer = SemanticAnalyzer()
+        self._variables: dict[str, Value] = {}
+        self._functions: dict[str, CodeObject] = {}
+        self._output: TextIO = output or sys.stdout
+
+    def eval_line(self, source: str) -> None:
+        """Evaluate a single REPL input.
+
+        Raises :class:`~pebble.errors.PebbleError` on syntax, semantic,
+        or runtime errors.  On error the persistent state is **not** updated.
+        """
+        if not source.strip():
+            return
+
+        tokens = Lexer(source).tokenize()
+        program = Parser(tokens).parse()
+        analyzed = self._analyzer.analyze(program)
+
+        compiled = Compiler(
+            cell_vars=self._analyzer.cell_vars,
+            free_vars=self._analyzer.free_vars,
+        ).compile(analyzed)
+
+        # Merge new functions with previously-defined ones
+        all_functions = self._functions | compiled.functions
+        full_program = CompiledProgram(main=compiled.main, functions=all_functions)
+
+        vm = VirtualMachine(output=self._output)
+        new_vars = vm.run_repl(full_program, self._variables)
+
+        # Success — persist state
+        self._variables = new_vars
+        self._functions.update(compiled.functions)
+
+
+# -- Input handling -----------------------------------------------------------
+
+
+def read_input(prompt: str) -> str | None:
+    """Read a possibly multi-line input from the user.
+
+    If the first line has unbalanced ``{`` braces, keep reading
+    continuation lines until they balance.  Return ``None`` on EOF.
+    """
+    try:
+        line = input(prompt)
+    except EOFError:
+        return None
+
+    depth = line.count("{") - line.count("}")
+    while depth > 0:
+        try:
+            continuation = input(_CONTINUATION)
+        except EOFError:
+            break
+        line += "\n" + continuation
+        depth += continuation.count("{") - continuation.count("}")
+
+    return line
+
+
+# -- Main REPL loop ----------------------------------------------------------
+
+
+def repl(output: TextIO | None = None) -> None:
+    """Run the interactive REPL until EOF (Ctrl-D).
+
+    Args:
+        output: Writable text stream for program output (default ``sys.stdout``).
+
+    """
+    out = output or sys.stdout
+    r = Repl(output=out)
+
+    while True:
+        source = read_input(_PROMPT)
+        if source is None:
+            print(file=out)
+            break
+        if not source.strip():
+            continue
+        try:
+            r.eval_line(source)
+        except PebbleError as exc:
+            print(f"Error: {exc.message}", file=sys.stderr)  # noqa: T201

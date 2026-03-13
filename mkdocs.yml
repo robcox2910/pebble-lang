@@ -56,3 +56,4 @@ nav:
       - Arrays: concepts/arrays.md
       - Standard Library: concepts/stdlib.md
       - Closures: concepts/closures.md
+      - REPL: concepts/repl.md

@@ -22,8 +22,10 @@ from pebble.vm import VirtualMachine
 def main() -> None:
     """Entry point for the ``pebble`` command."""
     if len(sys.argv) < 2:  # noqa: PLR2004
-        print("Usage: pebble <file.pbl>", file=sys.stderr)  # noqa: T201
-        sys.exit(1)
+        from pebble.repl import repl  # noqa: PLC0415
+
+        repl()
+        return
 
     path = Path(sys.argv[1])
     source = path.read_text()
