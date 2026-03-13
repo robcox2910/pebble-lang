@@ -136,16 +136,24 @@ class CodeObject:
         default_factory=lambda: [],  # noqa: PIE807
     )
 
+    _constant_index: dict[tuple[type, int | str | bool], int] = field(
+        default_factory=lambda: {},  # noqa: PIE807
+        repr=False,
+    )
+
     def add_constant(self, value: int | str | bool) -> int:  # noqa: FBT001
         """Add *value* to the constant pool and return its index.
 
-        Duplicate entries (same value *and* type) are reused.
+        Duplicate entries (same value *and* type) are reused.  A cache
+        dictionary keeps lookups O(1) instead of scanning the pool.
         """
-        for idx, existing in enumerate(self.constants):
-            if existing == value and type(existing) is type(value):
-                return idx
+        key = (type(value), value)
+        if key in self._constant_index:
+            return self._constant_index[key]
+        idx = len(self.constants)
         self.constants.append(value)
-        return len(self.constants) - 1
+        self._constant_index[key] = idx
+        return idx
 
 
 @dataclass(frozen=True)

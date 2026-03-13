@@ -162,6 +162,8 @@ class VirtualMachine:
                 frame.variables[operand] = self._stack.pop()
             case OpCode.LOAD_NAME:
                 operand = _str_operand(instruction)
+                if operand not in frame.variables:
+                    self._runtime_error(f"Undefined variable '{operand}'")
                 self._stack.append(frame.variables[operand])
             case OpCode.STORE_CELL:
                 operand = _str_operand(instruction)
@@ -205,9 +207,9 @@ class VirtualMachine:
         right, left = self._stack.pop(), self._stack.pop()
         if isinstance(left, str) and isinstance(right, str):
             self._stack.append(left + right)
-        elif _both_int(left, right):
-            # Type-checker knows they are int after _both_int, but we need
-            # explicit narrowing since _both_int is a plain bool return.
+        elif _both_plain_int(left, right):
+            # Type-checker knows they are int after _both_plain_int, but we need
+            # explicit narrowing since _both_plain_int is a plain bool return.
             self._stack.append(left + right)  # type: ignore[operator]
         else:
             self._type_error("+", left, right)
@@ -409,7 +411,7 @@ class VirtualMachine:
         op: Callable[[int, int], int],
     ) -> None:
         """Apply *op* to two integer operands, or raise a type error."""
-        if _both_int(left, right):
+        if _both_plain_int(left, right):
             self._stack.append(op(left, right))  # type: ignore[arg-type]
         else:
             self._type_error(symbol, left, right)
@@ -422,7 +424,7 @@ class VirtualMachine:
         op: Callable[[int, int], bool],
     ) -> None:
         """Apply comparison *op* to two integer operands, or raise a type error."""
-        if _both_int(left, right):
+        if _both_plain_int(left, right):
             self._stack.append(op(left, right))  # type: ignore[arg-type]
         else:
             self._type_error(symbol, left, right)
@@ -438,7 +440,7 @@ class VirtualMachine:
 # -- Module-level helpers (no self needed) ------------------------------------
 
 
-def _both_int(left: Value, right: Value) -> bool:
+def _both_plain_int(left: Value, right: Value) -> bool:
     """Return True if both operands are plain ints (not bools)."""
     return (
         isinstance(left, int)

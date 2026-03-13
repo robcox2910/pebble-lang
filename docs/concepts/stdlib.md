@@ -4,6 +4,39 @@ Pebble comes with a small set of **built-in functions** you can call from
 anywhere in your program. You don't need to import anything — they're always
 available.
 
+## print(value)
+
+Display a value on screen. Every Pebble type is automatically converted to
+text:
+
+```pebble
+print(42)          # prints: 42
+print("hello")     # prints: hello
+print(true)        # prints: true
+print([1, 2, 3])   # prints: [1, 2, 3]
+```
+
+`print()` always adds a newline at the end.
+
+## range(n)
+
+Generate a sequence of numbers from `0` up to (but **not** including) `n`.
+It's used with `for` loops to repeat something a specific number of times:
+
+```pebble
+for i in range(4) {
+    print(i)
+}
+# prints: 0, 1, 2, 3 (each on its own line)
+```
+
+Think of `range(4)` as saying "count from 0 up to 3". The number you give is
+the **stop** point — the counting stops just before it.
+
+!!! note
+    `range()` can only be used inside a `for` loop. The compiler translates
+    `for i in range(n)` into a counting while-loop behind the scenes.
+
 ## str(value)
 
 Convert any value to its text form:

@@ -137,3 +137,19 @@ Think of `BUILD_LIST` like packing items into a backpack — you hand over
 three separate things and get one backpack back. `INDEX_GET` is reaching into
 a specific pocket by number, and `INDEX_SET` is swapping what's in that
 pocket for something new.
+
+### The Full Journey
+
+Here's how `let xs = [1, 2]` travels through the whole pipeline:
+
+1. **Lexer** — produces tokens: `LET`, `IDENTIFIER("xs")`, `EQUAL`,
+   `LEFT_BRACKET`, `INTEGER(1)`, `COMMA`, `INTEGER(2)`, `RIGHT_BRACKET`
+2. **Parser** — builds an `Assignment` node whose value is an
+   `ArrayLiteral` containing two `IntegerLiteral` nodes
+3. **Analyzer** — checks that the variable name is valid
+4. **Compiler** — emits `LOAD_CONST 0`, `LOAD_CONST 1`, `BUILD_LIST 2`,
+   `STORE_NAME "xs"`
+5. **VM** — pushes `1` and `2`, packs them into a list, stores the list as
+   `xs`
+
+Every feature in Pebble follows this same path from text to running code.

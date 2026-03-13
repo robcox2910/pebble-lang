@@ -97,6 +97,34 @@ and the loop stops.
     sure something inside the loop changes so the condition will eventually
     fail.
 
+## Counting: `for`
+
+A `for` loop is like roll call — you go through a list of numbers one at a
+time:
+
+```pebble
+for i in range(5) {
+    print(i)
+}
+```
+
+This prints `0`, `1`, `2`, `3`, `4`. The variable `i` starts at `0` and
+counts up to (but not including) `5`.
+
+You can use the loop variable inside the body:
+
+```pebble
+for i in range(3) {
+    print(i * i)
+}
+```
+
+This prints the squares: `0`, `1`, `4`.
+
+Behind the scenes, the compiler turns a `for` loop into a `while` loop with
+a hidden counter variable. You don't need to worry about that — just think
+of it as "do this N times, and give me the number each time".
+
 ## Blocks: Curly Braces
 
 The `{ }` curly braces group statements together into a **block**. Think of

@@ -53,6 +53,9 @@ nodes:
 | `UnaryOp` | `-x`, `not flag` | An operator and one operand |
 | `BinaryOp` | `a + b` | Left operand, operator, right operand |
 | `FunctionCall` | `print(x)` | Function name and argument list |
+| `StringInterpolation` | `"hi {name}"` | Text parts mixed with expressions |
+| `ArrayLiteral` | `[1, 2, 3]` | A list of element expressions |
+| `IndexAccess` | `xs[0]` | A target and an index expression |
 
 ### Statement Nodes (do something)
 
@@ -66,6 +69,7 @@ nodes:
 | `ForLoop` | `for i in range(10) { }` | Variable, iterable, loop body |
 | `FunctionDef` | `fn add(a, b) { }` | Name, parameters, body |
 | `ReturnStatement` | `return 42` | The value to return (or nothing) |
+| `IndexAssignment` | `xs[0] = 42` | Target, index, and new value |
 
 The **Program** node sits at the very top and holds the list of all top-level
 statements.

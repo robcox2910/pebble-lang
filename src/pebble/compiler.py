@@ -85,7 +85,7 @@ class Compiler:
         self._main = CodeObject(name="<main>")
         self._functions: dict[str, CodeObject] = {}
         self._current = self._main
-        self._for_counter = 0
+        self._loop_var_counter = 0
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
 
@@ -235,8 +235,8 @@ class Compiler:
 
     def _compile_for(self, node: ForLoop) -> None:
         """Compile ``for var in range(n) { body }`` as a counted while loop."""
-        limit_name = f"$for_limit_{self._for_counter}"
-        self._for_counter += 1
+        limit_name = f"$for_limit_{self._loop_var_counter}"
+        self._loop_var_counter += 1
         loc = node.location
 
         # Evaluate range argument and store as hidden limit variable
@@ -276,9 +276,9 @@ class Compiler:
         fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
         fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
         previous = self._current
-        previous_counter = self._for_counter
+        previous_counter = self._loop_var_counter
         self._current = fn_code
-        self._for_counter = 0
+        self._loop_var_counter = 0
 
         for stmt in node.body:
             self._compile_statement(stmt)
@@ -290,7 +290,7 @@ class Compiler:
 
         self._functions[node.name] = fn_code
         self._current = previous
-        self._for_counter = previous_counter
+        self._loop_var_counter = previous_counter
 
         # If the function captures variables, it's a closure — emit MAKE_CLOSURE
         if fn_code.free_variables:

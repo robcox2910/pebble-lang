@@ -36,6 +36,15 @@ These are the actual data values in your code:
 | `STRING` | `"hello"` | A piece of text |
 | `IDENTIFIER` | `score` | A name you gave to something |
 
+When a string contains `{...}` interpolation (like `"hello {name}"`), the lexer
+splits it into special tokens instead of a plain `STRING`:
+
+| Token | Example piece | What It Means |
+|-------|--------------|---------------|
+| `STRING_START` | `"hello "` | The text before the first `{` |
+| `STRING_MIDDLE` | `" and "` | Text between two `{...}` sections |
+| `STRING_END` | `"!"` | The text after the last `}` |
+
 ### Keywords -- Reserved Words
 
 Keywords are special words that Pebble has claimed for itself. You can't use
@@ -92,6 +101,8 @@ These are the brackets, braces, and commas that organise your code:
 | `RIGHT_PAREN` | `)` | End a group or function call |
 | `LEFT_BRACE` | `{` | Start a block of code |
 | `RIGHT_BRACE` | `}` | End a block of code |
+| `LEFT_BRACKET` | `[` | Start a list or index access |
+| `RIGHT_BRACKET` | `]` | End a list or index access |
 | `COMMA` | `,` | Separate items in a list |
 | `EQUAL` | `=` | Assign a value |
 
