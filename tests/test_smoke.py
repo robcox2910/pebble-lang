@@ -33,10 +33,10 @@ class TestSmoke:
 class TestCLIInProcess:
     """Verify the CLI entry point via direct function calls."""
 
-    def test_no_args_exits_with_usage(self) -> None:
-        """``main()`` with no args prints usage and exits 1."""
-        with patch("sys.argv", ["pebble"]), pytest.raises(SystemExit, match="1"):
-            main()
+    def test_no_args_starts_repl(self) -> None:
+        """``main()`` with no args starts the REPL (exits on EOF)."""
+        with patch("sys.argv", ["pebble"]), patch("builtins.input", side_effect=EOFError):
+            main()  # Should return normally, not sys.exit(1)
 
     def test_run_pbl_file(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
         """``main()`` runs a .pbl file through the full pipeline."""
@@ -57,16 +57,16 @@ class TestCLIInProcess:
 class TestCLI:
     """Verify the ``pebble`` CLI entry point via subprocess."""
 
-    def test_no_args_prints_usage(self) -> None:
-        """Running without arguments prints usage to stderr and exits 1."""
+    def test_no_args_starts_repl(self) -> None:
+        """Running without arguments starts REPL (exits on empty stdin)."""
         result = subprocess.run(
             [sys.executable, "-m", "pebble"],
+            input="",
             capture_output=True,
             text=True,
             check=False,
         )
-        assert result.returncode == EXIT_FAILURE
-        assert "Usage:" in result.stderr
+        assert result.returncode == EXIT_SUCCESS
 
     def test_run_pbl_file(self, tmp_path: Path) -> None:
         """Running a .pbl file produces the expected output."""
