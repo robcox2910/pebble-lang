@@ -60,6 +60,7 @@ class Scope:
         variables: Map of variable names to the location where they were declared.
         functions: Map of function names to ``(param_count, location)`` tuples.
         parent: Enclosing scope, or ``None`` for the global scope.
+        function_name: Name of the enclosing function, or ``None`` at top level.
 
     """
 
@@ -70,6 +71,7 @@ class Scope:
         default_factory=lambda: {},  # noqa: PIE807
     )
     parent: Scope | None = None
+    function_name: str | None = None
 
     # -- Variables ------------------------------------------------------------
 
@@ -87,6 +89,23 @@ class Scope:
             return self.variables[name]
         if self.parent is not None:
             return self.parent.resolve_variable(name)
+        return None
+
+    def resolve_variable_scope(self, name: str) -> Scope | None:
+        """Walk the parent chain and return the scope that declares *name*."""
+        if name in self.variables:
+            return self
+        if self.parent is not None:
+            return self.parent.resolve_variable_scope(name)
+        return None
+
+    @property
+    def owning_function(self) -> str | None:
+        """Return the function name that owns this scope."""
+        if self.function_name is not None:
+            return self.function_name
+        if self.parent is not None:
+            return self.parent.owning_function
         return None
 
     # -- Functions ------------------------------------------------------------
@@ -133,6 +152,20 @@ class SemanticAnalyzer:
         for name, arity in BUILTIN_ARITIES.items():
             self._scope.functions[name] = (arity, _BUILTIN_LOCATION)
         self._in_function = False
+        self._cell_vars: dict[str, set[str]] = {}
+        self._free_vars: dict[str, set[str]] = {}
+
+    # -- Closure metadata -----------------------------------------------------
+
+    @property
+    def cell_vars(self) -> dict[str, set[str]]:
+        """Map of function name → variables captured by inner functions."""
+        return self._cell_vars
+
+    @property
+    def free_vars(self) -> dict[str, set[str]]:
+        """Map of function name → variables captured from outer functions."""
+        return self._free_vars
 
     # -- Public API -----------------------------------------------------------
 
@@ -192,6 +225,7 @@ class SemanticAnalyzer:
         if self._scope.resolve_variable(node.name) is None:
             msg = f"Undeclared variable '{node.name}'"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        self._check_capture(node.name)
         self._visit_expression(node.value)
 
     def _visit_if(self, node: IfStatement) -> None:
@@ -219,6 +253,7 @@ class SemanticAnalyzer:
         """Visit a function definition — declare in current scope, parameters in new scope."""
         self._scope.declare_function(node.name, len(node.parameters), node.location)
         self._push_scope()
+        self._scope.function_name = node.name
         for param in node.parameters:
             self._scope.declare_variable(param, node.location)
         prev_in_function = self._in_function
@@ -227,6 +262,11 @@ class SemanticAnalyzer:
             self._visit_statement(stmt)
         self._in_function = prev_in_function
         self._pop_scope()
+
+        # If this function captures variables, it becomes a closure value —
+        # declare it as a variable so it can be stored, returned, and passed.
+        if node.name in self._free_vars:
+            self._scope.variables[node.name] = node.location
 
     def _visit_index_assignment(self, node: IndexAssignment) -> None:
         """Visit an index assignment — check target, index, and value."""
@@ -277,6 +317,19 @@ class SemanticAnalyzer:
             case IntegerLiteral() | StringLiteral() | BooleanLiteral():
                 pass  # Literals need no semantic checks
 
+    # -- Closure helpers ------------------------------------------------------
+
+    def _check_capture(self, name: str) -> None:
+        """Record a cross-function variable capture if applicable."""
+        current_fn = self._scope.owning_function
+        declaring_scope = self._scope.resolve_variable_scope(name)
+        if declaring_scope is None or current_fn is None:
+            return
+        declaring_fn = declaring_scope.owning_function
+        if declaring_fn is not None and declaring_fn != current_fn:
+            self._free_vars.setdefault(current_fn, set()).add(name)
+            self._cell_vars.setdefault(declaring_fn, set()).add(name)
+
     # -- Expression visitors --------------------------------------------------
 
     def _visit_identifier(self, node: Identifier) -> None:
@@ -284,11 +337,18 @@ class SemanticAnalyzer:
         if self._scope.resolve_variable(node.name) is None:
             msg = f"Undeclared variable '{node.name}'"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        self._check_capture(node.name)
 
     def _visit_function_call(self, node: FunctionCall) -> None:
         """Resolve a function call, checking existence and arity."""
         resolved = self._scope.resolve_function(node.name)
         if resolved is None:
+            # Allow calling variables that may hold closures
+            if self._scope.resolve_variable(node.name) is not None:
+                self._check_capture(node.name)
+                for arg in node.arguments:
+                    self._visit_expression(arg)
+                return
             msg = f"Undeclared function '{node.name}'"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         expected, _ = resolved

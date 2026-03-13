@@ -12,7 +12,7 @@ import sys
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Never
 
-from pebble.builtins import BUILTINS, Value, format_value
+from pebble.builtins import BUILTINS, Cell, Closure, Value, format_value
 from pebble.bytecode import Instruction, OpCode
 from pebble.errors import PebbleRuntimeError
 
@@ -39,6 +39,9 @@ class Frame:
     code: CodeObject
     ip: int = 0
     variables: dict[str, Value] = field(
+        default_factory=lambda: {},  # noqa: PIE807
+    )
+    cells: dict[str, Cell] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )
 
@@ -88,7 +91,13 @@ class VirtualMachine:
             self._current_instruction = instruction
 
             match instruction.opcode:
-                case OpCode.LOAD_CONST | OpCode.STORE_NAME | OpCode.LOAD_NAME:
+                case (
+                    OpCode.LOAD_CONST
+                    | OpCode.STORE_NAME
+                    | OpCode.LOAD_NAME
+                    | OpCode.LOAD_CELL
+                    | OpCode.STORE_CELL
+                ):
                     self._exec_variables(instruction, frame)
                 case (
                     OpCode.ADD
@@ -121,13 +130,15 @@ class VirtualMachine:
                     self._exec_call(instruction)
                 case OpCode.RETURN:
                     self._exec_return()
+                case OpCode.MAKE_CLOSURE:
+                    self._exec_make_closure(instruction)
                 case OpCode.HALT:
                     return
 
     # -- Dispatch groups ------------------------------------------------------
 
     def _exec_variables(self, instruction: Instruction, frame: Frame) -> None:
-        """Handle LOAD_CONST, STORE_NAME, and LOAD_NAME."""
+        """Handle LOAD_CONST, STORE_NAME, LOAD_NAME, LOAD_CELL, STORE_CELL."""
         match instruction.opcode:
             case OpCode.LOAD_CONST:
                 operand = _int_operand(instruction)
@@ -138,6 +149,16 @@ class VirtualMachine:
             case OpCode.LOAD_NAME:
                 operand = _str_operand(instruction)
                 self._stack.append(frame.variables[operand])
+            case OpCode.STORE_CELL:
+                operand = _str_operand(instruction)
+                value = self._stack.pop()
+                if operand in frame.cells:
+                    frame.cells[operand].value = value
+                else:
+                    frame.cells[operand] = Cell(value)
+            case OpCode.LOAD_CELL:
+                operand = _str_operand(instruction)
+                self._stack.append(frame.cells[operand].value)
             case _:  # pragma: no cover
                 pass
 
@@ -289,7 +310,7 @@ class VirtualMachine:
         target[index] = value
 
     def _exec_call(self, instruction: Instruction) -> None:
-        """Handle CALL — check builtins first, then user functions."""
+        """Handle CALL — check builtins, closures, then user functions."""
         name = _str_operand(instruction)
 
         # Built-in function dispatch
@@ -303,11 +324,49 @@ class VirtualMachine:
                 self._runtime_error(exc.message)
             return
 
+        # Closure dispatch — check if name resolves to a Closure in variables
+        frame = self._frames[-1]
+        if name in frame.variables:
+            value = frame.variables[name]
+            if isinstance(value, Closure):
+                self._call_closure(value)
+                return
+
+        # Regular user function dispatch
         fn_code = self._functions[name]
         args: dict[str, Value] = {}
         for param in reversed(fn_code.parameters):
             args[param] = self._stack.pop()
-        self._frames.append(Frame(code=fn_code, variables=args))
+        new_frame = Frame(code=fn_code, variables=args)
+        self._init_cells(new_frame)
+        self._frames.append(new_frame)
+
+    def _exec_make_closure(self, instruction: Instruction) -> None:
+        """Handle MAKE_CLOSURE — create a Closure from a function and captured cells."""
+        name = _str_operand(instruction)
+        fn_code = self._functions[name]
+        frame = self._frames[-1]
+        cells = [frame.cells[var] for var in fn_code.free_variables]
+        self._stack.append(Closure(code=fn_code, cells=cells))
+
+    def _call_closure(self, closure: Closure) -> None:
+        """Call a Closure value, setting up a new frame with captured cells."""
+        fn_code = closure.code
+        args: dict[str, Value] = {}
+        for param in reversed(fn_code.parameters):
+            args[param] = self._stack.pop()
+        # Map free variable names to their Cell objects
+        cells: dict[str, Cell] = dict(zip(fn_code.free_variables, closure.cells, strict=True))
+        new_frame = Frame(code=fn_code, variables=args, cells=cells)
+        self._init_cells(new_frame)
+        self._frames.append(new_frame)
+
+    @staticmethod
+    def _init_cells(frame: Frame) -> None:
+        """Move parameters that are cell variables into Cell storage."""
+        for cell_var in frame.code.cell_variables:
+            if cell_var in frame.variables:
+                frame.cells[cell_var] = Cell(frame.variables.pop(cell_var))
 
     def _exec_return(self) -> None:
         """Handle RETURN — pop frame, push return value."""

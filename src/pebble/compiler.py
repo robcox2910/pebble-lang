@@ -75,12 +75,26 @@ class Compiler:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        cell_vars: dict[str, set[str]] | None = None,
+        free_vars: dict[str, set[str]] | None = None,
+    ) -> None:
         """Create a compiler with an empty main CodeObject."""
         self._main = CodeObject(name="<main>")
         self._functions: dict[str, CodeObject] = {}
         self._current = self._main
         self._for_counter = 0
+        self._cell_vars = cell_vars or {}
+        self._free_vars = free_vars or {}
+
+    def _is_cell_var(self, name: str) -> bool:
+        """Return True if *name* is a cell or free variable of the current function."""
+        fn_name = self._current.name
+        return name in self._cell_vars.get(fn_name, set()) or name in self._free_vars.get(
+            fn_name, set()
+        )
 
     # -- Public API -----------------------------------------------------------
 
@@ -113,6 +127,26 @@ class Compiler:
         """Add *value* to the constant pool and emit LOAD_CONST."""
         idx = self._current.add_constant(value)
         self._emit(OpCode.LOAD_CONST, idx, location=location)
+
+    def _emit_store(
+        self,
+        name: str,
+        *,
+        location: SourceLocation | None = None,
+    ) -> None:
+        """Emit STORE_CELL or STORE_NAME depending on closure analysis."""
+        opcode = OpCode.STORE_CELL if self._is_cell_var(name) else OpCode.STORE_NAME
+        self._emit(opcode, name, location=location)
+
+    def _emit_load(
+        self,
+        name: str,
+        *,
+        location: SourceLocation | None = None,
+    ) -> None:
+        """Emit LOAD_CELL or LOAD_NAME depending on closure analysis."""
+        opcode = OpCode.LOAD_CELL if self._is_cell_var(name) else OpCode.LOAD_NAME
+        self._emit(opcode, name, location=location)
 
     def _current_index(self) -> int:
         """Return the index where the *next* instruction will be emitted."""
@@ -158,12 +192,12 @@ class Compiler:
     def _compile_assignment(self, node: Assignment) -> None:
         """Compile ``let name = value``."""
         self._compile_expression(node.value)
-        self._emit(OpCode.STORE_NAME, node.name, location=node.location)
+        self._emit_store(node.name, location=node.location)
 
     def _compile_reassignment(self, node: Reassignment) -> None:
         """Compile ``name = value``."""
         self._compile_expression(node.value)
-        self._emit(OpCode.STORE_NAME, node.name, location=node.location)
+        self._emit_store(node.name, location=node.location)
 
     def _compile_print(self, node: PrintStatement) -> None:
         """Compile ``print(expr)``."""
@@ -211,15 +245,15 @@ class Compiler:
                 self._compile_expression(node.iterable.arguments[0])
             case _:  # pragma: no cover
                 self._compile_expression(node.iterable)
-        self._emit(OpCode.STORE_NAME, limit_name, location=loc)
+        self._emit_store(limit_name, location=loc)
 
         # Initialize loop variable to 0
         self._emit_constant(0, location=loc)
-        self._emit(OpCode.STORE_NAME, node.variable, location=loc)
+        self._emit_store(node.variable, location=loc)
 
         loop_start = self._current_index()
-        self._emit(OpCode.LOAD_NAME, node.variable, location=loc)
-        self._emit(OpCode.LOAD_NAME, limit_name, location=loc)
+        self._emit_load(node.variable, location=loc)
+        self._emit_load(limit_name, location=loc)
         self._emit(OpCode.LESS_THAN, location=loc)
         jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
@@ -227,10 +261,10 @@ class Compiler:
         for stmt in node.body:
             self._compile_statement(stmt)
 
-        self._emit(OpCode.LOAD_NAME, node.variable, location=loc)
+        self._emit_load(node.variable, location=loc)
         self._emit_constant(1, location=loc)
         self._emit(OpCode.ADD, location=loc)
-        self._emit(OpCode.STORE_NAME, node.variable, location=loc)
+        self._emit_store(node.variable, location=loc)
 
         self._emit(OpCode.JUMP, loop_start, location=loc)
         self._patch_jump(jump_if_false)
@@ -239,6 +273,8 @@ class Compiler:
         """Compile a function definition into a separate CodeObject."""
         fn_code = CodeObject(name=node.name)
         fn_code.parameters = list(node.parameters)
+        fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
+        fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
         previous = self._current
         previous_counter = self._for_counter
         self._current = fn_code
@@ -255,6 +291,11 @@ class Compiler:
         self._functions[node.name] = fn_code
         self._current = previous
         self._for_counter = previous_counter
+
+        # If the function captures variables, it's a closure — emit MAKE_CLOSURE
+        if fn_code.free_variables:
+            self._emit(OpCode.MAKE_CLOSURE, node.name, location=node.location)
+            self._emit(OpCode.STORE_NAME, node.name, location=node.location)
 
     def _compile_return(self, node: ReturnStatement) -> None:
         """Compile ``return`` or ``return expr``."""
@@ -276,7 +317,7 @@ class Compiler:
             case BooleanLiteral():
                 self._emit_constant(expr.value, location=expr.location)
             case Identifier():
-                self._emit(OpCode.LOAD_NAME, expr.name, location=expr.location)
+                self._emit_load(expr.name, location=expr.location)
             case BinaryOp():
                 self._compile_binary(expr)
             case UnaryOp():
