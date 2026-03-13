@@ -813,6 +813,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="How It Works Under the Hood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-full-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Full Journey
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1020,6 +1037,20 @@ emits <code>INDEX_SET</code>. The VM pops all three and changes the element in p
 three separate things and get one backpack back. <code>INDEX_GET</code> is reaching into
 a specific pocket by number, and <code>INDEX_SET</code> is swapping what's in that
 pocket for something new.</p>
+<h3 id="the-full-journey">The Full Journey</h3>
+<p>Here's how <code>let xs = [1, 2]</code> travels through the whole pipeline:</p>
+<ol>
+<li><strong>Lexer</strong> — produces tokens: <code>LET</code>, <code>IDENTIFIER("xs")</code>, <code>EQUAL</code>,
+   <code>LEFT_BRACKET</code>, <code>INTEGER(1)</code>, <code>COMMA</code>, <code>INTEGER(2)</code>, <code>RIGHT_BRACKET</code></li>
+<li><strong>Parser</strong> — builds an <code>Assignment</code> node whose value is an
+   <code>ArrayLiteral</code> containing two <code>IntegerLiteral</code> nodes</li>
+<li><strong>Analyzer</strong> — checks that the variable name is valid</li>
+<li><strong>Compiler</strong> — emits <code>LOAD_CONST 0</code>, <code>LOAD_CONST 1</code>, <code>BUILD_LIST 2</code>,
+   <code>STORE_NAME "xs"</code></li>
+<li><strong>VM</strong> — pushes <code>1</code> and <code>2</code>, packs them into a list, stores the list as
+   <code>xs</code></li>
+</ol>
+<p>Every feature in Pebble follows this same path from text to running code.</p>
 
 
 

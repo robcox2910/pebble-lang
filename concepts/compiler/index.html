@@ -1312,6 +1312,41 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <td>Return from a function</td>
 </tr>
 <tr>
+<td><code>BUILD_STRING</code></td>
+<td>count</td>
+<td>Pop <em>count</em> values, convert to text, join them</td>
+</tr>
+<tr>
+<td><code>BUILD_LIST</code></td>
+<td>count</td>
+<td>Pop <em>count</em> values and create a list</td>
+</tr>
+<tr>
+<td><code>INDEX_GET</code></td>
+<td>—</td>
+<td>Pop an index and a list, push the element</td>
+</tr>
+<tr>
+<td><code>INDEX_SET</code></td>
+<td>—</td>
+<td>Pop value, index, list; change the element</td>
+</tr>
+<tr>
+<td><code>MAKE_CLOSURE</code></td>
+<td>name</td>
+<td>Create a closure from a function + captured Cells</td>
+</tr>
+<tr>
+<td><code>LOAD_CELL</code></td>
+<td>name</td>
+<td>Push a captured variable's value</td>
+</tr>
+<tr>
+<td><code>STORE_CELL</code></td>
+<td>name</td>
+<td>Pop and store into a captured variable</td>
+</tr>
+<tr>
 <td><code>PRINT</code></td>
 <td>—</td>
 <td>Pop and print the top value</td>

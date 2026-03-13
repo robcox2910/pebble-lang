@@ -1009,6 +1009,21 @@ nodes:</p>
 <td><code>print(x)</code></td>
 <td>Function name and argument list</td>
 </tr>
+<tr>
+<td><code>StringInterpolation</code></td>
+<td><code>"hi {name}"</code></td>
+<td>Text parts mixed with expressions</td>
+</tr>
+<tr>
+<td><code>ArrayLiteral</code></td>
+<td><code>[1, 2, 3]</code></td>
+<td>A list of element expressions</td>
+</tr>
+<tr>
+<td><code>IndexAccess</code></td>
+<td><code>xs[0]</code></td>
+<td>A target and an index expression</td>
+</tr>
 </tbody>
 </table>
 <h3 id="statement-nodes-do-something">Statement Nodes (do something)</h3>
@@ -1060,6 +1075,11 @@ nodes:</p>
 <td><code>ReturnStatement</code></td>
 <td><code>return 42</code></td>
 <td>The value to return (or nothing)</td>
+</tr>
+<tr>
+<td><code>IndexAssignment</code></td>
+<td><code>xs[0] = 42</code></td>
+<td>Target, index, and new value</td>
 </tr>
 </tbody>
 </table>

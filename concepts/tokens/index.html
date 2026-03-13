@@ -1004,6 +1004,34 @@ terms of whole words and symbols, which is much easier.</p>
 </tr>
 </tbody>
 </table>
+<p>When a string contains <code>{...}</code> interpolation (like <code>"hello {name}"</code>), the lexer
+splits it into special tokens instead of a plain <code>STRING</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Example piece</th>
+<th>What It Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>STRING_START</code></td>
+<td><code>"hello "</code></td>
+<td>The text before the first <code>{</code></td>
+</tr>
+<tr>
+<td><code>STRING_MIDDLE</code></td>
+<td><code>" and "</code></td>
+<td>Text between two <code>{...}</code> sections</td>
+</tr>
+<tr>
+<td><code>STRING_END</code></td>
+<td><code>"!"</code></td>
+<td>The text after the last <code>}</code></td>
+</tr>
+</tbody>
+</table>
 <h3 id="keywords-reserved-words">Keywords -- Reserved Words</h3>
 <p>Keywords are special words that Pebble has claimed for itself. You can't use
 them as variable names because they already mean something:</p>
@@ -1194,6 +1222,16 @@ them as variable names because they already mean something:</p>
 <td><code>RIGHT_BRACE</code></td>
 <td><code>}</code></td>
 <td>End a block of code</td>
+</tr>
+<tr>
+<td><code>LEFT_BRACKET</code></td>
+<td><code>[</code></td>
+<td>Start a list or index access</td>
+</tr>
+<tr>
+<td><code>RIGHT_BRACKET</code></td>
+<td><code>]</code></td>
+<td>End a list or index access</td>
 </tr>
 <tr>
 <td><code>COMMA</code></td>
