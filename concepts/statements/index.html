@@ -620,6 +620,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#exiting-early-break" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exiting Early: break
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skipping-ahead-continue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skipping Ahead: continue
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skipping Ahead: continue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nested-loops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nested Loops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#blocks-curly-braces" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1049,23 +1088,84 @@ counts up to (but not including) <code>5</code>.</p>
 <p>Behind the scenes, the compiler turns a <code>for</code> loop into a <code>while</code> loop with
 a hidden counter variable. You don't need to worry about that — just think
 of it as "do this N times, and give me the number each time".</p>
+<h2 id="exiting-early-break">Exiting Early: <code>break</code></h2>
+<p>Sometimes you want to stop a loop before it finishes all its repetitions,
+like leaving a cinema in the middle of a film. That's what <code>break</code> does --
+it immediately exits the nearest loop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let x = 0
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>while true {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    if x == 3 { break }
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    x = x + 1
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>}
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>print(x)
+</code></pre></div>
+<p>This prints <code>3</code>. Without <code>break</code>, the <code>while true</code> loop would run forever.
+But as soon as <code>x</code> reaches 3, <code>break</code> jumps out of the loop.</p>
+<p><code>break</code> works in <code>for</code> loops too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>for i in range(10) {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    if i == 3 { break }
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    print(i)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>}
+</code></pre></div>
+<p>This prints <code>0</code>, <code>1</code>, <code>2</code> and then stops -- even though <code>range(10)</code> would
+normally count all the way to 9.</p>
+<div class="admonition warning">
+<p class="admonition-title">Only inside loops</p>
+<p>You can only use <code>break</code> inside a <code>while</code> or <code>for</code> loop. Writing it
+outside a loop is an error.</p>
+</div>
+<h2 id="skipping-ahead-continue">Skipping Ahead: <code>continue</code></h2>
+<p>Sometimes you don't want to stop the whole loop, just skip the rest of
+<em>this particular go-around</em> and move on to the next one. Think of it like
+flipping past a song you don't like on a playlist -- you skip the song but
+keep listening to the rest. That's <code>continue</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>for i in range(5) {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    if i == 2 { continue }
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    print(i)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>}
+</code></pre></div>
+<p>This prints <code>0</code>, <code>1</code>, <code>3</code>, <code>4</code> -- it skips <code>2</code> but keeps going through
+the rest of the numbers.</p>
+<p>In a <code>while</code> loop, <code>continue</code> jumps back to the condition check:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let total = 0
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>let i = 0
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>while i &lt; 5 {
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    i = i + 1
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    if i == 3 { continue }
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    total = total + i
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>print(total)
+</code></pre></div>
+<p>This prints <code>12</code> (1 + 2 + 4 + 5 -- skipping 3).</p>
+<h3 id="nested-loops">Nested Loops</h3>
+<p>When <code>break</code> or <code>continue</code> is inside nested loops, it only affects the
+<strong>innermost</strong> loop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>for i in range(3) {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    for j in range(3) {
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        if j == 1 { break }
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        print(j)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    }
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>}
+</code></pre></div>
+<p>This prints <code>0</code>, <code>0</code>, <code>0</code>. The <code>break</code> exits the inner <code>j</code> loop each time,
+but the outer <code>i</code> loop keeps going.</p>
 <h2 id="blocks-curly-braces">Blocks: Curly Braces</h2>
 <p>The <code>{ }</code> curly braces group statements together into a <strong>block</strong>. Think of
 them like the walls of a room -- everything between <code>{</code> and <code>}</code> belongs
 together.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>if condition {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    let x = 10
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    print(x)
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>if condition {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    let x = 10
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    print(x)
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>}
 </code></pre></div>
 <p>Blocks appear after <code>if</code>, <code>else</code>, <code>while</code>, <code>for</code>, and <code>fn</code>. Each block can
 contain any number of statements (even zero!).</p>
 <h2 id="newlines-as-separators">Newlines as Separators</h2>
 <p>In Pebble, each statement goes on its own line. There are no semicolons --
 newlines tell the parser "that statement is done, start the next one."</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let x = 1
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>let y = 2
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>print(x + y)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let x = 1
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>let y = 2
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>print(x + y)
 </code></pre></div>
 <p>Blank lines between statements are fine -- the parser simply skips them.</p>
 <h2 id="how-the-parser-handles-statements">How the Parser Handles Statements</h2>
@@ -1102,6 +1202,14 @@ of statement it is:</p>
 <tr>
 <td><code>return</code></td>
 <td>Return statement</td>
+</tr>
+<tr>
+<td><code>break</code></td>
+<td>Break statement</td>
+</tr>
+<tr>
+<td><code>continue</code></td>
+<td>Continue statement</td>
 </tr>
 <tr>
 <td><code>print</code></td>
@@ -1170,6 +1278,14 @@ problem was found.</p>
 <tr>
 <td><code>for</code></td>
 <td>Roll call -- go through each item one by one</td>
+</tr>
+<tr>
+<td><code>break</code></td>
+<td>Walking out of a cinema early</td>
+</tr>
+<tr>
+<td><code>continue</code></td>
+<td>Skipping a song on a playlist</td>
 </tr>
 <tr>
 <td><code>fn</code> / <code>return</code></td>
