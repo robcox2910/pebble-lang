@@ -191,9 +191,9 @@ class TestVMIndexAccess:
             _run_source("let xs = [1, 2, 3]\nprint(xs[5])")
 
     def test_index_negative_out_of_bounds(self) -> None:
-        """Negative index raises PebbleRuntimeError."""
+        """Excessively negative index raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="out of bounds"):
-            _run_source("let xs = [1, 2, 3]\nprint(xs[-1])")
+            _run_source("let xs = [1, 2, 3]\nprint(xs[-10])")
 
 
 # -- Cycle 5: Index assignment -------------------------------------------------
@@ -240,6 +240,86 @@ class TestVMLenBuiltin:
         """``len(xs)`` works with a variable."""
         source = "let xs = [1, 2, 3, 4]\nprint(len(xs))"
         assert _run_source(source) == "4\n"
+
+
+# -- Negative Indexing: Read --------------------------------------------------
+
+
+class TestNegativeIndexGet:
+    """Verify negative index read access."""
+
+    def test_last_element(self) -> None:
+        """``xs[-1]`` returns the last element."""
+        source = "let xs = [10, 20, 30]\nprint(xs[-1])"
+        assert _run_source(source) == "30\n"
+
+    def test_second_to_last(self) -> None:
+        """``xs[-2]`` returns the second-to-last element."""
+        source = "let xs = [10, 20, 30]\nprint(xs[-2])"
+        assert _run_source(source) == "20\n"
+
+    def test_negative_len_returns_first(self) -> None:
+        """``xs[-len(xs)]`` returns the first element (boundary)."""
+        source = "let xs = [10, 20, 30]\nprint(xs[-3])"
+        assert _run_source(source) == "10\n"
+
+    def test_too_negative_raises(self) -> None:
+        """``xs[-(len+1)]`` raises out-of-bounds error."""
+        with pytest.raises(PebbleRuntimeError, match="out of bounds"):
+            _run_source("let xs = [10, 20, 30]\nprint(xs[-4])")
+
+
+# -- Negative Indexing: Write -------------------------------------------------
+
+
+class TestNegativeIndexSet:
+    """Verify negative index write access."""
+
+    def test_set_last_element(self) -> None:
+        """``xs[-1] = 99`` modifies the last element."""
+        source = "let xs = [10, 20, 30]\nxs[-1] = 99\nprint(xs)"
+        assert _run_source(source) == "[10, 20, 99]\n"
+
+    def test_set_second_to_last(self) -> None:
+        """``xs[-2] = 42`` modifies the second-to-last element."""
+        source = "let xs = [10, 20, 30]\nxs[-2] = 42\nprint(xs)"
+        assert _run_source(source) == "[10, 42, 30]\n"
+
+    def test_set_too_negative_raises(self) -> None:
+        """``xs[-(len+1)] = 0`` raises out-of-bounds error."""
+        with pytest.raises(PebbleRuntimeError, match="out of bounds"):
+            _run_source("let xs = [10, 20, 30]\nxs[-4] = 0")
+
+
+# -- Negative Indexing: Integration -------------------------------------------
+
+
+class TestNegativeIndexIntegration:
+    """Integration tests for negative indexing with other features."""
+
+    def test_negative_index_with_variable(self) -> None:
+        """Negative index via a variable expression: ``xs[-i]``."""
+        source = "let xs = [10, 20, 30]\nlet i = 1\nprint(xs[-i])"
+        assert _run_source(source) == "30\n"
+
+    def test_equivalence_with_len(self) -> None:
+        """``xs[-1]`` and ``xs[len(xs) - 1]`` return the same value."""
+        source = """\
+let xs = [10, 20, 30]
+let a = xs[-1]
+let b = xs[len(xs) - 1]
+print(a == b)"""
+        assert _run_source(source) == "true\n"
+
+    def test_positive_indexing_still_works(self) -> None:
+        """Regression: positive indexing unchanged."""
+        source = """\
+let xs = [10, 20, 30, 40]
+print(xs[0])
+print(xs[1])
+print(xs[2])
+print(xs[3])"""
+        assert _run_source(source) == "10\n20\n30\n40\n"
 
 
 # -- Cycle 7: Integration -----------------------------------------------------

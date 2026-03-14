@@ -53,12 +53,48 @@ let i = 1
 print(fruits[i])   # prints: banana
 ```
 
-If you use an index that is too big (or negative), Pebble stops with an
+If you use an index that is too big (or too negative), Pebble stops with an
 error:
 
 ```pebble
 print(fruits[99])   # Error: Index 99 out of bounds for list of length 3
 ```
+
+## Negative Indexing
+
+Sometimes you want to grab items from the **end** of a list without
+knowing exactly how long it is. Negative indices let you count backwards:
+`-1` is the last element, `-2` is the second-to-last, and so on.
+
+Think of a queue of people. Positive indices count from the **front** of the
+line — 0 is the first person, 1 is the second. Negative indices count from
+the **back** — -1 is the last person, -2 is the one just before them.
+
+```pebble
+let colours = ["red", "green", "blue"]
+print(colours[-1])   # prints: blue
+print(colours[-2])   # prints: green
+print(colours[-3])   # prints: red
+```
+
+You can also **assign** using negative indices:
+
+```pebble
+let scores = [10, 20, 30]
+scores[-1] = 99
+print(scores)   # prints: [10, 20, 99]
+```
+
+If you go too far back, you get an error — just like going too far forward:
+
+```pebble
+let xs = [1, 2, 3]
+print(xs[-10])   # Error: Index -10 out of bounds for list of length 3
+```
+
+Under the hood, the VM simply converts the negative index:
+`-1` becomes `len - 1`, `-2` becomes `len - 2`, and so on. Then it looks up
+that position the normal way.
 
 ## Changing an Element
 

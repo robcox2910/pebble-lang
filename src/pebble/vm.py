@@ -348,8 +348,10 @@ class VirtualMachine:
         if not isinstance(index, int) or isinstance(index, bool):
             type_name = type(index).__name__
             self._runtime_error(f"List index must be an integer, got {type_name}")
-        if index < 0 or index >= len(target):
+        if index < -len(target) or index >= len(target):
             self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
+        if index < 0:
+            index += len(target)
         self._stack.append(target[index])
 
     def _exec_index_set(self) -> None:
@@ -369,8 +371,10 @@ class VirtualMachine:
         if not isinstance(index, int) or isinstance(index, bool):
             type_name = type(index).__name__
             self._runtime_error(f"List index must be an integer, got {type_name}")
-        if index < 0 or index >= len(target):
+        if index < -len(target) or index >= len(target):
             self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
+        if index < 0:
+            index += len(target)
         target[index] = value
 
     # Map of VM-level builtin names to handler methods.
