@@ -55,6 +55,7 @@ nodes:
 | `FunctionCall` | `print(x)` | Function name and argument list |
 | `StringInterpolation` | `"hi {name}"` | Text parts mixed with expressions |
 | `ArrayLiteral` | `[1, 2, 3]` | A list of element expressions |
+| `DictLiteral` | `{"a": 1}` | A list of key-value pair expressions |
 | `IndexAccess` | `xs[0]` | A target and an index expression |
 
 ### Statement Nodes (do something)
@@ -70,6 +71,8 @@ nodes:
 | `FunctionDef` | `fn add(a, b) { }` | Name, parameters, body |
 | `ReturnStatement` | `return 42` | The value to return (or nothing) |
 | `IndexAssignment` | `xs[0] = 42` | Target, index, and new value |
+| `BreakStatement` | `break` | Exit the nearest loop |
+| `ContinueStatement` | `continue` | Skip to the next loop iteration |
 
 The **Program** node sits at the very top and holds the list of all top-level
 statements.

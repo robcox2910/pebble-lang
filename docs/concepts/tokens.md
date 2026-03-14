@@ -106,6 +106,7 @@ These are the brackets, braces, and commas that organise your code:
 | `LEFT_BRACKET` | `[` | Start a list or index access |
 | `RIGHT_BRACKET` | `]` | End a list or index access |
 | `COMMA` | `,` | Separate items in a list |
+| `COLON` | `:` | Separate key from value in a dict |
 | `EQUAL` | `=` | Assign a value |
 
 ### Special Tokens

@@ -102,6 +102,9 @@ Pebble has its own rules for printing values:
 | `"hello"` | `hello` (no quotes) |
 | `true` | `true` (lowercase) |
 | `false` | `false` (lowercase) |
+| `[1, 2, 3]` | `[1, 2, 3]` |
+| `{"a": 1}` | `{a: 1}` |
+| a closure | `<fn name>` |
 
 This is different from Python, which would print `True` and `False`
 with capital letters.
@@ -117,6 +120,9 @@ These are called **runtime errors**:
 | `1 % 0` | Division by zero |
 | `"hi" - 1` | Unsupported operand types for -: str and int |
 | `-"hi"` | Unsupported operand type for negation: str |
+| `xs[99]` (list) | Index 99 out of bounds for list of length 3 |
+| `d["missing"]` (dict) | Key 'missing' not found in dict |
+| `d[42] = 1` (dict) | Dict keys must be strings, got int |
 
 When a runtime error happens, the VM stops and reports what went wrong.
 
