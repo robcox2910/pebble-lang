@@ -313,6 +313,23 @@ class TestCompileIfStatement:
         assert ins[FOUR] == Instruction(OpCode.EQUAL)
 
 
+# -- Else If -----------------------------------------------------------------
+
+
+class TestCompileElseIf:
+    """Verify else-if chains compile to nested if/else bytecode."""
+
+    def test_else_if_produces_two_jumps(self) -> None:
+        """``if/else if/else`` produces two JUMP_IF_FALSE and two JUMP."""
+        source = "if true { print(1) } else if false { print(2) } else { print(3) }"
+        ins = _instructions(source)
+        jump_if_false = [i for i in ins if i.opcode is OpCode.JUMP_IF_FALSE]
+        jumps = [i for i in ins if i.opcode is OpCode.JUMP]
+        assert len(jump_if_false) == TWO
+        assert len(jumps) == TWO
+        assert ins[-1] == Instruction(OpCode.HALT)
+
+
 # -- Cycle 5: While Loops ----------------------------------------------------
 
 

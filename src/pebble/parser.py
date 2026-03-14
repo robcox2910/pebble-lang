@@ -159,7 +159,7 @@ class Parser:
         return PrintStatement(expression=expr, location=print_token.location)
 
     def _parse_if(self) -> IfStatement:
-        """Parse an ``if cond { body } [else { body }]`` statement."""
+        """Parse an ``if cond { body } [else [if] { body }]`` statement."""
         if_token = self._advance()  # consume 'if'
         condition = self.parse_expression()
         body = self._parse_block()
@@ -167,7 +167,10 @@ class Parser:
         else_body: list[Statement] | None = None
         if not self._at_end() and self._peek().kind == TokenKind.ELSE:
             self._advance()  # consume 'else'
-            else_body = self._parse_block()
+            if not self._at_end() and self._peek().kind == TokenKind.IF:
+                else_body = [self._parse_if()]
+            else:
+                else_body = self._parse_block()
 
         return IfStatement(
             condition=condition,

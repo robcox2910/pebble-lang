@@ -167,6 +167,43 @@ Compiles to:
 9  HALT
 ```
 
+### Else If
+
+An `else if` chain compiles to exactly the same bytecode as manually
+nested `if`/`else` blocks — because that's what the parser turns it into
+before the compiler ever sees it.
+
+```pebble
+if true {
+    print(1)
+} else if false {
+    print(2)
+} else {
+    print(3)
+}
+```
+
+Compiles to:
+
+```
+0   LOAD_CONST 0        # true
+1   JUMP_IF_FALSE 5     # skip to inner if
+2   LOAD_CONST 1        # 1
+3   PRINT
+4   JUMP 11             # skip past everything
+5   LOAD_CONST 2        # false
+6   JUMP_IF_FALSE 10    # skip to else
+7   LOAD_CONST 3        # 2
+8   PRINT
+9   JUMP 11             # skip past else
+10  LOAD_CONST 4        # 3
+11  PRINT
+12  HALT
+```
+
+Each `else if` introduces another `JUMP_IF_FALSE` / `JUMP` pair — the
+same pattern as a plain `if`/`else`, just repeated.
+
 ### While Loop
 
 ```pebble

@@ -75,6 +75,60 @@ if raining {
 }
 ```
 
+## Else If Chains
+
+What if there are more than two paths? Think of a traffic light: it can be
+green, yellow, or red — three choices, not just two. You *could* nest `if`
+inside `else`, but that gets messy fast. Instead, use `else if`:
+
+```pebble
+if colour == "green" {
+    print("Go!")
+} else if colour == "yellow" {
+    print("Slow down")
+} else {
+    print("Stop")
+}
+```
+
+You can chain as many `else if` branches as you need:
+
+```pebble
+let score = 85
+if score > 90 {
+    print("A")
+} else if score > 80 {
+    print("B")
+} else if score > 70 {
+    print("C")
+} else {
+    print("D")
+}
+```
+
+The computer checks each condition from top to bottom and runs the **first**
+one that's true. If none are true, the `else` block runs (if there is one).
+
+The final `else` is optional — without it, nothing happens if no condition
+matches.
+
+Under the hood, `else if` is just a shortcut. The parser turns it into a
+nested `if` inside the `else` block, exactly as if you had written:
+
+```pebble
+if score > 90 {
+    print("A")
+} else {
+    if score > 80 {
+        print("B")
+    } else {
+        print("C")
+    }
+}
+```
+
+Both versions produce identical bytecode — `else if` just looks tidier.
+
 ## Repeating Things: `while`
 
 A `while` loop is like a broken record -- it keeps doing the same thing until
@@ -286,6 +340,7 @@ problem was found.
 | `let` | Writing a label on a new box |
 | Reassignment | Replacing what's inside an existing box |
 | `if/else` | A fork in the road |
+| `else if` | A traffic light with many signals |
 | `while` | A broken record that keeps replaying |
 | `for` | Roll call -- go through each item one by one |
 | `break` | Walking out of a cinema early |
