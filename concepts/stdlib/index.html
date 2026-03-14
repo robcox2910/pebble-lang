@@ -877,6 +877,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#mapfn-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map(fn, list)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filterfn-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filter(fn, list)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reducefn-list-initial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reduce(fn, list, initial)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#putting-it-all-together" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -922,6 +955,34 @@
     
   
     Closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../higher-order/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Higher-Order Functions
   
 
     
@@ -1095,24 +1156,47 @@ from an empty container.</p>
 <p>If the dictionary is empty, you get an empty list:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(values({}))   # prints: []
 </code></pre></div>
+<h2 id="mapfn-list">map(fn, list)</h2>
+<p>Apply a function to every element and return a new list of results. The first
+argument can be a named function or an anonymous function (<code>fn(...) { ... }</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(map(double, [1, 2, 3]))   # prints: [2, 4, 6]
+</code></pre></div>
+<p>You can also use an anonymous function:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>print(map(fn(x) { return x + 10 }, [1, 2, 3]))   # prints: [11, 12, 13]
+</code></pre></div>
+<p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
+<h2 id="filterfn-list">filter(fn, list)</h2>
+<p>Keep only the elements where the function returns <code>true</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>fn is_even(x) { return x % 2 == 0 }
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>print(filter(is_even, [1, 2, 3, 4]))   # prints: [2, 4]
+</code></pre></div>
+<p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
+<h2 id="reducefn-list-initial">reduce(fn, list, initial)</h2>
+<p>Combine all elements into a single value using a function and a starting
+value:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>fn add(a, b) { return a + b }
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(reduce(add, [1, 2, 3], 0))   # prints: 6
+</code></pre></div>
+<p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>You can combine these to do useful things. Here's a program that builds a
 list dynamically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>let numbers = []
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>for i in range(5) {
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    push(numbers, i * i)
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>}
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let numbers = []
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>for i in range(5) {
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    push(numbers, i * i)
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>}
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
 </code></pre></div>
 <p>And here's a simple stack (last-in, first-out):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>let stack = []
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>push(stack, &quot;first&quot;)
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>push(stack, &quot;second&quot;)
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>push(stack, &quot;third&quot;)
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>let top = pop(stack)
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let stack = []
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>push(stack, &quot;first&quot;)
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>push(stack, &quot;second&quot;)
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>push(stack, &quot;third&quot;)
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>let top = pop(stack)
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>Every built-in function lives in a Python module called <code>builtins.py</code>. It

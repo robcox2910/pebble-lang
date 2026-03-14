@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/functions/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/higher-order/">
       
       
-        <link rel="prev" href="../statements/">
+        <link rel="prev" href="../closures/">
       
       
-        <link rel="next" href="../analyzer/">
+        <link rel="next" href="../repl/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Functions - Pebble</title>
+        <title>Higher-Order Functions - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#functions-for-loops" class="md-skip">
+        <a href="#higher-order-functions" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Functions
+              Higher-Order Functions
             
           </span>
         </div>
@@ -508,37 +508,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Functions
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../functions/" class="md-nav__link">
         
   
   
@@ -554,176 +527,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Function?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#defining-a-function-fn" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Defining a Function: fn
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Defining a Function: fn">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#parameters-the-ingredient-slots" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parameters: The Ingredient Slots
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#calling-a-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calling a Function
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#giving-back-a-result-return" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Giving Back a Result: return
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#going-through-items-for-loops" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Going Through Items: for Loops
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Going Through Items: for Loops">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#for-vs-while" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For vs While
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#functions-are-values" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Functions Are Values
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Functions Are Values">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#anonymous-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Anonymous Functions
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#putting-it-all-together" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Putting It All Together
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -957,10 +760,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../higher-order/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Higher-Order Functions
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -976,6 +806,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#first-class-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-Class Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapfn-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map(fn, list)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filterfn-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filter(fn, list)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reducefn-list-initial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reduce(fn, list, initial)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chaining-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chaining Together
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-closures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Closures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1036,236 +974,162 @@
   
 
 
-<h1 id="functions-for-loops">Functions &amp; For Loops</h1>
-<h2 id="what-is-a-function">What Is a Function?</h2>
-<p>A <strong>function</strong> is like a <strong>recipe card</strong>. You write down the steps once, give
-it a name, and then use that recipe whenever you need it -- without rewriting
-the whole thing.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn greet() {
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    print(&quot;Hello!&quot;)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>greet()
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>greet()
-</code></pre></div>
-<p>Here <code>greet</code> is a recipe that prints "Hello!". We <strong>call</strong> (use) it twice, so
-"Hello!" appears twice.</p>
-<h2 id="defining-a-function-fn">Defining a Function: <code>fn</code></h2>
-<p>To create a function, use the <code>fn</code> keyword:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>fn name(parameters) {
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    body
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>}
-</code></pre></div>
+<h1 id="higher-order-functions">Higher-Order Functions</h1>
+<p>A <strong>higher-order function</strong> is a function that takes another function as an
+argument. Pebble has three built-in higher-order functions: <code>map</code>, <code>filter</code>,
+and <code>reduce</code>.</p>
+<p>Think of them like machines on an assembly line:</p>
 <ul>
-<li><strong><code>fn</code></strong> -- tells Pebble "I'm writing a new recipe"</li>
-<li><strong>name</strong> -- the label on the recipe card (e.g. <code>greet</code>, <code>add</code>, <code>square</code>)</li>
-<li><strong>parameters</strong> -- ingredient slots (more on these below)</li>
-<li><strong>body</strong> -- the instructions inside <code>{ }</code></li>
+<li><strong>map</strong> — a machine that transforms every item on the belt</li>
+<li><strong>filter</strong> — a quality inspector that removes items that don't pass a test</li>
+<li><strong>reduce</strong> — a machine that combines all the items into one final product</li>
 </ul>
-<h3 id="parameters-the-ingredient-slots">Parameters: The Ingredient Slots</h3>
-<p>Parameters are like blank spaces on a recipe card where you write in the
-specific ingredients each time you use it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>fn add(a, b) {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    return a + b
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
+<h2 id="first-class-functions">First-Class Functions</h2>
+<p>Before we can pass functions around, we need to understand that in Pebble,
+<strong>all functions are values</strong> — just like numbers and strings. You can store a
+function in a variable, put it in a list, or pass it to another function:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let f = double
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>print(f(5))         # prints: 10
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print(type(double))  # prints: fn
 </code></pre></div>
-<p><code>a</code> and <code>b</code> are <strong>parameters</strong> -- placeholders that get filled in when you
-call the function.</p>
-<h2 id="calling-a-function">Calling a Function</h2>
-<p>To use a function, write its name followed by parentheses with the values
-(called <strong>arguments</strong>) you want to pass in:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>add(3, 4)
+<p>You can also write <strong>anonymous functions</strong> — functions with no name — directly
+where you need them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let triple = fn(x) { return x * 3 }
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(triple(4))   # prints: 12
 </code></pre></div>
-<p>Here <code>3</code> and <code>4</code> are <strong>arguments</strong> -- the actual ingredients you hand to the
-recipe. They fill the parameter slots: <code>a</code> gets <code>3</code>, <code>b</code> gets <code>4</code>.</p>
-<p>You can call functions with zero, one, or many arguments:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>greet()           # no arguments
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>square(5)         # one argument
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>add(10, 20)       # two arguments
+<p>Anonymous functions are handy when you need a quick throwaway function,
+especially with <code>map</code>, <code>filter</code>, and <code>reduce</code>.</p>
+<h2 id="mapfn-list">map(fn, list)</h2>
+<p>Apply a function to <strong>every</strong> element of a list and collect the results:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let result = map(fn(x) { return x * 2 }, [1, 2, 3])
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(result)   # prints: [2, 4, 6]
 </code></pre></div>
-<p>Arguments can be any expression, not just simple values:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>add(1 + 2, x)
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>add(square(3), 4)
+<p>Think of <code>map</code> like a cookie cutter. You have a tray of dough pieces (the
+input list) and a cutter (the function). The cutter stamps each piece into a
+new shape, and you get a new tray of shaped cookies (the output list).</p>
+<p>You can use a named function too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn square(x) { return x * x }
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(map(square, [1, 2, 3, 4]))   # prints: [1, 4, 9, 16]
 </code></pre></div>
-<p>That second line shows <strong>nested calls</strong> -- a function call inside another
-function call, like a recipe that says "first make the sauce (another recipe),
-then add it to the dish."</p>
-<h2 id="giving-back-a-result-return">Giving Back a Result: <code>return</code></h2>
-<p>The <code>return</code> keyword is like handing back the finished dish. It sends a value
-out of the function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn square(x) {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    return x * x
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>}
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>let result = square(5)
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>print(result)
+<p>If the list is empty, you get an empty list back:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(map(fn(x) { return x }, []))   # prints: []
 </code></pre></div>
-<p>A function can also <code>return</code> without a value (a bare return), which just
-means "stop here, I'm done":</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn maybe_print(x) {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    if x &lt; 0 {
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        return
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    }
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    print(x)
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>}
+<h2 id="filterfn-list">filter(fn, list)</h2>
+<p>Keep only the elements where the function returns <code>true</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let result = filter(fn(x) { return x &gt; 2 }, [1, 2, 3, 4, 5])
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(result)   # prints: [3, 4, 5]
 </code></pre></div>
-<h2 id="going-through-items-for-loops">Going Through Items: <code>for</code> Loops</h2>
-<p>A <strong>for loop</strong> is like doing a <strong>roll call</strong> -- you go through a list of items
-one by one, doing something with each one:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>for i in range(5) {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    print(i)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
+<p>Think of <code>filter</code> like a sieve. You pour a mixture through it, and only the
+pieces that fit through the holes (pass the test) come out the other side.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn is_even(x) { return x % 2 == 0 }
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(filter(is_even, [1, 2, 3, 4, 5, 6]))   # prints: [2, 4, 6]
 </code></pre></div>
-<p>This prints <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>. Each time around the loop, <code>i</code> takes
-the next value from <code>range(5)</code>.</p>
-<p>The structure is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>for variable in iterable {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    body
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
+<p>If nothing passes the test, you get an empty list:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>print(filter(fn(x) { return x &gt; 100 }, [1, 2, 3]))   # prints: []
 </code></pre></div>
+<h2 id="reducefn-list-initial">reduce(fn, list, initial)</h2>
+<p>Combine all elements of a list into a single value by repeatedly applying a
+function. The function takes two arguments: an <strong>accumulator</strong> (the running
+total) and the current element.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let sum = reduce(fn(acc, x) { return acc + x }, [1, 2, 3, 4], 0)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(sum)   # prints: 10
+</code></pre></div>
+<p>Here's what happens step by step:</p>
+<ol>
+<li>Start with <code>acc = 0</code> (the initial value)</li>
+<li><code>acc = 0 + 1</code> = <code>1</code></li>
+<li><code>acc = 1 + 2</code> = <code>3</code></li>
+<li><code>acc = 3 + 3</code> = <code>6</code></li>
+<li><code>acc = 6 + 4</code> = <code>10</code></li>
+</ol>
+<p>Think of <code>reduce</code> like a snowball rolling down a hill. It starts small (the
+initial value), and each element it rolls over gets packed into the ball,
+making it bigger.</p>
+<p>You can compute anything with <code>reduce</code> — sums, products, even build strings:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn multiply(a, b) { return a * b }
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(reduce(multiply, [2, 3, 4], 1))   # prints: 24
+</code></pre></div>
+<p>If the list is empty, you just get the initial value back:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>print(reduce(fn(a, b) { return a + b }, [], 42))   # prints: 42
+</code></pre></div>
+<h2 id="chaining-together">Chaining Together</h2>
+<p>The real power comes when you combine these functions. Since each one returns
+a value, you can feed the result of one directly into another:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>fn is_even(x) { return x % 2 == 0 }
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>fn add(a, b) { return a + b }
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a># First filter the evens, then double them, then sum them up
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>let nums = [1, 2, 3, 4, 5, 6]
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>let result = reduce(add, map(double, filter(is_even, nums)), 0)
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>print(result)   # prints: 24
+</code></pre></div>
+<p>Reading from the inside out:</p>
+<ol>
+<li><code>filter(is_even, nums)</code> keeps <code>[2, 4, 6]</code></li>
+<li><code>map(double, [2, 4, 6])</code> transforms to <code>[4, 8, 12]</code></li>
+<li><code>reduce(add, [4, 8, 12], 0)</code> sums to <code>24</code></li>
+</ol>
+<h2 id="using-closures">Using Closures</h2>
+<p>Higher-order functions work beautifully with closures that capture variables:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn make_multiplier(factor) {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    fn multiply(x) { return x * factor }
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    return multiply
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>}
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>let times3 = make_multiplier(3)
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>print(map(times3, [1, 2, 3, 4]))   # prints: [3, 6, 9, 12]
+</code></pre></div>
+<p>The closure <code>times3</code> remembers <code>factor = 3</code> from when it was created.</p>
+<h2 id="error-handling">Error Handling</h2>
+<p>All three functions check their arguments at runtime:</p>
 <ul>
-<li><strong>variable</strong> -- a name that holds the current item (like <code>i</code>)</li>
-<li><strong>iterable</strong> -- something that produces items to loop over</li>
-<li><strong>body</strong> -- what to do with each item</li>
+<li>The first argument must be a function (a closure). Passing a number or
+  string gives an error.</li>
+<li>The second argument must be a list. Passing anything else gives an error.</li>
 </ul>
-<h3 id="for-vs-while">For vs While</h3>
-<p>Both <code>for</code> and <code>while</code> repeat things, but they're suited for different jobs:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th><code>for</code></th>
-<th><code>while</code></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Best for</td>
-<td>Going through a collection</td>
-<td>Repeating until a condition changes</td>
-</tr>
-<tr>
-<td>Counter needed?</td>
-<td>Built-in (<code>i</code> in <code>for i in ...</code>)</td>
-<td>You manage it yourself</td>
-</tr>
-<tr>
-<td>Analogy</td>
-<td>Roll call</td>
-<td>Broken record</td>
-</tr>
-</tbody>
-</table>
-<h2 id="functions-are-values">Functions Are Values</h2>
-<p>In Pebble, functions are <strong>first-class values</strong> -- just like numbers and
-strings. That means you can store a function in a variable, put it in a list,
-or pass it as an argument to another function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>let f = double
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>print(f(5))          # prints: 10
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>print(type(double))  # prints: fn
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>map(42, [1, 2])         # Error: map() expects a function
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>filter(fn(x) { return true }, &quot;abc&quot;)  # Error: filter() expects a list
 </code></pre></div>
-<p>Think of it this way: the recipe card itself is a thing you can pick up, hand
-to someone, or put in a drawer. You can use it later, or give it to a
-different chef.</p>
-<h3 id="anonymous-functions">Anonymous Functions</h3>
-<p>Sometimes you need a tiny recipe that you'll only use once. Instead of giving
-it a name, you can write it inline:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let triple = fn(x) { return x * 3 }
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(triple(4))   # prints: 12
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<p>Unlike simple builtins like <code>len()</code> or <code>push()</code>, the higher-order functions
+need to <strong>call back into user code</strong> for each element. This means they can't
+be plain Python functions — they need access to the VM's execution machinery.</p>
+<p>Here's how it works:</p>
+<ol>
+<li>
+<p><strong>VM-level builtins</strong> — <code>map</code>, <code>filter</code>, and <code>reduce</code> are implemented as
+   methods on the <code>VirtualMachine</code> class itself, not as standalone handler
+   functions. This gives them access to the VM's stack and frame management.</p>
+</li>
+<li>
+<p><strong><code>_call_callable</code> helper</strong> — A method that takes a closure and some
+   arguments, sets up a new call frame, runs the VM's execution loop until
+   that frame completes, and returns the result.</p>
+</li>
+<li>
+<p><strong>Nested execution</strong> — The <code>_execute</code> method accepts a <code>min_depth</code>
+   parameter. Normally it runs until the call stack is empty. For callbacks,
+   it runs until the stack depth drops back to where it was before the
+   callback was pushed — like a mini VM session inside the main one.</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Main execution loop
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  ├─ ... instructions ...
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  ├─ CALL map
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  │   ├─ _call_callable(fn, [1])  ← mini execution
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>  │   │   ├─ push frame
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>  │   │   ├─ _execute(min_depth=2)
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>  │   │   ├─ RETURN → pop frame
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>  │   │   └─ return result
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>  │   ├─ _call_callable(fn, [2])  ← mini execution
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>  │   └─ push result list
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>  └─ ... continue ...
 </code></pre></div>
-<p>This creates a function without the usual <code>fn name(...)</code> form -- just
-<code>fn(params) { body }</code> directly in an expression. It's especially useful with
-<a href="../higher-order/">higher-order functions</a> like <code>map</code>, <code>filter</code>, and <code>reduce</code>.</p>
-<h2 id="putting-it-all-together">Putting It All Together</h2>
-<p>Here's a program that uses functions and for loops together:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn greet(name) {
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    print(name)
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>}
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>fn count_up(n) {
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    for i in range(n) {
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        print(i)
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    }
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>}
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>greet(&quot;Alice&quot;)
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>count_up(3)
-</code></pre></div>
-<p>Functions can contain for loops, for loops can contain if statements -- you can
-nest them however you like to build up complex behaviour from simple pieces.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>The parser catches several mistakes:</p>
-<table>
-<thead>
-<tr>
-<th>Code</th>
-<th>Error</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>foo(1, 2</code></td>
-<td>Expected ')' after arguments</td>
-</tr>
-<tr>
-<td><code>foo(1,)</code></td>
-<td>Unexpected token ')'</td>
-</tr>
-<tr>
-<td><code>for in items { }</code></td>
-<td>Expected loop variable after 'for'</td>
-</tr>
-<tr>
-<td><code>for i items { }</code></td>
-<td>Expected 'in' after loop variable</td>
-</tr>
-<tr>
-<td><code>fn () { }</code></td>
-<td>Expected function name after 'fn'</td>
-</tr>
-<tr>
-<td><code>fn greet { }</code></td>
-<td>Expected '(' after function name</td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<table>
-<thead>
-<tr>
-<th>Concept</th>
-<th>Analogy</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Function</td>
-<td>A recipe card</td>
-</tr>
-<tr>
-<td>Parameter</td>
-<td>An ingredient slot on the recipe</td>
-</tr>
-<tr>
-<td>Argument</td>
-<td>The actual ingredient you hand over</td>
-</tr>
-<tr>
-<td><code>return</code></td>
-<td>Handing back the finished dish</td>
-</tr>
-<tr>
-<td><code>for</code> loop</td>
-<td>Roll call -- go through each item one by one</td>
-</tr>
-<tr>
-<td>Function call <code>()</code></td>
-<td>Using a recipe</td>
-</tr>
-</tbody>
-</table>
+<p>This design means any closure — including ones that capture variables from
+outer scopes — works correctly as a callback.</p>
 
 
 
