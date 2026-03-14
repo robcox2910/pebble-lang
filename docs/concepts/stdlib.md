@@ -10,10 +10,11 @@ Display a value on screen. Every Pebble type is automatically converted to
 text:
 
 ```pebble
-print(42)          # prints: 42
-print("hello")     # prints: hello
-print(true)        # prints: true
-print([1, 2, 3])   # prints: [1, 2, 3]
+print(42)              # prints: 42
+print("hello")         # prints: hello
+print(true)            # prints: true
+print([1, 2, 3])       # prints: [1, 2, 3]
+print({"a": 1})        # prints: {a: 1}
 ```
 
 `print()` always adds a newline at the end.
