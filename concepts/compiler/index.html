@@ -936,6 +936,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../dicts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dictionaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../stdlib/" class="md-nav__link">
         
   
@@ -1412,14 +1440,19 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <td>Pop <em>count</em> values and create a list</td>
 </tr>
 <tr>
+<td><code>BUILD_DICT</code></td>
+<td>count</td>
+<td>Pop <em>count</em> key-value pairs and create a dict</td>
+</tr>
+<tr>
 <td><code>INDEX_GET</code></td>
 <td>—</td>
-<td>Pop an index and a list, push the element</td>
+<td>Pop an index and a target (list or dict), push the element</td>
 </tr>
 <tr>
 <td><code>INDEX_SET</code></td>
 <td>—</td>
-<td>Pop value, index, list; change the element</td>
+<td>Pop value, index, target; change the element (dict upserts)</td>
 </tr>
 <tr>
 <td><code>MAKE_CLOSURE</code></td>

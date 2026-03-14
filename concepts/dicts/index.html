@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/parser/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/dicts/">
       
       
-        <link rel="prev" href="../ast/">
+        <link rel="prev" href="../arrays/">
       
       
-        <link rel="next" href="../statements/">
+        <link rel="next" href="../stdlib/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Parser - Pebble</title>
+        <title>Dictionaries - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-parser" class="md-skip">
+        <a href="#dictionaries" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Parser
+              Dictionaries
             
           </span>
         </div>
@@ -452,37 +452,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Parser
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../parser/" class="md-nav__link">
         
   
   
@@ -498,136 +471,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-parser" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Parser?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-is-parsing-hard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Is Parsing Hard?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#precedence-who-goes-first" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Precedence: Who Goes First?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#associativity-ties-go-left" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Associativity: Ties Go Left
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pratt-parsing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pratt Parsing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#parentheses-override-everything" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parentheses Override Everything
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#function-calls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Function Calls
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#beyond-expressions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Beyond Expressions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -833,10 +676,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../dicts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dictionaries
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -852,6 +722,170 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Dict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-a-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading a Value
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changing-or-adding-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changing or Adding Values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finding-the-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding the Size
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-keys-and-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Keys and Values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-the-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking the Type
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dicts-with-other-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dicts with Other Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dicts with Other Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#string-interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        String Interpolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nested-dicts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nested Dicts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How It Works Under the Hood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-full-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Full Journey
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -968,168 +1002,113 @@
   
 
 
-<h1 id="the-parser">The Parser</h1>
-<h2 id="what-is-a-parser">What Is a Parser?</h2>
-<p>Imagine a <strong>grammar teacher</strong> diagramming a sentence. The teacher reads the
-words (tokens) and figures out the structure: "This is the subject, this is the
-verb, this is the object." The result is a diagram that shows how the words
-relate to each other.</p>
-<p>A <strong>parser</strong> does the same thing with code. It reads the flat list of tokens
-from the lexer and builds a tree -- the <a href="../ast/">AST</a> -- that shows the
-structure of your program.</p>
-<h2 id="why-is-parsing-hard">Why Is Parsing Hard?</h2>
-<p>Consider this expression:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1 + 2 * 3
+<h1 id="dictionaries">Dictionaries</h1>
+<p>A <strong>dictionary</strong> (or <strong>dict</strong>) is a collection that stores <strong>key-value pairs</strong>.
+Think of a phonebook: you look up a person's <strong>name</strong> (the key) and find their
+<strong>phone number</strong> (the value). Unlike a list, where you use a numbered position,
+a dict lets you use a descriptive name.</p>
+<h2 id="creating-a-dict">Creating a Dict</h2>
+<p>Put key-value pairs between curly braces <code>{}</code>, with a colon <code>:</code> between each
+key and value:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let person = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(person)   # prints: {name: Alice, age: 12}
 </code></pre></div>
-<p>Is the answer 7 or 9? We know from maths class that multiplication comes
-before addition, so it's 7. But a computer reading left to right would see
-<code>1 + 2</code> first and might get 9.</p>
-<p>The parser's job is to <strong>understand the rules</strong> and build the right tree:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    +           NOT          *
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   / \         / \          / \
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  1   *       +   3        +   3
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>     / \     / \          / \
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    2   3   1   2        1   2
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>   (correct)  (wrong!)   (wrong!)
+<p>An empty dict has nothing between the braces:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let empty = {}
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(empty)   # prints: {}
 </code></pre></div>
-<h2 id="precedence-who-goes-first">Precedence: Who Goes First?</h2>
-<p><strong>Precedence</strong> is a fancy word for "priority". Some operators bind tighter
-than others, just like multiplication before addition in maths:</p>
-<table>
-<thead>
-<tr>
-<th>Priority</th>
-<th>Operators</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Highest</td>
-<td><code>-x</code>, <code>not x</code> (unary)</td>
-<td><code>-5</code>, <code>not true</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>*</code>, <code>/</code>, <code>%</code></td>
-<td><code>2 * 3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>+</code>, <code>-</code></td>
-<td><code>1 + 2</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code></td>
-<td><code>x &gt; 10</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>==</code>, <code>!=</code></td>
-<td><code>x == 5</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>and</code></td>
-<td><code>a and b</code></td>
-</tr>
-<tr>
-<td>Lowest</td>
-<td><code>or</code></td>
-<td><code>a or b</code></td>
-</tr>
-</tbody>
-</table>
-<p>Operators with higher priority get "pulled in" first and end up deeper in the
-tree.</p>
-<h2 id="associativity-ties-go-left">Associativity: Ties Go Left</h2>
-<p>What about <code>10 - 3 - 2</code>? Both <code>-</code> operators have the same precedence, so we
-need a tiebreaker. In Pebble (like most languages), arithmetic is
-<strong>left-associative</strong>: ties are resolved left to right.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>10 - 3 - 2   →   (10 - 3) - 2   →   5
+<p>Keys must be <strong>strings</strong>. Values can be any type — numbers, strings, booleans,
+lists, or even other dicts:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let record = {&quot;scores&quot;: [90, 85, 100], &quot;passed&quot;: true}
 </code></pre></div>
-<p>If it were right-associative, it would be <code>10 - (3 - 2) = 9</code> -- a different
-answer!</p>
-<h2 id="pratt-parsing">Pratt Parsing</h2>
-<p>The Pebble parser uses a technique called <strong>Pratt parsing</strong> (named after
-Vaughan Pratt, who invented it in 1973). The core idea is simple:</p>
+<h2 id="reading-a-value">Reading a Value</h2>
+<p>Use square brackets with the <strong>key</strong> (a string) to look up a value:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(d[&quot;name&quot;])   # prints: Alice
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>print(d[&quot;age&quot;])    # prints: 12
+</code></pre></div>
+<p>If you use a key that doesn't exist, Pebble stops with an error:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(d[&quot;email&quot;])   # Error: Key &#39;email&#39; not found in dict
+</code></pre></div>
+<h2 id="changing-or-adding-values">Changing or Adding Values</h2>
+<p>Assign to a key to change its value, or create a new key if it doesn't exist
+yet:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;}
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>d[&quot;name&quot;] = &quot;Bob&quot;      # change existing key
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>d[&quot;age&quot;] = 13           # add a new key
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(d)                # prints: {name: Bob, age: 13}
+</code></pre></div>
+<p>This is called an <strong>upsert</strong> — it <strong>up</strong>dates if the key exists, or
+<strong>insert</strong>s if it doesn't.</p>
+<h2 id="finding-the-size">Finding the Size</h2>
+<p>The built-in <code>len()</code> function tells you how many key-value pairs a dict has:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let d = {&quot;a&quot;: 1, &quot;b&quot;: 2, &quot;c&quot;: 3}
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(len(d))   # prints: 3
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>print(len({}))  # prints: 0
+</code></pre></div>
+<h2 id="getting-keys-and-values">Getting Keys and Values</h2>
+<p>Two built-in functions let you pull out just the keys or just the values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(keys(d))     # prints: [name, age]
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>print(values(d))   # prints: [Alice, 12]
+</code></pre></div>
+<p>Both return a <strong>list</strong>, so you can use them with <code>len()</code>, indexing, or loops:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let d = {&quot;x&quot;: 10, &quot;y&quot;: 20, &quot;z&quot;: 30}
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let k = keys(d)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>for i in range(len(k)) {
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    print(&quot;{k[i]}: {d[k[i]]}&quot;)
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>}
+</code></pre></div>
+<h2 id="checking-the-type">Checking the Type</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(type({}))          # prints: dict
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(type({&quot;a&quot;: 1}))   # prints: dict
+</code></pre></div>
+<h2 id="dicts-with-other-features">Dicts with Other Features</h2>
+<h3 id="string-interpolation">String Interpolation</h3>
+<p>You can use dict values inside <code>{...}</code> strings:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let person = {&quot;name&quot;: &quot;Alice&quot;}
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(&quot;hello {person[&quot;name&quot;]}&quot;)   # prints: hello Alice
+</code></pre></div>
+<h3 id="functions">Functions</h3>
+<p>Dicts can be passed to and returned from functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn greet(person) {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    return &quot;Hi, {person[&quot;name&quot;]}!&quot;
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>}
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(greet({&quot;name&quot;: &quot;Bob&quot;}))   # prints: Hi, Bob!
+</code></pre></div>
+<h3 id="nested-dicts">Nested Dicts</h3>
+<p>A dict value can itself be a dict:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let data = {&quot;user&quot;: {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}}
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(data[&quot;user&quot;][&quot;name&quot;])   # prints: Alice
+</code></pre></div>
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<p>When the <strong>compiler</strong> sees <code>{"a": 1, "b": 2}</code>, it pushes each key and value
+onto the stack in order, then emits a <code>BUILD_DICT 2</code> instruction (where 2 is
+the number of key-value pairs). The <strong>VM</strong> pops <code>2 * 2 = 4</code> values off the
+stack, pairs them up, and creates a dictionary.</p>
+<p>For <code>d["name"]</code>, the compiler pushes the dict and the key string, then emits
+<code>INDEX_GET</code>. The VM checks whether the target is a list or a dict and handles
+it accordingly — for a dict it looks up the key and pushes the value.</p>
+<p>For <code>d["name"] = "Bob"</code>, the compiler pushes the dict, key, and value, then
+emits <code>INDEX_SET</code>. For a dict, the VM performs an upsert — it creates the key
+if it's missing, or updates it if it already exists.</p>
+<p>Think of <code>BUILD_DICT</code> like filling in a phonebook — you hand over names and
+numbers in pairs, and get a finished phonebook back. <code>INDEX_GET</code> is looking up
+a name in the phonebook, and <code>INDEX_SET</code> is writing a new entry or updating an
+existing one.</p>
+<h3 id="the-full-journey">The Full Journey</h3>
+<p>Here's how <code>let d = {"a": 1}</code> travels through the pipeline:</p>
 <ol>
-<li>Parse the left-hand side (a number, variable, or grouped expression)</li>
-<li>Look at the next token -- is it an operator?</li>
-<li>If the operator's precedence is high enough, consume it and parse the
-   right-hand side</li>
-<li>Repeat until you hit an operator that's too weak</li>
+<li><strong>Lexer</strong> — produces tokens: <code>LET</code>, <code>IDENTIFIER("d")</code>, <code>EQUAL</code>,
+   <code>LEFT_BRACE</code>, <code>STRING("a")</code>, <code>COLON</code>, <code>INTEGER(1)</code>, <code>RIGHT_BRACE</code></li>
+<li><strong>Parser</strong> — builds an <code>Assignment</code> node whose value is a <code>DictLiteral</code>
+   containing one key-value pair</li>
+<li><strong>Analyzer</strong> — checks that all variables in keys and values are declared</li>
+<li><strong>Compiler</strong> — emits <code>LOAD_CONST 0</code> ("a"), <code>LOAD_CONST 1</code> (1),
+   <code>BUILD_DICT 1</code>, <code>STORE_NAME "d"</code></li>
+<li><strong>VM</strong> — pushes "a" and 1, packs them into a dict <code>{"a": 1}</code>, stores it
+   as <code>d</code></li>
 </ol>
-<p>This single loop handles all precedence levels and associativity correctly.
-It's like a tug-of-war: stronger operators pull their operands in, while
-weaker operators have to wait.</p>
-<h2 id="parentheses-override-everything">Parentheses Override Everything</h2>
-<p>Parentheses let you override the default precedence:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(1 + 2) * 3
-</code></pre></div>
-<p>The parser sees <code>(</code>, recursively parses the inside as a fresh expression (with
-precedence reset to zero), and then continues with <code>* 3</code>. The result is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    *
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>   / \
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  +   3
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> / \
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>1   2
-</code></pre></div>
-<p>Addition happens first because the parentheses said so.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>The parser catches mistakes like:</p>
-<ul>
-<li><strong>Missing closing parenthesis</strong>: <code>(1 + 2</code> → "Expected ')'"</li>
-<li><strong>Missing operand</strong>: <code>1 +</code> → "Expected expression"</li>
-<li><strong>Unexpected token</strong>: <code>)</code> at the start → "Unexpected token ')'"</li>
-</ul>
-<p>Each error includes the exact line and column where the problem was found.</p>
-<h2 id="function-calls">Function Calls</h2>
-<p>When the parser sees an identifier followed by <code>(</code>, it knows this is a
-<strong>function call</strong>, not just a variable name. It parses the comma-separated
-arguments between the parentheses and wraps everything in a <code>FunctionCall</code>
-node:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>add(1 + 2, x)  →  FunctionCall(&quot;add&quot;, [BinaryOp(1, +, 2), Identifier(&quot;x&quot;)])
-</code></pre></div>
-<p>Function calls are expressions, so they can appear anywhere an expression is
-valid -- as an argument to another call, on the right side of <code>=</code>, or as part
-of a larger expression like <code>add(1, 2) + 3</code>.</p>
-<h2 id="beyond-expressions">Beyond Expressions</h2>
-<p>Expressions are only half the story. The parser also handles <strong>statements</strong> --
-instructions like creating variables, printing values, and controlling the flow
-of your program. See <a href="../statements/">Statements</a> for the full picture.</p>
-<h2 id="summary">Summary</h2>
-<table>
-<thead>
-<tr>
-<th>Concept</th>
-<th>Analogy</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Parser</td>
-<td>A grammar teacher diagramming a sentence</td>
-</tr>
-<tr>
-<td>Precedence</td>
-<td>Priority -- multiplication before addition</td>
-</tr>
-<tr>
-<td>Associativity</td>
-<td>Tiebreaker -- left to right for same priority</td>
-</tr>
-<tr>
-<td>Pratt parsing</td>
-<td>A tug-of-war where stronger operators pull first</td>
-</tr>
-<tr>
-<td>Parentheses</td>
-<td>"Do this part first!" brackets</td>
-</tr>
-</tbody>
-</table>
 
 
 
