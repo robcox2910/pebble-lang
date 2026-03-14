@@ -140,6 +140,38 @@ Both `for` and `while` repeat things, but they're suited for different jobs:
 | Counter needed? | Built-in (`i` in `for i in ...`) | You manage it yourself |
 | Analogy | Roll call | Broken record |
 
+## Functions Are Values
+
+In Pebble, functions are **first-class values** -- just like numbers and
+strings. That means you can store a function in a variable, put it in a list,
+or pass it as an argument to another function:
+
+```pebble
+fn double(x) { return x * 2 }
+
+let f = double
+print(f(5))          # prints: 10
+print(type(double))  # prints: fn
+```
+
+Think of it this way: the recipe card itself is a thing you can pick up, hand
+to someone, or put in a drawer. You can use it later, or give it to a
+different chef.
+
+### Anonymous Functions
+
+Sometimes you need a tiny recipe that you'll only use once. Instead of giving
+it a name, you can write it inline:
+
+```pebble
+let triple = fn(x) { return x * 3 }
+print(triple(4))   # prints: 12
+```
+
+This creates a function without the usual `fn name(...)` form -- just
+`fn(params) { body }` directly in an expression. It's especially useful with
+[higher-order functions](higher-order.md) like `map`, `filter`, and `reduce`.
+
 ## Putting It All Together
 
 Here's a program that uses functions and for loops together:

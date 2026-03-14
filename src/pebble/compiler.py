@@ -25,6 +25,7 @@ from pebble.ast_nodes import (
     ForLoop,
     FunctionCall,
     FunctionDef,
+    FunctionExpression,
     Identifier,
     IfStatement,
     IndexAccess,
@@ -391,6 +392,8 @@ class Compiler:
                 self._compile_dict_literal(expr)
             case IndexAccess():
                 self._compile_index_access(expr)
+            case FunctionExpression():
+                self._compile_function_expression(expr)
 
     # -- Expression compilers -------------------------------------------------
 
@@ -435,6 +438,34 @@ class Compiler:
         self._compile_expression(node.target)
         self._compile_expression(node.index)
         self._emit(OpCode.INDEX_GET, location=node.location)
+
+    def _compile_function_expression(self, node: FunctionExpression) -> None:
+        """Compile an anonymous function expression into a closure on the stack."""
+        fn_code = CodeObject(name=node.name)
+        fn_code.parameters = list(node.parameters)
+        fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
+        fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
+        previous = self._current
+        previous_counter = self._loop_var_counter
+        previous_loop_contexts = self._loop_contexts
+        self._current = fn_code
+        self._loop_var_counter = 0
+        self._loop_contexts = []
+
+        for stmt in node.body:
+            self._compile_statement(stmt)
+
+        if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
+            self._emit_constant(0)
+            self._emit(OpCode.RETURN)
+
+        self._functions[node.name] = fn_code
+        self._current = previous
+        self._loop_var_counter = previous_counter
+        self._loop_contexts = previous_loop_contexts
+
+        # Always emit MAKE_CLOSURE — leaves a Closure value on the stack
+        self._emit(OpCode.MAKE_CLOSURE, node.name, location=node.location)
 
     def _compile_index_assignment(self, node: IndexAssignment) -> None:
         """Compile an index assignment: push target, index, value, then INDEX_SET."""

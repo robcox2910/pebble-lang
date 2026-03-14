@@ -190,8 +190,15 @@ BUILTINS: dict[str, tuple[int, BuiltinHandler]] = {
 _PRINT_ARITY = 1
 _RANGE_ARITY = 1
 
+_MAP_ARITY = 2
+_FILTER_ARITY = 2
+_REDUCE_ARITY = 3
+
 BUILTIN_ARITIES: dict[str, int] = {name: arity for name, (arity, _) in BUILTINS.items()} | {
     "print": _PRINT_ARITY,
     "range": _RANGE_ARITY,
+    "map": _MAP_ARITY,
+    "filter": _FILTER_ARITY,
+    "reduce": _REDUCE_ARITY,
 }
 """Map of ALL builtin names (runtime + compile-time) to arity."""

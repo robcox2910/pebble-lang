@@ -25,6 +25,7 @@ from pebble.ast_nodes import (
     ForLoop,
     FunctionCall,
     FunctionDef,
+    FunctionExpression,
     Identifier,
     IfStatement,
     IndexAccess,
@@ -275,10 +276,23 @@ class SemanticAnalyzer:
         self._in_function = prev_in_function
         self._pop_scope()
 
-        # If this function captures variables, it becomes a closure value —
-        # declare it as a variable so it can be stored, returned, and passed.
-        if node.name in self._free_vars:
-            self._scope.variables[node.name] = node.location
+        # All functions are first-class values — declare the function name
+        # as a variable so it can be stored, returned, and passed as an argument.
+        self._scope.variables[node.name] = node.location
+
+    def _visit_function_expression(self, node: FunctionExpression) -> None:
+        """Visit an anonymous function expression — same as function def."""
+        self._scope.declare_function(node.name, len(node.parameters), node.location)
+        self._push_scope()
+        self._scope.function_name = node.name
+        for param in node.parameters:
+            self._scope.declare_variable(param, node.location)
+        prev_in_function = self._in_function
+        self._in_function = True
+        for stmt in node.body:
+            self._visit_statement(stmt)
+        self._in_function = prev_in_function
+        self._pop_scope()
 
     def _visit_index_assignment(self, node: IndexAssignment) -> None:
         """Visit an index assignment — check target, index, and value."""
@@ -317,6 +331,11 @@ class SemanticAnalyzer:
 
     # -- Expression dispatch --------------------------------------------------
 
+    def _visit_expressions(self, exprs: list[Expression]) -> None:
+        """Visit each expression in *exprs*."""
+        for expr in exprs:
+            self._visit_expression(expr)
+
     def _visit_expression(self, expr: Expression) -> None:
         """Dispatch to the appropriate visitor based on expression type."""
         match expr:
@@ -330,11 +349,9 @@ class SemanticAnalyzer:
             case FunctionCall():
                 self._visit_function_call(expr)
             case StringInterpolation():
-                for part in expr.parts:
-                    self._visit_expression(part)
+                self._visit_expressions(expr.parts)
             case ArrayLiteral():
-                for element in expr.elements:
-                    self._visit_expression(element)
+                self._visit_expressions(expr.elements)
             case DictLiteral():
                 for key, value in expr.entries:
                     self._visit_expression(key)
@@ -342,6 +359,8 @@ class SemanticAnalyzer:
             case IndexAccess():
                 self._visit_expression(expr.target)
                 self._visit_expression(expr.index)
+            case FunctionExpression():
+                self._visit_function_expression(expr)
             case IntegerLiteral() | StringLiteral() | BooleanLiteral():
                 pass  # Literals need no semantic checks
 

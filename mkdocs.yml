@@ -57,4 +57,5 @@ nav:
       - Dictionaries: concepts/dicts.md
       - Standard Library: concepts/stdlib.md
       - Closures: concepts/closures.md
+      - Higher-Order Functions: concepts/higher-order.md
       - REPL: concepts/repl.md

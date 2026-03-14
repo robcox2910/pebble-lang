@@ -164,6 +164,47 @@ If the dictionary is empty, you get an empty list:
 print(values({}))   # prints: []
 ```
 
+## map(fn, list)
+
+Apply a function to every element and return a new list of results. The first
+argument can be a named function or an anonymous function (`fn(...) { ... }`):
+
+```pebble
+fn double(x) { return x * 2 }
+print(map(double, [1, 2, 3]))   # prints: [2, 4, 6]
+```
+
+You can also use an anonymous function:
+
+```pebble
+print(map(fn(x) { return x + 10 }, [1, 2, 3]))   # prints: [11, 12, 13]
+```
+
+See [Higher-Order Functions](higher-order.md) for more details.
+
+## filter(fn, list)
+
+Keep only the elements where the function returns `true`:
+
+```pebble
+fn is_even(x) { return x % 2 == 0 }
+print(filter(is_even, [1, 2, 3, 4]))   # prints: [2, 4]
+```
+
+See [Higher-Order Functions](higher-order.md) for more details.
+
+## reduce(fn, list, initial)
+
+Combine all elements into a single value using a function and a starting
+value:
+
+```pebble
+fn add(a, b) { return a + b }
+print(reduce(add, [1, 2, 3], 0))   # prints: 6
+```
+
+See [Higher-Order Functions](higher-order.md) for more details.
+
 ## Putting It All Together
 
 You can combine these to do useful things. Here's a program that builds a
