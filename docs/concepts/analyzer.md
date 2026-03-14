@@ -170,8 +170,8 @@ fn greet() { print("hi") }
 program starts. You never need to declare them:
 
 ```pebble
-print("hello")    # Works -- print is built in (1 argument)
-range(10)         # Works -- range is built in (1 argument)
+print("hello")           # Works -- print is built in
+for i in range(10) { }   # Works -- range is built in (accepts 1, 2, or 3 arguments)
 ```
 
 ## Return Checks
