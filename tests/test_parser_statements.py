@@ -1,8 +1,8 @@
 """Tests for the Pebble parser — statement parsing.
 
 Covers ``let`` declarations, reassignments, ``print()``, ``if/else``,
-``while``, ``for``, ``fn``, ``return``, block parsing, and the ``Program``
-root node.
+``else if``, ``while``, ``for``, ``fn``, ``return``, block parsing, and the
+``Program`` root node.
 """
 
 import pytest
@@ -218,6 +218,75 @@ class TestIfStatement:
         """Verify missing '}' raises ParseError."""
         with pytest.raises(ParseError, match="Expected '\\}'"):
             _parse("if true {\n    print(1)")
+
+
+# -- Else if chains -----------------------------------------------------------
+
+
+class TestElseIfChain:
+    """Verify parsing of ``else if`` chains as nested IfStatement nodes."""
+
+    def test_basic_else_if(self) -> None:
+        """Verify ``if/else if/else`` desugars to nested IfStatement."""
+        source = (
+            "if x > 90 {\n    print(1)\n} else if x > 80 {\n    print(2)\n} else {\n    print(3)\n}"
+        )
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        outer = stmts[0]
+        assert isinstance(outer, IfStatement)
+        assert isinstance(outer.condition, BinaryOp)
+        assert outer.condition.operator == ">"
+        # else_body contains a single nested IfStatement
+        assert outer.else_body is not None
+        assert len(outer.else_body) == ONE
+        inner = outer.else_body[0]
+        assert isinstance(inner, IfStatement)
+        assert isinstance(inner.condition, BinaryOp)
+        assert inner.condition.operator == ">"
+        assert inner.else_body is not None
+        assert len(inner.else_body) == ONE
+        assert isinstance(inner.else_body[0], PrintStatement)
+
+    def test_else_if_without_final_else(self) -> None:
+        """Verify ``if/else if`` with no trailing else has else_body=None on inner."""
+        source = "if x > 90 {\n    print(1)\n} else if x > 80 {\n    print(2)\n}"
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        outer = stmts[0]
+        assert isinstance(outer, IfStatement)
+        assert outer.else_body is not None
+        assert len(outer.else_body) == ONE
+        inner = outer.else_body[0]
+        assert isinstance(inner, IfStatement)
+        assert inner.else_body is None
+
+    def test_triple_else_if_chain(self) -> None:
+        """Verify three-deep ``else if`` nesting."""
+        source = (
+            "if x > 90 {\n    print(1)\n"
+            "} else if x > 80 {\n    print(2)\n"
+            "} else if x > 70 {\n    print(3)\n"
+            "} else {\n    print(4)\n}"
+        )
+        stmts = _stmts(source)
+        assert len(stmts) == ONE
+        outer = stmts[0]
+        assert isinstance(outer, IfStatement)
+        # outer → middle
+        assert outer.else_body is not None
+        assert len(outer.else_body) == ONE
+        middle = outer.else_body[0]
+        assert isinstance(middle, IfStatement)
+        # middle → inner
+        assert middle.else_body is not None
+        assert len(middle.else_body) == ONE
+        inner = middle.else_body[0]
+        assert isinstance(inner, IfStatement)
+        # inner has a final else
+        assert inner.else_body is not None
+        assert len(inner.else_body) == ONE
+        assert isinstance(inner.else_body[0], PrintStatement)
 
 
 # -- While loop ---------------------------------------------------------------

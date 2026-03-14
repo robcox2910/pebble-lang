@@ -297,6 +297,78 @@ while x < 5 {
         assert _run_source("while false { print(1) }") == ""
 
 
+# -- Else If Chains ----------------------------------------------------------
+
+
+class TestVMElseIf:
+    """Verify end-to-end execution of ``else if`` chains."""
+
+    def test_first_branch_taken(self) -> None:
+        """First condition true — first branch executes."""
+        source = """\
+let x = 95
+if x > 90 {
+    print("A")
+} else if x > 80 {
+    print("B")
+} else {
+    print("C")
+}"""
+        assert _run_source(source) == "A\n"
+
+    def test_middle_branch_taken(self) -> None:
+        """Second condition true — middle branch executes."""
+        source = """\
+let x = 85
+if x > 90 {
+    print("A")
+} else if x > 80 {
+    print("B")
+} else {
+    print("C")
+}"""
+        assert _run_source(source) == "B\n"
+
+    def test_else_branch_taken(self) -> None:
+        """No condition true — else branch executes."""
+        source = """\
+let x = 50
+if x > 90 {
+    print("A")
+} else if x > 80 {
+    print("B")
+} else {
+    print("C")
+}"""
+        assert _run_source(source) == "C\n"
+
+    def test_else_if_no_else_no_match(self) -> None:
+        """No condition true and no else — no output."""
+        source = """\
+let x = 50
+if x > 90 {
+    print("A")
+} else if x > 80 {
+    print("B")
+}"""
+        assert _run_source(source) == ""
+
+    def test_triple_else_if(self) -> None:
+        """Triple else-if chain picks the correct branch."""
+        source = """\
+let x = 75
+if x > 90 {
+    print("A")
+} else if x > 80 {
+    print("B")
+} else if x > 70 {
+    print("C")
+} else {
+    print("D")
+}"""
+        assert _run_source(source) == "C\n"
+
+
 # -- Break and Continue ------------------------------------------------------
 
 

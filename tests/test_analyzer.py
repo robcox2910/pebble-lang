@@ -302,6 +302,22 @@ class TestContinueStatement:
         _analyze("for i in range(5) {\n    if i == 2 {\n        continue\n    }\n}")
 
 
+# -- Else if chains -----------------------------------------------------------
+
+
+class TestElseIfScoping:
+    """Verify scoping rules for ``else if`` chains."""
+
+    def test_variable_in_else_if_body_not_visible_after(self) -> None:
+        """Raise SemanticError for a variable declared in an else-if body used after."""
+        with pytest.raises(SemanticError, match="Undeclared variable 'y'"):
+            _analyze("if true {\n  print(1)\n} else if false {\n  let y = 2\n}\nprint(y)")
+
+    def test_outer_variable_visible_in_else_if(self) -> None:
+        """Pass when a variable declared before the chain is used in an else-if body."""
+        _analyze("let x = 10\nif false {\n  print(1)\n} else if true {\n  print(x)\n}")
+
+
 # -- Integration tests -------------------------------------------------------
 
 
