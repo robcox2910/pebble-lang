@@ -146,6 +146,7 @@ class VirtualMachine:
                     | OpCode.BUILD_DICT
                     | OpCode.INDEX_GET
                     | OpCode.INDEX_SET
+                    | OpCode.SLICE_GET
                 ):
                     self._exec_collection(instruction)
                 case OpCode.PRINT:
@@ -296,6 +297,8 @@ class VirtualMachine:
                 self._exec_index_get()
             case OpCode.INDEX_SET:
                 self._exec_index_set()
+            case OpCode.SLICE_GET:
+                self._exec_slice_get()
             case _:  # pragma: no cover
                 pass
 
@@ -376,6 +379,38 @@ class VirtualMachine:
         if index < 0:
             index += len(target)
         target[index] = value
+
+    _SLICE_SENTINEL: ClassVar[str] = "$SLICE_NONE"
+
+    def _exec_slice_get(self) -> None:
+        """Handle SLICE_GET — pop step, stop, start, target; push sliced result."""
+        raw_step = self._stack.pop()
+        raw_stop = self._stack.pop()
+        raw_start = self._stack.pop()
+        target = self._stack.pop()
+
+        # Replace sentinel strings with None
+        start = None if raw_start == self._SLICE_SENTINEL else raw_start
+        stop = None if raw_stop == self._SLICE_SENTINEL else raw_stop
+        step = None if raw_step == self._SLICE_SENTINEL else raw_step
+
+        # Validate target type
+        if not isinstance(target, list | str):
+            type_name = type(target).__name__
+            self._runtime_error(f"Cannot slice {type_name}")
+
+        # Validate index types
+        for name, val in (("start", start), ("stop", stop), ("step", step)):
+            if val is not None and (not isinstance(val, int) or isinstance(val, bool)):
+                type_name = type(val).__name__
+                self._runtime_error(f"Slice {name} must be an integer, got {type_name}")
+
+        # Step 0 is invalid
+        if step is not None and step == 0:
+            self._runtime_error("Slice step cannot be zero")
+
+        # Delegate to Python's slice machinery
+        self._stack.append(target[start:stop:step])  # type: ignore[index]
 
     # Map of VM-level builtin names to handler methods.
     _VM_BUILTINS: ClassVar[dict[str, str]] = {

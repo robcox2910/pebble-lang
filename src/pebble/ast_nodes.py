@@ -123,6 +123,17 @@ class IndexAccess:
 
 
 @dataclass(frozen=True)
+class SliceAccess:
+    """A slice access like ``xs[1:3]`` or ``xs[::2]``."""
+
+    target: Expression
+    start: Expression | None
+    stop: Expression | None
+    step: Expression | None
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class FunctionExpression:
     """An anonymous function expression like ``fn(x) { return x + 1 }``."""
 
@@ -257,6 +268,7 @@ Expression = (
     | ArrayLiteral
     | DictLiteral
     | IndexAccess
+    | SliceAccess
     | FunctionExpression
 )
 

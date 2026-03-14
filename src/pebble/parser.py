@@ -33,6 +33,7 @@ from pebble.ast_nodes import (
     Program,
     Reassignment,
     ReturnStatement,
+    SliceAccess,
     Statement,
     StringInterpolation,
     StringLiteral,
@@ -456,12 +457,58 @@ class Parser:
             location=fn_token.location,
         )
 
-    def _parse_index_access(self, target: Expression) -> IndexAccess:
-        """Parse a postfix index access: ``target[index]``."""
+    def _parse_index_access(self, target: Expression) -> Expression:
+        """Parse a postfix index or slice access: ``target[index]`` or ``target[start:stop]``."""
         bracket_token = self._advance()  # consume '['
-        index = self._parse_precedence(min_precedence=0)
+
+        # Leading colon → slice with start=None
+        if not self._at_end() and self._peek().kind == TokenKind.COLON:
+            return self._parse_slice(target, start=None, bracket_token=bracket_token)
+
+        first = self._parse_precedence(min_precedence=0)
+
+        # Colon after first expression → slice
+        if not self._at_end() and self._peek().kind == TokenKind.COLON:
+            return self._parse_slice(target, start=first, bracket_token=bracket_token)
+
+        # No colon → plain index access
         self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after index")
-        return IndexAccess(target=target, index=index, location=bracket_token.location)
+        return IndexAccess(target=target, index=first, location=bracket_token.location)
+
+    def _parse_slice(
+        self,
+        target: Expression,
+        *,
+        start: Expression | None,
+        bracket_token: Token,
+    ) -> SliceAccess:
+        """Parse a slice after the first ``:`` has been detected."""
+        self._advance()  # consume first ':'
+
+        # Parse optional stop (not present if next is ':' or ']')
+        stop: Expression | None = None
+        if (
+            not self._at_end()
+            and self._peek().kind != TokenKind.COLON
+            and self._peek().kind != TokenKind.RIGHT_BRACKET
+        ):
+            stop = self._parse_precedence(min_precedence=0)
+
+        # Parse optional second ':' and step
+        step: Expression | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.COLON:
+            self._advance()  # consume second ':'
+            if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACKET:
+                step = self._parse_precedence(min_precedence=0)
+
+        self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after slice")
+        return SliceAccess(
+            target=target,
+            start=start,
+            stop=stop,
+            step=step,
+            location=bracket_token.location,
+        )
 
     def _parse_string_interpolation(self) -> StringInterpolation:
         """Parse an interpolated string: STRING_START expr (STRING_MIDDLE expr)* STRING_END."""

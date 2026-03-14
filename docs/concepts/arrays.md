@@ -96,6 +96,84 @@ Under the hood, the VM simply converts the negative index:
 `-1` becomes `len - 1`, `-2` becomes `len - 2`, and so on. Then it looks up
 that position the normal way.
 
+## Slicing
+
+**Slicing** lets you grab a portion of a list (or string) in one step — like
+tearing a page out of a notebook. You write `xs[start:stop]`, where `start`
+is the first index to include and `stop` is the first index to *exclude*.
+
+```pebble
+let xs = [10, 20, 30, 40, 50]
+print(xs[1:3])   # prints: [20, 30]
+```
+
+You can leave out parts:
+
+```pebble
+print(xs[:3])    # first three: [10, 20, 30]
+print(xs[2:])    # from index 2 onward: [30, 40, 50]
+print(xs[:])     # a full copy: [10, 20, 30, 40, 50]
+```
+
+Add a **step** after a second colon to skip elements:
+
+```pebble
+print(xs[::2])   # every other: [10, 30, 50]
+print(xs[1:4:2]) # index 1 and 3: [20, 40]
+```
+
+A negative step reverses the direction:
+
+```pebble
+print(xs[::-1])  # reversed: [50, 40, 30, 20, 10]
+```
+
+Negative indices work too — just like regular indexing:
+
+```pebble
+print(xs[-2:])   # last two: [40, 50]
+print(xs[:-1])   # everything except the last: [10, 20, 30, 40]
+```
+
+If your indices go past the end, Pebble silently clamps them — no error:
+
+```pebble
+print(xs[0:100]) # [10, 20, 30, 40, 50]
+```
+
+But a step of zero is an error (you'd never move forward!):
+
+```pebble
+print(xs[::0])   # Error: Slice step cannot be zero
+```
+
+### Slicing strings
+
+Slicing works on strings just the same way:
+
+```pebble
+let s = "hello"
+print(s[1:4])    # prints: ell
+print(s[::-1])   # prints: olleh
+```
+
+### Slicing creates a copy
+
+Slicing always produces a **new** list (or string). The original stays
+untouched:
+
+```pebble
+let xs = [10, 20, 30]
+let ys = xs[:]
+ys[0] = 99
+print(xs[0])   # prints: 10  (original unchanged)
+```
+
+Under the hood the compiler pushes the target, start, stop, and step onto
+the stack, then emits a `SLICE_GET` instruction. The VM uses Python's built-in
+slice machinery to do the heavy lifting — handling negative indices, clamping,
+and stepping all in one go.
+
 ## Changing an Element
 
 Assign to a specific position to replace the value in that box:

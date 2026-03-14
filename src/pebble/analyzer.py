@@ -35,6 +35,7 @@ from pebble.ast_nodes import (
     Program,
     Reassignment,
     ReturnStatement,
+    SliceAccess,
     Statement,
     StringInterpolation,
     StringLiteral,
@@ -300,6 +301,20 @@ class SemanticAnalyzer:
         self._visit_expression(node.index)
         self._visit_expression(node.value)
 
+    def _visit_index_or_slice(self, expr: IndexAccess | SliceAccess) -> None:
+        """Visit an index access or slice access expression."""
+        self._visit_expression(expr.target)
+        match expr:
+            case IndexAccess():
+                self._visit_expression(expr.index)
+            case SliceAccess():
+                if expr.start is not None:
+                    self._visit_expression(expr.start)
+                if expr.stop is not None:
+                    self._visit_expression(expr.stop)
+                if expr.step is not None:
+                    self._visit_expression(expr.step)
+
     def _visit_return(self, node: ReturnStatement) -> None:
         """Visit a ``return`` statement — must be inside a function."""
         if not self._in_function:
@@ -356,9 +371,8 @@ class SemanticAnalyzer:
                 for key, value in expr.entries:
                     self._visit_expression(key)
                     self._visit_expression(value)
-            case IndexAccess():
-                self._visit_expression(expr.target)
-                self._visit_expression(expr.index)
+            case IndexAccess() | SliceAccess():
+                self._visit_index_or_slice(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
             case IntegerLiteral() | StringLiteral() | BooleanLiteral():

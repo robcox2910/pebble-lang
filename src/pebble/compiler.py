@@ -35,6 +35,7 @@ from pebble.ast_nodes import (
     Program,
     Reassignment,
     ReturnStatement,
+    SliceAccess,
     Statement,
     StringInterpolation,
     StringLiteral,
@@ -465,8 +466,8 @@ class Compiler:
                 self._compile_array_literal(expr)
             case DictLiteral():
                 self._compile_dict_literal(expr)
-            case IndexAccess():
-                self._compile_index_access(expr)
+            case IndexAccess() | SliceAccess():
+                self._compile_index_or_slice(expr)
             case FunctionExpression():
                 self._compile_function_expression(expr)
 
@@ -508,11 +509,29 @@ class Compiler:
             self._compile_expression(value)
         self._emit(OpCode.BUILD_DICT, len(node.entries), location=node.location)
 
+    def _compile_index_or_slice(self, expr: IndexAccess | SliceAccess) -> None:
+        """Dispatch to index or slice compilation."""
+        match expr:
+            case IndexAccess():
+                self._compile_index_access(expr)
+            case SliceAccess():
+                self._compile_slice_access(expr)
+
     def _compile_index_access(self, node: IndexAccess) -> None:
         """Compile an index access: push target and index, then INDEX_GET."""
         self._compile_expression(node.target)
         self._compile_expression(node.index)
         self._emit(OpCode.INDEX_GET, location=node.location)
+
+    def _compile_slice_access(self, node: SliceAccess) -> None:
+        """Compile a slice access: push target, start, stop, step, then SLICE_GET."""
+        self._compile_expression(node.target)
+        for component in (node.start, node.stop, node.step):
+            if component is not None:
+                self._compile_expression(component)
+            else:
+                self._emit_constant("$SLICE_NONE", location=node.location)
+        self._emit(OpCode.SLICE_GET, location=node.location)
 
     def _compile_function_expression(self, node: FunctionExpression) -> None:
         """Compile an anonymous function expression into a closure on the stack."""

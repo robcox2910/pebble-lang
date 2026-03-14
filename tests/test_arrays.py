@@ -9,10 +9,10 @@ from io import StringIO
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.ast_nodes import ArrayLiteral, Expression, IndexAccess, IntegerLiteral
+from pebble.ast_nodes import ArrayLiteral, Expression, IndexAccess, IntegerLiteral, SliceAccess
 from pebble.bytecode import Instruction, OpCode
 from pebble.compiler import Compiler
-from pebble.errors import PebbleRuntimeError
+from pebble.errors import PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
@@ -23,6 +23,8 @@ from pebble.vm import VirtualMachine
 ONE = 1
 TWO = 2
 THREE = 3
+FOUR = 4
+FIVE = 5
 
 
 # -- Helpers ------------------------------------------------------------------
@@ -360,3 +362,244 @@ for i in range(3) {
 }
 print(xs)"""
         assert _run_source(source) == "[0, 10, 20]\n"
+
+
+# -- Slicing: Parser ----------------------------------------------------------
+
+
+class TestParserSliceAccess:
+    """Verify parsing of slice expressions."""
+
+    def test_start_stop(self) -> None:
+        """``xs[1:3]`` parses to SliceAccess with start and stop."""
+        node = _parse_expr("xs[1:3]")
+        assert isinstance(node, SliceAccess)
+        assert isinstance(node.start, IntegerLiteral)
+        assert node.start.value == ONE
+        assert isinstance(node.stop, IntegerLiteral)
+        assert node.stop.value == THREE
+        assert node.step is None
+
+    def test_stop_only(self) -> None:
+        """``xs[:3]`` parses to SliceAccess with stop only."""
+        node = _parse_expr("xs[:3]")
+        assert isinstance(node, SliceAccess)
+        assert node.start is None
+        assert isinstance(node.stop, IntegerLiteral)
+        assert node.stop.value == THREE
+        assert node.step is None
+
+    def test_start_only(self) -> None:
+        """``xs[1:]`` parses to SliceAccess with start only."""
+        node = _parse_expr("xs[1:]")
+        assert isinstance(node, SliceAccess)
+        assert isinstance(node.start, IntegerLiteral)
+        assert node.start.value == ONE
+        assert node.stop is None
+        assert node.step is None
+
+    def test_all_none(self) -> None:
+        """``xs[:]`` parses to SliceAccess with all components None."""
+        node = _parse_expr("xs[:]")
+        assert isinstance(node, SliceAccess)
+        assert node.start is None
+        assert node.stop is None
+        assert node.step is None
+
+    def test_step_only(self) -> None:
+        """``xs[::2]`` parses to SliceAccess with step only."""
+        node = _parse_expr("xs[::2]")
+        assert isinstance(node, SliceAccess)
+        assert node.start is None
+        assert node.stop is None
+        assert isinstance(node.step, IntegerLiteral)
+        assert node.step.value == TWO
+
+    def test_all_present(self) -> None:
+        """``xs[1:3:2]`` parses to SliceAccess with all components."""
+        node = _parse_expr("xs[1:3:2]")
+        assert isinstance(node, SliceAccess)
+        assert isinstance(node.start, IntegerLiteral)
+        assert node.start.value == ONE
+        assert isinstance(node.stop, IntegerLiteral)
+        assert node.stop.value == THREE
+        assert isinstance(node.step, IntegerLiteral)
+        assert node.step.value == TWO
+
+    def test_plain_index_still_works(self) -> None:
+        """``xs[0]`` still parses as IndexAccess (regression check)."""
+        node = _parse_expr("xs[0]")
+        assert isinstance(node, IndexAccess)
+
+
+# -- Slicing: Analyzer -------------------------------------------------------
+
+
+class TestAnalyzerSlice:
+    """Verify semantic analysis catches errors in slices."""
+
+    def test_undeclared_in_slice(self) -> None:
+        """Undeclared variable inside a slice raises SemanticError."""
+        with pytest.raises(SemanticError, match="Undeclared variable 'unknown'"):
+            _run_source("let xs = [1, 2, 3]\nprint(xs[unknown:])")
+
+
+# -- Slicing: Compiler -------------------------------------------------------
+
+
+class TestCompilerSlice:
+    """Verify the compiler emits SLICE_GET for slices."""
+
+    def test_slice_emits_opcode(self) -> None:
+        """``xs[1:3]`` emits a SLICE_GET opcode."""
+        ins = _compile_instructions("let xs = [1, 2, 3]\nprint(xs[1:3])")
+        slice_ops = [i for i in ins if i.opcode is OpCode.SLICE_GET]
+        assert len(slice_ops) == ONE
+
+
+# -- Slicing: VM — list slicing -----------------------------------------------
+
+
+class TestVMListSlicing:
+    """Verify list slicing at runtime."""
+
+    def test_start_stop(self) -> None:
+        """``xs[1:3]`` extracts elements at index 1 and 2."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[1:3])"
+        assert _run_source(source) == "[20, 30]\n"
+
+    def test_stop_only(self) -> None:
+        """``xs[:3]`` takes the first three elements."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[:3])"
+        assert _run_source(source) == "[10, 20, 30]\n"
+
+    def test_start_only(self) -> None:
+        """``xs[2:]`` takes from index 2 to the end."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[2:])"
+        assert _run_source(source) == "[30, 40, 50]\n"
+
+    def test_copy(self) -> None:
+        """``xs[:]`` returns a copy of the full list."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[:])"
+        assert _run_source(source) == "[10, 20, 30, 40, 50]\n"
+
+    def test_step(self) -> None:
+        """``xs[::2]`` takes every other element."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[::2])"
+        assert _run_source(source) == "[10, 30, 50]\n"
+
+    def test_start_stop_step(self) -> None:
+        """``xs[1:4:2]`` takes elements 1 and 3."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[1:4:2])"
+        assert _run_source(source) == "[20, 40]\n"
+
+    def test_negative_start(self) -> None:
+        """``xs[-2:]`` takes the last two elements."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[-2:])"
+        assert _run_source(source) == "[40, 50]\n"
+
+    def test_negative_stop(self) -> None:
+        """``xs[:-1]`` takes all but the last element."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[:-1])"
+        assert _run_source(source) == "[10, 20, 30, 40]\n"
+
+    def test_reverse(self) -> None:
+        """``xs[::-1]`` reverses the list."""
+        source = "let xs = [10, 20, 30, 40, 50]\nprint(xs[::-1])"
+        assert _run_source(source) == "[50, 40, 30, 20, 10]\n"
+
+    def test_out_of_bounds_clamps(self) -> None:
+        """``xs[0:100]`` silently clamps to the list length."""
+        source = "let xs = [10, 20, 30]\nprint(xs[0:100])"
+        assert _run_source(source) == "[10, 20, 30]\n"
+
+    def test_step_zero_errors(self) -> None:
+        """``xs[::0]`` raises a runtime error."""
+        with pytest.raises(PebbleRuntimeError, match="Slice step cannot be zero"):
+            _run_source("let xs = [1, 2, 3]\nprint(xs[::0])")
+
+
+# -- Slicing: VM — string slicing --------------------------------------------
+
+
+class TestVMStringSlicing:
+    """Verify string slicing at runtime."""
+
+    def test_start_stop(self) -> None:
+        """``s[1:4]`` extracts a substring."""
+        source = 'let s = "hello"\nprint(s[1:4])'
+        assert _run_source(source) == "ell\n"
+
+    def test_stop_only(self) -> None:
+        """``s[:3]`` takes the first three characters."""
+        source = 'let s = "hello"\nprint(s[:3])'
+        assert _run_source(source) == "hel\n"
+
+    def test_start_only(self) -> None:
+        """``s[3:]`` takes from index 3 to the end."""
+        source = 'let s = "hello"\nprint(s[3:])'
+        assert _run_source(source) == "lo\n"
+
+    def test_reverse(self) -> None:
+        """``s[::-1]`` reverses the string."""
+        source = 'let s = "hello"\nprint(s[::-1])'
+        assert _run_source(source) == "olleh\n"
+
+
+# -- Slicing: Integration ----------------------------------------------------
+
+
+class TestSliceIntegration:
+    """End-to-end tests combining slicing with other features."""
+
+    def test_slice_in_variable(self) -> None:
+        """Store a slice result in a variable."""
+        source = """\
+let xs = [10, 20, 30, 40, 50]
+let sub = xs[1:3]
+print(sub)"""
+        assert _run_source(source) == "[20, 30]\n"
+
+    def test_len_of_slice(self) -> None:
+        """``len()`` works on a slice result."""
+        source = """\
+let xs = [10, 20, 30, 40, 50]
+print(len(xs[1:4]))"""
+        assert _run_source(source) == "3\n"
+
+    def test_variable_indices(self) -> None:
+        """Slice with variable start and stop."""
+        source = """\
+let xs = [10, 20, 30, 40, 50]
+let i = 1
+let j = 4
+print(xs[i:j])"""
+        assert _run_source(source) == "[20, 30, 40]\n"
+
+    def test_chained_slice_and_index(self) -> None:
+        """``xs[1:3][0]`` chains slice then index."""
+        source = """\
+let xs = [10, 20, 30, 40, 50]
+print(xs[1:3][0])"""
+        assert _run_source(source) == "20\n"
+
+    def test_original_unchanged(self) -> None:
+        """Slicing creates a copy — original is unchanged."""
+        source = """\
+let xs = [10, 20, 30]
+let ys = xs[:]
+ys[0] = 99
+print(xs[0])"""
+        assert _run_source(source) == "10\n"
+
+    def test_slice_in_interpolation(self) -> None:
+        """Slice inside string interpolation."""
+        source = """\
+let xs = [10, 20, 30, 40]
+print("sub: {xs[1:3]}")"""
+        assert _run_source(source) == "sub: [20, 30]\n"
+
+    def test_slice_non_list_non_string_errors(self) -> None:
+        """Slicing a non-list/non-string raises a runtime error."""
+        with pytest.raises(PebbleRuntimeError, match="Cannot slice"):
+            _run_source("let x = 42\nprint(x[1:3])")
