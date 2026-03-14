@@ -81,9 +81,11 @@ print(type(42))        # prints: int
 print(type("hello"))   # prints: str
 print(type(true))      # prints: bool
 print(type([1, 2]))    # prints: list
+print(type({}))        # prints: dict
 ```
 
-The result is always a string like `"int"`, `"str"`, `"bool"`, or `"list"`.
+The result is always a string like `"int"`, `"str"`, `"bool"`, `"list"`, or
+`"dict"`.
 You can use it in conditions:
 
 ```pebble
@@ -95,12 +97,13 @@ if type(x) == "int" {
 
 ## len(value)
 
-Count the number of items in a list, or characters in a string:
+Count the number of items in a list or dict, or characters in a string:
 
 ```pebble
-print(len([10, 20, 30]))   # prints: 3
-print(len("hello"))         # prints: 5
-print(len([]))              # prints: 0
+print(len([10, 20, 30]))       # prints: 3
+print(len("hello"))             # prints: 5
+print(len({"a": 1, "b": 2}))  # prints: 2
+print(len([]))                  # prints: 0
 ```
 
 ## push(list, value)
@@ -129,6 +132,36 @@ print(xs)     # prints: [1, 2]
 
 If the list is empty, Pebble stops with an error — you can't take something
 from an empty container.
+
+## keys(dict)
+
+Return a list of all the keys in a dictionary, in the order they were added:
+
+```pebble
+let d = {"name": "Alice", "age": 12}
+print(keys(d))   # prints: [name, age]
+```
+
+If the dictionary is empty, you get an empty list:
+
+```pebble
+print(keys({}))   # prints: []
+```
+
+## values(dict)
+
+Return a list of all the values in a dictionary, in the order they were added:
+
+```pebble
+let d = {"name": "Alice", "age": 12}
+print(values(d))   # prints: [Alice, 12]
+```
+
+If the dictionary is empty, you get an empty list:
+
+```pebble
+print(values({}))   # prints: []
+```
 
 ## Putting It All Together
 

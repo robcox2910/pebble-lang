@@ -20,6 +20,7 @@ from pebble.ast_nodes import (
     BooleanLiteral,
     BreakStatement,
     ContinueStatement,
+    DictLiteral,
     Expression,
     ForLoop,
     FunctionCall,
@@ -386,6 +387,8 @@ class Compiler:
                 self._compile_string_interpolation(expr)
             case ArrayLiteral():
                 self._compile_array_literal(expr)
+            case DictLiteral():
+                self._compile_dict_literal(expr)
             case IndexAccess():
                 self._compile_index_access(expr)
 
@@ -419,6 +422,13 @@ class Compiler:
         for element in node.elements:
             self._compile_expression(element)
         self._emit(OpCode.BUILD_LIST, len(node.elements), location=node.location)
+
+    def _compile_dict_literal(self, node: DictLiteral) -> None:
+        """Compile a dict literal: push key/value pairs, then BUILD_DICT."""
+        for key, value in node.entries:
+            self._compile_expression(key)
+            self._compile_expression(value)
+        self._emit(OpCode.BUILD_DICT, len(node.entries), location=node.location)
 
     def _compile_index_access(self, node: IndexAccess) -> None:
         """Compile an index access: push target and index, then INDEX_GET."""

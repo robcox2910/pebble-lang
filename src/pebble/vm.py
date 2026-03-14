@@ -136,7 +136,13 @@ class VirtualMachine:
                     self._exec_logic(instruction)
                 case OpCode.JUMP | OpCode.JUMP_IF_FALSE | OpCode.POP:
                     self._exec_control(instruction, frame)
-                case OpCode.BUILD_STRING | OpCode.BUILD_LIST | OpCode.INDEX_GET | OpCode.INDEX_SET:
+                case (
+                    OpCode.BUILD_STRING
+                    | OpCode.BUILD_LIST
+                    | OpCode.BUILD_DICT
+                    | OpCode.INDEX_GET
+                    | OpCode.INDEX_SET
+                ):
                     self._exec_collection(instruction)
                 case OpCode.PRINT:
                     self._output.write(self._format_value(self._stack.pop()) + "\n")
@@ -269,12 +275,14 @@ class VirtualMachine:
                 pass
 
     def _exec_collection(self, instruction: Instruction) -> None:
-        """Handle BUILD_STRING, BUILD_LIST, INDEX_GET, and INDEX_SET."""
+        """Handle BUILD_STRING, BUILD_LIST, BUILD_DICT, INDEX_GET, and INDEX_SET."""
         match instruction.opcode:
             case OpCode.BUILD_STRING:
                 self._exec_build_string(instruction)
             case OpCode.BUILD_LIST:
                 self._exec_build_list(instruction)
+            case OpCode.BUILD_DICT:
+                self._exec_build_dict(instruction)
             case OpCode.INDEX_GET:
                 self._exec_index_get()
             case OpCode.INDEX_SET:
@@ -296,10 +304,35 @@ class VirtualMachine:
         elements.reverse()
         self._stack.append(elements)
 
+    def _exec_build_dict(self, instruction: Instruction) -> None:
+        """Handle BUILD_DICT — pop 2*n values and create a dict."""
+        count = _int_operand(instruction)
+        pairs: list[tuple[Value, Value]] = []
+        for _ in range(count):
+            value = self._stack.pop()
+            key = self._stack.pop()
+            pairs.append((key, value))
+        pairs.reverse()
+        result: dict[str, Value] = {}
+        for key, value in pairs:
+            if not isinstance(key, str):
+                type_name = type(key).__name__
+                self._runtime_error(f"Dict keys must be strings, got {type_name}")
+            result[key] = value
+        self._stack.append(result)
+
     def _exec_index_get(self) -> None:
         """Handle INDEX_GET — pop index and target, push target[index]."""
         index = self._stack.pop()
         target = self._stack.pop()
+        if isinstance(target, dict):
+            if not isinstance(index, str):
+                type_name = type(index).__name__
+                self._runtime_error(f"Dict keys must be strings, got {type_name}")
+            if index not in target:
+                self._runtime_error(f"Key '{index}' not found in dict")
+            self._stack.append(target[index])
+            return
         if not isinstance(target, list):
             type_name = type(target).__name__
             self._runtime_error(f"Cannot index into {type_name}")
@@ -315,6 +348,12 @@ class VirtualMachine:
         value = self._stack.pop()
         index = self._stack.pop()
         target = self._stack.pop()
+        if isinstance(target, dict):
+            if not isinstance(index, str):
+                type_name = type(index).__name__
+                self._runtime_error(f"Dict keys must be strings, got {type_name}")
+            target[index] = value
+            return
         if not isinstance(target, list):
             type_name = type(target).__name__
             self._runtime_error(f"Cannot index into {type_name}")

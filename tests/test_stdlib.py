@@ -18,8 +18,8 @@ from pebble.vm import VirtualMachine
 
 # -- Named constants ----------------------------------------------------------
 
-RUNTIME_BUILTIN_COUNT = 6
-TOTAL_BUILTIN_COUNT = 8
+RUNTIME_BUILTIN_COUNT = 8
+TOTAL_BUILTIN_COUNT = 10
 
 
 # -- Helpers ------------------------------------------------------------------
@@ -43,11 +43,11 @@ class TestBuiltinsModule:
     """Verify the builtins registry structure."""
 
     def test_runtime_builtin_count(self) -> None:
-        """There are 6 runtime builtins."""
+        """There are 8 runtime builtins."""
         assert len(BUILTINS) == RUNTIME_BUILTIN_COUNT
 
     def test_total_builtin_arities(self) -> None:
-        """BUILTIN_ARITIES includes all 8 builtins."""
+        """BUILTIN_ARITIES includes all 10 builtins."""
         assert len(BUILTIN_ARITIES) == TOTAL_BUILTIN_COUNT
 
     def test_all_runtime_builtins_in_arities(self) -> None:

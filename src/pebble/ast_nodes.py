@@ -106,6 +106,14 @@ class ArrayLiteral:
 
 
 @dataclass(frozen=True)
+class DictLiteral:
+    """A dictionary literal like ``{"name": "Alice", "age": 12}``."""
+
+    entries: list[tuple[Expression, Expression]]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class IndexAccess:
     """An index access like ``xs[0]``."""
 
@@ -237,6 +245,7 @@ Expression = (
     | FunctionCall
     | StringInterpolation
     | ArrayLiteral
+    | DictLiteral
     | IndexAccess
 )
 
