@@ -506,6 +506,102 @@ print(first_even(10))"""
         assert _run_source(source) == "2\n"
 
 
+# -- Multi-Arg Range ---------------------------------------------------------
+
+
+class TestVMRangeMultiArg:
+    """Verify multi-argument range forms in for loops."""
+
+    def test_range_two_args(self) -> None:
+        """``range(2, 5)`` counts from 2 up to (not including) 5."""
+        source = "for i in range(2, 5) {\n    print(i)\n}"
+        assert _run_source(source) == "2\n3\n4\n"
+
+    def test_range_two_args_empty(self) -> None:
+        """``range(0, 0)`` produces no iterations."""
+        assert _run_source("for i in range(0, 0) {\n    print(i)\n}") == ""
+
+    def test_range_two_args_equal(self) -> None:
+        """``range(3, 3)`` produces no iterations."""
+        assert _run_source("for i in range(3, 3) {\n    print(i)\n}") == ""
+
+    def test_range_three_args_step_two(self) -> None:
+        """``range(0, 10, 2)`` counts by twos."""
+        source = "for i in range(0, 10, 2) {\n    print(i)\n}"
+        assert _run_source(source) == "0\n2\n4\n6\n8\n"
+
+    def test_range_three_args_step_three(self) -> None:
+        """``range(1, 10, 3)`` counts from 1 by threes."""
+        source = "for i in range(1, 10, 3) {\n    print(i)\n}"
+        assert _run_source(source) == "1\n4\n7\n"
+
+    def test_range_three_args_step_one(self) -> None:
+        """``range(0, 5, 1)`` is the same as ``range(5)``."""
+        source = "for i in range(0, 5, 1) {\n    print(i)\n}"
+        assert _run_source(source) == "0\n1\n2\n3\n4\n"
+
+    def test_range_negative_step(self) -> None:
+        """``range(5, 0, -1)`` counts down from 5 to 1."""
+        source = "for i in range(5, 0, -1) {\n    print(i)\n}"
+        assert _run_source(source) == "5\n4\n3\n2\n1\n"
+
+    def test_range_negative_step_by_three(self) -> None:
+        """``range(10, 0, -3)`` counts down by threes."""
+        source = "for i in range(10, 0, -3) {\n    print(i)\n}"
+        assert _run_source(source) == "10\n7\n4\n1\n"
+
+    def test_range_wrong_direction_produces_nothing(self) -> None:
+        """``range(0, 5, -1)`` produces nothing (wrong direction)."""
+        source = "for i in range(0, 5, -1) {\n    print(i)\n}"
+        assert _run_source(source) == ""
+
+    def test_break_with_two_arg_range(self) -> None:
+        """``break`` exits a two-arg range loop early."""
+        source = """\
+for i in range(2, 10) {
+    if i == 4 { break }
+    print(i)
+}"""
+        assert _run_source(source) == "2\n3\n"
+
+    def test_continue_with_three_arg_range(self) -> None:
+        """``continue`` skips to the next step in a three-arg range loop."""
+        source = """\
+for i in range(0, 10, 2) {
+    if i == 4 { continue }
+    print(i)
+}"""
+        assert _run_source(source) == "0\n2\n6\n8\n"
+
+    def test_nested_multi_arg_range(self) -> None:
+        """Nested multi-arg range loops produce correct output."""
+        source = """\
+for i in range(1, 4) {
+    for j in range(0, i) {
+        print(j)
+    }
+}"""
+        assert _run_source(source) == "0\n0\n1\n0\n1\n2\n"
+
+    def test_range_with_expression_args(self) -> None:
+        """Range arguments can be arbitrary expressions."""
+        source = """\
+let xs = [1, 2, 3, 4, 5]
+for i in range(len(xs), 0, -1) {
+    print(i)
+}"""
+        assert _run_source(source) == "5\n4\n3\n2\n1\n"
+
+    def test_break_with_negative_step(self) -> None:
+        """``break`` works in a negative-step range loop."""
+        source = """\
+for i in range(10, 0, -2) {
+    if i == 4 { break }
+    print(i)
+}"""
+        assert _run_source(source) == "10\n8\n6\n"
+
+
 # -- Cycle 6: Functions ------------------------------------------------------
 
 

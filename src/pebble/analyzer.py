@@ -41,7 +41,7 @@ from pebble.ast_nodes import (
     UnaryOp,
     WhileLoop,
 )
-from pebble.builtins import BUILTIN_ARITIES
+from pebble.builtins import BUILTIN_ARITIES, Arity
 from pebble.errors import SemanticError
 from pebble.tokens import SourceLocation
 
@@ -71,7 +71,7 @@ class Scope:
     variables: dict[str, SourceLocation] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )
-    functions: dict[str, tuple[int, SourceLocation]] = field(
+    functions: dict[str, tuple[Arity, SourceLocation]] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )
     parent: Scope | None = None
@@ -117,7 +117,7 @@ class Scope:
     def declare_function(
         self,
         name: str,
-        param_count: int,
+        param_count: Arity,
         location: SourceLocation,
     ) -> None:
         """Declare a function in this scope, raising if it already exists here."""
@@ -127,7 +127,7 @@ class Scope:
             raise SemanticError(msg, line=location.line, column=location.column)
         self.functions[name] = (param_count, location)
 
-    def resolve_function(self, name: str) -> tuple[int, SourceLocation] | None:
+    def resolve_function(self, name: str) -> tuple[Arity, SourceLocation] | None:
         """Walk the parent chain to find *name*; return ``None`` if missing."""
         if name in self.functions:
             return self.functions[name]
@@ -400,7 +400,12 @@ class SemanticAnalyzer:
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         expected, _ = resolved
         actual = len(node.arguments)
-        if actual != expected:
+        if isinstance(expected, tuple):
+            if actual not in expected:
+                options = ", ".join(str(a) for a in expected)
+                msg = f"Function '{node.name}' expects {options} arguments, got {actual}"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        elif actual != expected:
             s = "" if expected == 1 else "s"
             msg = f"Function '{node.name}' expects {expected} argument{s}, got {actual}"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)

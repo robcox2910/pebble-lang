@@ -270,30 +270,35 @@ class Compiler:
             self._patch_jump(patch)
 
     def _compile_for(self, node: ForLoop) -> None:
-        """Compile ``for var in range(n) { body }`` as a counted while loop."""
-        limit_name = f"$for_limit_{self._loop_var_counter}"
+        """Compile ``for var in range(...) { body }`` as a counted while loop.
+
+        Support three forms:
+        - ``range(stop)`` — count from 0 to stop-1, step 1
+        - ``range(start, stop)`` — count from start to stop-1, step 1
+        - ``range(start, stop, step)`` — count with arbitrary step
+        """
+        counter = self._loop_var_counter
+        limit_name = f"$for_limit_{counter}"
         self._loop_var_counter += 1
         loc = node.location
 
-        # Evaluate range argument and store as hidden limit variable
         match node.iterable:
             case FunctionCall(name="range"):
-                self._compile_expression(node.iterable.arguments[0])
+                args = node.iterable.arguments
             case _:  # pragma: no cover
+                args = []
                 self._compile_expression(node.iterable)
-        self._emit_store(limit_name, location=loc)
 
-        # Initialize loop variable to 0
-        self._emit_constant(0, location=loc)
-        self._emit_store(node.variable, location=loc)
+        nargs = len(args)
 
+        # -- Init: set limit, step (if 3-arg), and loop variable --------------
+        self._compile_for_init(args, nargs, limit_name, node.variable, counter, loc)
+
+        # -- Condition --------------------------------------------------------
         loop_start = self._current_index()
-        self._emit_load(node.variable, location=loc)
-        self._emit_load(limit_name, location=loc)
-        self._emit(OpCode.LESS_THAN, location=loc)
-        exit_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+        exit_jump = self._compile_for_condition(nargs, node.variable, limit_name, counter, loc)
 
-        # Body
+        # -- Body -------------------------------------------------------------
         self._loop_contexts.append(_LoopContext())
         for stmt in node.body:
             self._compile_statement(stmt)
@@ -303,9 +308,12 @@ class Compiler:
         for patch in ctx.continue_patches:
             self._patch_jump(patch)
 
-        # Increment loop variable
+        # -- Increment --------------------------------------------------------
         self._emit_load(node.variable, location=loc)
-        self._emit_constant(1, location=loc)
+        if nargs <= 2:  # noqa: PLR2004
+            self._emit_constant(1, location=loc)
+        else:
+            self._emit_load(f"$for_step_{counter}", location=loc)
         self._emit(OpCode.ADD, location=loc)
         self._emit_store(node.variable, location=loc)
 
@@ -315,6 +323,73 @@ class Compiler:
         self._patch_jump(exit_jump)
         for patch in ctx.break_patches:
             self._patch_jump(patch)
+
+    def _compile_for_init(
+        self,
+        args: list[Expression],
+        nargs: int,
+        limit_name: str,
+        variable: str,
+        counter: int,
+        loc: SourceLocation,
+    ) -> None:
+        """Emit initialisation code for a for-loop's hidden variables."""
+        if nargs == 1:
+            # range(stop): limit = stop, start = 0
+            self._compile_expression(args[0])
+            self._emit_store(limit_name, location=loc)
+            self._emit_constant(0, location=loc)
+            self._emit_store(variable, location=loc)
+        elif nargs == 2:  # noqa: PLR2004
+            # range(start, stop): limit = stop, start = start
+            self._compile_expression(args[1])
+            self._emit_store(limit_name, location=loc)
+            self._compile_expression(args[0])
+            self._emit_store(variable, location=loc)
+        else:
+            # Three-arg form: store step, limit, then start
+            step_name = f"$for_step_{counter}"
+            self._compile_expression(args[2])
+            self._emit_store(step_name, location=loc)
+            self._compile_expression(args[1])
+            self._emit_store(limit_name, location=loc)
+            self._compile_expression(args[0])
+            self._emit_store(variable, location=loc)
+
+    def _compile_for_condition(
+        self,
+        nargs: int,
+        variable: str,
+        limit_name: str,
+        counter: int,
+        loc: SourceLocation,
+    ) -> int:
+        """Emit the loop condition and return the exit-jump instruction index."""
+        if nargs <= 2:  # noqa: PLR2004
+            # Simple condition: i < limit
+            self._emit_load(variable, location=loc)
+            self._emit_load(limit_name, location=loc)
+            self._emit(OpCode.LESS_THAN, location=loc)
+            return self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+
+        # Dynamic condition: if step > 0 then i < limit else i > limit
+        step_name = f"$for_step_{counter}"
+        self._emit_load(step_name, location=loc)
+        self._emit_constant(0, location=loc)
+        self._emit(OpCode.GREATER_THAN, location=loc)
+        neg_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+        # Positive branch: i < limit
+        self._emit_load(variable, location=loc)
+        self._emit_load(limit_name, location=loc)
+        self._emit(OpCode.LESS_THAN, location=loc)
+        done_jump = self._emit(OpCode.JUMP, 0, location=loc)
+        # Negative branch: i > limit
+        self._patch_jump(neg_jump)
+        self._emit_load(variable, location=loc)
+        self._emit_load(limit_name, location=loc)
+        self._emit(OpCode.GREATER_THAN, location=loc)
+        self._patch_jump(done_jump)
+        return self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
     def _compile_function_def(self, node: FunctionDef) -> None:
         """Compile a function definition into a separate CodeObject."""

@@ -188,15 +188,19 @@ BUILTINS: dict[str, tuple[int, BuiltinHandler]] = {
 
 # Compile-time builtins have no runtime handler — the compiler handles them.
 _PRINT_ARITY = 1
-_RANGE_ARITY = 1
+_RANGE_ARITIES: tuple[int, ...] = (1, 2, 3)
 
 _MAP_ARITY = 2
 _FILTER_ARITY = 2
 _REDUCE_ARITY = 3
 
-BUILTIN_ARITIES: dict[str, int] = {name: arity for name, (arity, _) in BUILTINS.items()} | {
+type Arity = int | tuple[int, ...]
+"""Arity of a built-in function: a single count or a tuple of accepted counts."""
+
+BUILTIN_ARITIES: dict[str, Arity] = {
+    **{name: arity for name, (arity, _) in BUILTINS.items()},
     "print": _PRINT_ARITY,
-    "range": _RANGE_ARITY,
+    "range": _RANGE_ARITIES,
     "map": _MAP_ARITY,
     "filter": _FILTER_ARITY,
     "reduce": _REDUCE_ARITY,

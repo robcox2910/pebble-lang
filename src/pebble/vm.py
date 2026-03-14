@@ -398,6 +398,7 @@ class VirtualMachine:
         # VM-level builtin dispatch (needs VM access for callbacks)
         if name in self._VM_BUILTINS:
             arity = BUILTIN_ARITIES[name]
+            assert isinstance(arity, int)  # noqa: S101
             vm_args = [self._stack.pop() for _ in range(arity)]
             vm_args.reverse()
             getattr(self, self._VM_BUILTINS[name])(vm_args)
