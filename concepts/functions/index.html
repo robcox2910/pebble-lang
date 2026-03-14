@@ -1128,6 +1128,23 @@ the next value from <code>range(5)</code>.</p>
 <li><strong>iterable</strong> -- something that produces items to loop over</li>
 <li><strong>body</strong> -- what to do with each item</li>
 </ul>
+<p>You can also give <code>range</code> a starting point, or a step size:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>for i in range(2, 5) {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print(i)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>}
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a># prints: 2, 3, 4
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>for i in range(0, 10, 2) {
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    print(i)
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>}
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a># prints: 0, 2, 4, 6, 8
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>for i in range(5, 0, -1) {
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    print(i)
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>}
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a># prints: 5, 4, 3, 2, 1
+</code></pre></div>
+<p>See <a href="../stdlib/">Standard Library</a> for all <code>range()</code> forms.</p>
 <h3 id="for-vs-while">For vs While</h3>
 <p>Both <code>for</code> and <code>while</code> repeat things, but they're suited for different jobs:</p>
 <table>
@@ -1160,11 +1177,11 @@ the next value from <code>range(5)</code>.</p>
 <p>In Pebble, functions are <strong>first-class values</strong> -- just like numbers and
 strings. That means you can store a function in a variable, put it in a list,
 or pass it as an argument to another function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>let f = double
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>print(f(5))          # prints: 10
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>print(type(double))  # prints: fn
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>let f = double
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(f(5))          # prints: 10
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>print(type(double))  # prints: fn
 </code></pre></div>
 <p>Think of it this way: the recipe card itself is a thing you can pick up, hand
 to someone, or put in a drawer. You can use it later, or give it to a
@@ -1172,26 +1189,26 @@ different chef.</p>
 <h3 id="anonymous-functions">Anonymous Functions</h3>
 <p>Sometimes you need a tiny recipe that you'll only use once. Instead of giving
 it a name, you can write it inline:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let triple = fn(x) { return x * 3 }
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(triple(4))   # prints: 12
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let triple = fn(x) { return x * 3 }
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(triple(4))   # prints: 12
 </code></pre></div>
 <p>This creates a function without the usual <code>fn name(...)</code> form -- just
 <code>fn(params) { body }</code> directly in an expression. It's especially useful with
 <a href="../higher-order/">higher-order functions</a> like <code>map</code>, <code>filter</code>, and <code>reduce</code>.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>Here's a program that uses functions and for loops together:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn greet(name) {
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    print(name)
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>}
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>fn count_up(n) {
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    for i in range(n) {
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        print(i)
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    }
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>}
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>greet(&quot;Alice&quot;)
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>count_up(3)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>fn greet(name) {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    print(name)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>}
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>fn count_up(n) {
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    for i in range(n) {
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>        print(i)
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    }
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>}
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>greet(&quot;Alice&quot;)
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>count_up(3)
 </code></pre></div>
 <p>Functions can contain for loops, for loops can contain if statements -- you can
 nest them however you like to build up complex behaviour from simple pieces.</p>

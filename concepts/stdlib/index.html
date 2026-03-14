@@ -778,13 +778,52 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rangen" class="md-nav__link">
+  <a href="#range" class="md-nav__link">
     <span class="md-ellipsis">
       
-        range(n)
+        range(...)
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="range(...)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rangestop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        range(stop)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rangestart-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        range(start, stop)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rangestart-stop-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        range(start, stop, step)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1065,138 +1104,162 @@ text:</p>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print({&quot;a&quot;: 1})        # prints: {a: 1}
 </code></pre></div>
 <p><code>print()</code> always adds a newline at the end.</p>
-<h2 id="rangen">range(n)</h2>
-<p>Generate a sequence of numbers from <code>0</code> up to (but <strong>not</strong> including) <code>n</code>.
-It's used with <code>for</code> loops to repeat something a specific number of times:</p>
+<h2 id="range">range(...)</h2>
+<p>Generate a sequence of numbers for a <code>for</code> loop. There are three ways to
+call it:</p>
+<h3 id="rangestop">range(stop)</h3>
+<p>Count from <code>0</code> up to (but <strong>not</strong> including) <code>stop</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>for i in range(4) {
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    print(i)
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>}
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a># prints: 0, 1, 2, 3 (each on its own line)
 </code></pre></div>
-<p>Think of <code>range(4)</code> as saying "count from 0 up to 3". The number you give is
-the <strong>stop</strong> point — the counting stops just before it.</p>
+<p>Think of <code>range(4)</code> as saying "count from 0 up to 3".</p>
+<h3 id="rangestart-stop">range(start, stop)</h3>
+<p>Count from <code>start</code> up to (but <strong>not</strong> including) <code>stop</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>for i in range(2, 5) {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    print(i)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a># prints: 2, 3, 4
+</code></pre></div>
+<p>If <code>start</code> equals <code>stop</code>, the loop body never runs.</p>
+<h3 id="rangestart-stop-step">range(start, stop, step)</h3>
+<p>Count from <code>start</code> toward <code>stop</code>, adding <code>step</code> each time:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>for i in range(0, 10, 2) {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    print(i)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>}
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a># prints: 0, 2, 4, 6, 8
+</code></pre></div>
+<p>The <code>step</code> can be <strong>negative</strong> to count backwards:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>for i in range(5, 0, -1) {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    print(i)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>}
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a># prints: 5, 4, 3, 2, 1
+</code></pre></div>
+<p>If the step goes the wrong direction (e.g. <code>range(0, 5, -1)</code>), the loop
+body never runs — there's nothing to count through.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code>range()</code> can only be used inside a <code>for</code> loop. The compiler translates
-<code>for i in range(n)</code> into a counting while-loop behind the scenes.</p>
+<code>for i in range(...)</code> into a counting while-loop behind the scenes.</p>
 </div>
 <h2 id="strvalue">str(value)</h2>
 <p>Convert any value to its text form:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(str(42))      # prints: 42
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(str(true))    # prints: true
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(str([1, 2]))  # prints: [1, 2]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(str(42))      # prints: 42
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(str(true))    # prints: true
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>print(str([1, 2]))  # prints: [1, 2]
 </code></pre></div>
 <p>This is the same conversion that happens automatically inside <code>{…}</code> string
 interpolation.</p>
 <h2 id="intvalue">int(value)</h2>
 <p>Convert a text string to a whole number:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let age = int(&quot;12&quot;)
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(age + 1)   # prints: 13
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let age = int(&quot;12&quot;)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(age + 1)   # prints: 13
 </code></pre></div>
 <p>If the string doesn't look like a number, Pebble stops with an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>int(&quot;hello&quot;)   # Error: Cannot convert &#39;hello&#39; to int
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>int(&quot;hello&quot;)   # Error: Cannot convert &#39;hello&#39; to int
 </code></pre></div>
 <p>Passing an integer to <code>int()</code> gives back the same number (handy if you're
 not sure what type you have):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(int(42))   # prints: 42
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>print(int(42))   # prints: 42
 </code></pre></div>
 <h2 id="typevalue">type(value)</h2>
 <p>Find out what kind of value something is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(type(42))        # prints: int
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(type(&quot;hello&quot;))   # prints: str
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>print(type(true))      # prints: bool
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>print(type([1, 2]))    # prints: list
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>print(type({}))        # prints: dict
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(type(42))        # prints: int
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(type(&quot;hello&quot;))   # prints: str
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>print(type(true))      # prints: bool
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>print(type([1, 2]))    # prints: list
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>print(type({}))        # prints: dict
 </code></pre></div>
 <p>The result is always a string like <code>"int"</code>, <code>"str"</code>, <code>"bool"</code>, <code>"list"</code>, or
 <code>"dict"</code>.
 You can use it in conditions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let x = 42
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>if type(x) == &quot;int&quot; {
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    print(&quot;it is a number&quot;)
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let x = 42
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>if type(x) == &quot;int&quot; {
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    print(&quot;it is a number&quot;)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>}
 </code></pre></div>
 <h2 id="lenvalue">len(value)</h2>
 <p>Count the number of items in a list or dict, or characters in a string:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>print(len([10, 20, 30]))       # prints: 3
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(len(&quot;hello&quot;))             # prints: 5
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>print(len({&quot;a&quot;: 1, &quot;b&quot;: 2}))  # prints: 2
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>print(len([]))                  # prints: 0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>print(len([10, 20, 30]))       # prints: 3
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(len(&quot;hello&quot;))             # prints: 5
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>print(len({&quot;a&quot;: 1, &quot;b&quot;: 2}))  # prints: 2
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(len([]))                  # prints: 0
 </code></pre></div>
 <h2 id="pushlist-value">push(list, value)</h2>
 <p>Add a value to the <strong>end</strong> of a list. This changes the list itself (it
 doesn't create a new one):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>push(xs, 4)
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>print(xs)   # prints: [1, 2, 3, 4]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>push(xs, 4)
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>print(xs)   # prints: [1, 2, 3, 4]
 </code></pre></div>
 <p>Think of it like adding another person to the back of a queue.</p>
 <h2 id="poplist">pop(list)</h2>
 <p>Remove and give back the <strong>last</strong> value from a list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>let last = pop(xs)
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>print(last)   # prints: 3
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>print(xs)     # prints: [1, 2]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>let last = pop(xs)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>print(last)   # prints: 3
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>print(xs)     # prints: [1, 2]
 </code></pre></div>
 <p>If the list is empty, Pebble stops with an error — you can't take something
 from an empty container.</p>
 <h2 id="keysdict">keys(dict)</h2>
 <p>Return a list of all the keys in a dictionary, in the order they were added:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(keys(d))   # prints: [name, age]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>print(keys(d))   # prints: [name, age]
 </code></pre></div>
 <p>If the dictionary is empty, you get an empty list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(keys({}))   # prints: []
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(keys({}))   # prints: []
 </code></pre></div>
 <h2 id="valuesdict">values(dict)</h2>
 <p>Return a list of all the values in a dictionary, in the order they were added:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>print(values(d))   # prints: [Alice, 12]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>print(values(d))   # prints: [Alice, 12]
 </code></pre></div>
 <p>If the dictionary is empty, you get an empty list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(values({}))   # prints: []
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>print(values({}))   # prints: []
 </code></pre></div>
 <h2 id="mapfn-list">map(fn, list)</h2>
 <p>Apply a function to every element and return a new list of results. The first
 argument can be a named function or an anonymous function (<code>fn(...) { ... }</code>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(map(double, [1, 2, 3]))   # prints: [2, 4, 6]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(map(double, [1, 2, 3]))   # prints: [2, 4, 6]
 </code></pre></div>
 <p>You can also use an anonymous function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>print(map(fn(x) { return x + 10 }, [1, 2, 3]))   # prints: [11, 12, 13]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>print(map(fn(x) { return x + 10 }, [1, 2, 3]))   # prints: [11, 12, 13]
 </code></pre></div>
 <p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
 <h2 id="filterfn-list">filter(fn, list)</h2>
 <p>Keep only the elements where the function returns <code>true</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>fn is_even(x) { return x % 2 == 0 }
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>print(filter(is_even, [1, 2, 3, 4]))   # prints: [2, 4]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>fn is_even(x) { return x % 2 == 0 }
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>print(filter(is_even, [1, 2, 3, 4]))   # prints: [2, 4]
 </code></pre></div>
 <p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
 <h2 id="reducefn-list-initial">reduce(fn, list, initial)</h2>
 <p>Combine all elements into a single value using a function and a starting
 value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>fn add(a, b) { return a + b }
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(reduce(add, [1, 2, 3], 0))   # prints: 6
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>fn add(a, b) { return a + b }
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>print(reduce(add, [1, 2, 3], 0))   # prints: 6
 </code></pre></div>
 <p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>You can combine these to do useful things. Here's a program that builds a
 list dynamically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let numbers = []
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>for i in range(5) {
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    push(numbers, i * i)
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>}
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>let numbers = []
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>for i in range(5) {
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    push(numbers, i * i)
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>}
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
 </code></pre></div>
 <p>And here's a simple stack (last-in, first-out):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let stack = []
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>push(stack, &quot;first&quot;)
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>push(stack, &quot;second&quot;)
-<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>push(stack, &quot;third&quot;)
-<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
-<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>let top = pop(stack)
-<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
-<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>let stack = []
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>push(stack, &quot;first&quot;)
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>push(stack, &quot;second&quot;)
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>push(stack, &quot;third&quot;)
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>let top = pop(stack)
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>Every built-in function lives in a Python module called <code>builtins.py</code>. It
