@@ -20,6 +20,7 @@ from pebble.ast_nodes import (
     BooleanLiteral,
     BreakStatement,
     ContinueStatement,
+    DictLiteral,
     Expression,
     ForLoop,
     FunctionCall,
@@ -334,6 +335,10 @@ class SemanticAnalyzer:
             case ArrayLiteral():
                 for element in expr.elements:
                     self._visit_expression(element)
+            case DictLiteral():
+                for key, value in expr.entries:
+                    self._visit_expression(key)
+                    self._visit_expression(value)
             case IndexAccess():
                 self._visit_expression(expr.target)
                 self._visit_expression(expr.index)

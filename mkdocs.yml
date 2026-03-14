@@ -54,6 +54,7 @@ nav:
       - VM: concepts/vm.md
       - String Interpolation: concepts/string-interpolation.md
       - Arrays: concepts/arrays.md
+      - Dictionaries: concepts/dicts.md
       - Standard Library: concepts/stdlib.md
       - Closures: concepts/closures.md
       - REPL: concepts/repl.md

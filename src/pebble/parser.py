@@ -18,6 +18,7 @@ from pebble.ast_nodes import (
     BooleanLiteral,
     BreakStatement,
     ContinueStatement,
+    DictLiteral,
     Expression,
     ForLoop,
     FunctionCall,
@@ -409,6 +410,24 @@ class Parser:
         self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after array elements")
         return ArrayLiteral(elements=elements, location=bracket_token.location)
 
+    def _parse_dict(self) -> DictLiteral:
+        """Parse a dictionary literal: ``{key: value, ...}``."""
+        brace_token = self._advance()  # consume '{'
+        entries: list[tuple[Expression, Expression]] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACE:
+            key = self._parse_precedence(min_precedence=0)
+            self._expect(TokenKind.COLON, "Expected ':' after dict key")
+            value = self._parse_precedence(min_precedence=0)
+            entries.append((key, value))
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                key = self._parse_precedence(min_precedence=0)
+                self._expect(TokenKind.COLON, "Expected ':' after dict key")
+                value = self._parse_precedence(min_precedence=0)
+                entries.append((key, value))
+        self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after dict entries")
+        return DictLiteral(entries=entries, location=brace_token.location)
+
     def _parse_index_access(self, target: Expression) -> IndexAccess:
         """Parse a postfix index access: ``target[index]``."""
         bracket_token = self._advance()  # consume '['
@@ -455,6 +474,7 @@ class Parser:
         TokenKind.NOT: _parse_not,
         TokenKind.LEFT_PAREN: _parse_grouped,
         TokenKind.LEFT_BRACKET: _parse_array,
+        TokenKind.LEFT_BRACE: _parse_dict,
     }
 
     # -- Statement dispatch table ---------------------------------------------

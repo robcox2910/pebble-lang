@@ -21,7 +21,7 @@ from pebble.errors import PebbleRuntimeError
 if TYPE_CHECKING:
     from pebble.bytecode import CodeObject
 
-type Value = int | str | bool | list[Value] | Closure
+type Value = int | str | bool | list[Value] | dict[str, Value] | Closure
 
 
 # -- Closure types ------------------------------------------------------------
@@ -64,6 +64,9 @@ def format_value(value: Value) -> str:
             return str(value)
         case str():
             return value
+        case dict():
+            pairs = ", ".join(f"{k}: {format_value(v)}" for k, v in value.items())
+            return f"{{{pairs}}}"
         case list():
             items = ", ".join(format_value(v) for v in value)
             return f"[{items}]"
@@ -105,6 +108,8 @@ def _builtin_type(args: list[Value]) -> Value:
             return "int"
         case str():
             return "str"
+        case dict():
+            return "dict"
         case list():
             return "list"
         case Closure():
@@ -114,7 +119,7 @@ def _builtin_type(args: list[Value]) -> Value:
 def _builtin_len(args: list[Value]) -> Value:
     """Return the length of a list or string."""
     arg = args[0]
-    if isinstance(arg, list | str):
+    if isinstance(arg, list | str | dict):
         return len(arg)
     type_name = type(arg).__name__
     msg = f"len() not supported for {type_name}"
@@ -145,6 +150,26 @@ def _builtin_pop(args: list[Value]) -> Value:
     return target.pop()
 
 
+def _builtin_keys(args: list[Value]) -> Value:
+    """Return the keys of a dictionary as a list."""
+    arg = args[0]
+    if not isinstance(arg, dict):
+        type_name = type(arg).__name__
+        msg = f"keys() requires a dict, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return list(arg.keys())
+
+
+def _builtin_values(args: list[Value]) -> Value:
+    """Return the values of a dictionary as a list."""
+    arg = args[0]
+    if not isinstance(arg, dict):
+        type_name = type(arg).__name__
+        msg = f"values() requires a dict, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return list(arg.values())
+
+
 # -- Registry ------------------------------------------------------------------
 
 type BuiltinHandler = Callable[[list[Value]], Value]
@@ -156,6 +181,8 @@ BUILTINS: dict[str, tuple[int, BuiltinHandler]] = {
     "len": (1, _builtin_len),
     "push": (2, _builtin_push),
     "pop": (1, _builtin_pop),
+    "keys": (1, _builtin_keys),
+    "values": (1, _builtin_values),
 }
 """Map of runtime builtin names to ``(arity, handler)`` pairs."""
 
