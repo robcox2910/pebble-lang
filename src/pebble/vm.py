@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Never
+from typing import TYPE_CHECKING, ClassVar, Never
 
-from pebble.builtins import BUILTINS, Cell, Closure, Value, format_value
+from pebble.builtins import BUILTIN_ARITIES, BUILTINS, Cell, Closure, Value, format_value
 from pebble.bytecode import Instruction, OpCode
 from pebble.errors import PebbleRuntimeError
 
@@ -96,9 +96,13 @@ class VirtualMachine:
 
     # -- Execution loop -------------------------------------------------------
 
-    def _execute(self) -> None:
-        """Fetch-decode-execute loop."""
-        while self._frames:
+    def _execute(self, *, min_depth: int = 0) -> None:
+        """Fetch-decode-execute loop.
+
+        Run until the call-stack depth drops to *min_depth*, allowing nested
+        execution for callbacks invoked by VM-level builtins.
+        """
+        while len(self._frames) > min_depth:
             frame = self._frames[-1]
             instruction = frame.code.instructions[frame.ip]
             frame.ip += 1
@@ -168,9 +172,14 @@ class VirtualMachine:
                 frame.variables[operand] = self._stack.pop()
             case OpCode.LOAD_NAME:
                 operand = _str_operand(instruction)
-                if operand not in frame.variables:
+                if operand in frame.variables:
+                    self._stack.append(frame.variables[operand])
+                elif operand in self._functions:
+                    # Wrap a regular function as a Closure so it's first-class
+                    fn_code = self._functions[operand]
+                    self._stack.append(Closure(code=fn_code, cells=[]))
+                else:
                     self._runtime_error(f"Undefined variable '{operand}'")
-                self._stack.append(frame.variables[operand])
             case OpCode.STORE_CELL:
                 operand = _str_operand(instruction)
                 value = self._stack.pop()
@@ -364,11 +373,18 @@ class VirtualMachine:
             self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
         target[index] = value
 
+    # Map of VM-level builtin names to handler methods.
+    _VM_BUILTINS: ClassVar[dict[str, str]] = {
+        "map": "_vm_builtin_map",
+        "filter": "_vm_builtin_filter",
+        "reduce": "_vm_builtin_reduce",
+    }
+
     def _exec_call(self, instruction: Instruction) -> None:
-        """Handle CALL — check builtins, closures, then user functions."""
+        """Handle CALL — check builtins, VM builtins, closures, then user functions."""
         name = _str_operand(instruction)
 
-        # Built-in function dispatch
+        # Built-in function dispatch (pure — no VM access needed)
         if name in BUILTINS:
             arity, handler = BUILTINS[name]
             builtin_args = [self._stack.pop() for _ in range(arity)]
@@ -377,6 +393,14 @@ class VirtualMachine:
                 self._stack.append(handler(builtin_args))
             except PebbleRuntimeError as exc:
                 self._runtime_error(exc.message)
+            return
+
+        # VM-level builtin dispatch (needs VM access for callbacks)
+        if name in self._VM_BUILTINS:
+            arity = BUILTIN_ARITIES[name]
+            vm_args = [self._stack.pop() for _ in range(arity)]
+            vm_args.reverse()
+            getattr(self, self._VM_BUILTINS[name])(vm_args)
             return
 
         # Closure dispatch — check if name resolves to a Closure in variables
@@ -428,6 +452,53 @@ class VirtualMachine:
         return_value = self._stack.pop()
         self._frames.pop()
         self._stack.append(return_value)
+
+    # -- Callable helper ------------------------------------------------------
+
+    def _call_callable(self, closure: Closure, args: list[Value]) -> Value:
+        """Call *closure* with *args*, run to completion, return result."""
+        fn_code = closure.code
+        params = dict(zip(fn_code.parameters, args, strict=True))
+        cells = dict(zip(fn_code.free_variables, closure.cells, strict=True))
+        frame = Frame(code=fn_code, variables=params, cells=cells)
+        self._init_cells(frame)
+        depth = len(self._frames)
+        self._frames.append(frame)
+        self._execute(min_depth=depth)
+        return self._stack.pop()
+
+    # -- VM-level builtins (need VM access for callbacks) ---------------------
+
+    def _vm_builtin_map(self, args: list[Value]) -> None:
+        """Implement map(fn, list) -> list."""
+        fn_val, list_val = args
+        if not isinstance(fn_val, Closure):
+            self._runtime_error("map() expects a function as the first argument")
+        if not isinstance(list_val, list):
+            self._runtime_error("map() expects a list as the second argument")
+        result: list[Value] = [self._call_callable(fn_val, [elem]) for elem in list_val]
+        self._stack.append(result)
+
+    def _vm_builtin_filter(self, args: list[Value]) -> None:
+        """Implement filter(fn, list) -> list."""
+        fn_val, list_val = args
+        if not isinstance(fn_val, Closure):
+            self._runtime_error("filter() expects a function as the first argument")
+        if not isinstance(list_val, list):
+            self._runtime_error("filter() expects a list as the second argument")
+        result: list[Value] = [elem for elem in list_val if self._call_callable(fn_val, [elem])]
+        self._stack.append(result)
+
+    def _vm_builtin_reduce(self, args: list[Value]) -> None:
+        """Implement reduce(fn, list, initial) -> value."""
+        fn_val, list_val, acc = args
+        if not isinstance(fn_val, Closure):
+            self._runtime_error("reduce() expects a function as the first argument")
+        if not isinstance(list_val, list):
+            self._runtime_error("reduce() expects a list as the second argument")
+        for elem in list_val:
+            acc = self._call_callable(fn_val, [acc, elem])
+        self._stack.append(acc)
 
     # -- Typed operation helpers -----------------------------------------------
 

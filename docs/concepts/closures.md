@@ -147,3 +147,6 @@ print(type(add5)) # prints: fn
 
 The `type()` function returns `"fn"` for closures, and printing a closure
 shows `<fn name>`.
+
+Closures work perfectly as callbacks for [higher-order
+functions](higher-order.md) like `map`, `filter`, and `reduce`.

@@ -23,6 +23,7 @@ from pebble.ast_nodes import (
     ForLoop,
     FunctionCall,
     FunctionDef,
+    FunctionExpression,
     Identifier,
     IfStatement,
     IndexAccess,
@@ -428,6 +429,33 @@ class Parser:
         self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after dict entries")
         return DictLiteral(entries=entries, location=brace_token.location)
 
+    _anon_counter: int = 0
+
+    def _parse_fn_expression(self) -> FunctionExpression:
+        """Parse an anonymous function expression: ``fn(params) { body }``."""
+        fn_token = self._advance()  # consume 'fn'
+        self._expect(TokenKind.LEFT_PAREN, "Expected '(' after 'fn'")
+
+        parameters: list[str] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
+            param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
+            parameters.append(param.value)
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
+                parameters.append(param.value)
+
+        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
+        body = self._parse_block()
+        name = f"$anon_{Parser._anon_counter}"
+        Parser._anon_counter += 1
+        return FunctionExpression(
+            name=name,
+            parameters=parameters,
+            body=body,
+            location=fn_token.location,
+        )
+
     def _parse_index_access(self, target: Expression) -> IndexAccess:
         """Parse a postfix index access: ``target[index]``."""
         bracket_token = self._advance()  # consume '['
@@ -475,6 +503,7 @@ class Parser:
         TokenKind.LEFT_PAREN: _parse_grouped,
         TokenKind.LEFT_BRACKET: _parse_array,
         TokenKind.LEFT_BRACE: _parse_dict,
+        TokenKind.FN: _parse_fn_expression,
     }
 
     # -- Statement dispatch table ---------------------------------------------

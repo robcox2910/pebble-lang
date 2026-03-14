@@ -122,6 +122,16 @@ class IndexAccess:
     location: SourceLocation
 
 
+@dataclass(frozen=True)
+class FunctionExpression:
+    """An anonymous function expression like ``fn(x) { return x + 1 }``."""
+
+    name: str
+    parameters: list[str]
+    body: list[Statement]
+    location: SourceLocation
+
+
 # ---------------------------------------------------------------------------
 # Statement nodes
 # ---------------------------------------------------------------------------
@@ -247,6 +257,7 @@ Expression = (
     | ArrayLiteral
     | DictLiteral
     | IndexAccess
+    | FunctionExpression
 )
 
 Statement = (
