@@ -1075,6 +1075,18 @@ function. They're on separate pages.</p>
 <td><code>false</code></td>
 <td><code>false</code> (lowercase)</td>
 </tr>
+<tr>
+<td><code>[1, 2, 3]</code></td>
+<td><code>[1, 2, 3]</code></td>
+</tr>
+<tr>
+<td><code>{"a": 1}</code></td>
+<td><code>{a: 1}</code></td>
+</tr>
+<tr>
+<td>a closure</td>
+<td><code>&lt;fn name&gt;</code></td>
+</tr>
 </tbody>
 </table>
 <p>This is different from Python, which would print <code>True</code> and <code>False</code>
@@ -1105,6 +1117,18 @@ These are called <strong>runtime errors</strong>:</p>
 <tr>
 <td><code>-"hi"</code></td>
 <td>Unsupported operand type for negation: str</td>
+</tr>
+<tr>
+<td><code>xs[99]</code> (list)</td>
+<td>Index 99 out of bounds for list of length 3</td>
+</tr>
+<tr>
+<td><code>d["missing"]</code> (dict)</td>
+<td>Key 'missing' not found in dict</td>
+</tr>
+<tr>
+<td><code>d[42] = 1</code> (dict)</td>
+<td>Dict keys must be strings, got int</td>
 </tr>
 </tbody>
 </table>

@@ -1048,6 +1048,11 @@ nodes:</p>
 <td>A list of element expressions</td>
 </tr>
 <tr>
+<td><code>DictLiteral</code></td>
+<td><code>{"a": 1}</code></td>
+<td>A list of key-value pair expressions</td>
+</tr>
+<tr>
 <td><code>IndexAccess</code></td>
 <td><code>xs[0]</code></td>
 <td>A target and an index expression</td>
@@ -1108,6 +1113,16 @@ nodes:</p>
 <td><code>IndexAssignment</code></td>
 <td><code>xs[0] = 42</code></td>
 <td>Target, index, and new value</td>
+</tr>
+<tr>
+<td><code>BreakStatement</code></td>
+<td><code>break</code></td>
+<td>Exit the nearest loop</td>
+</tr>
+<tr>
+<td><code>ContinueStatement</code></td>
+<td><code>continue</code></td>
+<td>Skip to the next loop iteration</td>
 </tr>
 </tbody>
 </table>
