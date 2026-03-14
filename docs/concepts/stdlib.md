@@ -19,10 +19,14 @@ print({"a": 1})        # prints: {a: 1}
 
 `print()` always adds a newline at the end.
 
-## range(n)
+## range(...)
 
-Generate a sequence of numbers from `0` up to (but **not** including) `n`.
-It's used with `for` loops to repeat something a specific number of times:
+Generate a sequence of numbers for a `for` loop. There are three ways to
+call it:
+
+### range(stop)
+
+Count from `0` up to (but **not** including) `stop`:
 
 ```pebble
 for i in range(4) {
@@ -31,12 +35,47 @@ for i in range(4) {
 # prints: 0, 1, 2, 3 (each on its own line)
 ```
 
-Think of `range(4)` as saying "count from 0 up to 3". The number you give is
-the **stop** point — the counting stops just before it.
+Think of `range(4)` as saying "count from 0 up to 3".
+
+### range(start, stop)
+
+Count from `start` up to (but **not** including) `stop`:
+
+```pebble
+for i in range(2, 5) {
+    print(i)
+}
+# prints: 2, 3, 4
+```
+
+If `start` equals `stop`, the loop body never runs.
+
+### range(start, stop, step)
+
+Count from `start` toward `stop`, adding `step` each time:
+
+```pebble
+for i in range(0, 10, 2) {
+    print(i)
+}
+# prints: 0, 2, 4, 6, 8
+```
+
+The `step` can be **negative** to count backwards:
+
+```pebble
+for i in range(5, 0, -1) {
+    print(i)
+}
+# prints: 5, 4, 3, 2, 1
+```
+
+If the step goes the wrong direction (e.g. `range(0, 5, -1)`), the loop
+body never runs — there's nothing to count through.
 
 !!! note
     `range()` can only be used inside a `for` loop. The compiler translates
-    `for i in range(n)` into a counting while-loop behind the scenes.
+    `for i in range(...)` into a counting while-loop behind the scenes.
 
 ## str(value)
 

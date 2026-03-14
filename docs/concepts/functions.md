@@ -130,6 +130,27 @@ for variable in iterable {
 - **iterable** -- something that produces items to loop over
 - **body** -- what to do with each item
 
+You can also give `range` a starting point, or a step size:
+
+```pebble
+for i in range(2, 5) {
+    print(i)
+}
+# prints: 2, 3, 4
+
+for i in range(0, 10, 2) {
+    print(i)
+}
+# prints: 0, 2, 4, 6, 8
+
+for i in range(5, 0, -1) {
+    print(i)
+}
+# prints: 5, 4, 3, 2, 1
+```
+
+See [Standard Library](stdlib.md) for all `range()` forms.
+
 ### For vs While
 
 Both `for` and `while` repeat things, but they're suited for different jobs:

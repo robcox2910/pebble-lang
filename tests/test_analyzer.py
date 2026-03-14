@@ -242,6 +242,30 @@ class TestForLoop:
         """Pass when a loop variable shadows an outer variable."""
         _analyze("let i = 99\nfor i in range(5) {\n  print(i)\n}")
 
+    def test_range_two_args_accepted(self) -> None:
+        """Pass when range is called with two arguments."""
+        _analyze("for i in range(1, 5) {\n  print(i)\n}")
+
+    def test_range_three_args_accepted(self) -> None:
+        """Pass when range is called with three arguments."""
+        _analyze("for i in range(0, 10, 2) {\n  print(i)\n}")
+
+    def test_range_zero_args_rejected(self) -> None:
+        """Raise SemanticError when range is called with zero arguments."""
+        with pytest.raises(
+            SemanticError,
+            match="Function 'range' expects 1, 2, 3 arguments, got 0",
+        ):
+            _analyze("for i in range() {\n  print(i)\n}")
+
+    def test_range_four_args_rejected(self) -> None:
+        """Raise SemanticError when range is called with four arguments."""
+        with pytest.raises(
+            SemanticError,
+            match="Function 'range' expects 1, 2, 3 arguments, got 4",
+        ):
+            _analyze("for i in range(1, 2, 3, 4) {\n  print(i)\n}")
+
 
 # -- Break and Continue -------------------------------------------------------
 

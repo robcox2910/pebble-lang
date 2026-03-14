@@ -175,6 +175,22 @@ for i in range(3) {
 
 This prints the squares: `0`, `1`, `4`.
 
+You can also give `range` a start point, or control the step size:
+
+```pebble
+for i in range(2, 5) {
+    print(i)
+}
+# prints: 2, 3, 4
+
+for i in range(10, 0, -2) {
+    print(i)
+}
+# prints: 10, 8, 6, 4, 2
+```
+
+See [Standard Library](stdlib.md) for all three forms of `range()`.
+
 Behind the scenes, the compiler turns a `for` loop into a `while` loop with
 a hidden counter variable. You don't need to worry about that — just think
 of it as "do this N times, and give me the number each time".
