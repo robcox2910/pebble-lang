@@ -78,6 +78,7 @@ class OpCode(StrEnum):
     BUILD_DICT = "BUILD_DICT"
     INDEX_GET = "INDEX_GET"
     INDEX_SET = "INDEX_SET"
+    SLICE_GET = "SLICE_GET"
 
     # -- I/O ------------------------------------------------------------------
     PRINT = "PRINT"
