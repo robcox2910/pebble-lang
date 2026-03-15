@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/analyzer/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/structs/">
       
       
-        <link rel="prev" href="../functions/">
+        <link rel="prev" href="../tuple-unpacking/">
       
       
-        <link rel="next" href="../compiler/">
+        <link rel="next" href="../repl/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Semantic Analysis - Pebble</title>
+        <title>Structs - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#semantic-analysis" class="md-skip">
+        <a href="#structs" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Semantic Analysis
+              Structs
             
           </span>
         </div>
@@ -592,37 +592,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Semantic Analysis
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../analyzer/" class="md-nav__link">
         
   
   
@@ -638,231 +611,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-semantic-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is Semantic Analysis?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-the-parser-isnt-enough" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why the Parser Isn't Enough
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scopes-rooms-in-a-building" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scopes: Rooms in a Building
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Scopes: Rooms in a Building">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-creates-a-new-scope" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Creates a New Scope?
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#variable-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Variable Checks
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Variable Checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#declaration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Declaration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#using-a-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using a Variable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reassignment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reassignment
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#function-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Function Checks
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Function Checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#declaring-a-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Declaring a Function
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#calling-a-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calling a Function
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#define-before-you-call" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Define Before You Call
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#built-in-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Built-in Functions
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#return-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Return Checks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#block-scoping-in-action" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Block Scoping in Action
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1236,10 +984,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../structs/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Structs
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1255,6 +1030,258 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-custom-blueprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Custom Blueprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-a-struct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining a Struct
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Instances
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Fields
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changing-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changing Fields
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#printing-structs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Printing Structs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-the-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking the Type
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#structs-as-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structs as Values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-structs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparing Structs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rgb-color" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RGB Color
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#student-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Student Record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linked-list-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linked List Node
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How It Works Under the Hood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-a-struct_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining a Struct
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#constructing-an-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructing an Instance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading a Field
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-a-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing a Field
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1315,287 +1342,227 @@
   
 
 
-<h1 id="semantic-analysis">Semantic Analysis</h1>
-<h2 id="what-is-semantic-analysis">What Is Semantic Analysis?</h2>
-<p>Imagine you write an essay and run spell-check. It catches misspelt words and
-broken grammar, but it can't tell you whether your sentences <em>make sense</em>. You
-could write "The cat drove the ocean to school" -- every word is spelt right and
-the grammar is fine, but the meaning is nonsense.</p>
-<p>The <strong>semantic analyzer</strong> is the sense-checker for your program. (<em>Semantic</em>
-means "about meaning".) The parser already checked the grammar (syntax), but the
-analyzer walks through the AST and asks: "Does this program actually make
-logical sense?"</p>
-<h2 id="why-the-parser-isnt-enough">Why the Parser Isn't Enough</h2>
-<p>The parser makes sure your code <em>looks right</em>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let x = 5
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(y)
+<h1 id="structs">Structs</h1>
+<h2 id="the-custom-blueprint">The Custom Blueprint</h2>
+<p>Imagine you're building with LEGO. You've been using single bricks
+(numbers, strings, booleans) and bags of bricks (lists). But what if
+you want to build something more specific -- like a little LEGO car
+with a <strong>color</strong>, a <strong>speed</strong>, and a <strong>name</strong>? You'd want a blueprint
+that says: "every car I build has these three labeled compartments."</p>
+<p>A <strong>struct</strong> is exactly that -- a blueprint for a custom box with
+labeled compartments (called <strong>fields</strong>). You define the blueprint
+once, then create as many boxes as you want from it.</p>
+<h2 id="defining-a-struct">Defining a Struct</h2>
+<p>Use the <code>struct</code> keyword followed by a name and a list of field names
+inside curly braces:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>struct Point { x, y }
 </code></pre></div>
-<p>The parser is perfectly happy with this -- every token is in the right place.
-But wait: we never declared <code>y</code>! The program's grammar is fine, but its <em>meaning</em>
-is broken. That's where the analyzer steps in and says: "Hold on, <code>y</code> doesn't
-exist."</p>
-<p>Here are some things the parser <strong>cannot</strong> catch:</p>
-<table>
-<thead>
-<tr>
-<th>Problem</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Using a variable that doesn't exist</td>
-<td><code>print(y)</code> when <code>y</code> was never declared</td>
-</tr>
-<tr>
-<td>Declaring the same variable twice</td>
-<td><code>let x = 1</code> then <code>let x = 2</code> in the same block</td>
-</tr>
-<tr>
-<td>Calling a function that doesn't exist</td>
-<td><code>foo()</code> when <code>foo</code> was never defined</td>
-</tr>
-<tr>
-<td>Wrong number of arguments</td>
-<td><code>add(1)</code> when <code>add</code> takes two parameters</td>
-</tr>
-<tr>
-<td>Returning outside a function</td>
-<td><code>return 42</code> at the top level</td>
-</tr>
-</tbody>
-</table>
-<h2 id="scopes-rooms-in-a-building">Scopes: Rooms in a Building</h2>
-<p>A <strong>scope</strong> is like a room in a building. When you declare a variable, you're
-writing its name on a whiteboard in that room. Anyone in the room can see it.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let x = 10
+<p>This says: "I'm defining a new type called <code>Point</code> that has two fields,
+<code>x</code> and <code>y</code>."</p>
+<p>The name should start with a capital letter (like <code>Point</code>, <code>Color</code>,
+<code>Student</code>) -- that's how Pebble programmers tell struct types apart
+from regular variables at a glance.</p>
+<h2 id="creating-instances">Creating Instances</h2>
+<p>Once you have a blueprint, you create a concrete value by calling the
+struct name like a function, passing one value for each field:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>struct Point { x, y }
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>if true {
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    let y = 20
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    print(x)    # Can see x (it&#39;s in the hallway)
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    print(y)    # Can see y (it&#39;s in this room)
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>print(x)        # Fine -- x is still on the hallway whiteboard
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>print(y)        # Error! y&#39;s whiteboard is in the if-room, and we left
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>let p = Point(10, 20)
 </code></pre></div>
-<p>The rules are simple:</p>
-<ul>
-<li><strong>You can always look outward</strong> -- from a room into the hallway, from the
-  hallway into the lobby</li>
-<li><strong>You can never look inward</strong> -- from the hallway into a room</li>
-<li><strong>Sibling rooms can't see each other</strong> -- the <code>if</code> room and the <code>else</code> room
-  are separate</li>
-</ul>
-<h3 id="what-creates-a-new-scope">What Creates a New Scope?</h3>
-<table>
-<thead>
-<tr>
-<th>Construct</th>
-<th>New scope for...</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>if { }</code></td>
-<td>The if-body</td>
-</tr>
-<tr>
-<td><code>else { }</code></td>
-<td>The else-body</td>
-</tr>
-<tr>
-<td><code>while { }</code></td>
-<td>The loop body</td>
-</tr>
-<tr>
-<td><code>for i in ... { }</code></td>
-<td>The loop variable and body</td>
-</tr>
-<tr>
-<td><code>fn f() { }</code></td>
-<td>The parameters and body</td>
-</tr>
-</tbody>
-</table>
-<h2 id="variable-checks">Variable Checks</h2>
-<h3 id="declaration">Declaration</h3>
-<p>When you write <code>let x = 5</code>, the analyzer writes <code>x</code> on the current room's
-whiteboard. If <code>x</code> is already there, it raises an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 1
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>let x = 2    # Error: Variable &#39;x&#39; already declared
+<p>The arguments are <strong>positional</strong> -- the first value goes to the first
+field, the second to the second, and so on. If you pass the wrong
+number of arguments, Pebble reports an error before the program even
+runs.</p>
+<h2 id="reading-fields">Reading Fields</h2>
+<p>Use a dot (<code>.</code>) to read a field:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(p.x)   # prints: 10
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(p.y)   # prints: 20
 </code></pre></div>
-<p>But if you're in a <em>different</em> room (an inner scope), you can use the same name.
-This is called <strong>shadowing</strong> -- your local <code>x</code> temporarily hides the outer one:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let x = 1
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>if true {
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    let x = 99   # Fine -- this is a different room
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    print(x)     # Prints 99
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>print(x)         # Prints 1 -- the outer x was never changed
+<p>Think of the dot as opening a specific compartment by its label.</p>
+<h2 id="changing-fields">Changing Fields</h2>
+<p>Use dot-equals to write a new value into a field:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>p.x = 30
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(p.x)   # prints: 30
 </code></pre></div>
-<h3 id="using-a-variable">Using a Variable</h3>
-<p>When you use a variable name, the analyzer checks: "Is this name on any
-whiteboard I can see?" It starts in the current room and walks outward through
-every enclosing scope until it reaches the global scope. If it never finds the
-name, you get an error -- like trying to pick up a package that isn't addressed
-to you:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(z)    # Error: Undeclared variable &#39;z&#39;
+<p>Fields are always changeable -- even if the variable holding the
+struct is declared with <code>const</code>. That's the same rule Pebble uses for
+lists: <code>const</code> means you can't point the name at a different value,
+but you <em>can</em> still change what's inside.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>const origin = Point(0, 0)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>origin.x = 5   # this is fine -- modifying the contents, not the binding
 </code></pre></div>
-<h3 id="reassignment">Reassignment</h3>
-<p>Reassignment (<code>x = 10</code>) only works if <code>x</code> was already declared somewhere
-visible. You can't reassign a variable that doesn't exist:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>x = 5    # Error: Undeclared variable &#39;x&#39;
+<h2 id="printing-structs">Printing Structs</h2>
+<p><code>print()</code> knows how to display a struct with all its fields:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let p = Point(10, 20)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(p)   # prints: Point(x=10, y=20)
 </code></pre></div>
-<h2 id="function-checks">Function Checks</h2>
-<h3 id="declaring-a-function">Declaring a Function</h3>
-<p>When you write <code>fn greet() { ... }</code>, the analyzer registers <code>greet</code> as a
-function. Each room actually has <em>two</em> whiteboards -- one for variables and one
-for functions. That means you could have a variable called <code>greet</code> and a
-function called <code>greet</code> without conflict.</p>
-<p>Just like variables, you can't declare two functions with the same name in the
-same scope:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn greet() { print(&quot;hi&quot;) }
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>fn greet() { print(&quot;bye&quot;) }   # Error: Function &#39;greet&#39; already defined
+<h2 id="checking-the-type">Checking the Type</h2>
+<p>The <code>type()</code> function returns the struct's name as a string:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(type(p))   # prints: Point
 </code></pre></div>
-<h3 id="calling-a-function">Calling a Function</h3>
-<p>When you call a function, the analyzer checks two things:</p>
-<ol>
-<li><strong>Does the function exist?</strong> If you call <code>foo()</code> but never defined <code>foo</code>,
-   that's an error.</li>
-<li><strong>Did you pass the right number of arguments?</strong> Think of it like a recipe
-   that needs exactly 2 eggs -- you can't use 1 or 3. If <code>add</code> takes two
-   parameters but you only pass one, that's an error.</li>
-</ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn add(a, b) {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return a + b
+<h2 id="structs-as-values">Structs as Values</h2>
+<p>Struct instances are values just like numbers or strings. You can:</p>
+<p><strong>Pass them to functions:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn distance_from_origin(point) {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return (point.x ** 2 + point.y ** 2) ** 0.5
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>add(1)        # Error: Function &#39;add&#39; expects 2 arguments, got 1
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>add(1, 2, 3)  # Error: Function &#39;add&#39; expects 2 arguments, got 3
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>add(1, 2)     # Fine!
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>print(distance_from_origin(Point(3, 4)))   # prints: 5.0
 </code></pre></div>
-<h3 id="define-before-you-call">Define Before You Call</h3>
-<p>Pebble reads your program from top to bottom. You must define a function
-<em>before</em> you call it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>greet()                    # Error: Undeclared function &#39;greet&#39;
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn greet() { print(&quot;hi&quot;) }
+<p><strong>Return them from functions:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn origin() {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    return Point(0, 0)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
 </code></pre></div>
-<h3 id="built-in-functions">Built-in Functions</h3>
-<p><code>print</code> and <code>range</code> are built-in -- they're already on the whiteboard when your
-program starts. You never need to declare them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(&quot;hello&quot;)           # Works -- print is built in
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>for i in range(10) { }   # Works -- range is built in (accepts 1, 2, or 3 arguments)
+<p><strong>Store them in lists:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let points = [Point(1, 2), Point(3, 4), Point(5, 6)]
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(points[0].x)   # prints: 1
 </code></pre></div>
-<h2 id="return-checks">Return Checks</h2>
-<p>A <code>return</code> statement can only appear inside a function. Using it at the top
-level is like trying to "send back" an answer when nobody asked you a question
--- there's no function to return from:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>return 42    # Error: Return statement outside function
+<p><strong>Store them in dictionaries:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let locations = {&quot;home&quot;: Point(0, 0), &quot;school&quot;: Point(10, 5)}
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(locations[&quot;school&quot;].y)   # prints: 5
 </code></pre></div>
-<p>Inside a function, you can return from any depth of nesting:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn check(x) {
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    if x &gt; 0 {
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        return x     # Fine -- we&#39;re inside fn check
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    }
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    return 0
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>}
+<p><strong>Nest them inside other structs:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>struct Line { start, end }
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>let line = Line(Point(0, 0), Point(10, 10))
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(line.start.x)   # prints: 0
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>print(line.end.y)      # prints: 10
 </code></pre></div>
-<h2 id="block-scoping-in-action">Block Scoping in Action</h2>
-<p>Here's a bigger example showing how scopes nest:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let total = 0                # Global scope
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>fn process(n) {              # New scope: n is a parameter
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    for i in range(n) {      # New scope: i is the loop variable
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        if i &gt; 0 {           # New scope
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>            let temp = i     # Only visible inside this if-block
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>            total = total + temp
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        }
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    }
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    # i is gone here (left the for-room)
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    # temp is gone here (left the if-room)
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    # n is still visible (we&#39;re still in the function)
-<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>}
+<h2 id="comparing-structs">Comparing Structs</h2>
+<p>Two struct instances are <strong>equal</strong> if they have the same type name
+<em>and</em> the same field values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let a = Point(10, 20)
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>let b = Point(10, 20)
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>print(a == b)   # prints: true
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>let c = Point(10, 30)
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>print(a == c)   # prints: false
 </code></pre></div>
-<h2 id="error-examples">Error Examples</h2>
-<table>
-<thead>
-<tr>
-<th>Code</th>
-<th>Error</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>print(x)</code></td>
-<td>Undeclared variable 'x'</td>
-</tr>
-<tr>
-<td><code>let x = 1</code> then <code>let x = 2</code></td>
-<td>Variable 'x' already declared</td>
-</tr>
-<tr>
-<td><code>x = 5</code> (no <code>let</code>)</td>
-<td>Undeclared variable 'x'</td>
-</tr>
-<tr>
-<td><code>foo()</code></td>
-<td>Undeclared function 'foo'</td>
-</tr>
-<tr>
-<td><code>fn f(a) {}</code> then <code>f(1, 2)</code></td>
-<td>Function 'f' expects 1 argument, got 2</td>
-</tr>
-<tr>
-<td><code>return 42</code> (top level)</td>
-<td>Return statement outside function</td>
-</tr>
-<tr>
-<td><code>let x = x</code></td>
-<td>Undeclared variable 'x' (x isn't declared yet when the value is evaluated)</td>
-</tr>
-</tbody>
-</table>
+<p>Different struct types are never equal, even if they have the same
+field values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>struct Vec { x, y }
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>let p = Point(10, 20)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>let v = Vec(10, 20)
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>print(p == v)   # prints: false
+</code></pre></div>
+<h2 id="error-cases">Error Cases</h2>
+<p>Pebble catches mistakes early:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a># Wrong number of arguments
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>let p = Point(1)          # Error: expects 2 arguments, got 1
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a># Accessing a field that doesn&#39;t exist
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>print(p.z)                # Error: has no field &#39;z&#39;
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a># Setting a field that doesn&#39;t exist
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>p.z = 5                   # Error: has no field &#39;z&#39;
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a># Using dot on a non-struct
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>let x = 42
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>print(x.y)                # Error: not a struct
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a># Duplicate field name
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>struct Bad { x, x }       # Error: Duplicate field &#39;x&#39;
+</code></pre></div>
+<h2 id="practical-examples">Practical Examples</h2>
+<h3 id="rgb-color">RGB Color</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>struct Color { r, g, b }
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>let red = Color(255, 0, 0)
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>let blue = Color(0, 0, 255)
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>print(red)    # prints: Color(r=255, g=0, b=0)
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>print(blue)   # prints: Color(r=0, g=0, b=255)
+</code></pre></div>
+<h3 id="student-record">Student Record</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>struct Student { name, age, grade }
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>let alice = Student(&quot;Alice&quot;, 12, &quot;A&quot;)
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>print(alice.name)    # prints: Alice
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>print(alice.grade)   # prints: A
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>alice.grade = &quot;A+&quot;
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>print(alice)   # prints: Student(name=Alice, age=12, grade=A+)
+</code></pre></div>
+<h3 id="linked-list-node">Linked List Node</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>struct Node { value, next }
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>let list = Node(1, Node(2, Node(3, 0)))
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>print(list.value)              # prints: 1
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>print(list.next.value)         # prints: 2
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>print(list.next.next.value)    # prints: 3
+</code></pre></div>
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<h3 id="defining-a-struct_1">Defining a Struct</h3>
+<p>When the compiler sees <code>struct Point { x, y }</code>, it <strong>does not</strong> emit
+any bytecode. Instead, it stores metadata: the struct name and its
+ordered field list. This metadata travels with the compiled program to
+the VM.</p>
+<h3 id="constructing-an-instance">Constructing an Instance</h3>
+<p>When the VM encounters <code>CALL "Point"</code>, it checks its struct registry.
+If the name matches, it:</p>
+<ol>
+<li>Pops the right number of values from the stack (one per field).</li>
+<li>Builds a <code>StructInstance</code> with those values.</li>
+<li>Pushes the instance onto the stack.</li>
+</ol>
+<p>No special opcode needed -- the existing <code>CALL</code> opcode handles it.</p>
+<h3 id="reading-a-field">Reading a Field</h3>
+<p><code>p.x</code> compiles to:</p>
+<ol>
+<li><code>LOAD_NAME "p"</code> -- push the struct instance onto the stack.</li>
+<li><code>GET_FIELD "x"</code> -- pop the instance, look up field <code>"x"</code>, push its
+   value.</li>
+</ol>
+<h3 id="writing-a-field">Writing a Field</h3>
+<p><code>p.x = 30</code> compiles to:</p>
+<ol>
+<li><code>LOAD_NAME "p"</code> -- push the struct instance.</li>
+<li><code>LOAD_CONST 30</code> -- push the new value.</li>
+<li><code>SET_FIELD "x"</code> -- pop both, update the field in place.</li>
+</ol>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
 <tr>
-<th>Concept</th>
-<th>Analogy</th>
+<th>Syntax</th>
+<th>What it does</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Semantic analysis</td>
-<td>A teacher checking your essay for sense, not just spelling</td>
+<td><code>struct Name { a, b }</code></td>
+<td>Define a new struct type with fields a, b</td>
 </tr>
 <tr>
-<td>Scope</td>
-<td>A room in a building with whiteboards</td>
+<td><code>Name(1, 2)</code></td>
+<td>Create an instance (like a function call)</td>
 </tr>
 <tr>
-<td>Declaration</td>
-<td>Writing a name on the whiteboard</td>
+<td><code>inst.field</code></td>
+<td>Read a field value</td>
 </tr>
 <tr>
-<td>Using a variable</td>
-<td>Looking for a name on whiteboards you can see</td>
+<td><code>inst.field = expr</code></td>
+<td>Write a new value to a field</td>
 </tr>
 <tr>
-<td>Shadowing</td>
-<td>An inner room's whiteboard hiding an outer one</td>
+<td><code>type(inst)</code></td>
+<td>Returns the struct's type name as a string</td>
 </tr>
 <tr>
-<td>Undeclared variable</td>
-<td>Trying to pick up a package that isn't addressed to you</td>
+<td><code>print(inst)</code></td>
+<td>Displays <code>Name(field=value, ...)</code></td>
 </tr>
 <tr>
-<td>Argument count</td>
-<td>A recipe that needs exactly 2 eggs -- you can't use 1 or 3</td>
+<td><code>a == b</code></td>
+<td>True if same type and all fields match</td>
 </tr>
 <tr>
-<td>Return outside function</td>
-<td>Trying to "send back" when nobody asked you a question</td>
+<td><code>GET_FIELD "name"</code></td>
+<td>VM instruction: pop instance, push field</td>
+</tr>
+<tr>
+<td><code>SET_FIELD "name"</code></td>
+<td>VM instruction: pop value + instance, write</td>
 </tr>
 </tbody>
 </table>

@@ -543,10 +543,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-seven-types" class="md-nav__link">
+  <a href="#the-eight-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Seven Types
+        The Eight Types
       
     </span>
   </a>
@@ -1139,6 +1139,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../structs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../repl/" class="md-nav__link">
         
   
@@ -1188,10 +1216,10 @@
 
 
 <h1 id="types">Types</h1>
-<p>Every value in Pebble is one of <strong>seven types</strong>. Think of a type as a label
+<p>Every value in Pebble is one of <strong>eight types</strong>. Think of a type as a label
 that tells you what <em>kind</em> of thing a value is -- just like how you'd sort
 items in a toolbox into screwdrivers, hammers, and wrenches.</p>
-<h2 id="the-seven-types">The Seven Types</h2>
+<h2 id="the-eight-types">The Eight Types</h2>
 <table>
 <thead>
 <tr>
@@ -1236,6 +1264,11 @@ items in a toolbox into screwdrivers, hammers, and wrenches.</p>
 <td>A function</td>
 <td><code>fn(x) { return x * 2 }</code></td>
 </tr>
+<tr>
+<td><em>struct</em></td>
+<td>A custom data type you define</td>
+<td><code>Point(10, 20)</code></td>
+</tr>
 </tbody>
 </table>
 <h2 id="checking-a-type-type">Checking a Type: <code>type()</code></h2>
@@ -1248,11 +1281,16 @@ returns a string:</p>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print(type([1, 2]))    # prints: list
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>print(type({}))        # prints: dict
 </code></pre></div>
+<p>For structs, <code>type()</code> returns the struct's name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>struct Point { x, y }
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>let p = Point(10, 20)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>print(type(p))         # prints: Point
+</code></pre></div>
 <p>You can use it in conditions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let x = 42
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>if type(x) == &quot;int&quot; {
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    print(&quot;it is a number&quot;)
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 42
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>if type(x) == &quot;int&quot; {
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    print(&quot;it is a number&quot;)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>}
 </code></pre></div>
 <h2 id="what-each-type-can-do">What Each Type Can Do</h2>
 <p>Different types support different operations and methods. Here's a quick
@@ -1309,58 +1347,64 @@ map:</p>
 <td>--</td>
 <td><a href="../functions/">Functions</a></td>
 </tr>
+<tr>
+<td><em>struct</em></td>
+<td><code>.field</code>, <code>==</code></td>
+<td>--</td>
+<td><a href="../structs/">Structs</a></td>
+</tr>
 </tbody>
 </table>
 <h2 id="integers-vs-floats">Integers vs Floats</h2>
 <p>An <strong>integer</strong> (<code>int</code>) is a whole number with no decimal point. A <strong>float</strong>
 is a number <em>with</em> a decimal point. Think of it like measuring: if you say
 "3 apples" that's an integer, but "3.5 apples" is a float.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(type(42))    # prints: int
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(type(3.14))  # prints: float
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(type(1.0))   # prints: float   (the .0 makes it a float!)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>print(type(42))    # prints: int
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(type(3.14))  # prints: float
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>print(type(1.0))   # prints: float   (the .0 makes it a float!)
 </code></pre></div>
 <h3 id="mixed-arithmetic">Mixed Arithmetic</h3>
 <p>When you mix <code>int</code> and <code>float</code> in a calculation, the result is always a
 <code>float</code>. Pebble "widens" the integer to match -- like pouring water from
 a small glass into a big one:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>print(1 + 2.0)    # prints: 3.0   (int + float = float)
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(3.0 * 2)    # prints: 6.0   (float * int = float)
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>print(5.5 - 2)    # prints: 3.5
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(1 + 2.0)    # prints: 3.0   (int + float = float)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>print(3.0 * 2)    # prints: 6.0   (float * int = float)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>print(5.5 - 2)    # prints: 3.5
 </code></pre></div>
 <h3 id="two-kinds-of-division">Two Kinds of Division</h3>
 <p>The <code>/</code> operator always gives you a <code>float</code>, even when the numbers divide
 evenly. If you want whole-number division (throwing away the remainder),
 use <code>//</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(7 / 2)      # prints: 3.5   (true division — always float)
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>print(6 / 2)      # prints: 3.0   (still a float!)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>print(7 // 2)     # prints: 3     (floor division — whole number)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(7 / 2)      # prints: 3.5   (true division — always float)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(6 / 2)      # prints: 3.0   (still a float!)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>print(7 // 2)     # prints: 3     (floor division — whole number)
 </code></pre></div>
 <h3 id="converting-between-int-and-float">Converting Between int and float</h3>
 <p>Use <code>float()</code> to turn an integer or string into a float, and <code>int()</code> to
 go the other way (it chops off the decimal part):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(float(42))     # prints: 42.0
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(float(&quot;3.14&quot;)) # prints: 3.14
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>print(int(3.7))      # prints: 3    (truncates toward zero)
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(int(-2.9))     # prints: -2   (truncates toward zero)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(float(42))     # prints: 42.0
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(float(&quot;3.14&quot;)) # prints: 3.14
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>print(int(3.7))      # prints: 3    (truncates toward zero)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>print(int(-2.9))     # prints: -2   (truncates toward zero)
 </code></pre></div>
 <h2 id="automatic-conversions">Automatic Conversions</h2>
 <p>Pebble does <strong>not</strong> automatically convert between unrelated types. If you
 try to add a number and a string, you get an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(1 + &quot;hello&quot;)   # Error: Cannot add int and str
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>print(1 + &quot;hello&quot;)   # Error: Cannot add int and str
 </code></pre></div>
 <p>To convert explicitly, use <code>str()</code>, <code>int()</code>, or <code>float()</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let x = 42
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(&quot;answer: &quot; + str(x))   # prints: answer: 42
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>let s = &quot;7&quot;
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>print(int(s) + 3)             # prints: 10
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>let f = &quot;3.14&quot;
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>print(float(f) + 1)           # prints: 4.140000000000001
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let x = 42
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(&quot;answer: &quot; + str(x))   # prints: answer: 42
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>let s = &quot;7&quot;
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>print(int(s) + 3)             # prints: 10
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>let f = &quot;3.14&quot;
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>print(float(f) + 1)           # prints: 4.140000000000001
 </code></pre></div>
 <p>Or use string interpolation, which converts automatically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let x = 42
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(&quot;answer: {x}&quot;)   # prints: answer: 42
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let x = 42
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(&quot;answer: {x}&quot;)   # prints: answer: 42
 </code></pre></div>
 <h2 id="summary">Summary</h2>
 <table>
@@ -1373,7 +1417,7 @@ try to add a number and a string, you get an error:</p>
 <tbody>
 <tr>
 <td>Type</td>
-<td>A label on a toolbox drawer</td>
+<td>A label on a toolbox drawer (structs get their own custom label)</td>
 </tr>
 <tr>
 <td><code>type()</code></td>

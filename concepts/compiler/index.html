@@ -1244,6 +1244,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../structs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../repl/" class="md-nav__link">
         
   
@@ -1762,6 +1790,16 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <td><code>STORE_CELL</code></td>
 <td>name</td>
 <td>Pop and store into a captured variable</td>
+</tr>
+<tr>
+<td><code>GET_FIELD</code></td>
+<td>name</td>
+<td>Pop a struct instance, push the named field's value</td>
+</tr>
+<tr>
+<td><code>SET_FIELD</code></td>
+<td>name</td>
+<td>Pop value and struct instance, set the named field</td>
 </tr>
 <tr>
 <td><code>PRINT</code></td>

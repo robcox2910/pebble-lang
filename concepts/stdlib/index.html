@@ -1249,6 +1249,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../structs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../repl/" class="md-nav__link">
         
   
@@ -1394,26 +1422,31 @@ not sure what type you have):</p>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>print(type({}))        # prints: dict
 </code></pre></div>
 <p>The result is always a string like <code>"int"</code>, <code>"float"</code>, <code>"str"</code>, <code>"bool"</code>,
-<code>"list"</code>, <code>"dict"</code>, or <code>"fn"</code>.
-You can use it in conditions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>let x = 42
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>if type(x) == &quot;int&quot; {
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    print(&quot;it is a number&quot;)
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>}
+<code>"list"</code>, <code>"dict"</code>, or <code>"fn"</code>. For <a href="../structs/">structs</a>, it returns the
+struct's name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>struct Point { x, y }
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>let p = Point(10, 20)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>print(type(p))         # prints: Point
+</code></pre></div>
+<p>You can use it in conditions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let x = 42
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>if type(x) == &quot;int&quot; {
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    print(&quot;it is a number&quot;)
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>}
 </code></pre></div>
 <h2 id="lenvalue">len(value)</h2>
 <p>Count the number of items in a list or dict, or characters in a string:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(len([10, 20, 30]))       # prints: 3
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>print(len(&quot;hello&quot;))             # prints: 5
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>print(len({&quot;a&quot;: 1, &quot;b&quot;: 2}))  # prints: 2
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>print(len([]))                  # prints: 0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(len([10, 20, 30]))       # prints: 3
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(len(&quot;hello&quot;))             # prints: 5
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>print(len({&quot;a&quot;: 1, &quot;b&quot;: 2}))  # prints: 2
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>print(len([]))                  # prints: 0
 </code></pre></div>
 <h2 id="pushlist-value">push(list, value)</h2>
 <p>Add a value to the <strong>end</strong> of a list. This changes the list itself (it
 doesn't create a new one):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>push(xs, 4)
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>print(xs)   # prints: [1, 2, 3, 4]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>push(xs, 4)
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>print(xs)   # prints: [1, 2, 3, 4]
 </code></pre></div>
 <p>Think of it like adding another person to the back of a queue.</p>
 <div class="admonition note">
@@ -1423,10 +1456,10 @@ doesn't create a new one):</p>
 </div>
 <h2 id="poplist">pop(list)</h2>
 <p>Remove and give back the <strong>last</strong> value from a list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>let last = pop(xs)
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>print(last)   # prints: 3
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>print(xs)     # prints: [1, 2]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>let last = pop(xs)
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>print(last)   # prints: 3
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>print(xs)     # prints: [1, 2]
 </code></pre></div>
 <p>If the list is empty, Pebble stops with an error — you can't take something
 from an empty container.</p>
@@ -1437,61 +1470,61 @@ from an empty container.</p>
 </div>
 <h2 id="keysdict">keys(dict)</h2>
 <p>Return a list of all the keys in a dictionary, in the order they were added:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>print(keys(d))   # prints: [name, age]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(keys(d))   # prints: [name, age]
 </code></pre></div>
 <p>If the dictionary is empty, you get an empty list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>print(keys({}))   # prints: []
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>print(keys({}))   # prints: []
 </code></pre></div>
 <h2 id="valuesdict">values(dict)</h2>
 <p>Return a list of all the values in a dictionary, in the order they were added:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>print(values(d))   # prints: [Alice, 12]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>print(values(d))   # prints: [Alice, 12]
 </code></pre></div>
 <p>If the dictionary is empty, you get an empty list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>print(values({}))   # prints: []
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>print(values({}))   # prints: []
 </code></pre></div>
 <h2 id="mapfn-list">map(fn, list)</h2>
 <p>Apply a function to every element and return a new list of results. The first
 argument can be a named function or an anonymous function (<code>fn(...) { ... }</code>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>print(map(double, [1, 2, 3]))   # prints: [2, 4, 6]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>print(map(double, [1, 2, 3]))   # prints: [2, 4, 6]
 </code></pre></div>
 <p>You can also use an anonymous function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>print(map(fn(x) { return x + 10 }, [1, 2, 3]))   # prints: [11, 12, 13]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>print(map(fn(x) { return x + 10 }, [1, 2, 3]))   # prints: [11, 12, 13]
 </code></pre></div>
 <p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
 <h2 id="filterfn-list">filter(fn, list)</h2>
 <p>Keep only the elements where the function returns <code>true</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>fn is_even(x) { return x % 2 == 0 }
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>print(filter(is_even, [1, 2, 3, 4]))   # prints: [2, 4]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>fn is_even(x) { return x % 2 == 0 }
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>print(filter(is_even, [1, 2, 3, 4]))   # prints: [2, 4]
 </code></pre></div>
 <p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
 <h2 id="reducefn-list-initial">reduce(fn, list, initial)</h2>
 <p>Combine all elements into a single value using a function and a starting
 value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>fn add(a, b) { return a + b }
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>print(reduce(add, [1, 2, 3], 0))   # prints: 6
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>fn add(a, b) { return a + b }
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>print(reduce(add, [1, 2, 3], 0))   # prints: 6
 </code></pre></div>
 <p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>You can combine these to do useful things. Here's a program that builds a
 list dynamically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>let numbers = []
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>for i in range(5) {
-<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    push(numbers, i * i)
-<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>}
-<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>let numbers = []
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>for i in range(5) {
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    push(numbers, i * i)
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>}
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
 </code></pre></div>
 <p>And here's a simple stack (last-in, first-out):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>let stack = []
-<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>push(stack, &quot;first&quot;)
-<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>push(stack, &quot;second&quot;)
-<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>push(stack, &quot;third&quot;)
-<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>
-<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>let top = pop(stack)
-<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
-<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>let stack = []
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>push(stack, &quot;first&quot;)
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>push(stack, &quot;second&quot;)
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>push(stack, &quot;third&quot;)
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>let top = pop(stack)
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>Every built-in function lives in a Python module called <code>builtins.py</code>. It
