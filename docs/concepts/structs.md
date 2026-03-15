@@ -255,6 +255,13 @@ No special opcode needed -- the existing `CALL` opcode handles it.
 2. `LOAD_CONST 30` -- push the new value.
 3. `SET_FIELD "x"` -- pop both, update the field in place.
 
+## Structs vs Classes
+
+Pebble also has **classes**, which are like structs that can do things.
+If your type only needs to hold data, use a struct. If it also needs
+methods (functions attached to the data), use a class. See the
+[Classes](classes.md) chapter for details.
+
 ## Summary
 
 | Syntax                  | What it does                                |

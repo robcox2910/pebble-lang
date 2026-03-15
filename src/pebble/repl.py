@@ -55,6 +55,7 @@ class Repl:
         self._functions: dict[str, CodeObject] = {}
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
+        self._class_methods: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
 
     def eval_line(self, source: str) -> None:
@@ -88,11 +89,15 @@ class Repl:
             | resolver.merged_struct_field_types
             | compiled.struct_field_types
         )
+        all_class_methods = (
+            self._class_methods | resolver.merged_class_methods | compiled.class_methods
+        )
         full_program = CompiledProgram(
             main=compiled.main,
             functions=all_functions,
             structs=all_structs,
             struct_field_types=all_struct_field_types,
+            class_methods=all_class_methods,
         )
 
         vm = VirtualMachine(output=self._output)
@@ -106,6 +111,8 @@ class Repl:
         self._structs.update(compiled.structs)
         self._struct_field_types.update(resolver.merged_struct_field_types)
         self._struct_field_types.update(compiled.struct_field_types)
+        self._class_methods.update(resolver.merged_class_methods)
+        self._class_methods.update(compiled.class_methods)
 
 
 # -- Input handling -----------------------------------------------------------

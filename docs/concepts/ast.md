@@ -76,6 +76,8 @@ nodes:
 | `MatchStatement` | `match x { case 1 { } }` | Value, list of cases with patterns and bodies |
 | `ImportStatement` | `import "math.pbl"` | The path to the module file |
 | `FromImportStatement` | `from "utils.pbl" import add` | The path and the names to import |
+| `StructDef` | `struct Point { x, y }` | The name and list of fields |
+| `ClassDef` | `class Dog { name, fn bark(self) { } }` | The name, fields, and methods |
 
 ### Helper Nodes
 

@@ -127,6 +127,25 @@ These are called **runtime errors**:
 
 When a runtime error happens, the VM stops and reports what went wrong.
 
+## Class Method Calls
+
+When you call a method on a class instance (like `dog.bark()`), the
+VM uses a special opcode called `CALL_INSTANCE_METHOD`. It works like
+`CALL` but with an extra step: it automatically passes the instance
+as the `self` parameter.
+
+```
+LOAD_NAME "dog"
+CALL_INSTANCE_METHOD "bark:0"
+```
+
+The operand `"bark:0"` encodes the method name and the number of extra
+arguments (not counting `self`). The VM pops the arguments, pops the
+target instance, looks up the mangled function name (`"Dog.bark"`),
+binds `self` to the instance, and pushes a new frame.
+
+See [Classes](classes.md) for the full story.
+
 ## Putting It All Together
 
 Here's what happens when you run `pebble hello.pbl`:

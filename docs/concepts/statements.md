@@ -359,6 +359,10 @@ of statement it is:
 | `try` | Try/catch statement |
 | `throw` | Throw statement |
 | `match` | Match statement |
+| `struct` | Struct definition |
+| `class` | Class definition |
+| `import` | Import statement |
+| `from` | From-import statement |
 | `print` | Print statement |
 | identifier followed by `=` | Reassignment |
 | anything else | Expression statement |

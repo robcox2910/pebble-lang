@@ -56,6 +56,7 @@ Only **definitions** travel between files:
 
 - `fn` function definitions
 - `struct` struct definitions
+- `class` class definitions
 
 Executable statements like `print(...)`, `let x = ...`, or loops
 do **not** run when you import a module. The module's code is read
