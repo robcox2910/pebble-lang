@@ -114,6 +114,17 @@ class ArrayLiteral:
 
 
 @dataclass(frozen=True)
+class ListComprehension:
+    """A list comprehension like ``[x * 2 for x in range(10)]``."""
+
+    mapping: Expression
+    variable: str
+    iterable: Expression
+    condition: Expression | None
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class DictLiteral:
     """A dictionary literal like ``{"name": "Alice", "age": 12}``."""
 
@@ -370,6 +381,7 @@ Expression = (
     | FunctionCall
     | StringInterpolation
     | ArrayLiteral
+    | ListComprehension
     | DictLiteral
     | IndexAccess
     | SliceAccess

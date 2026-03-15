@@ -34,6 +34,14 @@ let grid = [[1, 2], [3, 4]]
 print(grid)   # prints: [[1, 2], [3, 4]]
 ```
 
+You can also build a list from a loop using a
+[list comprehension](list-comprehensions.md):
+
+```pebble
+let squares = [x * x for x in range(5)]
+print(squares)   # prints: [0, 1, 4, 9, 16]
+```
+
 ## Reading an Element
 
 Use square brackets after the list name with an **index** — the position

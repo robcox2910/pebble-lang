@@ -350,6 +350,7 @@ just knows the function exists so it can `CALL` it later.
 | `RETURN` | — | Return from a function |
 | `BUILD_STRING` | count | Pop *count* values, convert to text, join them |
 | `BUILD_LIST` | count | Pop *count* values and create a list |
+| `LIST_APPEND` | name | Pop a value and append it to the named list variable |
 | `BUILD_DICT` | count | Pop *count* key-value pairs and create a dict |
 | `INDEX_GET` | — | Pop an index and a target (list or dict), push the element |
 | `INDEX_SET` | — | Pop value, index, target; change the element (dict upserts) |

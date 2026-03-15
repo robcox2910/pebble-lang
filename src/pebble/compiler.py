@@ -34,6 +34,7 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    ListComprehension,
     LiteralPattern,
     MatchStatement,
     MethodCall,
@@ -125,6 +126,7 @@ class Compiler:
         self._current = self._main
         self._loop_var_counter = 0
         self._match_var_counter = 0
+        self._comp_var_counter = 0
         self._loop_contexts: list[_LoopContext] = []
         self._try_depth: int = 0
         self._cell_vars = cell_vars or {}
@@ -436,11 +438,13 @@ class Compiler:
         previous = self._current
         previous_loop_counter = self._loop_var_counter
         previous_match_counter = self._match_var_counter
+        previous_comp_counter = self._comp_var_counter
         previous_loop_contexts = self._loop_contexts
         previous_try_depth = self._try_depth
         self._current = fn_code
         self._loop_var_counter = 0
         self._match_var_counter = 0
+        self._comp_var_counter = 0
         self._loop_contexts = []
         self._try_depth = 0
 
@@ -456,6 +460,7 @@ class Compiler:
         self._current = previous
         self._loop_var_counter = previous_loop_counter
         self._match_var_counter = previous_match_counter
+        self._comp_var_counter = previous_comp_counter
         self._loop_contexts = previous_loop_contexts
         self._try_depth = previous_try_depth
 
@@ -611,6 +616,8 @@ class Compiler:
                 self._compile_string_interpolation(expr)
             case ArrayLiteral():
                 self._compile_array_literal(expr)
+            case ListComprehension():
+                self._compile_list_comprehension(expr)
             case DictLiteral():
                 self._compile_dict_literal(expr)
             case IndexAccess() | SliceAccess():
@@ -663,6 +670,74 @@ class Compiler:
             self._compile_expression(element)
         self._emit(OpCode.BUILD_LIST, len(node.elements), location=node.location)
 
+    def _compile_list_comprehension(self, node: ListComprehension) -> None:
+        """Compile ``[mapping for var in range(...)]`` with optional filter.
+
+        Emit an empty list, iterate using the same init/condition logic as
+        ``for`` loops, append each mapped value via LIST_APPEND, and leave
+        the result list on the stack.
+        """
+        loc = node.location
+        comp_name = f"$comp_{self._comp_var_counter}"
+        self._comp_var_counter += 1
+
+        # Reuse the for-loop counter for hidden limit/step variables
+        counter = self._loop_var_counter
+        limit_name = f"$for_limit_{counter}"
+        self._loop_var_counter += 1
+
+        # Build empty result list and store in hidden variable
+        self._emit(OpCode.BUILD_LIST, 0, location=loc)
+        self._emit_store(comp_name, location=loc)
+
+        # Extract range() arguments
+        match node.iterable:
+            case FunctionCall(name="range"):
+                args = node.iterable.arguments
+            case _:  # pragma: no cover
+                args = []
+                self._compile_expression(node.iterable)
+
+        nargs = len(args)
+
+        # Init: set limit, step (if 3-arg), and loop variable
+        self._compile_for_init(args, nargs, limit_name, node.variable, counter, loc)
+
+        # Condition
+        loop_start = self._current_index()
+        exit_jump = self._compile_for_condition(nargs, node.variable, limit_name, counter, loc)
+
+        # Optional filter
+        skip_jump: int | None = None
+        if node.condition is not None:
+            self._compile_expression(node.condition)
+            skip_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+
+        # Compile mapping expression and append to result list
+        self._compile_expression(node.mapping)
+        self._emit(OpCode.LIST_APPEND, comp_name, location=loc)
+
+        # Patch skip jump (filter false → skip append)
+        if skip_jump is not None:
+            self._patch_jump(skip_jump)
+
+        # Increment loop variable
+        self._emit_load(node.variable, location=loc)
+        if nargs <= 2:  # noqa: PLR2004
+            self._emit_constant(1, location=loc)
+        else:
+            self._emit_load(f"$for_step_{counter}", location=loc)
+        self._emit(OpCode.ADD, location=loc)
+        self._emit_store(node.variable, location=loc)
+
+        self._emit(OpCode.JUMP, loop_start, location=loc)
+
+        # Exit
+        self._patch_jump(exit_jump)
+
+        # Leave the result list on the stack
+        self._emit_load(comp_name, location=loc)
+
     def _compile_dict_literal(self, node: DictLiteral) -> None:
         """Compile a dict literal: push key/value pairs, then BUILD_DICT."""
         for key, value in node.entries:
@@ -703,11 +778,13 @@ class Compiler:
         previous = self._current
         previous_loop_counter = self._loop_var_counter
         previous_match_counter = self._match_var_counter
+        previous_comp_counter = self._comp_var_counter
         previous_loop_contexts = self._loop_contexts
         previous_try_depth = self._try_depth
         self._current = fn_code
         self._loop_var_counter = 0
         self._match_var_counter = 0
+        self._comp_var_counter = 0
         self._loop_contexts = []
         self._try_depth = 0
 
@@ -722,6 +799,7 @@ class Compiler:
         self._current = previous
         self._loop_var_counter = previous_loop_counter
         self._match_var_counter = previous_match_counter
+        self._comp_var_counter = previous_comp_counter
         self._loop_contexts = previous_loop_contexts
         self._try_depth = previous_try_depth
 
