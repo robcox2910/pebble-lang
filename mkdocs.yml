@@ -63,4 +63,5 @@ nav:
       - Higher-Order Functions: concepts/higher-order.md
       - Error Handling: concepts/error-handling.md
       - Pattern Matching: concepts/match.md
+      - List Comprehensions: concepts/list-comprehensions.md
       - REPL: concepts/repl.md

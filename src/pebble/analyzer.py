@@ -34,6 +34,7 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    ListComprehension,
     MatchStatement,
     MethodCall,
     PrintStatement,
@@ -303,6 +304,16 @@ class SemanticAnalyzer:
         self._loop_depth -= 1
         self._pop_scope()
 
+    def _visit_list_comprehension(self, node: ListComprehension) -> None:
+        """Visit a list comprehension — iterable in current scope, variable + mapping in new scope."""
+        self._visit_expression(node.iterable)
+        self._push_scope()
+        self._scope.declare_variable(node.variable, node.location)
+        self._visit_expression(node.mapping)
+        if node.condition is not None:
+            self._visit_expression(node.condition)
+        self._pop_scope()
+
     def _visit_function_def(self, node: FunctionDef) -> None:
         """Visit a function definition — declare in current scope, parameters in new scope."""
         self._scope.declare_function(node.name, len(node.parameters), node.location)
@@ -436,7 +447,7 @@ class SemanticAnalyzer:
         for expr in exprs:
             self._visit_expression(expr)
 
-    def _visit_expression(self, expr: Expression) -> None:
+    def _visit_expression(self, expr: Expression) -> None:  # noqa: PLR0912
         """Dispatch to the appropriate visitor based on expression type."""
         match expr:
             case Identifier():
@@ -452,6 +463,8 @@ class SemanticAnalyzer:
                 self._visit_expressions(expr.parts)
             case ArrayLiteral():
                 self._visit_expressions(expr.elements)
+            case ListComprehension():
+                self._visit_list_comprehension(expr)
             case DictLiteral():
                 for key, value in expr.entries:
                     self._visit_expression(key)

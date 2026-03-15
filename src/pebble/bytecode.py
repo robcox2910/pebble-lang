@@ -89,6 +89,7 @@ class OpCode(StrEnum):
 
     # -- Lists ----------------------------------------------------------------
     BUILD_LIST = "BUILD_LIST"
+    LIST_APPEND = "LIST_APPEND"
     BUILD_DICT = "BUILD_DICT"
     INDEX_GET = "INDEX_GET"
     INDEX_SET = "INDEX_SET"

@@ -32,6 +32,7 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    ListComprehension,
     LiteralPattern,
     MatchCase,
     MatchStatement,
@@ -598,17 +599,47 @@ class Parser:
         self._expect(TokenKind.RIGHT_PAREN, "Expected ')'")
         return expr
 
-    def _parse_array(self) -> ArrayLiteral:
-        """Parse an array literal: ``[expr, expr, ...]``."""
+    def _parse_array(self) -> ArrayLiteral | ListComprehension:
+        """Parse an array literal or list comprehension.
+
+        After parsing the first element, peek for ``for`` to decide
+        between ``[expr, ...]`` (array) and ``[expr for var in iter]``
+        (comprehension).
+        """
         bracket_token = self._advance()  # consume '['
         elements: list[Expression] = []
         if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACKET:
-            elements.append(self._parse_precedence(min_precedence=0))
+            first = self._parse_precedence(min_precedence=0)
+            # Detect list comprehension: [expr for var in range(...)]
+            if not self._at_end() and self._peek().kind == TokenKind.FOR:
+                return self._parse_list_comprehension(first, bracket_token)
+            elements.append(first)
             while not self._at_end() and self._peek().kind == TokenKind.COMMA:
                 self._advance()  # consume ','
                 elements.append(self._parse_precedence(min_precedence=0))
         self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after array elements")
         return ArrayLiteral(elements=elements, location=bracket_token.location)
+
+    def _parse_list_comprehension(
+        self, mapping: Expression, bracket_token: Token
+    ) -> ListComprehension:
+        """Parse the rest of ``[mapping for var in iterable if cond]``."""
+        self._advance()  # consume 'for'
+        var_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'for'")
+        self._expect(TokenKind.IN, "Expected 'in' after loop variable")
+        iterable = self._parse_precedence(min_precedence=0)
+        condition: Expression | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.IF:
+            self._advance()  # consume 'if'
+            condition = self._parse_precedence(min_precedence=0)
+        self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after list comprehension")
+        return ListComprehension(
+            mapping=mapping,
+            variable=var_token.value,
+            iterable=iterable,
+            condition=condition,
+            location=bracket_token.location,
+        )
 
     def _parse_dict(self) -> DictLiteral:
         """Parse a dictionary literal: ``{key: value, ...}``."""

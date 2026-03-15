@@ -213,6 +213,7 @@ class VirtualMachine:
             case (
                 OpCode.BUILD_STRING
                 | OpCode.BUILD_LIST
+                | OpCode.LIST_APPEND
                 | OpCode.BUILD_DICT
                 | OpCode.INDEX_GET
                 | OpCode.INDEX_SET
@@ -442,12 +443,14 @@ class VirtualMachine:
                 pass
 
     def _exec_collection(self, instruction: Instruction) -> None:
-        """Handle BUILD_STRING, BUILD_LIST, BUILD_DICT, INDEX_GET, and INDEX_SET."""
+        """Handle BUILD_STRING, BUILD_LIST, LIST_APPEND, BUILD_DICT, INDEX_GET, and INDEX_SET."""
         match instruction.opcode:
             case OpCode.BUILD_STRING:
                 self._exec_build_string(instruction)
             case OpCode.BUILD_LIST:
                 self._exec_build_list(instruction)
+            case OpCode.LIST_APPEND:
+                self._exec_list_append(instruction)
             case OpCode.BUILD_DICT:
                 self._exec_build_dict(instruction)
             case OpCode.INDEX_GET:
@@ -472,6 +475,15 @@ class VirtualMachine:
         elements = [self._stack.pop() for _ in range(count)]
         elements.reverse()
         self._stack.append(elements)
+
+    def _exec_list_append(self, instruction: Instruction) -> None:
+        """Handle LIST_APPEND — pop value, append to named list variable."""
+        name = _str_operand(instruction)
+        value = self._stack.pop()
+        frame = self._frames[-1]
+        target = frame.variables[name]
+        assert isinstance(target, list)  # noqa: S101
+        target.append(value)
 
     def _exec_build_dict(self, instruction: Instruction) -> None:
         """Handle BUILD_DICT — pop 2*n values and create a dict."""
