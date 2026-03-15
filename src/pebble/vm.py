@@ -20,6 +20,7 @@ from pebble.builtins import (
     STRING_METHODS,
     Cell,
     Closure,
+    StructInstance,
     Value,
     format_value,
 )
@@ -93,6 +94,7 @@ class VirtualMachine:
         self._stack: list[Value] = []
         self._frames: list[Frame] = []
         self._functions: dict[str, CodeObject] = {}
+        self._structs: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
         self._current_instruction: Instruction | None = None
         self._exception_handlers: list[_ExceptionHandler] = []
@@ -103,6 +105,7 @@ class VirtualMachine:
     def run(self, program: CompiledProgram) -> None:
         """Execute *program* from the first instruction of ``main``."""
         self._functions = dict(program.functions)
+        self._structs = dict(program.structs)
         self._frames = [Frame(code=program.main)]
         self._exception_handlers = []
         try:
@@ -120,6 +123,7 @@ class VirtualMachine:
         Used by the REPL to carry variable bindings across inputs.
         """
         self._functions = dict(program.functions)
+        self._structs = dict(program.structs)
         self._frames = [Frame(code=program.main, variables=dict(variables))]
         self._exception_handlers = []
         try:
@@ -219,6 +223,8 @@ class VirtualMachine:
                 | OpCode.INDEX_SET
                 | OpCode.SLICE_GET
                 | OpCode.UNPACK_SEQUENCE
+                | OpCode.GET_FIELD
+                | OpCode.SET_FIELD
             ):
                 self._exec_collection(instruction)
             case (
@@ -462,6 +468,10 @@ class VirtualMachine:
                 self._exec_slice_get()
             case OpCode.UNPACK_SEQUENCE:
                 self._exec_unpack_sequence(instruction)
+            case OpCode.GET_FIELD:
+                self._exec_get_field(instruction)
+            case OpCode.SET_FIELD:
+                self._exec_set_field(instruction)
             case _:  # pragma: no cover
                 pass
 
@@ -596,6 +606,29 @@ class VirtualMachine:
         # Delegate to Python's slice machinery
         self._stack.append(target[start:stop:step])  # type: ignore[index]
 
+    def _exec_get_field(self, instruction: Instruction) -> None:
+        """Handle GET_FIELD — pop struct instance, push field value."""
+        field_name = _str_operand(instruction)
+        target = self._stack.pop()
+        if not isinstance(target, StructInstance):
+            type_name = type(target).__name__
+            self._runtime_error(f"Value of type '{type_name}' is not a struct")
+        if field_name not in target.fields:
+            self._runtime_error(f"Struct '{target.type_name}' has no field '{field_name}'")
+        self._stack.append(target.fields[field_name])
+
+    def _exec_set_field(self, instruction: Instruction) -> None:
+        """Handle SET_FIELD — pop value and struct instance, set field."""
+        field_name = _str_operand(instruction)
+        value = self._stack.pop()
+        target = self._stack.pop()
+        if not isinstance(target, StructInstance):
+            type_name = type(target).__name__
+            self._runtime_error(f"Value of type '{type_name}' is not a struct")
+        if field_name not in target.fields:
+            self._runtime_error(f"Struct '{target.type_name}' has no field '{field_name}'")
+        target.fields[field_name] = value
+
     # Map of VM-level builtin names to handler methods.
     _VM_BUILTINS: ClassVar[dict[str, str]] = {
         "map": "_vm_builtin_map",
@@ -625,6 +658,23 @@ class VirtualMachine:
             vm_args = [self._stack.pop() for _ in range(arity)]
             vm_args.reverse()
             getattr(self, self._VM_BUILTINS[name])(vm_args)
+            return
+
+        # Struct construction dispatch
+        if name in self._structs:
+            fields = self._structs[name]
+            nfields = len(fields)
+            args_list = [self._stack.pop() for _ in range(nfields)]
+            args_list.reverse()
+            if len(args_list) != nfields:
+                self._runtime_error(
+                    f"Struct '{name}' expects {nfields} arguments, got {len(args_list)}"
+                )
+            instance = StructInstance(
+                type_name=name,
+                fields=dict(zip(fields, args_list, strict=True)),
+            )
+            self._stack.append(instance)
             return
 
         # Closure dispatch — check if name resolves to a Closure in variables

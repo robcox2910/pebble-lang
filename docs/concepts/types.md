@@ -1,20 +1,21 @@
 # Types
 
-Every value in Pebble is one of **seven types**. Think of a type as a label
+Every value in Pebble is one of **eight types**. Think of a type as a label
 that tells you what *kind* of thing a value is -- just like how you'd sort
 items in a toolbox into screwdrivers, hammers, and wrenches.
 
-## The Seven Types
+## The Eight Types
 
-| Type    | What it is                      | Examples                  |
-|---------|---------------------------------|---------------------------|
-| `int`   | A whole number                  | `0`, `42`, `-7`           |
-| `float` | A number with a decimal point   | `3.14`, `0.5`, `1.0`      |
-| `str`   | A piece of text                 | `"hello"`, `""`           |
-| `bool`  | True or false                   | `true`, `false`           |
-| `list`  | An ordered collection           | `[1, 2, 3]`, `[]`        |
-| `dict`  | A collection of key-value pairs | `{"name": "Alice"}`      |
-| `fn`    | A function                      | `fn(x) { return x * 2 }` |
+| Type     | What it is                      | Examples                  |
+|----------|---------------------------------|---------------------------|
+| `int`    | A whole number                  | `0`, `42`, `-7`           |
+| `float`  | A number with a decimal point   | `3.14`, `0.5`, `1.0`      |
+| `str`    | A piece of text                 | `"hello"`, `""`           |
+| `bool`   | True or false                   | `true`, `false`           |
+| `list`   | An ordered collection           | `[1, 2, 3]`, `[]`        |
+| `dict`   | A collection of key-value pairs | `{"name": "Alice"}`      |
+| `fn`     | A function                      | `fn(x) { return x * 2 }` |
+| *struct* | A custom data type you define   | `Point(10, 20)`          |
 
 ## Checking a Type: `type()`
 
@@ -28,6 +29,14 @@ print(type("hello"))   # prints: str
 print(type(true))      # prints: bool
 print(type([1, 2]))    # prints: list
 print(type({}))        # prints: dict
+```
+
+For structs, `type()` returns the struct's name:
+
+```pebble
+struct Point { x, y }
+let p = Point(10, 20)
+print(type(p))         # prints: Point
 ```
 
 You can use it in conditions:
@@ -44,15 +53,16 @@ if type(x) == "int" {
 Different types support different operations and methods. Here's a quick
 map:
 
-| Type    | Operators                    | Methods                     | More info                      |
-|---------|------------------------------|-----------------------------|--------------------------------|
-| `int`   | `+ - * / // % **`, bitwise, comparisons | --           | [Operators](operators.md)      |
-| `float` | `+ - * / // % **`, comparisons | --                       | [Operators](operators.md)      |
-| `str`   | `+` (join)                   | `upper()`, `split()`, etc.  | [String Methods](strings.md)   |
-| `bool`  | `and`, `or`, `not`           | --                          | [Statements](statements.md)    |
-| `list`  | `+` (concatenate)            | `push()`, `pop()`, etc.     | [Arrays](arrays.md)            |
-| `dict`  | index `d["key"]`             | --                          | [Dictionaries](dicts.md)       |
-| `fn`    | call `f()`                   | --                          | [Functions](functions.md)      |
+| Type     | Operators                    | Methods                     | More info                      |
+|----------|------------------------------|-----------------------------|--------------------------------|
+| `int`    | `+ - * / // % **`, bitwise, comparisons | --           | [Operators](operators.md)      |
+| `float`  | `+ - * / // % **`, comparisons | --                       | [Operators](operators.md)      |
+| `str`    | `+` (join)                   | `upper()`, `split()`, etc.  | [String Methods](strings.md)   |
+| `bool`   | `and`, `or`, `not`           | --                          | [Statements](statements.md)    |
+| `list`   | `+` (concatenate)            | `push()`, `pop()`, etc.     | [Arrays](arrays.md)            |
+| `dict`   | index `d["key"]`             | --                          | [Dictionaries](dicts.md)       |
+| `fn`     | call `f()`                   | --                          | [Functions](functions.md)      |
+| *struct* | `.field`, `==`               | --                          | [Structs](structs.md)          |
 
 ## Integers vs Floats
 
@@ -135,7 +145,7 @@ print("answer: {x}")   # prints: answer: 42
 
 | Concept | Analogy |
 |---------|---------|
-| Type | A label on a toolbox drawer |
+| Type | A label on a toolbox drawer (structs get their own custom label) |
 | `type()` | Reading the label to see what's inside |
 | `int` vs `float` | "3 apples" vs "3.5 apples" |
 | Mixed arithmetic | Pouring a small glass into a big one -- the result is always big (float) |

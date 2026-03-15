@@ -362,5 +362,7 @@ just knows the function exists so it can `CALL` it later.
 | `MAKE_CLOSURE` | name | Create a closure from a function + captured Cells |
 | `LOAD_CELL` | name | Push a captured variable's value |
 | `STORE_CELL` | name | Pop and store into a captured variable |
+| `GET_FIELD` | name | Pop a struct instance, push the named field's value |
+| `SET_FIELD` | name | Pop value and struct instance, set the named field |
 | `PRINT` | — | Pop and print the top value |
 | `HALT` | — | Stop the program |
