@@ -19,6 +19,7 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
+    CapturePattern,
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
@@ -33,6 +34,7 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    MatchStatement,
     MethodCall,
     PrintStatement,
     Program,
@@ -46,6 +48,7 @@ from pebble.ast_nodes import (
     TryCatch,
     UnaryOp,
     WhileLoop,
+    WildcardPattern,
 )
 from pebble.builtins import BUILTIN_ARITIES, METHOD_ARITIES, Arity
 from pebble.errors import SemanticError
@@ -215,7 +218,7 @@ class SemanticAnalyzer:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _visit_statement(self, stmt: Statement) -> None:  # noqa: PLR0912
+    def _visit_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912
         """Dispatch to the appropriate visitor based on statement type."""
         match stmt:
             case Assignment():
@@ -246,6 +249,8 @@ class SemanticAnalyzer:
                 self._visit_try(stmt)
             case ThrowStatement():
                 self._visit_throw(stmt)
+            case MatchStatement():
+                self._visit_match(stmt)
             case _:
                 # Expression statements (e.g. bare function calls)
                 self._visit_expression(stmt)  # type: ignore[arg-type]
@@ -385,6 +390,35 @@ class SemanticAnalyzer:
     def _visit_throw(self, node: ThrowStatement) -> None:
         """Visit a ``throw`` statement — validate the expression."""
         self._visit_expression(node.value)
+
+    def _visit_match(self, node: MatchStatement) -> None:
+        """Visit a ``match`` statement — check scoping, exhaustiveness, and reachability."""
+        self._visit_expression(node.value)
+        loc = node.location
+
+        if not node.cases:
+            msg = "Match statement must have at least one case"
+            raise SemanticError(msg, line=loc.line, column=loc.column)
+
+        seen_catchall = False
+        for case in node.cases:
+            if seen_catchall:
+                msg = "Unreachable case after wildcard or capture pattern"
+                raise SemanticError(msg, line=case.location.line, column=case.location.column)
+            if isinstance(case.pattern, WildcardPattern | CapturePattern):
+                seen_catchall = True
+
+            self._push_scope()
+            if isinstance(case.pattern, CapturePattern):
+                self._scope.declare_variable(case.pattern.name, case.pattern.location)
+            for stmt in case.body:
+                self._visit_statement(stmt)
+            self._pop_scope()
+
+        last_pattern = node.cases[-1].pattern
+        if not isinstance(last_pattern, WildcardPattern | CapturePattern):
+            msg = "Match must end with a wildcard or capture pattern for exhaustiveness"
+            raise SemanticError(msg, line=loc.line, column=loc.column)
 
     # -- Block helper ---------------------------------------------------------
 

@@ -62,4 +62,5 @@ nav:
       - Closures: concepts/closures.md
       - Higher-Order Functions: concepts/higher-order.md
       - Error Handling: concepts/error-handling.md
+      - Pattern Matching: concepts/match.md
       - REPL: concepts/repl.md

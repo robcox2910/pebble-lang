@@ -17,6 +17,7 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
+    CapturePattern,
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
@@ -31,7 +32,12 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    LiteralPattern,
+    MatchCase,
+    MatchStatement,
     MethodCall,
+    OrPattern,
+    Pattern,
     PrintStatement,
     Program,
     Reassignment,
@@ -44,6 +50,7 @@ from pebble.ast_nodes import (
     TryCatch,
     UnaryOp,
     WhileLoop,
+    WildcardPattern,
 )
 from pebble.errors import ParseError
 from pebble.tokens import Token, TokenKind
@@ -323,6 +330,106 @@ class Parser:
             body=body,
             location=fn_token.location,
         )
+
+    def _parse_match(self) -> MatchStatement:
+        """Parse a ``match value { case pattern { body } ... }`` statement."""
+        match_token = self._advance()  # consume 'match'
+        value = self.parse_expression()
+        self._expect(TokenKind.LEFT_BRACE, "Expected '{'")
+        self._skip_newlines()
+
+        cases: list[MatchCase] = []
+        while not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACE:
+            cases.append(self._parse_match_case())
+            self._skip_newlines()
+
+        self._expect(TokenKind.RIGHT_BRACE, "Expected '}'")
+        self._consume_newline()
+        return MatchStatement(value=value, cases=cases, location=match_token.location)
+
+    def _parse_match_case(self) -> MatchCase:
+        """Parse a single ``case pattern { body }`` arm."""
+        case_token = self._expect(TokenKind.CASE, "Expected 'case'")
+        pattern = self._parse_match_pattern()
+        body = self._parse_block()
+        return MatchCase(pattern=pattern, body=body, location=case_token.location)
+
+    def _parse_match_pattern(self) -> Pattern:
+        """Parse a pattern: literal, wildcard, capture, or OR."""
+        if self._at_end():
+            self._error("Expected pattern")
+
+        token = self._peek()
+
+        # Wildcard pattern: bare underscore
+        if token.kind == TokenKind.IDENTIFIER and token.value == "_":
+            self._advance()
+            return WildcardPattern(location=token.location)
+
+        # Capture: let <name>
+        if token.kind == TokenKind.LET:
+            self._advance()  # consume 'let'
+            name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'let'")
+            if name_token.value == "_":
+                self._error("Cannot use '_' as capture name; use 'case _' for wildcard")
+            return CapturePattern(name=name_token.value, location=token.location)
+
+        # Negative literal: -<int|float>
+        if token.kind == TokenKind.MINUS:
+            return self._parse_negative_literal_pattern()
+
+        # Positive literal or OR pattern
+        first = self._parse_single_literal_pattern()
+
+        # Check for OR: literal | literal | ...
+        if not self._at_end() and self._peek().kind == TokenKind.PIPE:
+            alternatives = [first]
+            while not self._at_end() and self._peek().kind == TokenKind.PIPE:
+                self._advance()  # consume '|'
+                alternatives.append(self._parse_single_literal_pattern())
+            return OrPattern(patterns=alternatives, location=first.location)
+
+        return first
+
+    def _parse_single_literal_pattern(self) -> LiteralPattern:
+        """Parse a single literal pattern value (int, float, string, bool)."""
+        if self._at_end():
+            self._error("Expected pattern")
+
+        token = self._peek()
+
+        if token.kind == TokenKind.MINUS:
+            return self._parse_negative_literal_pattern()
+
+        if token.kind == TokenKind.INTEGER:
+            self._advance()
+            return LiteralPattern(value=int(token.value), location=token.location)
+
+        if token.kind == TokenKind.FLOAT:
+            self._advance()
+            return LiteralPattern(value=float(token.value), location=token.location)
+
+        if token.kind == TokenKind.STRING:
+            self._advance()
+            return LiteralPattern(value=token.value, location=token.location)
+
+        if token.kind in (TokenKind.TRUE, TokenKind.FALSE):
+            self._advance()
+            return LiteralPattern(value=token.kind == TokenKind.TRUE, location=token.location)
+
+        return self._error("Expected pattern (literal, '_', or 'let name')")
+
+    def _parse_negative_literal_pattern(self) -> LiteralPattern:
+        """Parse a negative literal pattern: ``-<int>`` or ``-<float>``."""
+        minus_token = self._advance()  # consume '-'
+        token = self._peek()
+        if token.kind == TokenKind.INTEGER:
+            self._advance()
+            return LiteralPattern(value=-int(token.value), location=minus_token.location)
+        if token.kind == TokenKind.FLOAT:
+            self._advance()
+            return LiteralPattern(value=-float(token.value), location=minus_token.location)
+        return self._error("Expected number after '-' in pattern")
 
     def _parse_block(self) -> list[Statement]:
         """Parse a ``{ stmt; ... }`` block and return the statement list."""
@@ -679,6 +786,7 @@ class Parser:
         TokenKind.CONTINUE: _parse_continue,
         TokenKind.TRY: _parse_try,
         TokenKind.THROW: _parse_throw,
+        TokenKind.MATCH: _parse_match,
     }
 
     # -- Token helpers --------------------------------------------------------

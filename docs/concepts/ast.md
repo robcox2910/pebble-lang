@@ -73,6 +73,7 @@ nodes:
 | `IndexAssignment` | `xs[0] = 42` | Target, index, and new value |
 | `BreakStatement` | `break` | Exit the nearest loop |
 | `ContinueStatement` | `continue` | Skip to the next loop iteration |
+| `MatchStatement` | `match x { case 1 { } }` | Value, list of cases with patterns and bodies |
 
 The **Program** node sits at the very top and holds the list of all top-level
 statements.

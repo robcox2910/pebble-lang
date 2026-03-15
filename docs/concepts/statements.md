@@ -358,6 +358,7 @@ of statement it is:
 | `continue` | Continue statement |
 | `try` | Try/catch statement |
 | `throw` | Throw statement |
+| `match` | Match statement |
 | `print` | Print statement |
 | identifier followed by `=` | Reassignment |
 | anything else | Expression statement |
