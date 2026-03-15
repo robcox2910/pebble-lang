@@ -163,6 +163,15 @@ class MethodCall:
 
 
 @dataclass(frozen=True)
+class FieldAccess:
+    """A ``target.field`` read expression like ``p.x``."""
+
+    target: Expression
+    field: str
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class FunctionExpression:
     """An anonymous function expression like ``fn(x) { return x + 1 }``."""
 
@@ -387,6 +396,26 @@ class MatchStatement:
 
 
 @dataclass(frozen=True)
+class StructDef:
+    """A ``struct Point { x, y }`` definition."""
+
+    name: str
+    fields: list[str]
+    body: list[Statement]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class FieldAssignment:
+    """A ``target.field = value`` write statement like ``p.x = 5``."""
+
+    target: Expression
+    field: str
+    value: Expression
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class Program:
     """The root AST node containing the top-level statements."""
 
@@ -413,6 +442,7 @@ Expression = (
     | IndexAccess
     | SliceAccess
     | MethodCall
+    | FieldAccess
     | FunctionExpression
 )
 
@@ -435,4 +465,6 @@ Statement = (
     | TryCatch
     | ThrowStatement
     | MatchStatement
+    | StructDef
+    | FieldAssignment
 )

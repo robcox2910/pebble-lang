@@ -51,6 +51,7 @@ class Repl:
         self._analyzer = SemanticAnalyzer()
         self._variables: dict[str, Value] = {}
         self._functions: dict[str, CodeObject] = {}
+        self._structs: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
 
     def eval_line(self, source: str) -> None:
@@ -71,9 +72,12 @@ class Repl:
             free_vars=self._analyzer.free_vars,
         ).compile(analyzed)
 
-        # Merge new functions with previously-defined ones
+        # Merge new functions and structs with previously-defined ones
         all_functions = self._functions | compiled.functions
-        full_program = CompiledProgram(main=compiled.main, functions=all_functions)
+        all_structs = self._structs | compiled.structs
+        full_program = CompiledProgram(
+            main=compiled.main, functions=all_functions, structs=all_structs
+        )
 
         vm = VirtualMachine(output=self._output)
         new_vars = vm.run_repl(full_program, self._variables)
@@ -81,6 +85,7 @@ class Repl:
         # Success — persist state
         self._variables = new_vars
         self._functions.update(compiled.functions)
+        self._structs.update(compiled.structs)
 
 
 # -- Input handling -----------------------------------------------------------

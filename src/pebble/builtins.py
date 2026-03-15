@@ -21,7 +21,7 @@ from pebble.errors import PebbleRuntimeError
 if TYPE_CHECKING:
     from pebble.bytecode import CodeObject
 
-type Value = int | float | str | bool | list[Value] | dict[str, Value] | Closure
+type Value = int | float | str | bool | list[Value] | dict[str, Value] | Closure | StructInstance
 
 
 # -- Closure types ------------------------------------------------------------
@@ -52,6 +52,23 @@ class Closure:
     cells: list[Cell]
 
 
+# -- Struct instances ----------------------------------------------------------
+
+
+@dataclass
+class StructInstance:
+    """Runtime representation of a struct value.
+
+    Attributes:
+        type_name: The name of the struct type (e.g. ``"Point"``).
+        fields: Ordered mapping from field name to current value.
+
+    """
+
+    type_name: str
+    fields: dict[str, Value]
+
+
 # -- Value formatting ----------------------------------------------------------
 
 
@@ -72,6 +89,9 @@ def format_value(value: Value) -> str:  # noqa: PLR0911
         case list():
             items = ", ".join(format_value(v) for v in value)
             return f"[{items}]"
+        case StructInstance():
+            fields = ", ".join(f"{k}={format_value(v)}" for k, v in value.fields.items())
+            return f"{value.type_name}({fields})"
         case Closure():
             return f"<fn {value.code.name}>"
 
@@ -136,6 +156,8 @@ def _builtin_type(args: list[Value]) -> Value:  # noqa: PLR0911
             return "dict"
         case list():
             return "list"
+        case StructInstance():
+            return arg.type_name
         case Closure():
             return "fn"
 

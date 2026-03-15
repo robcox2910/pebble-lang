@@ -150,7 +150,15 @@ print(type({}))        # prints: dict
 ```
 
 The result is always a string like `"int"`, `"float"`, `"str"`, `"bool"`,
-`"list"`, `"dict"`, or `"fn"`.
+`"list"`, `"dict"`, or `"fn"`. For [structs](structs.md), it returns the
+struct's name:
+
+```pebble
+struct Point { x, y }
+let p = Point(10, 20)
+print(type(p))         # prints: Point
+```
+
 You can use it in conditions:
 
 ```pebble

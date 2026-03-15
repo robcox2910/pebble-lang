@@ -24,6 +24,8 @@ from pebble.ast_nodes import (
     ContinueStatement,
     DictLiteral,
     Expression,
+    FieldAccess,
+    FieldAssignment,
     FloatLiteral,
     ForLoop,
     FunctionCall,
@@ -47,6 +49,7 @@ from pebble.ast_nodes import (
     Statement,
     StringInterpolation,
     StringLiteral,
+    StructDef,
     ThrowStatement,
     TryCatch,
     UnaryOp,
@@ -132,6 +135,7 @@ class Compiler:
         self._comp_var_counter = 0
         self._loop_contexts: list[_LoopContext] = []
         self._try_depth: int = 0
+        self._structs: dict[str, list[str]] = {}
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
 
@@ -149,7 +153,7 @@ class Compiler:
         for stmt in program.statements:
             self._compile_statement(stmt)
         self._emit(OpCode.HALT)
-        return CompiledProgram(main=self._main, functions=self._functions)
+        return CompiledProgram(main=self._main, functions=self._functions, structs=self._structs)
 
     # -- Emit helpers ---------------------------------------------------------
 
@@ -250,6 +254,10 @@ class Compiler:
                 self._compile_throw(stmt)
             case MatchStatement():
                 self._compile_match(stmt)
+            case StructDef():
+                self._compile_struct_def(stmt)
+            case FieldAssignment():
+                self._compile_field_assignment(stmt)
             case _:
                 # Expression statement (e.g. bare function call)
                 self._compile_expression(stmt)  # type: ignore[arg-type]
@@ -629,7 +637,7 @@ class Compiler:
 
     # -- Expression dispatch --------------------------------------------------
 
-    def _compile_expression(self, expr: Expression) -> None:
+    def _compile_expression(self, expr: Expression) -> None:  # noqa: PLR0912
         """Dispatch to the appropriate expression compiler."""
         match expr:
             case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
@@ -654,6 +662,8 @@ class Compiler:
                 self._compile_index_or_slice(expr)
             case MethodCall():
                 self._compile_method_call(expr)
+            case FieldAccess():
+                self._compile_field_access(expr)
             case FunctionExpression():
                 self._compile_function_expression(expr)
 
@@ -842,3 +852,18 @@ class Compiler:
         self._compile_expression(node.index)
         self._compile_expression(node.value)
         self._emit(OpCode.INDEX_SET, location=node.location)
+
+    def _compile_struct_def(self, node: StructDef) -> None:
+        """Compile a struct definition — store field metadata, emit no bytecode."""
+        self._structs[node.name] = node.fields
+
+    def _compile_field_access(self, node: FieldAccess) -> None:
+        """Compile a field read: push target, then GET_FIELD."""
+        self._compile_expression(node.target)
+        self._emit(OpCode.GET_FIELD, node.field, location=node.location)
+
+    def _compile_field_assignment(self, node: FieldAssignment) -> None:
+        """Compile a field write: push target, push value, then SET_FIELD."""
+        self._compile_expression(node.target)
+        self._compile_expression(node.value)
+        self._emit(OpCode.SET_FIELD, node.field, location=node.location)

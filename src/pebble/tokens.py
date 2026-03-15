@@ -42,6 +42,7 @@ class TokenKind(StrEnum):
     THROW = "THROW"
     MATCH = "MATCH"
     CASE = "CASE"
+    STRUCT = "STRUCT"
     TRUE = "TRUE"
     FALSE = "FALSE"
 
@@ -138,6 +139,7 @@ KEYWORDS: dict[str, TokenKind] = {
     "throw": TokenKind.THROW,
     "match": TokenKind.MATCH,
     "case": TokenKind.CASE,
+    "struct": TokenKind.STRUCT,
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
     "and": TokenKind.AND,

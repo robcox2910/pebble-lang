@@ -212,6 +212,17 @@ class TestReplIntegration:
         r.eval_line('print("Hello {name}")')
         assert buf.getvalue() == "Hello World\n"
 
+    def test_structs_persist(self) -> None:
+        """Struct definitions persist across REPL inputs."""
+        buf = StringIO()
+        r = Repl(output=buf)
+        r.eval_line("struct Point { x, y }")
+        r.eval_line("let p = Point(10, 20)")
+        r.eval_line("print(p.x)")
+        r.eval_line("p.x = 30")
+        r.eval_line("print(p)")
+        assert buf.getvalue() == "10\nPoint(x=30, y=20)\n"
+
     def test_closures_work(self) -> None:
         """Closures work across REPL inputs."""
         buf = StringIO()

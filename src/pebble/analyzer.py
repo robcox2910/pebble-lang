@@ -24,6 +24,8 @@ from pebble.ast_nodes import (
     ContinueStatement,
     DictLiteral,
     Expression,
+    FieldAccess,
+    FieldAssignment,
     FloatLiteral,
     ForLoop,
     FunctionCall,
@@ -45,6 +47,7 @@ from pebble.ast_nodes import (
     Statement,
     StringInterpolation,
     StringLiteral,
+    StructDef,
     ThrowStatement,
     TryCatch,
     UnaryOp,
@@ -261,6 +264,10 @@ class SemanticAnalyzer:
                 self._visit_throw(stmt)
             case MatchStatement():
                 self._visit_match(stmt)
+            case StructDef():
+                self._visit_struct_def(stmt)
+            case FieldAssignment():
+                self._visit_field_assignment(stmt)
             case _:
                 # Expression statements (e.g. bare function calls)
                 self._visit_expression(stmt)  # type: ignore[arg-type]
@@ -506,6 +513,8 @@ class SemanticAnalyzer:
                 self._visit_index_or_slice(expr)
             case MethodCall():
                 self._visit_method_call(expr)
+            case FieldAccess():
+                self._visit_field_access(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
             case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
@@ -558,6 +567,20 @@ class SemanticAnalyzer:
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         for arg in node.arguments:
             self._visit_expression(arg)
+
+    def _visit_struct_def(self, node: StructDef) -> None:
+        """Visit a struct definition — register as both struct and function."""
+        self._scope.declare_function(node.name, len(node.fields), node.location)
+        self._scope.variables[node.name] = node.location
+
+    def _visit_field_access(self, node: FieldAccess) -> None:
+        """Visit a field access — validate target, defer field check to runtime."""
+        self._visit_expression(node.target)
+
+    def _visit_field_assignment(self, node: FieldAssignment) -> None:
+        """Visit a field assignment — validate target and value expressions."""
+        self._visit_expression(node.target)
+        self._visit_expression(node.value)
 
     def _visit_method_call(self, node: MethodCall) -> None:
         """Visit a method call — validate method name and argument count."""

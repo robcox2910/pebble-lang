@@ -95,6 +95,10 @@ class OpCode(StrEnum):
     INDEX_SET = "INDEX_SET"
     SLICE_GET = "SLICE_GET"
 
+    # -- Structs --------------------------------------------------------------
+    GET_FIELD = "GET_FIELD"
+    SET_FIELD = "SET_FIELD"
+
     # -- Unpacking ------------------------------------------------------------
     UNPACK_SEQUENCE = "UNPACK_SEQUENCE"
 
@@ -188,3 +192,4 @@ class CompiledProgram:
 
     main: CodeObject
     functions: dict[str, CodeObject]
+    structs: dict[str, list[str]] = field(default_factory=lambda: {})  # noqa: PIE807

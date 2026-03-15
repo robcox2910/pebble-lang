@@ -105,6 +105,7 @@ Pebble has its own rules for printing values:
 | `[1, 2, 3]` | `[1, 2, 3]` |
 | `{"a": 1}` | `{a: 1}` |
 | a closure | `<fn name>` |
+| a struct instance | `Point(x=10, y=20)` |
 
 This is different from Python, which would print `True` and `False`
 with capital letters.

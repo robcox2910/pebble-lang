@@ -22,6 +22,8 @@ from pebble.ast_nodes import (
     ContinueStatement,
     DictLiteral,
     Expression,
+    FieldAccess,
+    FieldAssignment,
     FloatLiteral,
     ForLoop,
     FunctionCall,
@@ -47,6 +49,7 @@ from pebble.ast_nodes import (
     Statement,
     StringInterpolation,
     StringLiteral,
+    StructDef,
     ThrowStatement,
     TryCatch,
     UnaryOp,
@@ -499,6 +502,39 @@ class Parser:
             return LiteralPattern(value=-float(token.value), location=minus_token.location)
         return self._error("Expected number after '-' in pattern")
 
+    def _parse_struct_def(self) -> StructDef:
+        """Parse a ``struct Name { field1, field2 }`` definition."""
+        struct_token = self._advance()  # consume 'struct'
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected struct name after 'struct'")
+        self._expect(TokenKind.LEFT_BRACE, "Expected '{' after struct name")
+        self._skip_newlines()
+
+        fields: list[str] = []
+        seen: set[str] = set()
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACE:
+            field_token = self._expect(TokenKind.IDENTIFIER, "Expected field name")
+            fields.append(field_token.value)
+            seen.add(field_token.value)
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                field_token = self._expect(TokenKind.IDENTIFIER, "Expected field name after ','")
+                if field_token.value in seen:
+                    self._error(
+                        f"Duplicate field '{field_token.value}' in struct '{name_token.value}'"
+                    )
+                fields.append(field_token.value)
+                seen.add(field_token.value)
+            self._skip_newlines()
+
+        self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after struct fields")
+        self._consume_newline()
+        return StructDef(
+            name=name_token.value,
+            fields=fields,
+            body=[],
+            location=struct_token.location,
+        )
+
     def _parse_block(self) -> list[Statement]:
         """Parse a ``{ stmt; ... }`` block and return the statement list."""
         self._expect(TokenKind.LEFT_BRACE, "Expected '{'")
@@ -537,6 +573,22 @@ class Parser:
                 location=expr.location,
             )
 
+        # Check for field assignment: expr.field = value
+        if (
+            isinstance(expr, FieldAccess)
+            and not self._at_end()
+            and self._peek().kind == TokenKind.EQUAL
+        ):
+            self._advance()  # consume '='
+            value = self.parse_expression()
+            self._consume_newline()
+            return FieldAssignment(
+                target=expr.target,
+                field=expr.field,
+                value=value,
+                location=expr.location,
+            )
+
         self._consume_newline()
         return expr  # type: ignore[return-value]
 
@@ -552,9 +604,9 @@ class Parser:
                 left = self._parse_index_access(left)
                 continue
 
-            # Postfix method call: expr.method(args)
+            # Postfix dot access: method call or field access
             if self._peek().kind == TokenKind.DOT:
-                left = self._parse_method_call(left)
+                left = self._parse_dot_access(left)
                 continue
 
             if self._peek().kind not in _INFIX_PRECEDENCE:
@@ -771,22 +823,32 @@ class Parser:
         self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after index")
         return IndexAccess(target=target, index=first, location=bracket_token.location)
 
-    def _parse_method_call(self, target: Expression) -> MethodCall:
-        """Parse a method call: ``target.method(args)``."""
+    def _parse_dot_access(self, target: Expression) -> MethodCall | FieldAccess:
+        """Parse a dot expression: method call or field access."""
         dot_token = self._advance()  # consume '.'
-        method_token = self._expect(TokenKind.IDENTIFIER, "Expected method name after '.'")
-        self._expect(TokenKind.LEFT_PAREN, "Expected '(' after method name")
-        arguments: list[Expression] = []
-        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
-            arguments.append(self._parse_precedence(min_precedence=0))
-            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
-                self._advance()  # consume ','
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected name after '.'")
+
+        # Method call: target.name(args)
+        if not self._at_end() and self._peek().kind == TokenKind.LEFT_PAREN:
+            self._advance()  # consume '('
+            arguments: list[Expression] = []
+            if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
                 arguments.append(self._parse_precedence(min_precedence=0))
-        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after method arguments")
-        return MethodCall(
+                while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                    self._advance()  # consume ','
+                    arguments.append(self._parse_precedence(min_precedence=0))
+            self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after method arguments")
+            return MethodCall(
+                target=target,
+                method=name_token.value,
+                arguments=arguments,
+                location=dot_token.location,
+            )
+
+        # Field access: target.name
+        return FieldAccess(
             target=target,
-            method=method_token.value,
-            arguments=arguments,
+            field=name_token.value,
             location=dot_token.location,
         )
 
@@ -885,6 +947,7 @@ class Parser:
         TokenKind.TRY: _parse_try,
         TokenKind.THROW: _parse_throw,
         TokenKind.MATCH: _parse_match,
+        TokenKind.STRUCT: _parse_struct_def,
     }
 
     # -- Token helpers --------------------------------------------------------
