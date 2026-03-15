@@ -104,6 +104,30 @@ fn maybe_print(x) {
 }
 ```
 
+## Returning Multiple Values
+
+Sometimes a function needs to hand back more than one result -- like a
+recipe that produces both a main dish and a side dish. Pebble lets you
+return multiple values by separating them with commas:
+
+```pebble
+fn swap(a, b) {
+    return b, a
+}
+
+let x, y = swap(1, 2)
+print(x)   # prints: 2
+print(y)   # prints: 1
+```
+
+Under the hood, `return b, a` creates a list `[b, a]` and returns it.
+On the other side, `let x, y = ...` unpacks the list so each value
+lands in its own variable.
+
+See [Tuple Unpacking](tuple-unpacking.md) for the full story --
+including `const` unpacking, reassignment unpacking, and the swap
+idiom.
+
 ## Functions Are Values
 
 In Pebble, functions are **first-class values** -- just like numbers and

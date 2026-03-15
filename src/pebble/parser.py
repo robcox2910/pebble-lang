@@ -50,6 +50,9 @@ from pebble.ast_nodes import (
     ThrowStatement,
     TryCatch,
     UnaryOp,
+    UnpackAssignment,
+    UnpackConstAssignment,
+    UnpackReassignment,
     WhileLoop,
     WildcardPattern,
 )
@@ -158,29 +161,57 @@ class Parser:
         if keyword_parser is not None:
             return keyword_parser(self)
 
-        # Identifier-specific: print or reassignment
+        # Identifier-specific: print, reassignment, or unpack reassignment
         if kind == TokenKind.IDENTIFIER:
             if self._peek().value == "print":
                 return self._parse_print()
             if self._peek_next_kind() == TokenKind.EQUAL:
                 return self._parse_reassignment()
+            if self._peek_next_kind() == TokenKind.COMMA and self._is_unpack_reassignment():
+                return self._parse_unpack_reassignment()
 
         # Fall through to expression statement
         return self._parse_expression_statement()
 
-    def _parse_let(self) -> Assignment:
-        """Parse a ``let name = expr`` declaration."""
+    def _parse_let(self) -> Assignment | UnpackAssignment:
+        """Parse ``let name = expr`` or ``let x, y = expr`` declaration."""
         let_token = self._advance()  # consume 'let'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'let'")
+
+        # Multi-target unpack: let x, y = expr
+        if not self._at_end() and self._peek().kind == TokenKind.COMMA:
+            names = [name_token.value]
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                next_name = self._expect(TokenKind.IDENTIFIER, "Expected variable name after ','")
+                names.append(next_name.value)
+            self._expect(TokenKind.EQUAL, "Expected '=' after variable names")
+            value = self.parse_expression()
+            self._consume_newline()
+            return UnpackAssignment(names=names, value=value, location=let_token.location)
+
         self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
         value = self.parse_expression()
         self._consume_newline()
         return Assignment(name=name_token.value, value=value, location=let_token.location)
 
-    def _parse_const(self) -> ConstAssignment:
-        """Parse a ``const name = expr`` declaration."""
+    def _parse_const(self) -> ConstAssignment | UnpackConstAssignment:
+        """Parse ``const name = expr`` or ``const x, y = expr`` declaration."""
         const_token = self._advance()  # consume 'const'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'const'")
+
+        # Multi-target unpack: const x, y = expr
+        if not self._at_end() and self._peek().kind == TokenKind.COMMA:
+            names = [name_token.value]
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                next_name = self._expect(TokenKind.IDENTIFIER, "Expected variable name after ','")
+                names.append(next_name.value)
+            self._expect(TokenKind.EQUAL, "Expected '=' after variable names")
+            value = self.parse_expression()
+            self._consume_newline()
+            return UnpackConstAssignment(names=names, value=value, location=const_token.location)
+
         self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
         value = self.parse_expression()
         self._consume_newline()
@@ -193,6 +224,33 @@ class Parser:
         value = self.parse_expression()
         self._consume_newline()
         return Reassignment(name=name_token.value, value=value, location=name_token.location)
+
+    def _is_unpack_reassignment(self) -> bool:
+        """Scan ahead to check for ``identifier, identifier... =`` pattern."""
+        saved = self._pos
+        try:
+            self._advance()  # skip first identifier
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # skip ','
+                if self._at_end() or self._peek().kind != TokenKind.IDENTIFIER:
+                    return False
+                self._advance()  # skip identifier
+            return not self._at_end() and self._peek().kind == TokenKind.EQUAL
+        finally:
+            self._pos = saved
+
+    def _parse_unpack_reassignment(self) -> UnpackReassignment:
+        """Parse ``x, y = expr`` unpack reassignment."""
+        first_token = self._advance()  # consume first identifier
+        names = [first_token.value]
+        while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+            self._advance()  # consume ','
+            name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after ','")
+            names.append(name_token.value)
+        self._expect(TokenKind.EQUAL, "Expected '=' after variable names")
+        value = self.parse_expression()
+        self._consume_newline()
+        return UnpackReassignment(names=names, value=value, location=first_token.location)
 
     def _parse_print(self) -> PrintStatement:
         """Parse a ``print(expr)`` statement."""
@@ -293,7 +351,7 @@ class Parser:
         return ThrowStatement(value=value, location=throw_token.location)
 
     def _parse_return(self) -> ReturnStatement:
-        """Parse a ``return [expr]`` statement."""
+        """Parse ``return [expr]`` or ``return a, b, c`` (multi-value sugar)."""
         return_token = self._advance()  # consume 'return'
 
         # Bare return: next token is newline, closing brace, or end of file
@@ -305,6 +363,15 @@ class Parser:
             return ReturnStatement(value=None, location=return_token.location)
 
         value = self.parse_expression()
+
+        # Multi-value return: return a, b, c → return [a, b, c]
+        if not self._at_end() and self._peek().kind == TokenKind.COMMA:
+            elements = [value]
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                elements.append(self.parse_expression())
+            value = ArrayLiteral(elements=elements, location=return_token.location)
+
         self._consume_newline()
         return ReturnStatement(value=value, location=return_token.location)
 

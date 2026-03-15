@@ -218,6 +218,7 @@ class VirtualMachine:
                 | OpCode.INDEX_GET
                 | OpCode.INDEX_SET
                 | OpCode.SLICE_GET
+                | OpCode.UNPACK_SEQUENCE
             ):
                 self._exec_collection(instruction)
             case (
@@ -443,7 +444,7 @@ class VirtualMachine:
                 pass
 
     def _exec_collection(self, instruction: Instruction) -> None:
-        """Handle BUILD_STRING, BUILD_LIST, LIST_APPEND, BUILD_DICT, INDEX_GET, and INDEX_SET."""
+        """Handle collection opcodes including BUILD_STRING, BUILD_LIST, and UNPACK_SEQUENCE."""
         match instruction.opcode:
             case OpCode.BUILD_STRING:
                 self._exec_build_string(instruction)
@@ -459,6 +460,8 @@ class VirtualMachine:
                 self._exec_index_set()
             case OpCode.SLICE_GET:
                 self._exec_slice_get()
+            case OpCode.UNPACK_SEQUENCE:
+                self._exec_unpack_sequence(instruction)
             case _:  # pragma: no cover
                 pass
 
@@ -484,6 +487,18 @@ class VirtualMachine:
         target = frame.variables[name]
         assert isinstance(target, list)  # noqa: S101
         target.append(value)
+
+    def _exec_unpack_sequence(self, instruction: Instruction) -> None:
+        """Handle UNPACK_SEQUENCE — pop list, validate length, push elements."""
+        expected = _int_operand(instruction)
+        value = self._stack.pop()
+        if not isinstance(value, list):
+            type_name = type(value).__name__
+            self._runtime_error(f"Cannot unpack {type_name}, expected a list")
+        if len(value) != expected:
+            self._runtime_error(f"Expected {expected} values to unpack, got {len(value)}")
+        for item in reversed(value):
+            self._stack.append(item)
 
     def _exec_build_dict(self, instruction: Instruction) -> None:
         """Handle BUILD_DICT — pop 2*n values and create a dict."""
