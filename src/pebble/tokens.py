@@ -89,6 +89,7 @@ class TokenKind(StrEnum):
     COLON = "COLON"
     DOT = "DOT"
     EQUAL = "EQUAL"
+    ARROW = "ARROW"
 
     # -- Special --------------------------------------------------------------
     NEWLINE = "NEWLINE"

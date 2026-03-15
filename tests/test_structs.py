@@ -11,6 +11,7 @@ from pebble.ast_nodes import (
     Identifier,
     IntegerLiteral,
     MethodCall,
+    Parameter,
     PrintStatement,
     StructDef,
 )
@@ -120,12 +121,12 @@ class TestStructASTNodes:
         """StructDef stores name, fields, body, and location."""
         node = StructDef(
             name="Point",
-            fields=["x", "y"],
+            fields=[Parameter(name="x"), Parameter(name="y")],
             body=[],
             location=SourceLocation(1, 1),
         )
         assert node.name == "Point"
-        assert node.fields == ["x", "y"]
+        assert node.fields == [Parameter(name="x"), Parameter(name="y")]
         assert node.body == []
 
     def test_field_access_construction(self) -> None:
@@ -207,14 +208,14 @@ class TestStructParser:
         node = stmts[0]
         assert isinstance(node, StructDef)
         assert node.name == "Point"
-        assert node.fields == ["x", "y"]
+        assert node.fields == [Parameter(name="x"), Parameter(name="y")]
 
     def test_parse_struct_single_field(self) -> None:
         """Parse struct with a single field."""
         stmts = _parse("struct Single { value }")
         node = stmts[0]
         assert isinstance(node, StructDef)
-        assert node.fields == ["value"]
+        assert node.fields == [Parameter(name="value")]
 
     def test_parse_struct_three_fields(self) -> None:
         """Parse struct with three fields."""

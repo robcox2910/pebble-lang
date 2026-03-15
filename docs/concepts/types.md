@@ -141,6 +141,22 @@ let x = 42
 print("answer: {x}")   # prints: answer: 42
 ```
 
+## Type Annotations
+
+You can add **type annotations** to variables, function parameters, return
+values, and struct fields to tell Pebble what kind of value belongs there.
+Pebble checks the annotations at runtime and raises an error if the value
+doesn't match:
+
+```pebble
+let x: Int = 5
+fn add(a: Int, b: Int) -> Int { return a + b }
+struct Point { x: Float, y: Float }
+```
+
+Annotations are completely optional -- see
+[Type Annotations](type-annotations.md) for the full guide.
+
 ## Summary
 
 | Concept | Analogy |

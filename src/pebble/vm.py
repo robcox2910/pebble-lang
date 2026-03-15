@@ -35,6 +35,25 @@ if TYPE_CHECKING:
 
 _DIVISION_BY_ZERO = "Division by zero"
 
+_TYPE_MAP: dict[str, type] = {
+    "Int": int,
+    "Float": float,
+    "String": str,
+    "Bool": bool,
+    "List": list,
+    "Dict": dict,
+    "Fn": Closure,
+}
+
+_TYPE_DISPLAY: dict[str, str] = {
+    "int": "Int",
+    "float": "Float",
+    "str": "String",
+    "bool": "Bool",
+    "list": "List",
+    "dict": "Dict",
+}
+
 
 class _PebbleThrow(Exception):  # noqa: N818
     """Internal exception for Pebble throw/catch unwinding."""
@@ -95,6 +114,7 @@ class VirtualMachine:
         self._frames: list[Frame] = []
         self._functions: dict[str, CodeObject] = {}
         self._structs: dict[str, list[str]] = {}
+        self._struct_field_types: dict[str, dict[str, str]] = {}
         self._output: TextIO = output or sys.stdout
         self._current_instruction: Instruction | None = None
         self._exception_handlers: list[_ExceptionHandler] = []
@@ -106,6 +126,7 @@ class VirtualMachine:
         """Execute *program* from the first instruction of ``main``."""
         self._functions = dict(program.functions)
         self._structs = dict(program.structs)
+        self._struct_field_types = dict(program.struct_field_types)
         self._frames = [Frame(code=program.main)]
         self._exception_handlers = []
         try:
@@ -124,6 +145,7 @@ class VirtualMachine:
         """
         self._functions = dict(program.functions)
         self._structs = dict(program.structs)
+        self._struct_field_types = dict(program.struct_field_types)
         self._frames = [Frame(code=program.main, variables=dict(variables))]
         self._exception_handlers = []
         try:
@@ -178,7 +200,7 @@ class VirtualMachine:
                 else:
                     raise
 
-    def _dispatch(self, instruction: Instruction, frame: Frame) -> None:  # noqa: PLR0912
+    def _dispatch(self, instruction: Instruction, frame: Frame) -> None:  # noqa: C901, PLR0912
         """Dispatch a single instruction."""
         match instruction.opcode:
             case (
@@ -259,6 +281,8 @@ class VirtualMachine:
                 self._exception_handlers.pop()
             case OpCode.THROW:
                 raise _PebbleThrow(self._stack.pop())
+            case OpCode.CHECK_TYPE:
+                self._exec_check_type(instruction)
             case _:  # pragma: no cover
                 pass
 
@@ -627,6 +651,12 @@ class VirtualMachine:
             self._runtime_error(f"Value of type '{type_name}' is not a struct")
         if field_name not in target.fields:
             self._runtime_error(f"Struct '{target.type_name}' has no field '{field_name}'")
+        # Check field type annotation
+        struct_name = target.type_name
+        if struct_name in self._struct_field_types:
+            field_types = self._struct_field_types[struct_name]
+            if field_name in field_types:
+                self._check_field_type(value, field_types[field_name], field_name, struct_name)
         target.fields[field_name] = value
 
     # Map of VM-level builtin names to handler methods.
@@ -636,7 +666,7 @@ class VirtualMachine:
         "reduce": "_vm_builtin_reduce",
     }
 
-    def _exec_call(self, instruction: Instruction) -> None:
+    def _exec_call(self, instruction: Instruction) -> None:  # noqa: PLR0912
         """Handle CALL — check builtins, VM builtins, closures, then user functions."""
         name = _str_operand(instruction)
 
@@ -670,6 +700,13 @@ class VirtualMachine:
                 self._runtime_error(
                     f"Struct '{name}' expects {nfields} arguments, got {len(args_list)}"
                 )
+            # Check field type annotations
+            if name in self._struct_field_types:
+                field_types = self._struct_field_types[name]
+                for field_name, arg_val in zip(fields, args_list, strict=True):
+                    if field_name in field_types:
+                        expected = field_types[field_name]
+                        self._check_field_type(arg_val, expected, field_name, name)
             instance = StructInstance(
                 type_name=name,
                 fields=dict(zip(fields, args_list, strict=True)),
@@ -690,6 +727,11 @@ class VirtualMachine:
         args: dict[str, Value] = {}
         for param in reversed(fn_code.parameters):
             args[param] = self._stack.pop()
+        # Check parameter type annotations
+        if fn_code.param_types:
+            for param_name, param_type in zip(fn_code.parameters, fn_code.param_types, strict=True):
+                if param_type is not None:
+                    self._check_param_type(args[param_name], param_type, param_name)
         new_frame = Frame(code=fn_code, variables=args)
         self._init_cells(new_frame)
         self._frames.append(new_frame)
@@ -747,6 +789,11 @@ class VirtualMachine:
         args: dict[str, Value] = {}
         for param in reversed(fn_code.parameters):
             args[param] = self._stack.pop()
+        # Check parameter type annotations
+        if fn_code.param_types:
+            for param_name, param_type in zip(fn_code.parameters, fn_code.param_types, strict=True):
+                if param_type is not None:
+                    self._check_param_type(args[param_name], param_type, param_name)
         # Map free variable names to their Cell objects
         cells: dict[str, Cell] = dict(zip(fn_code.free_variables, closure.cells, strict=True))
         new_frame = Frame(code=fn_code, variables=args, cells=cells)
@@ -765,6 +812,76 @@ class VirtualMachine:
         return_value = self._stack.pop()
         self._frames.pop()
         self._stack.append(return_value)
+
+    # -- Type checking --------------------------------------------------------
+
+    @staticmethod
+    def _value_type_display(value: Value) -> str:
+        """Return the annotation-style type name of *value*."""
+        if isinstance(value, StructInstance):
+            return value.type_name
+        if isinstance(value, Closure):
+            return "Fn"
+        name = type(value).__name__
+        return _TYPE_DISPLAY.get(name, name)
+
+    def _check_type(self, value: Value, type_name: str) -> None:
+        """Validate *value* matches *type_name*, raising on mismatch."""
+        if type_name == "Int":
+            if type(value) is int:
+                return
+        elif type_name == "Bool":
+            if isinstance(value, bool):
+                return
+        elif type_name in _TYPE_MAP:
+            if isinstance(value, _TYPE_MAP[type_name]):
+                return
+        elif isinstance(value, StructInstance) and value.type_name == type_name:
+            return
+        actual = self._value_type_display(value)
+        self._runtime_error(f"Type error: expected {type_name}, got {actual}")
+
+    def _exec_check_type(self, instruction: Instruction) -> None:
+        """Handle CHECK_TYPE — peek TOS and validate type."""
+        type_name = _str_operand(instruction)
+        value = self._stack[-1]
+        self._check_type(value, type_name)
+
+    def _check_param_type(self, value: Value, type_name: str, param_name: str) -> None:
+        """Validate a function parameter value matches its type annotation."""
+        match type_name:
+            case "Int":
+                ok = type(value) is int
+            case "Bool":
+                ok = isinstance(value, bool)
+            case _ if type_name in _TYPE_MAP:
+                ok = isinstance(value, _TYPE_MAP[type_name])
+            case _:
+                ok = isinstance(value, StructInstance) and value.type_name == type_name
+        if not ok:
+            actual = self._value_type_display(value)
+            self._runtime_error(
+                f"Type error: parameter '{param_name}' expected {type_name}, got {actual}"
+            )
+
+    def _check_field_type(
+        self, value: Value, type_name: str, field_name: str, struct_name: str
+    ) -> None:
+        """Validate a struct field value matches its type annotation."""
+        match type_name:
+            case "Int":
+                ok = type(value) is int
+            case "Bool":
+                ok = isinstance(value, bool)
+            case _ if type_name in _TYPE_MAP:
+                ok = isinstance(value, _TYPE_MAP[type_name])
+            case _:
+                ok = isinstance(value, StructInstance) and value.type_name == type_name
+        if not ok:
+            actual = self._value_type_display(value)
+            self._runtime_error(
+                f"Type error: field '{field_name}' of '{struct_name}' expected {type_name}, got {actual}"
+            )
 
     # -- Exception handling ---------------------------------------------------
 

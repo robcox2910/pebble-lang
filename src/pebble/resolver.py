@@ -38,6 +38,7 @@ class ResolvedModule:
 
     functions: dict[str, CodeObject]
     structs: dict[str, list[str]]
+    struct_field_types: dict[str, dict[str, str]]
     exported_functions: dict[str, int]
     exported_structs: dict[str, int]
 
@@ -57,6 +58,7 @@ class ModuleResolver:
         self._resolving: set[Path] = set()
         self._merged_functions: dict[str, CodeObject] = {}
         self._merged_structs: dict[str, list[str]] = {}
+        self._merged_struct_field_types: dict[str, dict[str, str]] = {}
 
     # -- Public API -----------------------------------------------------------
 
@@ -69,6 +71,11 @@ class ModuleResolver:
     def merged_structs(self) -> dict[str, list[str]]:
         """Return all imported struct definitions for merging into CompiledProgram."""
         return dict(self._merged_structs)
+
+    @property
+    def merged_struct_field_types(self) -> dict[str, dict[str, str]]:
+        """Return all imported struct field type annotations for merging."""
+        return dict(self._merged_struct_field_types)
 
     def resolve_imports(self, program: Program, analyzer: SemanticAnalyzer) -> None:
         """Walk *program*'s import statements, resolve each, and register names in *analyzer*."""
@@ -91,6 +98,7 @@ class ModuleResolver:
         # Merge all definitions (including transitive) for CompiledProgram
         self._merged_functions.update(resolved.functions)
         self._merged_structs.update(resolved.structs)
+        self._merged_struct_field_types.update(resolved.struct_field_types)
 
     def _resolve_from_import(self, stmt: FromImportStatement, analyzer: SemanticAnalyzer) -> None:
         """Resolve a ``from "path.pbl" import name1, name2`` statement."""
@@ -108,6 +116,7 @@ class ModuleResolver:
         # Merge all definitions for CompiledProgram
         self._merged_functions.update(resolved.functions)
         self._merged_structs.update(resolved.structs)
+        self._merged_struct_field_types.update(resolved.struct_field_types)
 
     def _resolve_path(self, import_path: str, location: SourceLocation) -> Path:
         """Resolve *import_path* relative to *base_dir*."""
@@ -157,10 +166,15 @@ class ModuleResolver:
             # Build merged function/struct dicts (transitive + own)
             all_functions = {**sub_resolver.merged_functions, **compiled.functions}
             all_structs = {**sub_resolver.merged_structs, **compiled.structs}
+            all_struct_field_types = {
+                **sub_resolver.merged_struct_field_types,
+                **compiled.struct_field_types,
+            }
 
             result = ResolvedModule(
                 functions=all_functions,
                 structs=all_structs,
+                struct_field_types=all_struct_field_types,
                 exported_functions=exported_functions,
                 exported_structs=exported_structs,
             )

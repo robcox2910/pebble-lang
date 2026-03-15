@@ -54,6 +54,7 @@ class Repl:
         self._variables: dict[str, Value] = {}
         self._functions: dict[str, CodeObject] = {}
         self._structs: dict[str, list[str]] = {}
+        self._struct_field_types: dict[str, dict[str, str]] = {}
         self._output: TextIO = output or sys.stdout
 
     def eval_line(self, source: str) -> None:
@@ -82,8 +83,16 @@ class Repl:
         # Merge new functions and structs with previously-defined ones
         all_functions = self._functions | resolver.merged_functions | compiled.functions
         all_structs = self._structs | resolver.merged_structs | compiled.structs
+        all_struct_field_types = (
+            self._struct_field_types
+            | resolver.merged_struct_field_types
+            | compiled.struct_field_types
+        )
         full_program = CompiledProgram(
-            main=compiled.main, functions=all_functions, structs=all_structs
+            main=compiled.main,
+            functions=all_functions,
+            structs=all_structs,
+            struct_field_types=all_struct_field_types,
         )
 
         vm = VirtualMachine(output=self._output)
@@ -95,6 +104,8 @@ class Repl:
         self._functions.update(compiled.functions)
         self._structs.update(resolver.merged_structs)
         self._structs.update(compiled.structs)
+        self._struct_field_types.update(resolver.merged_struct_field_types)
+        self._struct_field_types.update(compiled.struct_field_types)
 
 
 # -- Input handling -----------------------------------------------------------

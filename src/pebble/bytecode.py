@@ -105,6 +105,9 @@ class OpCode(StrEnum):
     # -- I/O ------------------------------------------------------------------
     PRINT = "PRINT"
 
+    # -- Type checking --------------------------------------------------------
+    CHECK_TYPE = "CHECK_TYPE"
+
     # -- Program --------------------------------------------------------------
     HALT = "HALT"
 
@@ -159,6 +162,10 @@ class CodeObject:
     free_variables: list[str] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
+    param_types: list[str | None] = field(
+        default_factory=lambda: [],  # noqa: PIE807
+    )
+    return_type: str | None = None
 
     _constant_index: dict[tuple[type, int | float | str | bool], int] = field(
         default_factory=lambda: {},  # noqa: PIE807
@@ -193,3 +200,6 @@ class CompiledProgram:
     main: CodeObject
     functions: dict[str, CodeObject]
     structs: dict[str, list[str]] = field(default_factory=lambda: {})  # noqa: PIE807
+    struct_field_types: dict[str, dict[str, str]] = field(
+        default_factory=lambda: {},  # noqa: PIE807
+    )
