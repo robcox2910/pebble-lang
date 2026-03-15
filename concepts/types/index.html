@@ -637,6 +637,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#type-annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Annotations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1195,6 +1206,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../type-annotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../repl/" class="md-nav__link">
         
   
@@ -1434,6 +1473,17 @@ try to add a number and a string, you get an error:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let x = 42
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(&quot;answer: {x}&quot;)   # prints: answer: 42
 </code></pre></div>
+<h2 id="type-annotations">Type Annotations</h2>
+<p>You can add <strong>type annotations</strong> to variables, function parameters, return
+values, and struct fields to tell Pebble what kind of value belongs there.
+Pebble checks the annotations at runtime and raises an error if the value
+doesn't match:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let x: Int = 5
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>fn add(a: Int, b: Int) -&gt; Int { return a + b }
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>struct Point { x: Float, y: Float }
+</code></pre></div>
+<p>Annotations are completely optional -- see
+<a href="../type-annotations/">Type Annotations</a> for the full guide.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>

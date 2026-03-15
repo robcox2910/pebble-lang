@@ -542,6 +542,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#helper-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Helper Nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1195,6 +1206,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../type-annotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../repl/" class="md-nav__link">
         
   
@@ -1381,8 +1420,8 @@ nodes:</p>
 </tr>
 <tr>
 <td><code>FunctionDef</code></td>
-<td><code>fn add(a, b) { }</code></td>
-<td>Name, parameters, body</td>
+<td><code>fn add(a: Int, b: Int) -&gt; Int { }</code></td>
+<td>Name, parameters (with optional types), body, return type</td>
 </tr>
 <tr>
 <td><code>ReturnStatement</code></td>
@@ -1421,6 +1460,25 @@ nodes:</p>
 </tr>
 </tbody>
 </table>
+<h3 id="helper-nodes">Helper Nodes</h3>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Example</th>
+<th>What It Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Parameter</code></td>
+<td><code>x: Int</code></td>
+<td>A name and an optional type annotation</td>
+</tr>
+</tbody>
+</table>
+<p><code>Parameter</code> is used for function parameters and struct fields. If no type
+annotation is given, <code>type_annotation</code> is <code>None</code>.</p>
 <p>The <strong>Program</strong> node sits at the very top and holds the list of all top-level
 statements.</p>
 <h2 id="expressions-vs-statements">Expressions vs Statements</h2>

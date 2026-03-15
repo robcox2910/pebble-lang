@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/errors/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/type-annotations/">
       
       
-        <link rel="prev" href="../lexer/">
+        <link rel="prev" href="../modules/">
       
       
-        <link rel="next" href="../ast/">
+        <link rel="next" href="../repl/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Error Messages - Pebble</title>
+        <title>Type Annotations - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#error-messages" class="md-skip">
+        <a href="#type-annotations" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Error Messages
+              Type Annotations
             
           </span>
         </div>
@@ -396,37 +396,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Error Messages
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
         
   
   
@@ -442,92 +415,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#why-do-errors-matter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Do Errors Matter?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-pebble-error-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Pebble Error System
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#anatomy-of-an-error" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Anatomy of an Error
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-caret-pointer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Caret Pointer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#collecting-multiple-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Collecting Multiple Errors
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1153,10 +1040,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../type-annotations/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Annotations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1172,6 +1086,208 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-label-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Label System
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-type-annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Type Annotations?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-basic-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Basic Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#annotating-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Annotating Variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#annotating-function-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Annotating Function Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#annotating-return-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Annotating Return Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#annotating-struct-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Annotating Struct Fields
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-types-are-checked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Types Are Checked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mixing-typed-and-untyped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mixing Typed and Untyped
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-struct-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Struct Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Messages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-simple-calculator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Simple Calculator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-user-record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A User Record
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1232,111 +1348,292 @@
   
 
 
-<h1 id="error-messages">Error Messages</h1>
-<h2 id="why-do-errors-matter">Why Do Errors Matter?</h2>
-<p>Imagine you're doing a maths test and your teacher marks one answer wrong --
-but doesn't tell you <em>which</em> question, <em>which</em> part, or <em>what</em> went wrong.
-Frustrating, right?</p>
-<p>A good compiler is like a helpful teacher. When something goes wrong, it
-doesn't just say "Error!" -- it circles the exact mistake on your homework,
-underlines the word, and explains what it expected instead.</p>
-<h2 id="the-pebble-error-system">The Pebble Error System</h2>
-<p>Pebble has a family of error types, one for each stage of the compiler:</p>
+<h1 id="type-annotations">Type Annotations</h1>
+<h2 id="the-label-system">The Label System</h2>
+<p>Imagine you're packing boxes for a move. You could just throw everything in
+randomly -- but if you write "BOOKS" on one box and "DISHES" on another,
+you'll know exactly what's inside without opening them. More importantly,
+you (or a helpful friend) can stop someone from putting a heavy lamp in the
+"DISHES" box where it might break something.</p>
+<p><strong>Type annotations</strong> in Pebble work the same way. You can put labels on
+your variables, function parameters, return values, and struct fields that
+say what kind of value belongs there. Pebble checks the labels at runtime
+and stops the program if someone puts the wrong thing in the wrong box.</p>
+<h2 id="why-type-annotations">Why Type Annotations?</h2>
+<p>Two big reasons:</p>
+<ol>
+<li>
+<p><strong>Catch mistakes earlier.</strong> Without annotations, a wrong value might
+   travel through your code and cause a confusing error far from where the
+   mistake actually happened. With annotations, Pebble catches the problem
+   right at the source.</p>
+</li>
+<li>
+<p><strong>Clearer code.</strong> Reading <code>fn add(a: Int, b: Int) -&gt; Int</code> tells you
+   immediately that this function takes two integers and gives back an
+   integer. No guessing.</p>
+</li>
+</ol>
+<h2 id="the-basic-types">The Basic Types</h2>
+<p>Pebble has seven built-in type names you can use in annotations:</p>
 <table>
 <thead>
 <tr>
-<th>Error Type</th>
-<th>When It Happens</th>
-<th>Example</th>
+<th>Annotation</th>
+<th>What it means</th>
+<th>Example value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>LexerError</strong></td>
-<td>Scanning characters</td>
-<td>Unterminated string <code>"hello</code></td>
+<td><code>Int</code></td>
+<td>A whole number</td>
+<td><code>42</code>, <code>-7</code></td>
 </tr>
 <tr>
-<td><strong>ParseError</strong></td>
-<td>Arranging tokens into a tree</td>
-<td>Missing closing <code>)</code></td>
+<td><code>Float</code></td>
+<td>A number with a decimal point</td>
+<td><code>3.14</code>, <code>1.0</code></td>
 </tr>
 <tr>
-<td><strong>SemanticError</strong></td>
-<td>Checking the tree for logic mistakes</td>
-<td>Using a variable that doesn't exist</td>
+<td><code>String</code></td>
+<td>A piece of text</td>
+<td><code>"hello"</code></td>
 </tr>
 <tr>
-<td><strong>PebbleRuntimeError</strong></td>
-<td>Running the bytecode</td>
-<td>Dividing by zero</td>
+<td><code>Bool</code></td>
+<td>True or false</td>
+<td><code>true</code>, <code>false</code></td>
+</tr>
+<tr>
+<td><code>List</code></td>
+<td>An ordered collection</td>
+<td><code>[1, 2, 3]</code></td>
+</tr>
+<tr>
+<td><code>Dict</code></td>
+<td>Key-value pairs</td>
+<td><code>{"a": 1}</code></td>
+</tr>
+<tr>
+<td><code>Fn</code></td>
+<td>A function or closure</td>
+<td><code>fn(x) { x * 2 }</code></td>
 </tr>
 </tbody>
 </table>
-<p>All of them are part of the same family (they inherit from <code>PebbleError</code>), so
-the compiler can catch <em>any</em> Pebble error when it needs to.</p>
-<h2 id="anatomy-of-an-error">Anatomy of an Error</h2>
-<p>Every Pebble error carries three pieces of information:</p>
+<p>You can also use any struct name you've defined (like <code>Point</code> or <code>Circle</code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The annotation names use capital letters (<code>Int</code>, <code>String</code>) while the
+<code>type()</code> function returns lowercase (<code>int</code>, <code>str</code>). The annotations are
+for <em>your</em> labels; <code>type()</code> shows the internal name.</p>
+</div>
+<h2 id="annotating-variables">Annotating Variables</h2>
+<p>Add a colon and a type name after the variable name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let x: Int = 5
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>const pi: Float = 3.14
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let name: String = &quot;Alice&quot;
+</code></pre></div>
+<p>If you leave off the annotation, the variable accepts any value -- exactly
+like before:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let anything = 42      # no annotation, any value is fine
+</code></pre></div>
+<h2 id="annotating-function-parameters">Annotating Function Parameters</h2>
+<p>Put <code>: Type</code> after each parameter name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>fn add(a: Int, b: Int) {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    return a + b
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
+</code></pre></div>
+<p>You can mix annotated and unannotated parameters -- only the annotated ones
+are checked:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn greet(name: String, times) {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    for i in range(times) {
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        print(&quot;Hello {name}&quot;)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    }
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
+</code></pre></div>
+<h2 id="annotating-return-types">Annotating Return Types</h2>
+<p>Use <code>-&gt;</code> after the closing parenthesis to say what a function gives back:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>fn square(x: Int) -&gt; Int {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    return x * x
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>}
+</code></pre></div>
+<p>If the function has a return type annotation, Pebble checks every <code>return</code>
+statement (and the implicit return at the end) to make sure the value
+matches.</p>
+<h2 id="annotating-struct-fields">Annotating Struct Fields</h2>
+<p>Add <code>: Type</code> after each field name inside the struct definition:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>struct Point {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    x: Float,
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    y: Float
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>}
+</code></pre></div>
+<p>Now Pebble checks the types both when you <strong>create</strong> an instance and when
+you <strong>change</strong> a field:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let p = Point(1.0, 2.0)    # OK -- both are Float
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>p.x = 3.0                  # OK -- Float into a Float field
+</code></pre></div>
+<p>You can mix typed and untyped fields -- only the annotated ones are checked:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>struct Config {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    name: String,
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    value           # accepts anything
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
+</code></pre></div>
+<h2 id="when-types-are-checked">When Types Are Checked</h2>
+<p>Pebble checks type annotations <strong>at runtime</strong> -- that means the program
+actually runs and checks each value as it flows through. Here are the five
+checkpoints:</p>
 <ol>
-<li><strong>Message</strong> -- What went wrong, in plain English</li>
-<li><strong>Line</strong> -- Which line of your code has the problem</li>
-<li><strong>Column</strong> -- Which column (character position) on that line</li>
+<li><strong>Variable assignment</strong> -- when <code>let x: Int = ...</code> runs, the value is
+   checked.</li>
+<li><strong>Function parameters</strong> -- when you call <code>add(1, 2)</code>, each argument is
+   checked against the parameter's annotation.</li>
+<li><strong>Function return</strong> -- when <code>return value</code> runs, the value is checked
+   against the <code>-&gt;</code> annotation.</li>
+<li><strong>Struct construction</strong> -- when you write <code>Point(1.0, 2.0)</code>, each
+   argument is checked against the field's annotation.</li>
+<li><strong>Struct field assignment</strong> -- when you write <code>p.x = 3.0</code>, the new
+   value is checked.</li>
 </ol>
-<h2 id="the-caret-pointer">The Caret Pointer</h2>
-<p>When Pebble reports an error, it shows you the broken line from your source
-code and draws a little arrow (<code>^</code>) pointing to the exact spot:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1 | let x = @
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        ^
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Unexpected character &#39;@&#39;
+<h2 id="mixing-typed-and-untyped">Mixing Typed and Untyped</h2>
+<p>Annotations are <strong>completely optional</strong>. You can add them to some things
+and not others -- this is called <strong>gradual typing</strong>. Unannotated code works
+exactly like it always has:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a># Fully typed
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn add(a: Int, b: Int) -&gt; Int {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    return a + b
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>}
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a># Fully untyped -- still works perfectly
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>fn multiply(a, b) {
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    return a * b
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>}
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a># Mixed -- only &#39;name&#39; is checked
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>fn greet(name: String, times) {
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    for i in range(times) {
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>        print(&quot;Hello {name}&quot;)
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    }
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>}
 </code></pre></div>
-<p>This is like a teacher using a red pen to circle the mistake. You don't have to
-hunt through your whole program -- the compiler shows you right where to look.</p>
-<p>Here's one from line 3 of a longer program:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>3 | print(x + )
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>               ^
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Expected expression after &#39;+&#39;
+<h2 id="using-struct-types">Using Struct Types</h2>
+<p>You can use a struct's name as a type annotation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>struct Point { x: Float, y: Float }
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>let origin: Point = Point(0.0, 0.0)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>fn distance(p: Point) -&gt; Float {
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    return (p.x ** 2 + p.y ** 2) ** 0.5
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>}
 </code></pre></div>
-<h2 id="collecting-multiple-errors">Collecting Multiple Errors</h2>
-<p>Some compilers stop at the first error they find. That's like a teacher who
-reads one sentence of your essay, finds a spelling mistake, and hands it
-straight back without reading the rest.</p>
-<p>Pebble's <strong>ErrorCollector</strong> is smarter. It gathers up all the errors it can
-find and reports them all at once. That way, you can fix several mistakes in one
-go instead of playing whack-a-mole -- fix one, run again, find the next, fix
-it, run again...</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>1 | let x = @
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>            ^
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Unexpected character &#39;@&#39;
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>3 | print(y
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            ^
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Expected &#39;)&#39; after argument
+<p>A struct can even reference itself in its field types:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>struct Node {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    value: Int,
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    label         # untyped -- could hold another Node or anything
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>}
 </code></pre></div>
-<p>Two errors, reported together. Much more efficient!</p>
+<h2 id="error-messages">Error Messages</h2>
+<p>When a type check fails, Pebble gives you a clear error message:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Type error: expected Int, got String
+</code></pre></div>
+<p>For function parameters, it names the parameter:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Type error: parameter &#39;age&#39; expected Int, got String
+</code></pre></div>
+<p>For struct fields, it names both the field and the struct:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>Type error: field &#39;x&#39; of &#39;Point&#39; expected Float, got Int
+</code></pre></div>
+<h2 id="practical-examples">Practical Examples</h2>
+<h3 id="a-simple-calculator">A Simple Calculator</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>fn calculate(a: Float, b: Float, op: String) -&gt; Float {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    match op {
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>        case &quot;+&quot; { return a + b }
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        case &quot;-&quot; { return a - b }
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        case &quot;*&quot; { return a * b }
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        case &quot;/&quot; { return a / b }
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    }
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    return 0.0
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>}
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>print(calculate(10.0, 3.0, &quot;+&quot;))   # 13.0
+</code></pre></div>
+<h3 id="a-user-record">A User Record</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>struct User {
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    name: String,
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    age: Int
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>}
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>fn describe(u: User) -&gt; String {
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    return &quot;{u.name} is {u.age} years old&quot;
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>}
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>let alice: User = User(&quot;Alice&quot;, 12)
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>print(describe(alice))   # Alice is 12 years old
+</code></pre></div>
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<p>The type annotation system touches every stage of the compiler pipeline:</p>
+<pre class="mermaid"><code>graph LR
+    A["Lexer&lt;br/&gt;&lt;code&gt;-&gt;&lt;/code&gt; → ARROW token"] --&gt; B["Parser&lt;br/&gt;Parameter nodes&lt;br/&gt;with type_annotation"]
+    B --&gt; C["Analyzer&lt;br/&gt;Validates type names&lt;br/&gt;against built-ins + structs"]
+    C --&gt; D["Compiler&lt;br/&gt;Emits CHECK_TYPE&lt;br/&gt;Stores param_types"]
+    D --&gt; E["VM&lt;br/&gt;Runtime type checks&lt;br/&gt;at 5 checkpoints"]</code></pre>
+<ol>
+<li><strong>Lexer</strong> -- The <code>-&gt;</code> symbol produces a new <code>ARROW</code> token.</li>
+<li><strong>Parser</strong> -- Parameters and fields become <code>Parameter</code> nodes with an
+   optional <code>type_annotation</code>. Return types are parsed after <code>-&gt;</code>.</li>
+<li><strong>Analyzer</strong> -- Each type name is validated: it must be a built-in type
+   (<code>Int</code>, <code>Float</code>, etc.) or a defined struct name.</li>
+<li><strong>Compiler</strong> -- For annotated variables and returns, the compiler emits
+   a <code>CHECK_TYPE</code> instruction. Function metadata (<code>param_types</code>,
+   <code>return_type</code>) and struct field types are stored alongside the bytecode.</li>
+<li><strong>VM</strong> -- At runtime, <code>CHECK_TYPE</code> peeks at the value on the stack and
+   validates its type. Parameter and field checks happen at call time and
+   construction time.</li>
+</ol>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
 <tr>
 <th>Concept</th>
-<th>Analogy</th>
+<th>Syntax</th>
+<th>Example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Error message</td>
-<td>A teacher circling mistakes on your homework</td>
+<td>Variable type</td>
+<td><code>let name: Type = value</code></td>
+<td><code>let x: Int = 5</code></td>
 </tr>
 <tr>
-<td>Line &amp; column</td>
-<td>"Page 3, second paragraph, fifth word"</td>
+<td>Const type</td>
+<td><code>const name: Type = value</code></td>
+<td><code>const pi: Float = 3.14</code></td>
 </tr>
 <tr>
-<td>Caret pointer</td>
-<td>A red arrow drawn under the mistake</td>
+<td>Parameter type</td>
+<td><code>fn f(name: Type)</code></td>
+<td><code>fn f(x: Int)</code></td>
 </tr>
 <tr>
-<td>ErrorCollector</td>
-<td>Marking all mistakes at once, not just the first</td>
+<td>Return type</td>
+<td><code>fn f() -&gt; Type</code></td>
+<td><code>fn f() -&gt; Int</code></td>
+</tr>
+<tr>
+<td>Struct field type</td>
+<td><code>struct S { field: Type }</code></td>
+<td><code>struct S { x: Float }</code></td>
+</tr>
+<tr>
+<td>All annotations optional</td>
+<td>Omit <code>: Type</code> or <code>-&gt; Type</code></td>
+<td><code>let x = 5</code></td>
+</tr>
+<tr>
+<td>Struct as type</td>
+<td>Use the struct's name</td>
+<td><code>let p: Point = ...</code></td>
 </tr>
 </tbody>
 </table>
