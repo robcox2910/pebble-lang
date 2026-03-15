@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/lexer/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/operators/">
       
       
-        <link rel="prev" href="../tokens/">
+        <link rel="prev" href="../types/">
       
       
-        <link rel="next" href="../errors/">
+        <link rel="next" href="../statements/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Lexer - Pebble</title>
+        <title>Operators - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-lexer" class="md-skip">
+        <a href="#operators" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Lexer
+              Operators
             
           </span>
         </div>
@@ -368,37 +368,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Lexer
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../lexer/" class="md-nav__link">
         
   
   
@@ -414,142 +387,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-lexer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Lexer?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-the-pebble-lexer-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How the Pebble Lexer Works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#a-walk-through-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A Walk-Through Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keeping-track-of-position" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Keeping Track of Position
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What Can Go Wrong?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#unterminated-strings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unterminated strings
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#unexpected-characters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unexpected characters
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#newline-smarts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Newline Smarts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-about-keywords" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What About Keywords?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -671,10 +508,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../operators/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operators
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -690,6 +554,215 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#arithmetic-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arithmetic Operators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Arithmetic Operators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#division-vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Division: / vs //
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exponentiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exponentiation: **
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exponentiation: **">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#right-associativity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Right-Associativity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#negative-exponents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negative Exponents
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unary-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unary Operators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison Operators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logical-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logical Operators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bitwise-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bitwise Operators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bitwise Operators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-bitwise-and-works-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Bitwise AND Works (Example)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shifting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shifting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-precedence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator Precedence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operator Precedence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#associativity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Associativity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1114,142 +1187,426 @@
   
 
 
-<h1 id="the-lexer">The Lexer</h1>
-<h2 id="what-is-a-lexer">What Is a Lexer?</h2>
-<p>Imagine a <strong>postal worker</strong> at a sorting office. A huge bag of letters arrives
-and the worker's job is to read each address and toss the letter into the right
-bin: one bin for local deliveries, one for international, one for parcels, and
-so on.</p>
-<p>A <strong>lexer</strong> (also called a <em>scanner</em> or <em>tokenizer</em>) does the same thing with
-source code. It reads your program one character at a time and sorts the
-characters into labelled groups called <strong>tokens</strong>. Once the sorting is done, the
-rest of the compiler never has to look at individual characters again -- it
-works with tidy, labelled tokens instead.</p>
-<h2 id="how-the-pebble-lexer-works">How the Pebble Lexer Works</h2>
-<p>The Pebble lexer is a <strong>single-pass scanner</strong>. That means it walks through your
-source code from the first character to the last, exactly once, left to right.
-No going back, no second pass. One trip through the mail bag.</p>
-<p>Here's what happens at each step:</p>
-<pre class="mermaid"><code>graph TD
-    A[Read character] --&gt; B{What is it?}
-    B --&gt;|digit| C[Collect digits → INTEGER or FLOAT token]
-    B --&gt;|quote| D[Collect until closing quote → STRING token]
-    B --&gt;|letter / _| E[Collect word → keyword or IDENTIFIER]
-    B --&gt;|symbol| F[Match operator → PLUS, LESS_EQUAL, etc.]
-    B --&gt;|#| G[Skip everything until end of line]
-    B --&gt;|space / tab| H[Skip it]
-    B --&gt;|newline| I[Emit NEWLINE token]
-    B --&gt;|anything else| J[Report error!]</code></pre>
-<h2 id="a-walk-through-example">A Walk-Through Example</h2>
-<p>Let's trace what the lexer does with this code:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let age = 12
-</code></pre></div>
+<h1 id="operators">Operators</h1>
+<p>An <strong>operator</strong> is a symbol that tells Pebble to do something with one or
+two values. You already know <code>+</code> for adding and <code>*</code> for multiplying --
+Pebble has many more. Think of operators like the buttons on a calculator:
+each one performs a specific action.</p>
+<h2 id="arithmetic-operators">Arithmetic Operators</h2>
+<p>These work on numbers (<code>int</code> and <code>float</code>). When you mix an <code>int</code> with a
+<code>float</code>, the result is always a <code>float</code>.</p>
 <table>
 <thead>
 <tr>
-<th>Step</th>
-<th>Character(s)</th>
-<th>Action</th>
-<th>Token produced</th>
+<th>Operator</th>
+<th>Name</th>
+<th>Example</th>
+<th>Result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1</td>
-<td><code>l</code>, <code>e</code>, <code>t</code></td>
-<td>Letters → collect word → it's a keyword!</td>
-<td><code>LET "let"</code></td>
+<td><code>+</code></td>
+<td>Addition</td>
+<td><code>3 + 2</code></td>
+<td><code>5</code></td>
 </tr>
 <tr>
-<td>2</td>
-<td><code></code></td>
-<td>Space → skip</td>
-<td><em>(none)</em></td>
+<td><code>-</code></td>
+<td>Subtraction</td>
+<td><code>5 - 2</code></td>
+<td><code>3</code></td>
 </tr>
 <tr>
-<td>3</td>
-<td><code>a</code>, <code>g</code>, <code>e</code></td>
-<td>Letters → collect word → not a keyword</td>
-<td><code>IDENTIFIER "age"</code></td>
+<td><code>*</code></td>
+<td>Multiplication</td>
+<td><code>4 * 3</code></td>
+<td><code>12</code></td>
 </tr>
 <tr>
-<td>4</td>
-<td><code></code></td>
-<td>Space → skip</td>
-<td><em>(none)</em></td>
+<td><code>/</code></td>
+<td>Division</td>
+<td><code>7 / 2</code></td>
+<td><code>3.5</code></td>
 </tr>
 <tr>
-<td>5</td>
-<td><code>=</code></td>
-<td>Symbol → is the next char <code>=</code>? No → assignment</td>
-<td><code>EQUAL "="</code></td>
+<td><code>//</code></td>
+<td>Floor division</td>
+<td><code>7 // 2</code></td>
+<td><code>3</code></td>
 </tr>
 <tr>
-<td>6</td>
-<td><code></code></td>
-<td>Space → skip</td>
-<td><em>(none)</em></td>
+<td><code>%</code></td>
+<td>Modulo</td>
+<td><code>7 % 3</code></td>
+<td><code>1</code></td>
 </tr>
 <tr>
-<td>7</td>
-<td><code>1</code>, <code>2</code></td>
-<td>Digits → collect all digits</td>
-<td><code>INTEGER "12"</code></td>
-</tr>
-<tr>
-<td>8</td>
-<td><em>(end)</em></td>
-<td>Nothing left to read</td>
-<td><code>EOF ""</code></td>
+<td><code>**</code></td>
+<td>Exponentiation</td>
+<td><code>2 ** 3</code></td>
+<td><code>8</code></td>
 </tr>
 </tbody>
 </table>
-<p>Notice step 5: the lexer peeks at the <em>next</em> character before deciding. If it
-saw <code>==</code> it would produce an <code>EQUAL_EQUAL</code> token instead of <code>EQUAL</code>. This
-"look-ahead" trick is how it tells <code>=</code> (assignment) apart from <code>==</code>
-(comparison).</p>
-<h2 id="keeping-track-of-position">Keeping Track of Position</h2>
-<p>Every token remembers <strong>where</strong> it came from: the line number and column
-number. The lexer keeps a running count:</p>
-<ul>
-<li><strong>Column</strong> goes up by one for every character</li>
-<li><strong>Line</strong> goes up by one for every newline, and the column resets to 1</li>
-</ul>
-<p>This matters for error messages. If something goes wrong later, the compiler
-can say exactly <em>where</em> the mistake is in your code.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>The lexer catches two kinds of mistakes:</p>
-<h3 id="unterminated-strings">Unterminated strings</h3>
-<p>If you open a string with <code>"</code> but forget to close it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let name = &quot;Alice
+<h3 id="division-vs">Division: <code>/</code> vs <code>//</code></h3>
+<p>The <code>/</code> operator is <strong>true division</strong> -- it always gives you a <code>float</code>,
+even when the numbers divide evenly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>print(6 / 2)    # prints: 3.0   (always a float)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(7 / 2)    # prints: 3.5
 </code></pre></div>
-<p>The lexer reaches the end of the file while still inside the string and
-reports: <strong>"Unterminated string at line 1, column 12"</strong></p>
-<h3 id="unexpected-characters">Unexpected characters</h3>
-<p>If you use a character that Pebble doesn't understand:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 5 @ 3
+<p>The <code>//</code> operator is <strong>floor division</strong> -- it rounds down to the nearest
+whole number. If both inputs are <code>int</code>, the result is an <code>int</code>. If either
+input is a <code>float</code>, the result is a <code>float</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>print(7 // 2)     # prints: 3     (both int → int result)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(7.0 // 2)   # prints: 3.0   (float involved → float result)
 </code></pre></div>
-<p>The <code>@</code> symbol isn't part of Pebble, so the lexer reports:
-<strong>"Unexpected character '@' at line 1, column 11"</strong></p>
-<h2 id="newline-smarts">Newline Smarts</h2>
-<p>Pebble uses newlines to separate statements (instead of semicolons like C or
-Java). The lexer does a few clever things with newlines:</p>
-<ol>
-<li><strong>Collapse duplicates</strong> -- Three blank lines in a row produce just one
-   <code>NEWLINE</code> token, not three</li>
-<li><strong>Skip leading newlines</strong> -- Blank lines at the very start of a file are
-   ignored</li>
-<li><strong>Comments are transparent</strong> -- A <code># comment</code> line doesn't produce its own
-   token; the newline after it behaves as if the comment wasn't there</li>
-</ol>
-<h2 id="what-about-keywords">What About Keywords?</h2>
-<p>When the lexer collects a word (like <code>let</code>, <code>while</code>, or <code>myVariable</code>), it
-checks a dictionary called <code>KEYWORDS</code>. If the word is in the dictionary, it
-gets the keyword's token kind (like <code>LET</code> or <code>WHILE</code>). If not, it's just a
-regular <code>IDENTIFIER</code>.</p>
-<p>This is why you can't name a variable <code>let</code> or <code>while</code> -- those words are
-<em>reserved</em> by the language. But <code>letter</code> or <code>whileLoop</code> are perfectly fine,
-because the lexer only matches <em>whole</em> words.</p>
+<h3 id="exponentiation">Exponentiation: <code>**</code></h3>
+<p>The <code>**</code> operator raises a number to a power. Think of <code>2 ** 3</code> as
+"2 times itself 3 times" (2 × 2 × 2 = 8):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(2 ** 3)     # prints: 8
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(5 ** 0)     # prints: 1     (anything to the power of 0 is 1)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(4.0 ** 0.5) # prints: 2.0   (square root!)
+</code></pre></div>
+<h4 id="right-associativity">Right-Associativity</h4>
+<p>When you chain <code>**</code> operators, they group from <strong>right to left</strong>. This is
+different from <code>+</code> and <code>*</code>, which group from left to right:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a># 2 ** 2 ** 3  means  2 ** (2 ** 3)  =  2 ** 8  =  256
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(2 ** 2 ** 3)    # prints: 256
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a># Use parentheses to change grouping:
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>print((2 ** 2) ** 3)  # prints: 64
+</code></pre></div>
+<h4 id="negative-exponents">Negative Exponents</h4>
+<p>A negative exponent produces a <code>float</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(2 ** -1)   # prints: 0.5   (same as 1 / 2)
+</code></pre></div>
+<h2 id="unary-operators">Unary Operators</h2>
+<p>Unary operators work on a <strong>single</strong> value (unlike <code>+</code> and <code>*</code> which need
+two values).</p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Name</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-</code></td>
+<td>Negate</td>
+<td><code>-5</code></td>
+<td><code>-5</code></td>
+</tr>
+<tr>
+<td><code>not</code></td>
+<td>Logical NOT</td>
+<td><code>not true</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>~</code></td>
+<td>Bitwise NOT</td>
+<td><code>~5</code></td>
+<td><code>-6</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>-</code> sign binds <strong>less tightly</strong> than <code>**</code>, so <code>-2 ** 2</code> means
+<code>-(2 ** 2)</code> = <code>-4</code>, not <code>(-2) ** 2</code> = <code>4</code>. Use parentheses if you mean
+something different:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(-2 ** 2)     # prints: -4   (power first, then negate)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print((-2) ** 2)   # prints: 4    (negate first, then power)
+</code></pre></div>
+<h2 id="comparison-operators">Comparison Operators</h2>
+<p>These compare two values and return <code>true</code> or <code>false</code>. You can compare
+<code>int</code> with <code>float</code> -- Pebble handles the conversion for you:</p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Name</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==</code></td>
+<td>Equal to</td>
+<td><code>3 == 3</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>!=</code></td>
+<td>Not equal to</td>
+<td><code>3 != 4</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>&lt;</code></td>
+<td>Less than</td>
+<td><code>3 &lt; 5</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>&lt;=</code></td>
+<td>Less than or equal</td>
+<td><code>3 &lt;= 3</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>&gt;</code></td>
+<td>Greater than</td>
+<td><code>5 &gt; 3</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>&gt;=</code></td>
+<td>Greater than or equal</td>
+<td><code>5 &gt;= 5</code></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(3 &lt; 3.5)    # prints: true   (int vs float works fine)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(3.0 == 3)   # prints: true   (same value, different types)
+</code></pre></div>
+<h2 id="logical-operators">Logical Operators</h2>
+<p>Logical operators combine <code>true</code> / <code>false</code> values. They're like the words
+"and", "or", and "not" in English:</p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Meaning</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>and</code></td>
+<td>Both must be true</td>
+<td><code>true and false</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>or</code></td>
+<td>At least one must be true</td>
+<td><code>true or false</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>not</code></td>
+<td>Flip true to false (and back)</td>
+<td><code>not true</code></td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="bitwise-operators">Bitwise Operators</h2>
+<p>Bitwise operators work on the <strong>individual bits</strong> (the 1s and 0s) inside an
+integer. They only work on <code>int</code> values -- using them on <code>float</code> or <code>bool</code>
+gives an error.</p>
+<p>Imagine each number as a row of light switches (bits). Bitwise operators
+flip, combine, or shift those switches:</p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Name</th>
+<th>Example</th>
+<th>Result</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&amp;</code></td>
+<td>Bitwise AND</td>
+<td><code>5 &amp; 3</code></td>
+<td><code>1</code></td>
+<td>Both bits must be on</td>
+</tr>
+<tr>
+<td><code>\|</code></td>
+<td>Bitwise OR</td>
+<td><code>5 \| 3</code></td>
+<td><code>7</code></td>
+<td>Either bit can be on</td>
+</tr>
+<tr>
+<td><code>^</code></td>
+<td>Bitwise XOR</td>
+<td><code>5 ^ 3</code></td>
+<td><code>6</code></td>
+<td>Exactly one bit is on</td>
+</tr>
+<tr>
+<td><code>~</code></td>
+<td>Bitwise NOT</td>
+<td><code>~5</code></td>
+<td><code>-6</code></td>
+<td>Flip all the bits</td>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code></td>
+<td>Left shift</td>
+<td><code>1 &lt;&lt; 3</code></td>
+<td><code>8</code></td>
+<td>Slide bits left</td>
+</tr>
+<tr>
+<td><code>&gt;&gt;</code></td>
+<td>Right shift</td>
+<td><code>16 &gt;&gt; 2</code></td>
+<td><code>4</code></td>
+<td>Slide bits right</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-bitwise-and-works-example">How Bitwise AND Works (Example)</h3>
+<p>Let's see <code>5 &amp; 3</code> step by step. First, write each number in binary:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>5 in binary:  1 0 1
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>3 in binary:  0 1 1
+</code></pre></div>
+<p>AND keeps a bit only if <strong>both</strong> numbers have it on:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>  1 0 1   (5)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>&amp; 0 1 1   (3)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>-------
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  0 0 1   (1)
+</code></pre></div>
+<p>So <code>5 &amp; 3 = 1</code>.</p>
+<h3 id="shifting">Shifting</h3>
+<p>Left shift (<code>&lt;&lt;</code>) slides all the bits to the left, filling empty spots with
+zeros. Each shift left <strong>doubles</strong> the number:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(1 &lt;&lt; 3)    # prints: 8    (1 → 2 → 4 → 8)
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(3 &lt;&lt; 1)    # prints: 6    (11 in binary → 110 = 6)
+</code></pre></div>
+<p>Right shift (<code>&gt;&gt;</code>) does the opposite -- slides bits to the right. Each shift
+right <strong>halves</strong> the number (rounding down):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>print(16 &gt;&gt; 2)   # prints: 4    (16 → 8 → 4)
+</code></pre></div>
+<p>You cannot shift by a negative amount -- that gives an error.</p>
+<h2 id="operator-precedence">Operator Precedence</h2>
+<p>When you write <code>2 + 3 * 4</code>, does Pebble compute <code>(2 + 3) * 4 = 20</code> or
+<code>2 + (3 * 4) = 14</code>? <strong>Precedence</strong> rules decide the order, just like
+the "PEMDAS" rule you might know from maths class.</p>
+<p>Higher numbers in this table mean "do this first":</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Operators</th>
+<th>Name</th>
+<th>Associativity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td><code>-</code> <code>not</code> <code>~</code></td>
+<td>Prefix unary</td>
+<td>--</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>**</code></td>
+<td>Exponentiation</td>
+<td>right</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>*</code> <code>/</code> <code>//</code> <code>%</code></td>
+<td>Multiplicative</td>
+<td>left</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>+</code> <code>-</code></td>
+<td>Additive</td>
+<td>left</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td>
+<td>Shifts</td>
+<td>left</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>&amp;</code></td>
+<td>Bitwise AND</td>
+<td>left</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>^</code></td>
+<td>Bitwise XOR</td>
+<td>left</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>\|</code></td>
+<td>Bitwise OR</td>
+<td>left</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td>
+<td>Comparison</td>
+<td>left</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>==</code> <code>!=</code></td>
+<td>Equality</td>
+<td>left</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>and</code></td>
+<td>Logical AND</td>
+<td>left</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>or</code></td>
+<td>Logical OR</td>
+<td>left</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examples">Examples</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a># Multiplication before addition (level 10 &gt; level 9)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(2 + 3 * 4)         # prints: 14     (not 20)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a># Power before multiplication (level 11 &gt; level 10)
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>print(2 ** 3 * 2)         # prints: 16     (8 * 2, not 2 ** 6)
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a># Bitwise AND before bitwise OR (level 7 &gt; level 5)
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>print(1 | 2 &amp; 3)          # prints: 3      (1 | (2 &amp; 3) = 1 | 2)
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a># Shifts before bitwise AND (level 8 &gt; level 7)
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>print(1 &amp; 3 &lt;&lt; 1)         # prints: 0      (1 &amp; (3 &lt;&lt; 1) = 1 &amp; 6)
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a># Use parentheses when in doubt!
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>print((2 + 3) * 4)        # prints: 20
+</code></pre></div>
+<h3 id="associativity">Associativity</h3>
+<p>When operators have the <strong>same</strong> precedence, <strong>associativity</strong> decides
+the order. Most operators are <strong>left-associative</strong> (group left to right):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a># Left-associative: 10 - 3 - 2  =  (10 - 3) - 2  =  5
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(10 - 3 - 2)   # prints: 5
+</code></pre></div>
+<p>The <code>**</code> operator is the exception -- it's <strong>right-associative</strong> (group
+right to left):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a># Right-associative: 2 ** 2 ** 3  =  2 ** (2 ** 3)  =  256
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>print(2 ** 2 ** 3)   # prints: 256
+</code></pre></div>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
@@ -1260,24 +1617,32 @@ because the lexer only matches <em>whole</em> words.</p>
 </thead>
 <tbody>
 <tr>
-<td>Lexer</td>
-<td>A postal worker sorting mail into labelled bins</td>
+<td>Operator</td>
+<td>A button on a calculator</td>
 </tr>
 <tr>
-<td>Token</td>
-<td>A letter with its bin label attached</td>
+<td><code>/</code> vs <code>//</code></td>
+<td>Exact sharing vs whole-piece sharing</td>
 </tr>
 <tr>
-<td>Single-pass</td>
-<td>One trip through the mail bag, left to right</td>
+<td><code>**</code></td>
+<td>"Times itself" repeated multiplication</td>
 </tr>
 <tr>
-<td>Look-ahead</td>
-<td>Peeking at the next letter to decide the bin</td>
+<td>Bitwise ops</td>
+<td>Flipping individual light switches</td>
 </tr>
 <tr>
-<td>Source location</td>
-<td>The return address on each letter</td>
+<td><code>&lt;&lt;</code> / <code>&gt;&gt;</code></td>
+<td>Sliding a row of switches left or right</td>
+</tr>
+<tr>
+<td>Precedence</td>
+<td>The order-of-operations rule from maths</td>
+</tr>
+<tr>
+<td>Parentheses</td>
+<td>"Do this part first!"</td>
 </tr>
 </tbody>
 </table>

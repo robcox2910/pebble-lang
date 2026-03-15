@@ -511,6 +511,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../operators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../statements/" class="md-nav__link">
         
   
@@ -1459,12 +1487,22 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <tr>
 <td><code>DIVIDE</code></td>
 <td>—</td>
-<td>Pop two values, push the quotient</td>
+<td>Pop two values, push the quotient (always a float)</td>
+</tr>
+<tr>
+<td><code>FLOOR_DIVIDE</code></td>
+<td>—</td>
+<td>Pop two values, push the floored quotient</td>
 </tr>
 <tr>
 <td><code>MODULO</code></td>
 <td>—</td>
 <td>Pop two values, push the remainder</td>
+</tr>
+<tr>
+<td><code>POWER</code></td>
+<td>—</td>
+<td>Pop two values, push left raised to right</td>
 </tr>
 <tr>
 <td><code>NEGATE</code></td>
@@ -1475,6 +1513,36 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <td><code>NOT</code></td>
 <td>—</td>
 <td>Pop a value, push its logical NOT</td>
+</tr>
+<tr>
+<td><code>BIT_AND</code></td>
+<td>—</td>
+<td>Pop two ints, push bitwise AND</td>
+</tr>
+<tr>
+<td><code>BIT_OR</code></td>
+<td>—</td>
+<td>Pop two ints, push bitwise OR</td>
+</tr>
+<tr>
+<td><code>BIT_XOR</code></td>
+<td>—</td>
+<td>Pop two ints, push bitwise XOR</td>
+</tr>
+<tr>
+<td><code>BIT_NOT</code></td>
+<td>—</td>
+<td>Pop an int, push bitwise NOT</td>
+</tr>
+<tr>
+<td><code>LEFT_SHIFT</code></td>
+<td>—</td>
+<td>Pop two ints, push left shifted by right</td>
+</tr>
+<tr>
+<td><code>RIGHT_SHIFT</code></td>
+<td>—</td>
+<td>Pop two ints, push left shifted right by right</td>
 </tr>
 <tr>
 <td><code>EQUAL</code></td>

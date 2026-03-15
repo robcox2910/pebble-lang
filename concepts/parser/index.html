@@ -668,6 +668,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../operators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../statements/" class="md-nav__link">
         
   
@@ -1118,18 +1146,43 @@ than others, just like multiplication before addition in maths:</p>
 <tbody>
 <tr>
 <td>Highest</td>
-<td><code>-x</code>, <code>not x</code> (unary)</td>
-<td><code>-5</code>, <code>not true</code></td>
+<td><code>-x</code>, <code>not x</code>, <code>~x</code> (unary)</td>
+<td><code>-5</code>, <code>not true</code>, <code>~3</code></td>
 </tr>
 <tr>
 <td></td>
-<td><code>*</code>, <code>/</code>, <code>%</code></td>
+<td><code>**</code> (power)</td>
+<td><code>2 ** 3</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>*</code>, <code>/</code>, <code>//</code>, <code>%</code></td>
 <td><code>2 * 3</code></td>
 </tr>
 <tr>
 <td></td>
 <td><code>+</code>, <code>-</code></td>
 <td><code>1 + 2</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>&lt;&lt;</code>, <code>&gt;&gt;</code> (shifts)</td>
+<td><code>1 &lt;&lt; 3</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>&amp;</code> (bitwise AND)</td>
+<td><code>5 &amp; 3</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>^</code> (bitwise XOR)</td>
+<td><code>5 ^ 3</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>\|</code> (bitwise OR)</td>
+<td><code>5 \| 3</code></td>
 </tr>
 <tr>
 <td></td>
@@ -1153,6 +1206,7 @@ than others, just like multiplication before addition in maths:</p>
 </tr>
 </tbody>
 </table>
+<p>See <a href="../operators/">Operators</a> for a complete reference with examples.</p>
 <p>Operators with higher priority get "pulled in" first and end up deeper in the
 tree.</p>
 <h2 id="associativity-ties-go-left">Associativity: Ties Go Left</h2>
