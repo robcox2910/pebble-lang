@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/dicts/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/match/">
       
       
-        <link rel="prev" href="../strings/">
+        <link rel="prev" href="../error-handling/">
       
       
-        <link rel="next" href="../stdlib/">
+        <link rel="next" href="../repl/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Dictionaries - Pebble</title>
+        <title>Pattern Matching - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dictionaries" class="md-skip">
+        <a href="#pattern-matching" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Dictionaries
+              Pattern Matching
             
           </span>
         </div>
@@ -760,37 +760,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dictionaries
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../dicts/" class="md-nav__link">
         
   
   
@@ -806,170 +779,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#creating-a-dict" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Creating a Dict
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reading-a-value" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading a Value
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#changing-or-adding-values" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changing or Adding Values
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#finding-the-size" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Finding the Size
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#getting-keys-and-values" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Getting Keys and Values
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#checking-the-type" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Checking the Type
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dicts-with-other-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dicts with Other Features
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Dicts with Other Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#string-interpolation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        String Interpolation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Functions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#nested-dicts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Nested Dicts
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works-under-the-hood" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works Under the Hood
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How It Works Under the Hood">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#the-full-journey" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Full Journey
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1091,10 +900,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../match/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pattern Matching
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1110,6 +946,192 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sorting-values-into-boxes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sorting Values into Boxes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Syntax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pattern-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pattern Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#literal-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Literal Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wildcard-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wildcard Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capture-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capture Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#or-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OR Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exhaustiveness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exhaustiveness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#match-vs-ifelse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Match vs If/Else
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classifying-numbers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classifying Numbers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#match-inside-a-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Match Inside a Loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1170,113 +1192,266 @@
   
 
 
-<h1 id="dictionaries">Dictionaries</h1>
-<p>A <strong>dictionary</strong> (or <strong>dict</strong>) is a collection that stores <strong>key-value pairs</strong>.
-Think of a phonebook: you look up a person's <strong>name</strong> (the key) and find their
-<strong>phone number</strong> (the value). Unlike a list, where you use a numbered position,
-a dict lets you use a descriptive name.</p>
-<h2 id="creating-a-dict">Creating a Dict</h2>
-<p>Put key-value pairs between curly braces <code>{}</code>, with a colon <code>:</code> between each
-key and value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let person = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(person)   # prints: {name: Alice, age: 12}
+<h1 id="pattern-matching">Pattern Matching</h1>
+<h2 id="sorting-values-into-boxes">Sorting Values into Boxes</h2>
+<p>Imagine you have a pile of letters and a row of labelled boxes. You pick
+up each letter, read the label, and drop it into the matching box:</p>
+<ul>
+<li>Letter says "Bills" -- goes in the Bills box.</li>
+<li>Letter says "Birthday" -- goes in the Birthday box.</li>
+<li>Letter says anything else -- goes in the "Other" box.</li>
+</ul>
+<p>Pattern matching in Pebble works the same way. You give it a value, and
+it checks each <strong>case</strong> until it finds one that matches.</p>
+<h2 id="basic-syntax">Basic Syntax</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>match value {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    case 1 {
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        print(&quot;one&quot;)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    }
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    case 2 {
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        print(&quot;two&quot;)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    }
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    case _ {
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        print(&quot;something else&quot;)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    }
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>}
 </code></pre></div>
-<p>An empty dict has nothing between the braces:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let empty = {}
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(empty)   # prints: {}
+<p>Here's what happens:</p>
+<ol>
+<li>Pebble evaluates the value after <code>match</code>.</li>
+<li>It checks each <code>case</code> from top to bottom.</li>
+<li>When it finds a match, it runs that case's body and <strong>stops</strong> -- no
+   other cases are checked.</li>
+<li>The last case must be a catch-all (<code>_</code> or <code>let</code>) so nothing slips
+   through.</li>
+</ol>
+<h2 id="pattern-types">Pattern Types</h2>
+<p>Pebble supports four kinds of patterns.</p>
+<h3 id="literal-patterns">Literal Patterns</h3>
+<p>Match an exact value -- a number, string, or boolean:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let day = &quot;Monday&quot;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>match day {
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    case &quot;Saturday&quot; {
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        print(&quot;Weekend!&quot;)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    }
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    case &quot;Sunday&quot; {
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        print(&quot;Weekend!&quot;)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    }
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    case _ {
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        print(&quot;Weekday&quot;)
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    }
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>}
 </code></pre></div>
-<p>Keys must be <strong>strings</strong>. Values can be any type — numbers, strings, booleans,
-lists, or even other dicts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let record = {&quot;scores&quot;: [90, 85, 100], &quot;passed&quot;: true}
+<p>You can also match negative numbers:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>match temperature {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    case -1 {
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        print(&quot;Almost freezing&quot;)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    }
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    case 0 {
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        print(&quot;Freezing point&quot;)
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    }
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    case _ {
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        print(&quot;Something else&quot;)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    }
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>}
 </code></pre></div>
-<h2 id="reading-a-value">Reading a Value</h2>
-<p>Use square brackets with the <strong>key</strong> (a string) to look up a value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(d[&quot;name&quot;])   # prints: Alice
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>print(d[&quot;age&quot;])    # prints: 12
+<h3 id="wildcard-pattern">Wildcard Pattern</h3>
+<p>The underscore <code>_</code> matches <strong>anything</strong> without saving the value.
+Think of it as the "Other" box that catches everything:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>match colour {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    case &quot;red&quot; {
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        print(&quot;Stop!&quot;)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    }
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    case &quot;green&quot; {
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        print(&quot;Go!&quot;)
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    }
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    case _ {
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        print(&quot;Unknown colour&quot;)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    }
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>}
 </code></pre></div>
-<p>If you use a key that doesn't exist, Pebble stops with an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(d[&quot;email&quot;])   # Error: Key &#39;email&#39; not found in dict
+<h3 id="capture-pattern">Capture Pattern</h3>
+<p>Like a wildcard, but it <strong>saves</strong> the value into a variable so you
+can use it in the case body:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>match score {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    case 100 {
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        print(&quot;Perfect!&quot;)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    }
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    case let s {
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        print(&quot;You scored: {s}&quot;)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    }
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>}
 </code></pre></div>
-<h2 id="changing-or-adding-values">Changing or Adding Values</h2>
-<p>Assign to a key to change its value, or create a new key if it doesn't exist
-yet:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;}
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>d[&quot;name&quot;] = &quot;Bob&quot;      # change existing key
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>d[&quot;age&quot;] = 13           # add a new key
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(d)                # prints: {name: Bob, age: 13}
+<p>The variable <code>s</code> only exists inside that case's braces -- it
+disappears once the case body finishes.</p>
+<h3 id="or-pattern">OR Pattern</h3>
+<p>Match any of several values at once, separated by <code>|</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>match day {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    case &quot;Saturday&quot; | &quot;Sunday&quot; {
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        print(&quot;Weekend!&quot;)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    }
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    case _ {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        print(&quot;Weekday&quot;)
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    }
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>}
 </code></pre></div>
-<p>This is called an <strong>upsert</strong> — it <strong>up</strong>dates if the key exists, or
-<strong>insert</strong>s if it doesn't.</p>
-<h2 id="finding-the-size">Finding the Size</h2>
-<p>The built-in <code>len()</code> function tells you how many key-value pairs a dict has:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let d = {&quot;a&quot;: 1, &quot;b&quot;: 2, &quot;c&quot;: 3}
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(len(d))   # prints: 3
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>print(len({}))  # prints: 0
+<p>This is much cleaner than writing the same body twice. OR patterns
+only work with literal values.</p>
+<h2 id="exhaustiveness">Exhaustiveness</h2>
+<p>Pebble requires every match to be <strong>exhaustive</strong> -- the last case must
+be a wildcard (<code>_</code>) or a capture (<code>let x</code>) that catches anything not
+handled above. This catches mistakes at compile time:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>// This is an ERROR -- what if x is 3?
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>match x {
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    case 1 { print(&quot;one&quot;) }
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    case 2 { print(&quot;two&quot;) }
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>}
 </code></pre></div>
-<h2 id="getting-keys-and-values">Getting Keys and Values</h2>
-<p>Two built-in functions let you pull out just the keys or just the values:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(keys(d))     # prints: [name, age]
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>print(values(d))   # prints: [Alice, 12]
+<p>The compiler will tell you:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Match must end with a wildcard or capture pattern for exhaustiveness
 </code></pre></div>
-<p>Both return a <strong>list</strong>, so you can use them with <code>len()</code>, indexing, or loops:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let d = {&quot;x&quot;: 10, &quot;y&quot;: 20, &quot;z&quot;: 30}
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let k = keys(d)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>for i in range(len(k)) {
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    print(&quot;{k[i]}: {d[k[i]]}&quot;)
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>}
+<h2 id="match-vs-ifelse">Match vs If/Else</h2>
+<p>Pattern matching is like a cleaner version of long <code>if</code>/<code>else</code> chains.
+Compare:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>// With if/else
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>if x == 1 {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    print(&quot;one&quot;)
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>} else if x == 2 or x == 3 {
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    print(&quot;two or three&quot;)
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>} else {
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    print(&quot;other&quot;)
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>}
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>// With match
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>match x {
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    case 1 {
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        print(&quot;one&quot;)
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    }
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    case 2 | 3 {
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>        print(&quot;two or three&quot;)
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    }
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    case _ {
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>        print(&quot;other&quot;)
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>    }
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>}
 </code></pre></div>
-<h2 id="checking-the-type">Checking the Type</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(type({}))          # prints: dict
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(type({&quot;a&quot;: 1}))   # prints: dict
+<p>Match is especially nice when you have many values to check -- each
+case reads clearly, and the exhaustiveness check makes sure you haven't
+forgotten anything.</p>
+<h2 id="practical-examples">Practical Examples</h2>
+<h3 id="classifying-numbers">Classifying Numbers</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn classify(n) {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    match n {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        case 0 {
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>            return &quot;zero&quot;
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        }
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        case 1 {
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>            return &quot;one&quot;
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        }
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        case let x {
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>            return &quot;other&quot;
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>        }
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    }
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>}
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>print(classify(0))
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>print(classify(1))
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>print(classify(42))
 </code></pre></div>
-<h2 id="dicts-with-other-features">Dicts with Other Features</h2>
-<h3 id="string-interpolation">String Interpolation</h3>
-<p>You can use dict values inside <code>{...}</code> strings:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let person = {&quot;name&quot;: &quot;Alice&quot;}
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(&quot;hello {person[&quot;name&quot;]}&quot;)   # prints: hello Alice
+<p>Output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>zero
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>one
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>other
 </code></pre></div>
-<h3 id="functions">Functions</h3>
-<p>Dicts can be passed to and returned from functions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn greet(person) {
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    return &quot;Hi, {person[&quot;name&quot;]}!&quot;
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>}
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(greet({&quot;name&quot;: &quot;Bob&quot;}))   # prints: Hi, Bob!
+<h3 id="match-inside-a-loop">Match Inside a Loop</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>for i in range(4) {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    match i {
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        case 0 { print(&quot;start&quot;) }
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        case 1 | 2 { print(&quot;middle&quot;) }
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        case _ { print(&quot;end&quot;) }
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    }
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
 </code></pre></div>
-<h3 id="nested-dicts">Nested Dicts</h3>
-<p>A dict value can itself be a dict:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let data = {&quot;user&quot;: {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}}
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(data[&quot;user&quot;][&quot;name&quot;])   # prints: Alice
+<p>Output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>start
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>middle
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>middle
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>end
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
-<p>When the <strong>compiler</strong> sees <code>{"a": 1, "b": 2}</code>, it pushes each key and value
-onto the stack in order, then emits a <code>BUILD_DICT 2</code> instruction (where 2 is
-the number of key-value pairs). The <strong>VM</strong> pops <code>2 * 2 = 4</code> values off the
-stack, pairs them up, and creates a dictionary.</p>
-<p>For <code>d["name"]</code>, the compiler pushes the dict and the key string, then emits
-<code>INDEX_GET</code>. The VM checks whether the target is a list or a dict and handles
-it accordingly — for a dict it looks up the key and pushes the value.</p>
-<p>For <code>d["name"] = "Bob"</code>, the compiler pushes the dict, key, and value, then
-emits <code>INDEX_SET</code>. For a dict, the VM performs an upsert — it creates the key
-if it's missing, or updates it if it already exists.</p>
-<p>Think of <code>BUILD_DICT</code> like filling in a phonebook — you hand over names and
-numbers in pairs, and get a finished phonebook back. <code>INDEX_GET</code> is looking up
-a name in the phonebook, and <code>INDEX_SET</code> is writing a new entry or updating an
-existing one.</p>
-<h3 id="the-full-journey">The Full Journey</h3>
-<p>Here's how <code>let d = {"a": 1}</code> travels through the pipeline:</p>
-<ol>
-<li><strong>Lexer</strong> — produces tokens: <code>LET</code>, <code>IDENTIFIER("d")</code>, <code>EQUAL</code>,
-   <code>LEFT_BRACE</code>, <code>STRING("a")</code>, <code>COLON</code>, <code>INTEGER(1)</code>, <code>RIGHT_BRACE</code></li>
-<li><strong>Parser</strong> — builds an <code>Assignment</code> node whose value is a <code>DictLiteral</code>
-   containing one key-value pair</li>
-<li><strong>Analyzer</strong> — checks that all variables in keys and values are declared</li>
-<li><strong>Compiler</strong> — emits <code>LOAD_CONST 0</code> ("a"), <code>LOAD_CONST 1</code> (1),
-   <code>BUILD_DICT 1</code>, <code>STORE_NAME "d"</code></li>
-<li><strong>VM</strong> — pushes "a" and 1, packs them into a dict <code>{"a": 1}</code>, stores it
-   as <code>d</code></li>
-</ol>
+<p>The compiler turns a <code>match</code> statement into a chain of equality tests
+using a hidden temporary variable. No new opcodes are needed -- it
+reuses the same instructions as <code>if</code>/<code>else</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Evaluate</td>
+<td>The value expression is computed and stored in a hidden variable (<code>$match_0</code>)</td>
+</tr>
+<tr>
+<td>2. Test</td>
+<td>Each case loads the hidden variable and compares it to the pattern</td>
+</tr>
+<tr>
+<td>3. Jump</td>
+<td>If the test fails, jump to the next case</td>
+</tr>
+<tr>
+<td>4. Execute</td>
+<td>If the test passes, run the case body and jump to the end</td>
+</tr>
+<tr>
+<td>5. Catch-all</td>
+<td>The last case (wildcard/capture) runs if nothing else matched</td>
+</tr>
+</tbody>
+</table>
+<p>For OR patterns, the compiler chains multiple equality tests with <code>OR</code>
+instructions -- if any alternative matches, the case body runs.</p>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Syntax</th>
+<th>Matches</th>
+<th>Saves value?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Literal</td>
+<td><code>case 42</code></td>
+<td>Exact value</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Wildcard</td>
+<td><code>case _</code></td>
+<td>Anything</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Capture</td>
+<td><code>case let x</code></td>
+<td>Anything</td>
+<td>Yes -- into <code>x</code></td>
+</tr>
+<tr>
+<td>OR</td>
+<td><code>case 1 \| 2 \| 3</code></td>
+<td>Any of those</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
 
 
 
