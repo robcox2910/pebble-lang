@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/parser/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/tuple-unpacking/">
       
       
-        <link rel="prev" href="../ast/">
+        <link rel="prev" href="../list-comprehensions/">
       
       
-        <link rel="next" href="../types/">
+        <link rel="next" href="../repl/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Parser - Pebble</title>
+        <title>Tuple Unpacking - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-parser" class="md-skip">
+        <a href="#tuple-unpacking" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Parser
+              Tuple Unpacking
             
           </span>
         </div>
@@ -452,37 +452,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Parser
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../parser/" class="md-nav__link">
         
   
   
@@ -498,136 +471,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-parser" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Parser?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-is-parsing-hard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Is Parsing Hard?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#precedence-who-goes-first" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Precedence: Who Goes First?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#associativity-ties-go-left" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Associativity: Ties Go Left
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pratt-parsing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pratt Parsing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#parentheses-override-everything" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parentheses Override Everything
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#function-calls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Function Calls
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#beyond-expressions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Beyond Expressions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1113,10 +956,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../tuple-unpacking/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tuple Unpacking
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1132,6 +1002,175 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-gift-box-with-multiple-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Gift Box with Multiple Items
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#returning-multiple-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returning Multiple Values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unpacking-with-let" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unpacking with let
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unpacking-with-const" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unpacking with const
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reassignment-unpacking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reassignment Unpacking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#swap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Swap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-and-max" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min and Max
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#divmod-quotient-and-remainder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Divmod (quotient and remainder)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1192,191 +1231,148 @@
   
 
 
-<h1 id="the-parser">The Parser</h1>
-<h2 id="what-is-a-parser">What Is a Parser?</h2>
-<p>Imagine a <strong>grammar teacher</strong> diagramming a sentence. The teacher reads the
-words (tokens) and figures out the structure: "This is the subject, this is the
-verb, this is the object." The result is a diagram that shows how the words
-relate to each other.</p>
-<p>A <strong>parser</strong> does the same thing with code. It reads the flat list of tokens
-from the lexer and builds a tree -- the <a href="../ast/">AST</a> -- that shows the
-structure of your program.</p>
-<h2 id="why-is-parsing-hard">Why Is Parsing Hard?</h2>
-<p>Consider this expression:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1 + 2 * 3
+<h1 id="tuple-unpacking">Tuple Unpacking</h1>
+<h2 id="the-gift-box-with-multiple-items">The Gift Box with Multiple Items</h2>
+<p>Imagine getting a gift box that holds several items inside -- a toy car,
+a book, and a sticker. When you open the box, you take each item out
+and put it somewhere specific: the car goes on the shelf, the book on
+the desk, the sticker on your notebook.</p>
+<p><strong>Tuple unpacking</strong> works the same way. A function hands you a "box"
+(a list) with multiple values, and you unpack each value into its own
+variable in one go.</p>
+<h2 id="returning-multiple-values">Returning Multiple Values</h2>
+<p>A function can return more than one value by separating them with
+commas:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn swap(a, b) {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    return b, a
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
 </code></pre></div>
-<p>Is the answer 7 or 9? We know from maths class that multiplication comes
-before addition, so it's 7. But a computer reading left to right would see
-<code>1 + 2</code> first and might get 9.</p>
-<p>The parser's job is to <strong>understand the rules</strong> and build the right tree:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    +           NOT          *
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   / \         / \          / \
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  1   *       +   3        +   3
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>     / \     / \          / \
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    2   3   1   2        1   2
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>   (correct)  (wrong!)   (wrong!)
+<p>Under the hood, <code>return b, a</code> is sugar for <code>return [b, a]</code> -- it
+creates a list and returns it. But the comma syntax reads more
+naturally.</p>
+<h2 id="unpacking-with-let">Unpacking with <code>let</code></h2>
+<p>Use <code>let</code> with multiple names on the left side to unpack a list into
+separate variables:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let x, y = swap(1, 2)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(x)   # prints: 2
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>print(y)   # prints: 1
 </code></pre></div>
-<h2 id="precedence-who-goes-first">Precedence: Who Goes First?</h2>
-<p><strong>Precedence</strong> is a fancy word for "priority". Some operators bind tighter
-than others, just like multiplication before addition in maths:</p>
-<table>
-<thead>
-<tr>
-<th>Priority</th>
-<th>Operators</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Highest</td>
-<td><code>-x</code>, <code>not x</code>, <code>~x</code> (unary)</td>
-<td><code>-5</code>, <code>not true</code>, <code>~3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>**</code> (power)</td>
-<td><code>2 ** 3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>*</code>, <code>/</code>, <code>//</code>, <code>%</code></td>
-<td><code>2 * 3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>+</code>, <code>-</code></td>
-<td><code>1 + 2</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>&lt;&lt;</code>, <code>&gt;&gt;</code> (shifts)</td>
-<td><code>1 &lt;&lt; 3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>&amp;</code> (bitwise AND)</td>
-<td><code>5 &amp; 3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>^</code> (bitwise XOR)</td>
-<td><code>5 ^ 3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>\|</code> (bitwise OR)</td>
-<td><code>5 \| 3</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code></td>
-<td><code>x &gt; 10</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>==</code>, <code>!=</code></td>
-<td><code>x == 5</code></td>
-</tr>
-<tr>
-<td></td>
-<td><code>and</code></td>
-<td><code>a and b</code></td>
-</tr>
-<tr>
-<td>Lowest</td>
-<td><code>or</code></td>
-<td><code>a or b</code></td>
-</tr>
-</tbody>
-</table>
-<p>See <a href="../operators/">Operators</a> for a complete reference with examples.</p>
-<p>Operators with higher priority get "pulled in" first and end up deeper in the
-tree.</p>
-<h2 id="associativity-ties-go-left">Associativity: Ties Go Left</h2>
-<p>What about <code>10 - 3 - 2</code>? Both <code>-</code> operators have the same precedence, so we
-need a tiebreaker. In Pebble (like most languages), arithmetic is
-<strong>left-associative</strong>: ties are resolved left to right.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>10 - 3 - 2   →   (10 - 3) - 2   →   5
+<p>You can unpack any list, not just function results:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let a, b, c = [10, 20, 30]
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(a)   # prints: 10
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(b)   # prints: 20
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>print(c)   # prints: 30
 </code></pre></div>
-<p>If it were right-associative, it would be <code>10 - (3 - 2) = 9</code> -- a different
-answer!</p>
-<h2 id="pratt-parsing">Pratt Parsing</h2>
-<p>The Pebble parser uses a technique called <strong>Pratt parsing</strong> (named after
-Vaughan Pratt, who invented it in 1973). The core idea is simple:</p>
-<ol>
-<li>Parse the left-hand side (a number, variable, or grouped expression)</li>
-<li>Look at the next token -- is it an operator?</li>
-<li>If the operator's precedence is high enough, consume it and parse the
-   right-hand side</li>
-<li>Repeat until you hit an operator that's too weak</li>
-</ol>
-<p>This single loop handles all precedence levels and associativity correctly.
-It's like a tug-of-war: stronger operators pull their operands in, while
-weaker operators have to wait.</p>
-<h2 id="parentheses-override-everything">Parentheses Override Everything</h2>
-<p>Parentheses let you override the default precedence:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(1 + 2) * 3
+<h2 id="unpacking-with-const">Unpacking with <code>const</code></h2>
+<p>Use <code>const</code> to unpack into variables that cannot be changed later:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>const lo, hi = [1, 100]
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a># lo and hi are now locked -- trying to reassign them is an error
 </code></pre></div>
-<p>The parser sees <code>(</code>, recursively parses the inside as a fresh expression (with
-precedence reset to zero), and then continues with <code>* 3</code>. The result is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    *
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>   / \
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  +   3
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> / \
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>1   2
+<h2 id="reassignment-unpacking">Reassignment Unpacking</h2>
+<p>If the variables already exist, you can unpack into them without
+<code>let</code> or <code>const</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>let a = 0
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>let b = 0
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>a, b = [3, 4]
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>print(a)   # prints: 3
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>print(b)   # prints: 4
 </code></pre></div>
-<p>Addition happens first because the parentheses said so.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>The parser catches mistakes like:</p>
+<p>This is especially useful for the <strong>swap idiom</strong> -- swapping two
+variables without a temporary:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let x = 1
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>let y = 2
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>x, y = [y, x]
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(x)   # prints: 2
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>print(y)   # prints: 1
+</code></pre></div>
+<h2 id="error-cases">Error Cases</h2>
+<p>Pebble checks at runtime that the list has exactly the right number of
+elements:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let a, b = [1, 2, 3]   # Error: Expected 2 values to unpack, got 3
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>let x, y, z = [1, 2]   # Error: Expected 3 values to unpack, got 2
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>let p, q = 42           # Error: Cannot unpack int, expected a list
+</code></pre></div>
+<h2 id="practical-examples">Practical Examples</h2>
+<h3 id="swap">Swap</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn swap(a, b) {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return b, a
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>let x, y = swap(1, 2)
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>print(x)   # prints: 2
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>print(y)   # prints: 1
+</code></pre></div>
+<h3 id="min-and-max">Min and Max</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn min_max(a, b) {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    if a &lt; b {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        return a, b
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    }
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    return b, a
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>}
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>let lo, hi = min_max(7, 3)
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>print(lo)   # prints: 3
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>print(hi)   # prints: 7
+</code></pre></div>
+<h3 id="divmod-quotient-and-remainder">Divmod (quotient and remainder)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn divmod(a, b) {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    return a // b, a % b
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>let q, r = divmod(17, 5)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>print(q)   # prints: 3
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>print(r)   # prints: 2
+</code></pre></div>
+<h2 id="rules">Rules</h2>
 <ul>
-<li><strong>Missing closing parenthesis</strong>: <code>(1 + 2</code> → "Expected ')'"</li>
-<li><strong>Missing operand</strong>: <code>1 +</code> → "Expected expression"</li>
-<li><strong>Unexpected token</strong>: <code>)</code> at the start → "Unexpected token ')'"</li>
+<li>The number of names on the left <strong>must</strong> match the number of
+  elements in the list on the right.</li>
+<li><code>return a, b, c</code> is sugar for <code>return [a, b, c]</code>.</li>
+<li><code>let</code> and <code>const</code> unpacking creates new variables.</li>
+<li>Reassignment unpacking (<code>x, y = ...</code>) requires the variables to
+  already exist and not be <code>const</code>.</li>
+<li>You can unpack any expression that produces a list -- a literal, a
+  function call, a list comprehension, or even an index into a list of
+  lists.</li>
 </ul>
-<p>Each error includes the exact line and column where the problem was found.</p>
-<h2 id="function-calls">Function Calls</h2>
-<p>When the parser sees an identifier followed by <code>(</code>, it knows this is a
-<strong>function call</strong>, not just a variable name. It parses the comma-separated
-arguments between the parentheses and wraps everything in a <code>FunctionCall</code>
-node:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>add(1 + 2, x)  →  FunctionCall(&quot;add&quot;, [BinaryOp(1, +, 2), Identifier(&quot;x&quot;)])
-</code></pre></div>
-<p>Function calls are expressions, so they can appear anywhere an expression is
-valid -- as an argument to another call, on the right side of <code>=</code>, or as part
-of a larger expression like <code>add(1, 2) + 3</code>.</p>
-<h2 id="beyond-expressions">Beyond Expressions</h2>
-<p>Expressions are only half the story. The parser also handles <strong>statements</strong> --
-instructions like creating variables, printing values, and controlling the flow
-of your program. See <a href="../statements/">Statements</a> for the full picture.</p>
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<p>When the compiler sees <code>let x, y = [1, 2]</code>, it emits:</p>
+<ol>
+<li>Compile the right-hand side (the list <code>[1, 2]</code>).</li>
+<li><code>UNPACK_SEQUENCE 2</code> -- pop the list from the stack, check that it
+   has exactly 2 elements, then push each element onto the stack
+   (first element ends up on top).</li>
+<li><code>STORE_NAME "x"</code> -- pop the top value and store it as <code>x</code>.</li>
+<li><code>STORE_NAME "y"</code> -- pop the next value and store it as <code>y</code>.</li>
+</ol>
+<p>The <code>UNPACK_SEQUENCE</code> instruction is the only new opcode. It validates
+the list length and pushes elements in the right order so that the
+first name gets the first element.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
 <tr>
-<th>Concept</th>
-<th>Analogy</th>
+<th>Syntax</th>
+<th>What it does</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Parser</td>
-<td>A grammar teacher diagramming a sentence</td>
+<td><code>return a, b</code></td>
+<td>Return a list <code>[a, b]</code> (sugar)</td>
 </tr>
 <tr>
-<td>Precedence</td>
-<td>Priority -- multiplication before addition</td>
+<td><code>let x, y = expr</code></td>
+<td>Unpack into new variables</td>
 </tr>
 <tr>
-<td>Associativity</td>
-<td>Tiebreaker -- left to right for same priority</td>
+<td><code>const x, y = expr</code></td>
+<td>Unpack into new constants</td>
 </tr>
 <tr>
-<td>Pratt parsing</td>
-<td>A tug-of-war where stronger operators pull first</td>
+<td><code>x, y = expr</code></td>
+<td>Unpack into existing variables</td>
 </tr>
 <tr>
-<td>Parentheses</td>
-<td>"Do this part first!" brackets</td>
+<td><code>UNPACK_SEQUENCE N</code></td>
+<td>VM instruction: validate list length, push N</td>
 </tr>
 </tbody>
 </table>
