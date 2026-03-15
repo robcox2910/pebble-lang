@@ -1,4 +1,4 @@
-# Functions & For Loops
+# Functions
 
 ## What Is a Function?
 
@@ -104,63 +104,6 @@ fn maybe_print(x) {
 }
 ```
 
-## Going Through Items: `for` Loops
-
-A **for loop** is like doing a **roll call** -- you go through a list of items
-one by one, doing something with each one:
-
-```pebble
-for i in range(5) {
-    print(i)
-}
-```
-
-This prints `0`, `1`, `2`, `3`, `4`. Each time around the loop, `i` takes
-the next value from `range(5)`.
-
-The structure is:
-
-```
-for variable in iterable {
-    body
-}
-```
-
-- **variable** -- a name that holds the current item (like `i`)
-- **iterable** -- something that produces items to loop over
-- **body** -- what to do with each item
-
-You can also give `range` a starting point, or a step size:
-
-```pebble
-for i in range(2, 5) {
-    print(i)
-}
-# prints: 2, 3, 4
-
-for i in range(0, 10, 2) {
-    print(i)
-}
-# prints: 0, 2, 4, 6, 8
-
-for i in range(5, 0, -1) {
-    print(i)
-}
-# prints: 5, 4, 3, 2, 1
-```
-
-See [Standard Library](stdlib.md) for all `range()` forms.
-
-### For vs While
-
-Both `for` and `while` repeat things, but they're suited for different jobs:
-
-| | `for` | `while` |
-|---|---|---|
-| Best for | Going through a collection | Repeating until a condition changes |
-| Counter needed? | Built-in (`i` in `for i in ...`) | You manage it yourself |
-| Analogy | Roll call | Broken record |
-
 ## Functions Are Values
 
 In Pebble, functions are **first-class values** -- just like numbers and
@@ -195,7 +138,7 @@ This creates a function without the usual `fn name(...)` form -- just
 
 ## Putting It All Together
 
-Here's a program that uses functions and for loops together:
+Here's a program that uses functions with other features:
 
 ```pebble
 fn greet(name) {
@@ -212,7 +155,7 @@ greet("Alice")
 count_up(3)
 ```
 
-Functions can contain for loops, for loops can contain if statements -- you can
+Functions can contain loops, conditions, and other statements -- you can
 nest them however you like to build up complex behaviour from simple pieces.
 
 ## What Can Go Wrong?
@@ -223,8 +166,6 @@ The parser catches several mistakes:
 |------|-------|
 | `foo(1, 2` | Expected ')' after arguments |
 | `foo(1,)` | Unexpected token ')' |
-| `for in items { }` | Expected loop variable after 'for' |
-| `for i items { }` | Expected 'in' after loop variable |
 | `fn () { }` | Expected function name after 'fn' |
 | `fn greet { }` | Expected '(' after function name |
 
@@ -236,5 +177,4 @@ The parser catches several mistakes:
 | Parameter | An ingredient slot on the recipe |
 | Argument | The actual ingredient you hand over |
 | `return` | Handing back the finished dish |
-| `for` loop | Roll call -- go through each item one by one |
 | Function call `()` | Using a recipe |

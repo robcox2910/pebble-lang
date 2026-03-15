@@ -159,6 +159,10 @@ print(xs)   # prints: [1, 2, 3, 4]
 
 Think of it like adding another person to the back of a queue.
 
+!!! note
+    You can also write `xs.push(4)` using method syntax — see
+    [Arrays](arrays.md#push).
+
 ## pop(list)
 
 Remove and give back the **last** value from a list:
@@ -172,6 +176,10 @@ print(xs)     # prints: [1, 2]
 
 If the list is empty, Pebble stops with an error — you can't take something
 from an empty container.
+
+!!! note
+    You can also write `xs.pop()` using method syntax — see
+    [Arrays](arrays.md#pop).
 
 ## keys(dict)
 
