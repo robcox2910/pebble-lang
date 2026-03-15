@@ -20,6 +20,7 @@ from pebble.ast_nodes import (
     BooleanLiteral,
     BreakStatement,
     CapturePattern,
+    ClassDef,
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
@@ -139,6 +140,7 @@ class Compiler:
         self._try_depth: int = 0
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
+        self._class_methods: dict[str, list[str]] = {}
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
 
@@ -161,6 +163,7 @@ class Compiler:
             functions=self._functions,
             structs=self._structs,
             struct_field_types=self._struct_field_types,
+            class_methods=self._class_methods,
         )
 
     # -- Emit helpers ---------------------------------------------------------
@@ -264,6 +267,8 @@ class Compiler:
                 self._compile_match(stmt)
             case StructDef():
                 self._compile_struct_def(stmt)
+            case ClassDef():
+                self._compile_class_def(stmt)
             case FieldAssignment():
                 self._compile_field_assignment(stmt)
             case ImportStatement() | FromImportStatement():
@@ -707,16 +712,24 @@ class Compiler:
         self._emit(OpCode.CALL, node.name, location=node.location)
 
     def _compile_method_call(self, node: MethodCall) -> None:
-        """Compile a method call: push target, push args, pad, CALL_METHOD."""
-        self._compile_expression(node.target)
-        for arg in node.arguments:
-            self._compile_expression(arg)
-        # Pad with sentinels so the VM always pops the max arity
-        expected = METHOD_ARITIES[node.method]
-        max_arity = max(expected) if isinstance(expected, tuple) else expected
-        for _ in range(max_arity - len(node.arguments)):
-            self._emit_constant(METHOD_NONE, location=node.location)
-        self._emit(OpCode.CALL_METHOD, node.method, location=node.location)
+        """Compile a method call: builtin → CALL_METHOD, class → CALL_INSTANCE_METHOD."""
+        if node.method in METHOD_ARITIES:
+            # Builtin method path: target, args, pad, CALL_METHOD
+            self._compile_expression(node.target)
+            for arg in node.arguments:
+                self._compile_expression(arg)
+            expected = METHOD_ARITIES[node.method]
+            max_arity = max(expected) if isinstance(expected, tuple) else expected
+            for _ in range(max_arity - len(node.arguments)):
+                self._emit_constant(METHOD_NONE, location=node.location)
+            self._emit(OpCode.CALL_METHOD, node.method, location=node.location)
+        else:
+            # Class instance method: target, args, CALL_INSTANCE_METHOD
+            self._compile_expression(node.target)
+            for arg in node.arguments:
+                self._compile_expression(arg)
+            operand = f"{node.method}:{len(node.arguments)}"
+            self._emit(OpCode.CALL_INSTANCE_METHOD, operand, location=node.location)
 
     def _compile_string_interpolation(self, node: StringInterpolation) -> None:
         """Compile a string interpolation: push each part, then BUILD_STRING."""
@@ -883,6 +896,63 @@ class Compiler:
         annotated = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
         if annotated:
             self._struct_field_types[node.name] = annotated
+
+    def _compile_class_def(self, node: ClassDef) -> None:
+        """Compile a class definition — store field metadata, compile methods."""
+        # Store field metadata (same as struct)
+        self._structs[node.name] = [f.name for f in node.fields]
+        annotated = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
+        if annotated:
+            self._struct_field_types[node.name] = annotated
+
+        # Compile each method as a mangled function
+        method_names: list[str] = []
+        for method in node.methods:
+            mangled_name = f"{node.name}.{method.name}"
+            fn_code = CodeObject(name=mangled_name)
+            fn_code.parameters = [p.name for p in method.parameters]
+            fn_code.param_types = [p.type_annotation for p in method.parameters]
+            fn_code.return_type = method.return_type
+            fn_code.cell_variables = sorted(self._cell_vars.get(mangled_name, set()))
+            fn_code.free_variables = sorted(self._free_vars.get(mangled_name, set()))
+
+            # Save compiler state
+            previous = self._current
+            previous_loop_counter = self._loop_var_counter
+            previous_match_counter = self._match_var_counter
+            previous_comp_counter = self._comp_var_counter
+            previous_loop_contexts = self._loop_contexts
+            previous_try_depth = self._try_depth
+            self._current = fn_code
+            self._loop_var_counter = 0
+            self._match_var_counter = 0
+            self._comp_var_counter = 0
+            self._loop_contexts = []
+            self._try_depth = 0
+
+            for stmt in method.body:
+                self._compile_statement(stmt)
+
+            # Implicit return 0 if no explicit return
+            if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
+                self._emit_constant(0)
+                if method.return_type is not None:
+                    self._emit(OpCode.CHECK_TYPE, method.return_type)
+                self._emit(OpCode.RETURN)
+
+            self._functions[mangled_name] = fn_code
+
+            # Restore compiler state
+            self._current = previous
+            self._loop_var_counter = previous_loop_counter
+            self._match_var_counter = previous_match_counter
+            self._comp_var_counter = previous_comp_counter
+            self._loop_contexts = previous_loop_contexts
+            self._try_depth = previous_try_depth
+
+            method_names.append(method.name)
+
+        self._class_methods[node.name] = method_names
 
     def _compile_field_access(self, node: FieldAccess) -> None:
         """Compile a field read: push target, then GET_FIELD."""

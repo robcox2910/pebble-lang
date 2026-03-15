@@ -115,6 +115,7 @@ class VirtualMachine:
         self._functions: dict[str, CodeObject] = {}
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
+        self._class_methods: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
         self._current_instruction: Instruction | None = None
         self._exception_handlers: list[_ExceptionHandler] = []
@@ -127,6 +128,7 @@ class VirtualMachine:
         self._functions = dict(program.functions)
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
+        self._class_methods = dict(program.class_methods)
         self._frames = [Frame(code=program.main)]
         self._exception_handlers = []
         try:
@@ -146,6 +148,7 @@ class VirtualMachine:
         self._functions = dict(program.functions)
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
+        self._class_methods = dict(program.class_methods)
         self._frames = [Frame(code=program.main, variables=dict(variables))]
         self._exception_handlers = []
         try:
@@ -264,6 +267,8 @@ class VirtualMachine:
                 self._exec_call(instruction)
             case OpCode.CALL_METHOD:
                 self._exec_call_method(instruction)
+            case OpCode.CALL_INSTANCE_METHOD:
+                self._exec_call_instance_method(instruction)
             case OpCode.RETURN:
                 self._exec_return()
             case OpCode.MAKE_CLOSURE:
@@ -774,6 +779,46 @@ class VirtualMachine:
         except PebbleRuntimeError as exc:
             self._runtime_error(exc.message)
         self._stack.append(result)
+
+    def _exec_call_instance_method(self, instruction: Instruction) -> None:
+        """Handle CALL_INSTANCE_METHOD — dispatch to user-defined class method."""
+        operand = _str_operand(instruction)
+        method_name, arg_count_str = operand.rsplit(":", 1)
+        arg_count = int(arg_count_str)
+
+        # Pop args (in reverse) then target
+        args_list = [self._stack.pop() for _ in range(arg_count)]
+        args_list.reverse()
+        target = self._stack.pop()
+
+        if not isinstance(target, StructInstance):
+            type_name = type(target).__name__
+            self._runtime_error(f"Value of type '{type_name}' is not a struct")
+
+        # Look up the mangled function name
+        mangled = f"{target.type_name}.{method_name}"
+        if mangled not in self._functions:
+            self._runtime_error(f"Class '{target.type_name}' has no method '{method_name}'")
+
+        fn_code = self._functions[mangled]
+
+        # Build args dict: self=target + remaining params
+        args: dict[str, Value] = {
+            "self": target,
+            **dict(zip(fn_code.parameters[1:], args_list, strict=True)),
+        }
+
+        # Check parameter type annotations (skip self's type)
+        if fn_code.param_types:
+            for param_name, param_type in zip(
+                fn_code.parameters[1:], fn_code.param_types[1:], strict=True
+            ):
+                if param_type is not None:
+                    self._check_param_type(args[param_name], param_type, param_name)
+
+        new_frame = Frame(code=fn_code, variables=args)
+        self._init_cells(new_frame)
+        self._frames.append(new_frame)
 
     def _exec_make_closure(self, instruction: Instruction) -> None:
         """Handle MAKE_CLOSURE — create a Closure from a function and captured cells."""

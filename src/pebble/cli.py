@@ -48,11 +48,16 @@ def main() -> None:
             **resolver.merged_struct_field_types,
             **compiled.struct_field_types,
         }
+        all_class_methods = {
+            **resolver.merged_class_methods,
+            **compiled.class_methods,
+        }
         full_program = CompiledProgram(
             main=compiled.main,
             functions=all_functions,
             structs=all_structs,
             struct_field_types=all_struct_field_types,
+            class_methods=all_class_methods,
         )
         VirtualMachine().run(full_program)
     except PebbleError as exc:

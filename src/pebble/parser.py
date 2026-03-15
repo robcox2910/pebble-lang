@@ -18,6 +18,7 @@ from pebble.ast_nodes import (
     BooleanLiteral,
     BreakStatement,
     CapturePattern,
+    ClassDef,
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
@@ -596,6 +597,53 @@ class Parser:
             location=struct_token.location,
         )
 
+    def _parse_class_def(self) -> ClassDef:
+        """Parse a ``class Name { fields, fn method(self) { ... } }`` definition."""
+        class_token = self._advance()  # consume 'class'
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected class name after 'class'")
+        self._expect(TokenKind.LEFT_BRACE, "Expected '{' after class name")
+        self._skip_newlines()
+
+        fields: list[Parameter] = []
+        methods: list[FunctionDef] = []
+        seen_fields: set[str] = set()
+        seen_methods: set[str] = set()
+
+        # Parse fields: comma-separated parameters until we hit FN or }
+        while (
+            not self._at_end()
+            and self._peek().kind != TokenKind.RIGHT_BRACE
+            and self._peek().kind != TokenKind.FN
+        ):
+            param = self._parse_parameter()
+            if param.name in seen_fields:
+                self._error(f"Duplicate field '{param.name}' in class '{name_token.value}'")
+            fields.append(param)
+            seen_fields.add(param.name)
+            if not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                self._skip_newlines()
+            else:
+                self._skip_newlines()
+
+        # Parse methods
+        while not self._at_end() and self._peek().kind == TokenKind.FN:
+            method = self._parse_function_def()
+            if method.name in seen_methods:
+                self._error(f"Duplicate method '{method.name}' in class '{name_token.value}'")
+            methods.append(method)
+            seen_methods.add(method.name)
+            self._skip_newlines()
+
+        self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after class body")
+        self._consume_newline()
+        return ClassDef(
+            name=name_token.value,
+            fields=fields,
+            methods=methods,
+            location=class_token.location,
+        )
+
     def _parse_import(self) -> ImportStatement:
         """Parse ``import "path.pbl"``."""
         import_token = self._advance()  # consume 'import'
@@ -1030,6 +1078,7 @@ class Parser:
         TokenKind.THROW: _parse_throw,
         TokenKind.MATCH: _parse_match,
         TokenKind.STRUCT: _parse_struct_def,
+        TokenKind.CLASS: _parse_class_def,
         TokenKind.IMPORT: _parse_import,
         TokenKind.FROM: _parse_from_import,
     }

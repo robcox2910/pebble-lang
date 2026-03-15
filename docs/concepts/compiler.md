@@ -354,7 +354,8 @@ just knows the function exists so it can `CALL` it later.
 | `BUILD_DICT` | count | Pop *count* key-value pairs and create a dict |
 | `INDEX_GET` | — | Pop an index and a target (list or dict), push the element |
 | `INDEX_SET` | — | Pop value, index, target; change the element (dict upserts) |
-| `CALL_METHOD` | name | Call a method on the top-of-stack value |
+| `CALL_METHOD` | name | Call a built-in method on the top-of-stack value |
+| `CALL_INSTANCE_METHOD` | name:count | Call a class method with *count* extra args |
 | `SLICE_GET` | — | Pop step, stop, start, target; push sliced result |
 | `SETUP_TRY` | target | Push an exception handler pointing at *target* |
 | `POP_TRY` | — | Remove the top exception handler |
@@ -362,6 +363,8 @@ just knows the function exists so it can `CALL` it later.
 | `MAKE_CLOSURE` | name | Create a closure from a function + captured Cells |
 | `LOAD_CELL` | name | Push a captured variable's value |
 | `STORE_CELL` | name | Pop and store into a captured variable |
+| `UNPACK_SEQUENCE` | count | Pop a list, push each of its *count* elements |
+| `CHECK_TYPE` | type | Pop a value and error if it doesn't match the type |
 | `GET_FIELD` | name | Pop a struct instance, push the named field's value |
 | `SET_FIELD` | name | Pop value and struct instance, set the named field |
 | `PRINT` | — | Pop and print the top value |

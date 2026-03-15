@@ -423,6 +423,16 @@ class StructDef:
 
 
 @dataclass(frozen=True)
+class ClassDef:
+    """A ``class Dog { name, age, fn bark(self) { ... } }`` definition."""
+
+    name: str
+    fields: list[Parameter]
+    methods: list[FunctionDef]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class FieldAssignment:
     """A ``target.field = value`` write statement like ``p.x = 5``."""
 
@@ -500,6 +510,7 @@ Statement = (
     | ThrowStatement
     | MatchStatement
     | StructDef
+    | ClassDef
     | FieldAssignment
     | ImportStatement
     | FromImportStatement

@@ -77,6 +77,7 @@ class OpCode(StrEnum):
     # -- Functions ------------------------------------------------------------
     CALL = "CALL"
     CALL_METHOD = "CALL_METHOD"
+    CALL_INSTANCE_METHOD = "CALL_INSTANCE_METHOD"
     RETURN = "RETURN"
 
     # -- Closures -------------------------------------------------------------
@@ -201,5 +202,8 @@ class CompiledProgram:
     functions: dict[str, CodeObject]
     structs: dict[str, list[str]] = field(default_factory=lambda: {})  # noqa: PIE807
     struct_field_types: dict[str, dict[str, str]] = field(
+        default_factory=lambda: {},  # noqa: PIE807
+    )
+    class_methods: dict[str, list[str]] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )

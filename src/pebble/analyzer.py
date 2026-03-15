@@ -20,6 +20,7 @@ from pebble.ast_nodes import (
     BooleanLiteral,
     BreakStatement,
     CapturePattern,
+    ClassDef,
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
@@ -206,6 +207,7 @@ class SemanticAnalyzer:
         self._past_imports = False
         self._cell_vars: dict[str, set[str]] = {}
         self._free_vars: dict[str, set[str]] = {}
+        self._class_methods: dict[str, dict[str, int]] = {}
 
     # -- Closure metadata -----------------------------------------------------
 
@@ -218,6 +220,11 @@ class SemanticAnalyzer:
     def free_vars(self) -> dict[str, set[str]]:
         """Map of function name → variables captured from outer functions."""
         return self._free_vars
+
+    @property
+    def class_methods(self) -> dict[str, dict[str, int]]:
+        """Map of class name → {method_name: user_arity (excluding self)}."""
+        return self._class_methods
 
     # -- Public API -----------------------------------------------------------
 
@@ -299,6 +306,8 @@ class SemanticAnalyzer:
                 self._visit_match(stmt)
             case StructDef():
                 self._visit_struct_def(stmt)
+            case ClassDef():
+                self._visit_class_def(stmt)
             case FieldAssignment():
                 self._visit_field_assignment(stmt)
             case ImportStatement() | FromImportStatement():
@@ -623,6 +632,52 @@ class SemanticAnalyzer:
             if f.type_annotation is not None:
                 self._validate_type_name(f.type_annotation, node.location)
 
+    def _visit_class_def(self, node: ClassDef) -> None:
+        """Visit a class definition — register constructor, validate methods."""
+        # Register constructor with arity = field count
+        self._scope.declare_function(node.name, len(node.fields), node.location)
+        self._scope.variables[node.name] = node.location
+
+        # Validate field type annotations
+        for f in node.fields:
+            if f.type_annotation is not None:
+                self._validate_type_name(f.type_annotation, node.location)
+
+        # Pre-register method arities so methods can call each other
+        method_arities: dict[str, int] = {}
+        for method in node.methods:
+            # First param must be 'self'
+            if not method.parameters or method.parameters[0].name != "self":
+                msg = f"Method '{method.name}' must have 'self' as first parameter"
+                raise SemanticError(msg, line=method.location.line, column=method.location.column)
+
+            # Reject builtin method name collisions
+            if method.name in METHOD_ARITIES:
+                msg = f"Method name '{method.name}' is reserved for builtin methods"
+                raise SemanticError(msg, line=method.location.line, column=method.location.column)
+
+            method_arities[method.name] = len(method.parameters) - 1
+
+        # Register before visiting bodies so inter-method calls resolve
+        self._class_methods[node.name] = method_arities
+
+        # Now validate method bodies
+        for method in node.methods:
+            self._push_scope()
+            self._scope.function_name = f"{node.name}.{method.name}"
+            for param in method.parameters:
+                self._scope.declare_variable(param.name, method.location)
+                if param.type_annotation is not None and param.name != "self":
+                    self._validate_type_name(param.type_annotation, method.location)
+            if method.return_type is not None:
+                self._validate_type_name(method.return_type, method.location)
+            prev_in_function = self._in_function
+            self._in_function = True
+            for stmt in method.body:
+                self._visit_statement(stmt)
+            self._in_function = prev_in_function
+            self._pop_scope()
+
     def _visit_field_access(self, node: FieldAccess) -> None:
         """Visit a field access — validate target, defer field check to runtime."""
         self._visit_expression(node.target)
@@ -646,6 +701,19 @@ class SemanticAnalyzer:
         self._scope.declare_function(name, field_count, location)
         self._scope.variables[name] = location
 
+    def register_imported_class(
+        self,
+        name: str,
+        field_count: int,
+        method_names: list[str],
+        location: SourceLocation,
+    ) -> None:
+        """Register an imported class in the global scope."""
+        self._scope.declare_function(name, field_count, location)
+        self._scope.variables[name] = location
+        # Register method names so _visit_method_call allows them
+        self._class_methods[name] = dict.fromkeys(method_names, 0)
+
     def reset_import_barrier(self) -> None:
         """Reset the import-ordering flag (for REPL re-entry)."""
         self._past_imports = False
@@ -653,19 +721,30 @@ class SemanticAnalyzer:
     def _visit_method_call(self, node: MethodCall) -> None:
         """Visit a method call — validate method name and argument count."""
         self._visit_expression(node.target)
-        if node.method not in METHOD_ARITIES:
-            msg = f"Unknown method '{node.method}'"
-            raise SemanticError(msg, line=node.location.line, column=node.location.column)
-        expected = METHOD_ARITIES[node.method]
-        actual = len(node.arguments)
-        if isinstance(expected, tuple):
-            if actual not in expected:
-                options = ", ".join(str(a) for a in expected)
-                msg = f"Method '{node.method}' expects {options} arguments, got {actual}"
+
+        # Builtin method path
+        if node.method in METHOD_ARITIES:
+            expected = METHOD_ARITIES[node.method]
+            actual = len(node.arguments)
+            if isinstance(expected, tuple):
+                if actual not in expected:
+                    options = ", ".join(str(a) for a in expected)
+                    msg = f"Method '{node.method}' expects {options} arguments, got {actual}"
+                    raise SemanticError(msg, line=node.location.line, column=node.location.column)
+            elif actual != expected:
+                s = "" if expected == 1 else "s"
+                msg = f"Method '{node.method}' expects {expected} argument{s}, got {actual}"
                 raise SemanticError(msg, line=node.location.line, column=node.location.column)
-        elif actual != expected:
-            s = "" if expected == 1 else "s"
-            msg = f"Method '{node.method}' expects {expected} argument{s}, got {actual}"
-            raise SemanticError(msg, line=node.location.line, column=node.location.column)
-        for arg in node.arguments:
-            self._visit_expression(arg)
+            for arg in node.arguments:
+                self._visit_expression(arg)
+            return
+
+        # Class instance method path — check if ANY class defines this method
+        for methods in self._class_methods.values():
+            if node.method in methods:
+                for arg in node.arguments:
+                    self._visit_expression(arg)
+                return
+
+        msg = f"Unknown method '{node.method}'"
+        raise SemanticError(msg, line=node.location.line, column=node.location.column)

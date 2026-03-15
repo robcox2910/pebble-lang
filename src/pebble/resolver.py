@@ -12,7 +12,7 @@ from pathlib import Path  # noqa: TC003 — used at runtime
 from typing import TYPE_CHECKING
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.ast_nodes import FromImportStatement, FunctionDef, ImportStatement, StructDef
+from pebble.ast_nodes import ClassDef, FromImportStatement, FunctionDef, ImportStatement, StructDef
 from pebble.compiler import Compiler
 from pebble.errors import PebbleImportError
 from pebble.lexer import Lexer
@@ -39,8 +39,10 @@ class ResolvedModule:
     functions: dict[str, CodeObject]
     structs: dict[str, list[str]]
     struct_field_types: dict[str, dict[str, str]]
+    class_methods: dict[str, list[str]]
     exported_functions: dict[str, int]
     exported_structs: dict[str, int]
+    exported_classes: dict[str, int]
 
 
 class ModuleResolver:
@@ -59,6 +61,7 @@ class ModuleResolver:
         self._merged_functions: dict[str, CodeObject] = {}
         self._merged_structs: dict[str, list[str]] = {}
         self._merged_struct_field_types: dict[str, dict[str, str]] = {}
+        self._merged_class_methods: dict[str, list[str]] = {}
 
     # -- Public API -----------------------------------------------------------
 
@@ -76,6 +79,11 @@ class ModuleResolver:
     def merged_struct_field_types(self) -> dict[str, dict[str, str]]:
         """Return all imported struct field type annotations for merging."""
         return dict(self._merged_struct_field_types)
+
+    @property
+    def merged_class_methods(self) -> dict[str, list[str]]:
+        """Return all imported class method metadata for merging."""
+        return dict(self._merged_class_methods)
 
     def resolve_imports(self, program: Program, analyzer: SemanticAnalyzer) -> None:
         """Walk *program*'s import statements, resolve each, and register names in *analyzer*."""
@@ -95,10 +103,14 @@ class ModuleResolver:
             analyzer.register_imported_function(name, arity, stmt.location)
         for name, field_count in resolved.exported_structs.items():
             analyzer.register_imported_struct(name, field_count, stmt.location)
+        for name, field_count in resolved.exported_classes.items():
+            method_names = resolved.class_methods.get(name, [])
+            analyzer.register_imported_class(name, field_count, method_names, stmt.location)
         # Merge all definitions (including transitive) for CompiledProgram
         self._merged_functions.update(resolved.functions)
         self._merged_structs.update(resolved.structs)
         self._merged_struct_field_types.update(resolved.struct_field_types)
+        self._merged_class_methods.update(resolved.class_methods)
 
     def _resolve_from_import(self, stmt: FromImportStatement, analyzer: SemanticAnalyzer) -> None:
         """Resolve a ``from "path.pbl" import name1, name2`` statement."""
@@ -110,6 +122,10 @@ class ModuleResolver:
             elif name in resolved.exported_structs:
                 field_count = resolved.exported_structs[name]
                 analyzer.register_imported_struct(name, field_count, stmt.location)
+            elif name in resolved.exported_classes:
+                field_count = resolved.exported_classes[name]
+                method_names = resolved.class_methods.get(name, [])
+                analyzer.register_imported_class(name, field_count, method_names, stmt.location)
             else:
                 msg = f"Module '{stmt.path}' does not export '{name}'"
                 raise PebbleImportError(msg, line=stmt.location.line, column=stmt.location.column)
@@ -117,6 +133,7 @@ class ModuleResolver:
         self._merged_functions.update(resolved.functions)
         self._merged_structs.update(resolved.structs)
         self._merged_struct_field_types.update(resolved.struct_field_types)
+        self._merged_class_methods.update(resolved.class_methods)
 
     def _resolve_path(self, import_path: str, location: SourceLocation) -> Path:
         """Resolve *import_path* relative to *base_dir*."""
@@ -148,6 +165,7 @@ class ModuleResolver:
             # Extract this module's own top-level defs
             exported_functions = _extract_function_defs(program.statements)
             exported_structs = _extract_struct_defs(program.statements)
+            exported_classes = _extract_class_defs(program.statements)
 
             # Recursively resolve nested imports in a fresh sub-resolver
             sub_resolver = ModuleResolver(base_dir=path.parent.resolve())
@@ -170,13 +188,19 @@ class ModuleResolver:
                 **sub_resolver.merged_struct_field_types,
                 **compiled.struct_field_types,
             }
+            all_class_methods = {
+                **sub_resolver.merged_class_methods,
+                **compiled.class_methods,
+            }
 
             result = ResolvedModule(
                 functions=all_functions,
                 structs=all_structs,
                 struct_field_types=all_struct_field_types,
+                class_methods=all_class_methods,
                 exported_functions=exported_functions,
                 exported_structs=exported_structs,
+                exported_classes=exported_classes,
             )
             self._cache[path] = result
             return result
@@ -195,3 +219,8 @@ def _extract_function_defs(stmts: list[Statement]) -> dict[str, int]:
 def _extract_struct_defs(stmts: list[Statement]) -> dict[str, int]:
     """Extract top-level struct names and field counts from a statement list."""
     return {stmt.name: len(stmt.fields) for stmt in stmts if isinstance(stmt, StructDef)}
+
+
+def _extract_class_defs(stmts: list[Statement]) -> dict[str, int]:
+    """Extract top-level class names and field counts from a statement list."""
+    return {stmt.name: len(stmt.fields) for stmt in stmts if isinstance(stmt, ClassDef)}
