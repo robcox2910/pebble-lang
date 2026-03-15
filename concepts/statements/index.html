@@ -593,6 +593,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#constants-const" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constants: const
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reassignment" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1173,59 +1184,83 @@ answer.</p>
 <p>This is like writing a label on a box and putting something inside. The <code>let</code>
 keyword says "I'm creating something new", the name is the label, and the value
 after <code>=</code> is what goes in the box.</p>
+<h2 id="constants-const">Constants: <code>const</code></h2>
+<p>Sometimes you know a value should never change -- like the number of days in a
+week or a player's starting score. Use <code>const</code> instead of <code>let</code> to tell Pebble
+"this box is sealed shut -- once I put something in, nobody can swap it out":</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>const pi = 3
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>const greeting = &quot;hello&quot;
+</code></pre></div>
+<p>If you try to reassign a <code>const</code> variable, Pebble stops you before the program
+even runs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>const max_lives = 3
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>max_lives = 5  # Error: Cannot reassign constant &#39;max_lives&#39;
+</code></pre></div>
+<p>Think of <code>const</code> as writing a label on a box <em>and then gluing the lid shut</em>.
+You can still look inside (read the value), but you can't swap what's in there.</p>
+<div class="admonition note">
+<p class="admonition-title">Binding, not contents</p>
+<p><code>const</code> locks the <strong>label</strong>, not the <strong>value itself</strong>. If the value is a
+list, you can still change items inside the list -- you just can't point the
+name at a completely different list:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>const colours = [&quot;red&quot;, &quot;green&quot;]
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>colours[0] = &quot;blue&quot;   # Fine -- changing an item inside
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>colours = [1, 2, 3]   # Error -- trying to replace the whole list
+</code></pre></div>
+</div>
 <h2 id="reassignment">Reassignment</h2>
 <p>Once a variable exists, you can change what's inside:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let count = 0
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>count = count + 1
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>let count = 0
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>count = count + 1
 </code></pre></div>
 <p>Notice there's no <code>let</code> the second time -- you're not creating a new box, just
 replacing what's inside an existing one.</p>
 <h2 id="printing-print">Printing: <code>print()</code></h2>
 <p>To display a value on screen:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(42)
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(&quot;Hello, world!&quot;)
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(x + y)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(42)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(&quot;Hello, world!&quot;)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>print(x + y)
 </code></pre></div>
 <p>The parentheses are required -- <code>print</code> is written like a function call. You can
 put any expression inside.</p>
 <h2 id="making-decisions-if-else">Making Decisions: <code>if</code> / <code>else</code></h2>
 <p>Sometimes your program needs to choose between two paths, like a fork in a road:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>if score &gt; 90 {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    print(&quot;Excellent!&quot;)
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>} else {
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    print(&quot;Keep trying!&quot;)
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>if score &gt; 90 {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    print(&quot;Excellent!&quot;)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>} else {
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    print(&quot;Keep trying!&quot;)
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>}
 </code></pre></div>
 <p>The condition (<code>score &gt; 90</code>) is an expression that produces <code>true</code> or <code>false</code>.
 If it's <code>true</code>, the first block runs. If it's <code>false</code>, the <code>else</code> block runs.</p>
 <p>The <code>else</code> part is optional:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>if raining {
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    print(&quot;Bring an umbrella&quot;)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>if raining {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    print(&quot;Bring an umbrella&quot;)
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
 </code></pre></div>
 <h2 id="else-if-chains">Else If Chains</h2>
 <p>What if there are more than two paths? Think of a traffic light: it can be
 green, yellow, or red — three choices, not just two. You <em>could</em> nest <code>if</code>
 inside <code>else</code>, but that gets messy fast. Instead, use <code>else if</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>if colour == &quot;green&quot; {
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    print(&quot;Go!&quot;)
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>} else if colour == &quot;yellow&quot; {
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    print(&quot;Slow down&quot;)
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>} else {
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    print(&quot;Stop&quot;)
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>if colour == &quot;green&quot; {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    print(&quot;Go!&quot;)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>} else if colour == &quot;yellow&quot; {
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    print(&quot;Slow down&quot;)
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>} else {
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    print(&quot;Stop&quot;)
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
 </code></pre></div>
 <p>You can chain as many <code>else if</code> branches as you need:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let score = 85
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>if score &gt; 90 {
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    print(&quot;A&quot;)
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>} else if score &gt; 80 {
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    print(&quot;B&quot;)
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>} else if score &gt; 70 {
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    print(&quot;C&quot;)
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>} else {
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    print(&quot;D&quot;)
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let score = 85
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>if score &gt; 90 {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    print(&quot;A&quot;)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>} else if score &gt; 80 {
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    print(&quot;B&quot;)
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>} else if score &gt; 70 {
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    print(&quot;C&quot;)
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>} else {
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    print(&quot;D&quot;)
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>}
 </code></pre></div>
 <p>The computer checks each condition from top to bottom and runs the <strong>first</strong>
 one that's true. If none are true, the <code>else</code> block runs (if there is one).</p>
@@ -1233,25 +1268,25 @@ one that's true. If none are true, the <code>else</code> block runs (if there is
 matches.</p>
 <p>Under the hood, <code>else if</code> is just a shortcut. The parser turns it into a
 nested <code>if</code> inside the <code>else</code> block, exactly as if you had written:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>if score &gt; 90 {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    print(&quot;A&quot;)
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>} else {
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    if score &gt; 80 {
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        print(&quot;B&quot;)
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    } else {
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        print(&quot;C&quot;)
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    }
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>if score &gt; 90 {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print(&quot;A&quot;)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>} else {
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    if score &gt; 80 {
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        print(&quot;B&quot;)
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    } else {
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        print(&quot;C&quot;)
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    }
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>}
 </code></pre></div>
 <p>Both versions produce identical bytecode — <code>else if</code> just looks tidier.</p>
 <h2 id="repeating-things-while">Repeating Things: <code>while</code></h2>
 <p>A <code>while</code> loop is like a broken record -- it keeps doing the same thing until
 you tell it to stop:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let i = 0
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>while i &lt; 5 {
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    print(i)
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    i = i + 1
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let i = 0
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>while i &lt; 5 {
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    print(i)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    i = i + 1
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>}
 </code></pre></div>
 <p>This prints <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>. Each time around the loop, the condition
 is checked again. When <code>i</code> reaches <code>5</code>, the condition <code>i &lt; 5</code> becomes <code>false</code>
@@ -1265,28 +1300,28 @@ fail.</p>
 <h2 id="counting-for">Counting: <code>for</code></h2>
 <p>A <code>for</code> loop is like roll call — you go through a list of numbers one at a
 time:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>for i in range(5) {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    print(i)
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>for i in range(5) {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    print(i)
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>}
 </code></pre></div>
 <p>This prints <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>. The variable <code>i</code> starts at <code>0</code> and
 counts up to (but not including) <code>5</code>.</p>
 <p>You can use the loop variable inside the body:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>for i in range(3) {
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print(i * i)
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>for i in range(3) {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    print(i * i)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>}
 </code></pre></div>
 <p>This prints the squares: <code>0</code>, <code>1</code>, <code>4</code>.</p>
 <p>You can also give <code>range</code> a start point, or control the step size:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>for i in range(2, 5) {
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    print(i)
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>}
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a># prints: 2, 3, 4
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>for i in range(10, 0, -2) {
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    print(i)
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>}
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a># prints: 10, 8, 6, 4, 2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>for i in range(2, 5) {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    print(i)
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>}
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a># prints: 2, 3, 4
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>for i in range(10, 0, -2) {
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    print(i)
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>}
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a># prints: 10, 8, 6, 4, 2
 </code></pre></div>
 <p>See <a href="../stdlib/">Standard Library</a> for all three forms of <code>range()</code>.</p>
 <p>Behind the scenes, the compiler turns a <code>for</code> loop into a <code>while</code> loop with
@@ -1296,20 +1331,20 @@ of it as "do this N times, and give me the number each time".</p>
 <p>Sometimes you want to stop a loop before it finishes all its repetitions,
 like leaving a cinema in the middle of a film. That's what <code>break</code> does --
 it immediately exits the nearest loop:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let x = 0
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>while true {
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    if x == 3 { break }
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    x = x + 1
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>}
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>print(x)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>let x = 0
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>while true {
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    if x == 3 { break }
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    x = x + 1
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>}
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>print(x)
 </code></pre></div>
 <p>This prints <code>3</code>. Without <code>break</code>, the <code>while true</code> loop would run forever.
 But as soon as <code>x</code> reaches 3, <code>break</code> jumps out of the loop.</p>
 <p><code>break</code> works in <code>for</code> loops too:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>for i in range(10) {
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    if i == 3 { break }
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    print(i)
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>for i in range(10) {
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    if i == 3 { break }
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    print(i)
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>}
 </code></pre></div>
 <p>This prints <code>0</code>, <code>1</code>, <code>2</code> and then stops -- even though <code>range(10)</code> would
 normally count all the way to 9.</p>
@@ -1323,33 +1358,33 @@ outside a loop is an error.</p>
 <em>this particular go-around</em> and move on to the next one. Think of it like
 flipping past a song you don't like on a playlist -- you skip the song but
 keep listening to the rest. That's <code>continue</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>for i in range(5) {
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    if i == 2 { continue }
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    print(i)
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>for i in range(5) {
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    if i == 2 { continue }
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    print(i)
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>}
 </code></pre></div>
 <p>This prints <code>0</code>, <code>1</code>, <code>3</code>, <code>4</code> -- it skips <code>2</code> but keeps going through
 the rest of the numbers.</p>
 <p>In a <code>while</code> loop, <code>continue</code> jumps back to the condition check:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>let total = 0
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>let i = 0
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>while i &lt; 5 {
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    i = i + 1
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    if i == 3 { continue }
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    total = total + i
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>}
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>print(total)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let total = 0
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>let i = 0
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>while i &lt; 5 {
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    i = i + 1
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    if i == 3 { continue }
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    total = total + i
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>}
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>print(total)
 </code></pre></div>
 <p>This prints <code>12</code> (1 + 2 + 4 + 5 -- skipping 3).</p>
 <h3 id="nested-loops">Nested Loops</h3>
 <p>When <code>break</code> or <code>continue</code> is inside nested loops, it only affects the
 <strong>innermost</strong> loop:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>for i in range(3) {
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    for j in range(3) {
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>        if j == 1 { break }
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>        print(j)
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    }
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>for i in range(3) {
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    for j in range(3) {
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>        if j == 1 { break }
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>        print(j)
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    }
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>}
 </code></pre></div>
 <p>This prints <code>0</code>, <code>0</code>, <code>0</code>. The <code>break</code> exits the inner <code>j</code> loop each time,
 but the outer <code>i</code> loop keeps going.</p>
@@ -1357,19 +1392,19 @@ but the outer <code>i</code> loop keeps going.</p>
 <p>The <code>{ }</code> curly braces group statements together into a <strong>block</strong>. Think of
 them like the walls of a room -- everything between <code>{</code> and <code>}</code> belongs
 together.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>if condition {
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    let x = 10
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    print(x)
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>if condition {
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    let x = 10
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    print(x)
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>}
 </code></pre></div>
 <p>Blocks appear after <code>if</code>, <code>else</code>, <code>while</code>, <code>for</code>, and <code>fn</code>. Each block can
 contain any number of statements (even zero!).</p>
 <h2 id="newlines-as-separators">Newlines as Separators</h2>
 <p>In Pebble, each statement goes on its own line. There are no semicolons --
 newlines tell the parser "that statement is done, start the next one."</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let x = 1
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>let y = 2
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>print(x + y)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>let x = 1
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>let y = 2
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>print(x + y)
 </code></pre></div>
 <p>Blank lines between statements are fine -- the parser simply skips them.</p>
 <h2 id="how-the-parser-handles-statements">How the Parser Handles Statements</h2>
@@ -1386,6 +1421,10 @@ of statement it is:</p>
 <tr>
 <td><code>let</code></td>
 <td>Variable declaration</td>
+</tr>
+<tr>
+<td><code>const</code></td>
+<td>Constant declaration</td>
 </tr>
 <tr>
 <td><code>if</code></td>
@@ -1474,6 +1513,10 @@ problem was found.</p>
 <tr>
 <td><code>let</code></td>
 <td>Writing a label on a new box</td>
+</tr>
+<tr>
+<td><code>const</code></td>
+<td>Labelling a box and gluing the lid shut</td>
 </tr>
 <tr>
 <td>Reassignment</td>
