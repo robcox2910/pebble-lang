@@ -345,6 +345,11 @@ just knows the function exists so it can `CALL` it later.
 | `BUILD_DICT` | count | Pop *count* key-value pairs and create a dict |
 | `INDEX_GET` | — | Pop an index and a target (list or dict), push the element |
 | `INDEX_SET` | — | Pop value, index, target; change the element (dict upserts) |
+| `CALL_METHOD` | name | Call a method on the top-of-stack value |
+| `SLICE_GET` | — | Pop step, stop, start, target; push sliced result |
+| `SETUP_TRY` | target | Push an exception handler pointing at *target* |
+| `POP_TRY` | — | Remove the top exception handler |
+| `THROW` | — | Pop a value and raise it as an exception |
 | `MAKE_CLOSURE` | name | Create a closure from a function + captured Cells |
 | `LOAD_CELL` | name | Push a captured variable's value |
 | `STORE_CELL` | name | Pop and store into a captured variable |

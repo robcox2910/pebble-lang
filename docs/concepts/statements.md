@@ -322,6 +322,8 @@ of statement it is:
 | `return` | Return statement |
 | `break` | Break statement |
 | `continue` | Continue statement |
+| `try` | Try/catch statement |
+| `throw` | Throw statement |
 | `print` | Print statement |
 | identifier followed by `=` | Reassignment |
 | anything else | Expression statement |
@@ -365,4 +367,4 @@ problem was found.
 | Block `{ }` | Walls of a room grouping things together |
 | Newlines | Periods at the end of sentences |
 
-For more on functions and for loops, see [Functions](functions.md).
+For more on functions, see [Functions](functions.md).

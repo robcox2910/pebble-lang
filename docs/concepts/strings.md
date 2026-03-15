@@ -12,6 +12,10 @@ print(greeting.strip())   # prints: Hello, World!
 Think of it like giving instructions to the string itself: *"Hey string,
 strip off your extra spaces!"*
 
+!!! note
+    Dot-notation methods work the same way on every type that supports them.
+    Strings and [arrays](arrays.md) both use the `value.method()` pattern.
+
 ---
 
 ## Changing Case

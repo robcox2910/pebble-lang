@@ -102,6 +102,22 @@ that position the normal way.
 tearing a page out of a notebook. You write `xs[start:stop]`, where `start`
 is the first index to include and `stop` is the first index to *exclude*.
 
+```
+  xs = [10, 20, 30, 40, 50]
+         0   1   2   3   4     ← indices
+
+  xs[1:4]
+         start ↓       ↓ stop (excluded)
+        [10, 20, 30, 40, 50]
+              ──────────
+         result: [20, 30, 40]
+
+  xs[::2]   (step = 2, take every other element)
+        [10, 20, 30, 40, 50]
+          ✓       ✓       ✓
+         result: [10, 30, 50]
+```
+
 ```pebble
 let xs = [10, 20, 30, 40, 50]
 print(xs[1:3])   # prints: [20, 30]
@@ -177,7 +193,7 @@ and stepping all in one go.
 ## List Methods
 
 Lists have their own set of **methods** you can call using dot notation —
-just like string methods.
+the same `value.method()` pattern used by [strings](strings.md).
 
 ### push()
 
@@ -204,6 +220,9 @@ print(xs)     # prints: [1, 2]
 ```
 
 Popping from an empty list is an error.
+
+!!! note
+    The functional form `pop(xs)` still works too.
 
 ### contains()
 
