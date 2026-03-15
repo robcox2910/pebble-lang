@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/parser/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/strings/">
       
       
-        <link rel="prev" href="../ast/">
+        <link rel="prev" href="../arrays/">
       
       
-        <link rel="next" href="../statements/">
+        <link rel="next" href="../dicts/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Parser - Pebble</title>
+        <title>String Methods - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-parser" class="md-skip">
+        <a href="#string-methods" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Parser
+              String Methods
             
           </span>
         </div>
@@ -452,37 +452,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Parser
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../parser/" class="md-nav__link">
         
   
   
@@ -498,136 +471,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-parser" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Is a Parser?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-is-parsing-hard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Is Parsing Hard?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#precedence-who-goes-first" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Precedence: Who Goes First?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#associativity-ties-go-left" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Associativity: Ties Go Left
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pratt-parsing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pratt Parsing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#parentheses-override-everything" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parentheses Override Everything
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-can-go-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Can Go Wrong?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#function-calls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Function Calls
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#beyond-expressions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Beyond Expressions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -833,10 +676,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../strings/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String Methods
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -852,6 +722,332 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#changing-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changing Case
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Changing Case">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upper()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lower" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lower()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trimming-whitespace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trimming Whitespace
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Trimming Whitespace">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        strip()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#splitting-and-joining" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Splitting and Joining
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Splitting and Joining">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        split()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#join" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        join()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#searching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Searching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Searching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        contains()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#starts_with" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        starts_with()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ends_with" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ends_with()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        count()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replacing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replacing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Replacing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        replace()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repeating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repeating
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Repeating">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repeat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repeat()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-methods-with-other-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Methods with Other Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using Methods with Other Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in-string-interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In string interpolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-loops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In loops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1024,168 +1220,222 @@
   
 
 
-<h1 id="the-parser">The Parser</h1>
-<h2 id="what-is-a-parser">What Is a Parser?</h2>
-<p>Imagine a <strong>grammar teacher</strong> diagramming a sentence. The teacher reads the
-words (tokens) and figures out the structure: "This is the subject, this is the
-verb, this is the object." The result is a diagram that shows how the words
-relate to each other.</p>
-<p>A <strong>parser</strong> does the same thing with code. It reads the flat list of tokens
-from the lexer and builds a tree -- the <a href="../ast/">AST</a> -- that shows the
-structure of your program.</p>
-<h2 id="why-is-parsing-hard">Why Is Parsing Hard?</h2>
-<p>Consider this expression:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>1 + 2 * 3
+<h1 id="string-methods">String Methods</h1>
+<p>Strings aren't just blobs of text — they come with a toolbox of <strong>methods</strong>
+you can call using dot notation. A method is like a function that belongs to
+a value: you write the value, a dot, the method name, and parentheses.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let greeting = &quot;  Hello, World!  &quot;
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(greeting.strip())   # prints: Hello, World!
 </code></pre></div>
-<p>Is the answer 7 or 9? We know from maths class that multiplication comes
-before addition, so it's 7. But a computer reading left to right would see
-<code>1 + 2</code> first and might get 9.</p>
-<p>The parser's job is to <strong>understand the rules</strong> and build the right tree:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    +           NOT          *
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   / \         / \          / \
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  1   *       +   3        +   3
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>     / \     / \          / \
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    2   3   1   2        1   2
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>   (correct)  (wrong!)   (wrong!)
+<p>Think of it like giving instructions to the string itself: <em>"Hey string,
+strip off your extra spaces!"</em></p>
+<hr />
+<h2 id="changing-case">Changing Case</h2>
+<h3 id="upper">upper()</h3>
+<p>Convert every letter to UPPERCASE:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>print(&quot;hello&quot;.upper())   # prints: HELLO
 </code></pre></div>
-<h2 id="precedence-who-goes-first">Precedence: Who Goes First?</h2>
-<p><strong>Precedence</strong> is a fancy word for "priority". Some operators bind tighter
-than others, just like multiplication before addition in maths:</p>
+<h3 id="lower">lower()</h3>
+<p>Convert every letter to lowercase:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(&quot;HELLO&quot;.lower())   # prints: hello
+</code></pre></div>
+<p>You can <strong>chain</strong> methods — the result of one feeds into the next:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>print(&quot;  HELLO  &quot;.strip().lower())   # prints: hello
+</code></pre></div>
+<hr />
+<h2 id="trimming-whitespace">Trimming Whitespace</h2>
+<h3 id="strip">strip()</h3>
+<p>Remove spaces (and tabs, newlines) from both ends:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(&quot;   hi   &quot;.strip())   # prints: hi
+</code></pre></div>
+<p>The characters <em>inside</em> the string are untouched — only the edges get trimmed.</p>
+<hr />
+<h2 id="splitting-and-joining">Splitting and Joining</h2>
+<h3 id="split">split()</h3>
+<p>Break a string into a list of pieces. With no argument it splits on
+whitespace:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let words = &quot;one two three&quot;.split()
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(words)   # prints: [one, two, three]
+</code></pre></div>
+<p>Pass a separator to split on something specific:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let parts = &quot;a,b,c&quot;.split(&quot;,&quot;)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(parts)   # prints: [a, b, c]
+</code></pre></div>
+<h3 id="join">join()</h3>
+<p>The opposite of <code>split</code> — glue a list of strings together using the target
+string as the separator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let words = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(&quot;, &quot;.join(words))   # prints: red, green, blue
+</code></pre></div>
+<p>Split and join are <strong>inverses</strong> — splitting then joining with the same
+separator gives you the original string back:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let s = &quot;a-b-c&quot;
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let parts = s.split(&quot;-&quot;)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>print(&quot;-&quot;.join(parts))   # prints: a-b-c
+</code></pre></div>
+<hr />
+<h2 id="searching">Searching</h2>
+<h3 id="contains">contains()</h3>
+<p>Check if a substring exists anywhere inside the string:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(&quot;hello world&quot;.contains(&quot;world&quot;))   # prints: true
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(&quot;hello world&quot;.contains(&quot;xyz&quot;))     # prints: false
+</code></pre></div>
+<h3 id="starts_with">starts_with()</h3>
+<p>Check if the string begins with a prefix:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>print(&quot;hello&quot;.starts_with(&quot;hel&quot;))   # prints: true
+</code></pre></div>
+<h3 id="ends_with">ends_with()</h3>
+<p>Check if the string ends with a suffix:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>print(&quot;hello&quot;.ends_with(&quot;llo&quot;))   # prints: true
+</code></pre></div>
+<h3 id="find">find()</h3>
+<p>Return the index where a substring first appears, or <code>-1</code> if it's not found:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(&quot;banana&quot;.find(&quot;nan&quot;))   # prints: 2
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(&quot;banana&quot;.find(&quot;xyz&quot;))   # prints: -1
+</code></pre></div>
+<h3 id="count">count()</h3>
+<p>Count how many times a substring appears (non-overlapping):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>print(&quot;banana&quot;.count(&quot;a&quot;))   # prints: 3
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>print(&quot;hello&quot;.count(&quot;ll&quot;))   # prints: 1
+</code></pre></div>
+<hr />
+<h2 id="replacing">Replacing</h2>
+<h3 id="replace">replace()</h3>
+<p>Replace every occurrence of one substring with another:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(&quot;aabbcc&quot;.replace(&quot;b&quot;, &quot;x&quot;))   # prints: aaxxcc
+</code></pre></div>
+<p>If the old substring isn't found, the original string is returned unchanged.</p>
+<hr />
+<h2 id="repeating">Repeating</h2>
+<h3 id="repeat">repeat()</h3>
+<p>Repeat the string a given number of times:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(&quot;ha&quot;.repeat(3))   # prints: hahaha
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(&quot;=&quot;.repeat(10))   # prints: ==========
+</code></pre></div>
+<p>Passing <code>0</code> gives an empty string. Negative numbers are an error.</p>
+<hr />
+<h2 id="using-methods-with-other-features">Using Methods with Other Features</h2>
+<h3 id="in-string-interpolation">In string interpolation</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>let name = &quot;alice&quot;
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>print(&quot;Hello, {name.upper()}!&quot;)   # prints: Hello, ALICE!
+</code></pre></div>
+<h3 id="in-conditions">In conditions</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>let filename = &quot;photo.png&quot;
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>if filename.ends_with(&quot;.png&quot;) {
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    print(&quot;It is an image&quot;)
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>}
+</code></pre></div>
+<h3 id="in-loops">In loops</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let csv = &quot;10,20,30&quot;
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>let parts = csv.split(&quot;,&quot;)
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>for i in range(len(parts)) {
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    print(parts[i])
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>}
+</code></pre></div>
+<hr />
+<h2 id="quick-reference">Quick Reference</h2>
 <table>
 <thead>
 <tr>
-<th>Priority</th>
-<th>Operators</th>
-<th>Example</th>
+<th>Method</th>
+<th>Args</th>
+<th>Returns</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Highest</td>
-<td><code>-x</code>, <code>not x</code> (unary)</td>
-<td><code>-5</code>, <code>not true</code></td>
+<td><code>upper()</code></td>
+<td>0</td>
+<td>str</td>
+<td>Uppercase version</td>
 </tr>
 <tr>
-<td></td>
-<td><code>*</code>, <code>/</code>, <code>%</code></td>
-<td><code>2 * 3</code></td>
+<td><code>lower()</code></td>
+<td>0</td>
+<td>str</td>
+<td>Lowercase version</td>
 </tr>
 <tr>
-<td></td>
-<td><code>+</code>, <code>-</code></td>
-<td><code>1 + 2</code></td>
+<td><code>strip()</code></td>
+<td>0</td>
+<td>str</td>
+<td>Trimmed version</td>
 </tr>
 <tr>
-<td></td>
-<td><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code></td>
-<td><code>x &gt; 10</code></td>
+<td><code>split()</code></td>
+<td>0 or 1</td>
+<td>list</td>
+<td>Split into parts</td>
 </tr>
 <tr>
-<td></td>
-<td><code>==</code>, <code>!=</code></td>
-<td><code>x == 5</code></td>
+<td><code>replace(old,new)</code></td>
+<td>2</td>
+<td>str</td>
+<td>Replace all occurrences</td>
 </tr>
 <tr>
-<td></td>
-<td><code>and</code></td>
-<td><code>a and b</code></td>
+<td><code>contains(sub)</code></td>
+<td>1</td>
+<td>bool</td>
+<td>Is <code>sub</code> inside?</td>
 </tr>
 <tr>
-<td>Lowest</td>
-<td><code>or</code></td>
-<td><code>a or b</code></td>
+<td><code>starts_with(pre)</code></td>
+<td>1</td>
+<td>bool</td>
+<td>Starts with <code>pre</code>?</td>
+</tr>
+<tr>
+<td><code>ends_with(suf)</code></td>
+<td>1</td>
+<td>bool</td>
+<td>Ends with <code>suf</code>?</td>
+</tr>
+<tr>
+<td><code>find(sub)</code></td>
+<td>1</td>
+<td>int</td>
+<td>Index of <code>sub</code>, or -1</td>
+</tr>
+<tr>
+<td><code>count(sub)</code></td>
+<td>1</td>
+<td>int</td>
+<td>Occurrences of <code>sub</code></td>
+</tr>
+<tr>
+<td><code>join(list)</code></td>
+<td>1</td>
+<td>str</td>
+<td>Glue list items with this string</td>
+</tr>
+<tr>
+<td><code>repeat(n)</code></td>
+<td>1</td>
+<td>str</td>
+<td>Repeat <code>n</code> times</td>
 </tr>
 </tbody>
 </table>
-<p>Operators with higher priority get "pulled in" first and end up deeper in the
-tree.</p>
-<h2 id="associativity-ties-go-left">Associativity: Ties Go Left</h2>
-<p>What about <code>10 - 3 - 2</code>? Both <code>-</code> operators have the same precedence, so we
-need a tiebreaker. In Pebble (like most languages), arithmetic is
-<strong>left-associative</strong>: ties are resolved left to right.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>10 - 3 - 2   →   (10 - 3) - 2   →   5
-</code></pre></div>
-<p>If it were right-associative, it would be <code>10 - (3 - 2) = 9</code> -- a different
-answer!</p>
-<h2 id="pratt-parsing">Pratt Parsing</h2>
-<p>The Pebble parser uses a technique called <strong>Pratt parsing</strong> (named after
-Vaughan Pratt, who invented it in 1973). The core idea is simple:</p>
+<hr />
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<p>When you write <code>s.upper()</code>, here's the journey:</p>
 <ol>
-<li>Parse the left-hand side (a number, variable, or grouped expression)</li>
-<li>Look at the next token -- is it an operator?</li>
-<li>If the operator's precedence is high enough, consume it and parse the
-   right-hand side</li>
-<li>Repeat until you hit an operator that's too weak</li>
+<li><strong>Lexer</strong> — sees the <code>.</code> and produces a <code>DOT</code> token between the
+   identifier and the method name.</li>
+<li><strong>Parser</strong> — recognises the dot-method-parentheses pattern and builds a
+   <code>MethodCall</code> AST node (target = <code>s</code>, method = <code>"upper"</code>, args = <code>[]</code>).</li>
+<li><strong>Analyzer</strong> — checks that <code>"upper"</code> is a known method and that you passed
+   the right number of arguments.</li>
+<li><strong>Compiler</strong> — pushes the target onto the stack, pads any missing optional
+   arguments with a sentinel value, then emits <code>CALL_METHOD "upper"</code>.</li>
+<li><strong>VM</strong> — pops the arguments and target, looks at the target's type to pick
+   the right handler, calls it, and pushes the result back.</li>
 </ol>
-<p>This single loop handles all precedence levels and associativity correctly.
-It's like a tug-of-war: stronger operators pull their operands in, while
-weaker operators have to wait.</p>
-<h2 id="parentheses-override-everything">Parentheses Override Everything</h2>
-<p>Parentheses let you override the default precedence:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(1 + 2) * 3
-</code></pre></div>
-<p>The parser sees <code>(</code>, recursively parses the inside as a fresh expression (with
-precedence reset to zero), and then continues with <code>* 3</code>. The result is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    *
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>   / \
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  +   3
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> / \
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>1   2
-</code></pre></div>
-<p>Addition happens first because the parentheses said so.</p>
-<h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
-<p>The parser catches mistakes like:</p>
-<ul>
-<li><strong>Missing closing parenthesis</strong>: <code>(1 + 2</code> → "Expected ')'"</li>
-<li><strong>Missing operand</strong>: <code>1 +</code> → "Expected expression"</li>
-<li><strong>Unexpected token</strong>: <code>)</code> at the start → "Unexpected token ')'"</li>
-</ul>
-<p>Each error includes the exact line and column where the problem was found.</p>
-<h2 id="function-calls">Function Calls</h2>
-<p>When the parser sees an identifier followed by <code>(</code>, it knows this is a
-<strong>function call</strong>, not just a variable name. It parses the comma-separated
-arguments between the parentheses and wraps everything in a <code>FunctionCall</code>
-node:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>add(1 + 2, x)  →  FunctionCall(&quot;add&quot;, [BinaryOp(1, +, 2), Identifier(&quot;x&quot;)])
-</code></pre></div>
-<p>Function calls are expressions, so they can appear anywhere an expression is
-valid -- as an argument to another call, on the right side of <code>=</code>, or as part
-of a larger expression like <code>add(1, 2) + 3</code>.</p>
-<h2 id="beyond-expressions">Beyond Expressions</h2>
-<p>Expressions are only half the story. The parser also handles <strong>statements</strong> --
-instructions like creating variables, printing values, and controlling the flow
-of your program. See <a href="../statements/">Statements</a> for the full picture.</p>
-<h2 id="summary">Summary</h2>
-<table>
-<thead>
-<tr>
-<th>Concept</th>
-<th>Analogy</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Parser</td>
-<td>A grammar teacher diagramming a sentence</td>
-</tr>
-<tr>
-<td>Precedence</td>
-<td>Priority -- multiplication before addition</td>
-</tr>
-<tr>
-<td>Associativity</td>
-<td>Tiebreaker -- left to right for same priority</td>
-</tr>
-<tr>
-<td>Pratt parsing</td>
-<td>A tug-of-war where stronger operators pull first</td>
-</tr>
-<tr>
-<td>Parentheses</td>
-<td>"Do this part first!" brackets</td>
-</tr>
-</tbody>
-</table>
+<p>Think of <code>CALL_METHOD</code> like a waiter at a restaurant: you hand over your
+order (the method name) and your plate (the target), and the waiter delivers
+the result back to your table (the stack).</p>
 
 
 
