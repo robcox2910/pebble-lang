@@ -19,6 +19,7 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
+    ConstAssignment,
     ContinueStatement,
     DictLiteral,
     Expression,
@@ -78,6 +79,9 @@ class Scope:
     functions: dict[str, tuple[Arity, SourceLocation]] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )
+    constants: set[str] = field(
+        default_factory=lambda: set(),  # noqa: PLW0108
+    )
     parent: Scope | None = None
     function_name: str | None = None
 
@@ -90,6 +94,19 @@ class Scope:
             msg = f"Variable '{name}' already declared at line {prev.line}"
             raise SemanticError(msg, line=location.line, column=location.column)
         self.variables[name] = location
+
+    def declare_constant(self, name: str, location: SourceLocation) -> None:
+        """Declare *name* as a constant — also records it as a variable."""
+        self.declare_variable(name, location)
+        self.constants.add(name)
+
+    def is_constant(self, name: str) -> bool:
+        """Walk the parent chain to check whether *name* is a constant."""
+        if name in self.constants:
+            return True
+        if self.parent is not None:
+            return self.parent.is_constant(name)
+        return False
 
     def resolve_variable(self, name: str) -> SourceLocation | None:
         """Walk the parent chain to find *name*; return ``None`` if missing."""
@@ -202,6 +219,8 @@ class SemanticAnalyzer:
         match stmt:
             case Assignment():
                 self._visit_assignment(stmt)
+            case ConstAssignment():
+                self._visit_const_assignment(stmt)
             case Reassignment():
                 self._visit_reassignment(stmt)
             case PrintStatement():
@@ -237,10 +256,18 @@ class SemanticAnalyzer:
         self._visit_expression(node.value)
         self._scope.declare_variable(node.name, node.location)
 
+    def _visit_const_assignment(self, node: ConstAssignment) -> None:
+        """Visit a ``const`` declaration — check value, then declare as constant."""
+        self._visit_expression(node.value)
+        self._scope.declare_constant(node.name, node.location)
+
     def _visit_reassignment(self, node: Reassignment) -> None:
         """Visit a reassignment — resolve name, then check value."""
         if self._scope.resolve_variable(node.name) is None:
             msg = f"Undeclared variable '{node.name}'"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        if self._scope.is_constant(node.name):
+            msg = f"Cannot reassign constant '{node.name}'"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         self._check_capture(node.name)
         self._visit_expression(node.value)

@@ -168,6 +168,15 @@ class Assignment:
 
 
 @dataclass(frozen=True)
+class ConstAssignment:
+    """A ``const`` declaration like ``const x = 42``."""
+
+    name: str
+    value: Expression
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class Reassignment:
     """A variable reassignment like ``x = 10``."""
 
@@ -304,6 +313,7 @@ Expression = (
 
 Statement = (
     Assignment
+    | ConstAssignment
     | Reassignment
     | PrintStatement
     | IfStatement
