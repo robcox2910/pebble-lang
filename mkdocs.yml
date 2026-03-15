@@ -64,4 +64,5 @@ nav:
       - Error Handling: concepts/error-handling.md
       - Pattern Matching: concepts/match.md
       - List Comprehensions: concepts/list-comprehensions.md
+      - Tuple Unpacking: concepts/tuple-unpacking.md
       - REPL: concepts/repl.md

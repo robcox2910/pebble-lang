@@ -48,6 +48,9 @@ from pebble.ast_nodes import (
     ThrowStatement,
     TryCatch,
     UnaryOp,
+    UnpackAssignment,
+    UnpackConstAssignment,
+    UnpackReassignment,
     WhileLoop,
     WildcardPattern,
 )
@@ -224,10 +227,16 @@ class SemanticAnalyzer:
         match stmt:
             case Assignment():
                 self._visit_assignment(stmt)
+            case UnpackAssignment():
+                self._visit_unpack_assignment(stmt)
             case ConstAssignment():
                 self._visit_const_assignment(stmt)
+            case UnpackConstAssignment():
+                self._visit_unpack_const_assignment(stmt)
             case Reassignment():
                 self._visit_reassignment(stmt)
+            case UnpackReassignment():
+                self._visit_unpack_reassignment(stmt)
             case PrintStatement():
                 self._visit_expression(stmt.expression)
             case IfStatement():
@@ -277,6 +286,30 @@ class SemanticAnalyzer:
             msg = f"Cannot reassign constant '{node.name}'"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         self._check_capture(node.name)
+        self._visit_expression(node.value)
+
+    def _visit_unpack_assignment(self, node: UnpackAssignment) -> None:
+        """Visit a ``let x, y = expr`` — check value, then declare each name."""
+        self._visit_expression(node.value)
+        for name in node.names:
+            self._scope.declare_variable(name, node.location)
+
+    def _visit_unpack_const_assignment(self, node: UnpackConstAssignment) -> None:
+        """Visit a ``const x, y = expr`` — check value, then declare each as constant."""
+        self._visit_expression(node.value)
+        for name in node.names:
+            self._scope.declare_constant(name, node.location)
+
+    def _visit_unpack_reassignment(self, node: UnpackReassignment) -> None:
+        """Visit a ``x, y = expr`` — resolve each name, check not const, then check value."""
+        for name in node.names:
+            if self._scope.resolve_variable(name) is None:
+                msg = f"Undeclared variable '{name}'"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+            if self._scope.is_constant(name):
+                msg = f"Cannot reassign constant '{name}'"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+            self._check_capture(name)
         self._visit_expression(node.value)
 
     def _visit_if(self, node: IfStatement) -> None:

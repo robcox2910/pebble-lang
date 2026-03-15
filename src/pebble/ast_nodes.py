@@ -187,6 +187,15 @@ class Assignment:
 
 
 @dataclass(frozen=True)
+class UnpackAssignment:
+    """A ``let x, y = expr`` unpacking declaration."""
+
+    names: list[str]
+    value: Expression
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class ConstAssignment:
     """A ``const`` declaration like ``const x = 42``."""
 
@@ -196,10 +205,28 @@ class ConstAssignment:
 
 
 @dataclass(frozen=True)
+class UnpackConstAssignment:
+    """A ``const x, y = expr`` unpacking declaration."""
+
+    names: list[str]
+    value: Expression
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class Reassignment:
     """A variable reassignment like ``x = 10``."""
 
     name: str
+    value: Expression
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class UnpackReassignment:
+    """A ``x, y = expr`` unpacking reassignment."""
+
+    names: list[str]
     value: Expression
     location: SourceLocation
 
@@ -391,8 +418,11 @@ Expression = (
 
 Statement = (
     Assignment
+    | UnpackAssignment
     | ConstAssignment
+    | UnpackConstAssignment
     | Reassignment
+    | UnpackReassignment
     | PrintStatement
     | IfStatement
     | WhileLoop

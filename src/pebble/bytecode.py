@@ -95,6 +95,9 @@ class OpCode(StrEnum):
     INDEX_SET = "INDEX_SET"
     SLICE_GET = "SLICE_GET"
 
+    # -- Unpacking ------------------------------------------------------------
+    UNPACK_SEQUENCE = "UNPACK_SEQUENCE"
+
     # -- I/O ------------------------------------------------------------------
     PRINT = "PRINT"
 

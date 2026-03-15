@@ -50,6 +50,9 @@ from pebble.ast_nodes import (
     ThrowStatement,
     TryCatch,
     UnaryOp,
+    UnpackAssignment,
+    UnpackConstAssignment,
+    UnpackReassignment,
     WhileLoop,
     WildcardPattern,
 )
@@ -213,10 +216,16 @@ class Compiler:
         match stmt:
             case Assignment():
                 self._compile_assignment(stmt)
+            case UnpackAssignment():
+                self._compile_unpack_assignment(stmt)
             case ConstAssignment():
                 self._compile_const_assignment(stmt)
+            case UnpackConstAssignment():
+                self._compile_unpack_const_assignment(stmt)
             case Reassignment():
                 self._compile_reassignment(stmt)
+            case UnpackReassignment():
+                self._compile_unpack_reassignment(stmt)
             case PrintStatement():
                 self._compile_print(stmt)
             case IfStatement():
@@ -262,6 +271,27 @@ class Compiler:
         """Compile ``name = value``."""
         self._compile_expression(node.value)
         self._emit_store(node.name, location=node.location)
+
+    def _compile_unpack_assignment(self, node: UnpackAssignment) -> None:
+        """Compile ``let x, y = value`` — emit value, UNPACK_SEQUENCE, then STORE each name."""
+        self._compile_expression(node.value)
+        self._emit(OpCode.UNPACK_SEQUENCE, len(node.names), location=node.location)
+        for name in node.names:
+            self._emit_store(name, location=node.location)
+
+    def _compile_unpack_const_assignment(self, node: UnpackConstAssignment) -> None:
+        """Compile ``const x, y = value`` — identical to unpack let at bytecode level."""
+        self._compile_expression(node.value)
+        self._emit(OpCode.UNPACK_SEQUENCE, len(node.names), location=node.location)
+        for name in node.names:
+            self._emit_store(name, location=node.location)
+
+    def _compile_unpack_reassignment(self, node: UnpackReassignment) -> None:
+        """Compile ``x, y = value`` — emit value, UNPACK_SEQUENCE, then STORE each name."""
+        self._compile_expression(node.value)
+        self._emit(OpCode.UNPACK_SEQUENCE, len(node.names), location=node.location)
+        for name in node.names:
+            self._emit_store(name, location=node.location)
 
     def _compile_print(self, node: PrintStatement) -> None:
         """Compile ``print(expr)``."""
