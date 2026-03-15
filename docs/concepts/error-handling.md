@@ -172,7 +172,7 @@ print(safe_div(10, 0))
 Output:
 
 ```
-5
+5.0
 0
 ```
 

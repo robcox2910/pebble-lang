@@ -15,8 +15,6 @@ __all__ = ["Lexer", "LexerError"]
 _SINGLE_CHARS: dict[str, TokenKind] = {
     "+": TokenKind.PLUS,
     "-": TokenKind.MINUS,
-    "*": TokenKind.STAR,
-    "/": TokenKind.SLASH,
     "%": TokenKind.PERCENT,
     "(": TokenKind.LEFT_PAREN,
     ")": TokenKind.RIGHT_PAREN,
@@ -27,6 +25,10 @@ _SINGLE_CHARS: dict[str, TokenKind] = {
     ",": TokenKind.COMMA,
     ":": TokenKind.COLON,
     ".": TokenKind.DOT,
+    "&": TokenKind.AMPERSAND,
+    "|": TokenKind.PIPE,
+    "^": TokenKind.CARET,
+    "~": TokenKind.TILDE,
 }
 
 
@@ -66,7 +68,7 @@ class Lexer:
 
     # -- Scanning dispatch ----------------------------------------------------
 
-    def _scan_token(self) -> None:
+    def _scan_token(self) -> None:  # noqa: PLR0912
         """Scan the next token from the current position."""
         ch = self._peek()
 
@@ -79,11 +81,15 @@ class Lexer:
         elif ch == '"':
             self._scan_string()
         elif ch.isdigit():
-            self._scan_integer()
+            self._scan_number()
         elif ch.isalpha() or ch == "_":
             self._scan_identifier_or_keyword()
         elif ch in _SINGLE_CHARS:
             self._scan_single_char()
+        elif ch == "*":
+            self._scan_star()
+        elif ch == "/":
+            self._scan_slash()
         elif ch == "=":
             self._scan_equal()
         elif ch == "!":
@@ -260,17 +266,37 @@ class Lexer:
             )
         )
 
-    def _scan_integer(self) -> None:
-        """Scan an integer literal (sequence of digits)."""
+    def _scan_number(self) -> None:
+        """Scan an integer or float literal.
+
+        A float requires at least one digit on each side of the dot
+        (e.g. ``3.14``). Bare ``.5`` or ``1.`` are not valid floats.
+        """
         start_col = self._column
-        digits: list[str] = []
+        chars: list[str] = []
         while not self._at_end() and self._peek().isdigit():
-            digits.append(self._peek())
+            chars.append(self._peek())
             self._advance()
-        value = "".join(digits)
+
+        # Check for float: dot followed by another digit
+        is_float = (
+            not self._at_end()
+            and self._peek() == "."
+            and self._pos + 1 < len(self._source)
+            and self._source[self._pos + 1].isdigit()
+        )
+        if is_float:
+            chars.append(".")
+            self._advance()  # consume '.'
+            while not self._at_end() and self._peek().isdigit():
+                chars.append(self._peek())
+                self._advance()
+
+        value = "".join(chars)
+        kind = TokenKind.FLOAT if is_float else TokenKind.INTEGER
         self._tokens.append(
             Token(
-                kind=TokenKind.INTEGER,
+                kind=kind,
                 value=value,
                 location=SourceLocation(line=self._line, column=start_col),
             )
@@ -340,7 +366,7 @@ class Lexer:
             raise LexerError(msg, line=self._line, column=start_col)
 
     def _scan_less(self) -> None:
-        """Scan '<' or '<='."""
+        """Scan ``<``, ``<=``, or ``<<``."""
         start_col = self._column
         self._advance()
         if not self._at_end() and self._peek() == "=":
@@ -349,6 +375,15 @@ class Lexer:
                 Token(
                     kind=TokenKind.LESS_EQUAL,
                     value="<=",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
+        elif not self._at_end() and self._peek() == "<":
+            self._advance()
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.LESS_LESS,
+                    value="<<",
                     location=SourceLocation(line=self._line, column=start_col),
                 )
             )
@@ -362,7 +397,7 @@ class Lexer:
             )
 
     def _scan_greater(self) -> None:
-        """Scan '>' or '>='."""
+        """Scan ``>``, ``>=``, or ``>>``."""
         start_col = self._column
         self._advance()
         if not self._at_end() and self._peek() == "=":
@@ -374,11 +409,64 @@ class Lexer:
                     location=SourceLocation(line=self._line, column=start_col),
                 )
             )
+        elif not self._at_end() and self._peek() == ">":
+            self._advance()
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.GREATER_GREATER,
+                    value=">>",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
         else:
             self._tokens.append(
                 Token(
                     kind=TokenKind.GREATER,
                     value=">",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
+
+    def _scan_star(self) -> None:
+        """Scan ``*`` or ``**``."""
+        start_col = self._column
+        self._advance()
+        if not self._at_end() and self._peek() == "*":
+            self._advance()
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.STAR_STAR,
+                    value="**",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
+        else:
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.STAR,
+                    value="*",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
+
+    def _scan_slash(self) -> None:
+        """Scan ``/`` or ``//``."""
+        start_col = self._column
+        self._advance()
+        if not self._at_end() and self._peek() == "/":
+            self._advance()
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.SLASH_SLASH,
+                    value="//",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
+        else:
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.SLASH,
+                    value="/",
                     location=SourceLocation(line=self._line, column=start_col),
                 )
             )

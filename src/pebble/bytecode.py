@@ -35,8 +35,18 @@ class OpCode(StrEnum):
     ADD = "ADD"
     SUBTRACT = "SUBTRACT"
     MULTIPLY = "MULTIPLY"
+    POWER = "POWER"
     DIVIDE = "DIVIDE"
+    FLOOR_DIVIDE = "FLOOR_DIVIDE"
     MODULO = "MODULO"
+
+    # -- Bitwise --------------------------------------------------------------
+    BIT_AND = "BIT_AND"
+    BIT_OR = "BIT_OR"
+    BIT_XOR = "BIT_XOR"
+    BIT_NOT = "BIT_NOT"
+    LEFT_SHIFT = "LEFT_SHIFT"
+    RIGHT_SHIFT = "RIGHT_SHIFT"
 
     # -- Unary ----------------------------------------------------------------
     NEGATE = "NEGATE"
@@ -129,7 +139,7 @@ class CodeObject:
     instructions: list[Instruction] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
-    constants: list[int | str | bool] = field(
+    constants: list[int | float | str | bool] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
     parameters: list[str] = field(
@@ -142,12 +152,12 @@ class CodeObject:
         default_factory=lambda: [],  # noqa: PIE807
     )
 
-    _constant_index: dict[tuple[type, int | str | bool], int] = field(
+    _constant_index: dict[tuple[type, int | float | str | bool], int] = field(
         default_factory=lambda: {},  # noqa: PIE807
         repr=False,
     )
 
-    def add_constant(self, value: int | str | bool) -> int:  # noqa: FBT001
+    def add_constant(self, value: int | float | str | bool) -> int:  # noqa: FBT001
         """Add *value* to the constant pool and return its index.
 
         Duplicate entries (same value *and* type) are reused.  A cache

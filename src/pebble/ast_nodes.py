@@ -50,6 +50,14 @@ class BooleanLiteral:
 
 
 @dataclass(frozen=True)
+class FloatLiteral:
+    """A floating-point literal like ``3.14``."""
+
+    value: float
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class Identifier:
     """A variable or function name like ``x`` or ``print``."""
 
@@ -296,6 +304,7 @@ class Program:
 
 Expression = (
     IntegerLiteral
+    | FloatLiteral
     | StringLiteral
     | BooleanLiteral
     | Identifier

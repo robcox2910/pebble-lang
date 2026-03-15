@@ -19,7 +19,7 @@ from pebble.vm import VirtualMachine
 
 # -- Named constants ----------------------------------------------------------
 
-TOTAL_BUILTIN_COUNT = 13
+TOTAL_BUILTIN_COUNT = 14
 
 
 # -- Helpers ------------------------------------------------------------------

@@ -189,7 +189,9 @@ class VirtualMachine:
                 OpCode.ADD
                 | OpCode.SUBTRACT
                 | OpCode.MULTIPLY
+                | OpCode.POWER
                 | OpCode.DIVIDE
+                | OpCode.FLOOR_DIVIDE
                 | OpCode.MODULO
                 | OpCode.NEGATE
             ):
@@ -217,6 +219,15 @@ class VirtualMachine:
                 | OpCode.SLICE_GET
             ):
                 self._exec_collection(instruction)
+            case (
+                OpCode.BIT_AND
+                | OpCode.BIT_OR
+                | OpCode.BIT_XOR
+                | OpCode.BIT_NOT
+                | OpCode.LEFT_SHIFT
+                | OpCode.RIGHT_SHIFT
+            ):
+                self._exec_bitwise(instruction)
             case OpCode.PRINT:
                 self._output.write(self._format_value(self._stack.pop()) + "\n")
             case OpCode.CALL:
@@ -278,48 +289,111 @@ class VirtualMachine:
                 pass
 
     def _exec_arithmetic(self, instruction: Instruction) -> None:
-        """Handle ADD, SUBTRACT, MULTIPLY, DIVIDE, MODULO, NEGATE."""
+        """Handle ADD, SUBTRACT, MULTIPLY, POWER, DIVIDE, FLOOR_DIVIDE, MODULO, NEGATE."""
         match instruction.opcode:
             case OpCode.ADD:
                 self._exec_add()
+            case OpCode.POWER:
+                self._exec_power()
             case OpCode.SUBTRACT:
                 right, left = self._stack.pop(), self._stack.pop()
-                self._apply_arithmetic("-", left, right, lambda a, b: a - b)
+                self._apply_numeric("-", left, right, lambda a, b: a - b)
             case OpCode.MULTIPLY:
                 right, left = self._stack.pop(), self._stack.pop()
-                self._apply_arithmetic("*", left, right, lambda a, b: a * b)
+                self._apply_numeric("*", left, right, lambda a, b: a * b)
             case OpCode.DIVIDE:
                 right, left = self._stack.pop(), self._stack.pop()
                 self._check_zero_divisor(right)
-                self._apply_arithmetic("/", left, right, lambda a, b: a // b)
+                # True division — always returns float
+                if _both_numeric(left, right):
+                    result = float(left) / float(right)  # type: ignore[arg-type]
+                    self._stack.append(result)
+                else:
+                    self._type_error("/", left, right)
+            case OpCode.FLOOR_DIVIDE:
+                right, left = self._stack.pop(), self._stack.pop()
+                self._check_zero_divisor(right)
+                self._apply_numeric("//", left, right, lambda a, b: a // b)
             case OpCode.MODULO:
                 right, left = self._stack.pop(), self._stack.pop()
                 self._check_zero_divisor(right)
-                self._apply_arithmetic("%", left, right, lambda a, b: a % b)
+                self._apply_numeric("%", left, right, lambda a, b: a % b)
             case OpCode.NEGATE:
                 self._exec_negate()
             case _:  # pragma: no cover
                 pass
 
     def _exec_add(self) -> None:
-        """Handle ADD — supports int + int and str + str."""
+        """Handle ADD — support int+int, float+float, int+float, str+str."""
         right, left = self._stack.pop(), self._stack.pop()
         if isinstance(left, str) and isinstance(right, str):
             self._stack.append(left + right)
-        elif _both_plain_int(left, right):
-            # Type-checker knows they are int after _both_plain_int, but we need
-            # explicit narrowing since _both_plain_int is a plain bool return.
+        elif _both_numeric(left, right):
             self._stack.append(left + right)  # type: ignore[operator]
         else:
             self._type_error("+", left, right)
 
     def _exec_negate(self) -> None:
-        """Handle NEGATE — only valid on integers."""
+        """Handle NEGATE — valid on integers and floats."""
         operand = self._stack.pop()
-        if not isinstance(operand, int) or isinstance(operand, bool):
+        if isinstance(operand, float) or (
+            isinstance(operand, int) and not isinstance(operand, bool)
+        ):
+            self._stack.append(-operand)
+        else:
             type_name = type(operand).__name__
             self._runtime_error(f"Unsupported operand type for negation: {type_name}")
-        self._stack.append(-operand)
+
+    def _exec_power(self) -> None:
+        """Handle POWER — int**int→int unless negative exponent, mixed→float."""
+        right, left = self._stack.pop(), self._stack.pop()
+        if not _both_numeric(left, right):
+            self._type_error("**", left, right)
+        # Python's ** on int|float may return int, float, or complex.
+        # For Pebble we only produce int or float results.
+        self._stack.append(left**right)  # type: ignore[operator,arg-type]
+
+    def _exec_bitwise(self, instruction: Instruction) -> None:
+        """Handle BIT_AND, BIT_OR, BIT_XOR, BIT_NOT, LEFT_SHIFT, RIGHT_SHIFT."""
+        match instruction.opcode:
+            case OpCode.BIT_NOT:
+                operand = self._stack.pop()
+                if not _is_plain_int(operand):
+                    type_name = type(operand).__name__
+                    self._runtime_error(f"Unsupported operand type for bitwise NOT: {type_name}")
+                self._stack.append(~operand)  # type: ignore[operator]
+            case _:
+                right, left = self._stack.pop(), self._stack.pop()
+                self._apply_bitwise(instruction.opcode, left, right)
+
+    def _apply_bitwise(self, opcode: OpCode, left: Value, right: Value) -> None:
+        """Apply a binary bitwise operation to two plain-int operands."""
+        if not _is_plain_int(left) or not _is_plain_int(right):
+            symbol = {
+                OpCode.BIT_AND: "&",
+                OpCode.BIT_OR: "|",
+                OpCode.BIT_XOR: "^",
+                OpCode.LEFT_SHIFT: "<<",
+                OpCode.RIGHT_SHIFT: ">>",
+            }[opcode]
+            self._type_error(symbol, left, right)
+        match opcode:
+            case OpCode.BIT_AND:
+                self._stack.append(left & right)  # type: ignore[operator]
+            case OpCode.BIT_OR:
+                self._stack.append(left | right)  # type: ignore[operator]
+            case OpCode.BIT_XOR:
+                self._stack.append(left ^ right)  # type: ignore[operator]
+            case OpCode.LEFT_SHIFT:
+                if right < 0:  # type: ignore[operator]
+                    self._runtime_error("Shift amount cannot be negative")
+                self._stack.append(left << right)  # type: ignore[operator]
+            case OpCode.RIGHT_SHIFT:
+                if right < 0:  # type: ignore[operator]
+                    self._runtime_error("Shift amount cannot be negative")
+                self._stack.append(left >> right)  # type: ignore[operator]
+            case _:  # pragma: no cover
+                pass
 
     def _exec_logic(self, instruction: Instruction) -> None:
         """Handle NOT, comparisons, AND, and OR."""
@@ -694,8 +768,10 @@ class VirtualMachine:
     # -- Typed operation helpers -----------------------------------------------
 
     def _check_zero_divisor(self, right: Value) -> None:
-        """Raise PebbleRuntimeError if *right* is integer zero."""
-        if isinstance(right, int) and not isinstance(right, bool) and right == 0:
+        """Raise PebbleRuntimeError if *right* is numeric zero."""
+        if isinstance(right, bool):
+            return
+        if isinstance(right, int | float) and right == 0:
             self._runtime_error(_DIVISION_BY_ZERO)
 
     def _type_error(self, symbol: str, left: Value, right: Value) -> Never:
@@ -704,15 +780,15 @@ class VirtualMachine:
         right_type = type(right).__name__
         self._runtime_error(f"Unsupported operand types for {symbol}: {left_type} and {right_type}")
 
-    def _apply_arithmetic(
+    def _apply_numeric(
         self,
         symbol: str,
         left: Value,
         right: Value,
-        op: Callable[[int, int], int],
+        op: Callable[[int | float, int | float], int | float],
     ) -> None:
-        """Apply *op* to two integer operands, or raise a type error."""
-        if _both_plain_int(left, right):
+        """Apply *op* to two numeric operands (int or float), or raise a type error."""
+        if _both_numeric(left, right):
             self._stack.append(op(left, right))  # type: ignore[arg-type]
         else:
             self._type_error(symbol, left, right)
@@ -722,10 +798,10 @@ class VirtualMachine:
         symbol: str,
         left: Value,
         right: Value,
-        op: Callable[[int, int], bool],
+        op: Callable[[int | float, int | float], bool],
     ) -> None:
-        """Apply comparison *op* to two integer operands, or raise a type error."""
-        if _both_plain_int(left, right):
+        """Apply comparison *op* to two numeric operands, or raise a type error."""
+        if _both_numeric(left, right):
             self._stack.append(op(left, right))  # type: ignore[arg-type]
         else:
             self._type_error(symbol, left, right)
@@ -741,14 +817,21 @@ class VirtualMachine:
 # -- Module-level helpers (no self needed) ------------------------------------
 
 
-def _both_plain_int(left: Value, right: Value) -> bool:
-    """Return True if both operands are plain ints (not bools)."""
-    return (
-        isinstance(left, int)
-        and isinstance(right, int)
-        and not isinstance(left, bool)
-        and not isinstance(right, bool)
-    )
+def _both_numeric(left: Value, right: Value) -> bool:
+    """Return True if both operands are plain ints or floats (not bools)."""
+    return _is_numeric(left) and _is_numeric(right)
+
+
+def _is_numeric(value: Value) -> bool:
+    """Return True if *value* is a plain int or float (not bool)."""
+    if isinstance(value, bool):
+        return False
+    return isinstance(value, int | float)
+
+
+def _is_plain_int(value: Value) -> bool:
+    """Return True if *value* is a plain int (not bool or float)."""
+    return isinstance(value, int) and not isinstance(value, bool)
 
 
 def _int_operand(instruction: Instruction) -> int:

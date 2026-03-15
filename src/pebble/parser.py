@@ -21,6 +21,7 @@ from pebble.ast_nodes import (
     ContinueStatement,
     DictLiteral,
     Expression,
+    FloatLiteral,
     ForLoop,
     FunctionCall,
     FunctionDef,
@@ -51,32 +52,47 @@ from pebble.tokens import Token, TokenKind
 # Precedence levels (higher number = tighter binding)
 # ---------------------------------------------------------------------------
 
-_PREFIX_PRECEDENCE = 7  # unary -, not
+_PREFIX_PRECEDENCE = 12  # unary -, not, ~
+
+_RIGHT_ASSOCIATIVE: set[TokenKind] = {TokenKind.STAR_STAR}
 
 _INFIX_PRECEDENCE: dict[TokenKind, int] = {
     # Logical
     TokenKind.OR: 1,
     TokenKind.AND: 2,
-    # Comparison
+    # Equality
     TokenKind.EQUAL_EQUAL: 3,
     TokenKind.BANG_EQUAL: 3,
+    # Relational
     TokenKind.LESS: 4,
     TokenKind.LESS_EQUAL: 4,
     TokenKind.GREATER: 4,
     TokenKind.GREATER_EQUAL: 4,
-    # Arithmetic
-    TokenKind.PLUS: 5,
-    TokenKind.MINUS: 5,
-    TokenKind.STAR: 6,
-    TokenKind.SLASH: 6,
-    TokenKind.PERCENT: 6,
+    # Bitwise
+    TokenKind.PIPE: 5,
+    TokenKind.CARET: 6,
+    TokenKind.AMPERSAND: 7,
+    # Shifts
+    TokenKind.LESS_LESS: 8,
+    TokenKind.GREATER_GREATER: 8,
+    # Additive
+    TokenKind.PLUS: 9,
+    TokenKind.MINUS: 9,
+    # Multiplicative
+    TokenKind.STAR: 10,
+    TokenKind.SLASH: 10,
+    TokenKind.SLASH_SLASH: 10,
+    TokenKind.PERCENT: 10,
+    TokenKind.STAR_STAR: 11,
 }
 
 _OPERATOR_TEXT: dict[TokenKind, str] = {
     TokenKind.PLUS: "+",
     TokenKind.MINUS: "-",
     TokenKind.STAR: "*",
+    TokenKind.STAR_STAR: "**",
     TokenKind.SLASH: "/",
+    TokenKind.SLASH_SLASH: "//",
     TokenKind.PERCENT: "%",
     TokenKind.EQUAL_EQUAL: "==",
     TokenKind.BANG_EQUAL: "!=",
@@ -86,6 +102,11 @@ _OPERATOR_TEXT: dict[TokenKind, str] = {
     TokenKind.GREATER_EQUAL: ">=",
     TokenKind.AND: "and",
     TokenKind.OR: "or",
+    TokenKind.AMPERSAND: "&",
+    TokenKind.PIPE: "|",
+    TokenKind.CARET: "^",
+    TokenKind.LESS_LESS: "<<",
+    TokenKind.GREATER_GREATER: ">>",
 }
 
 
@@ -369,8 +390,9 @@ class Parser:
 
             op_token = self._advance()
             op_text = _OPERATOR_TEXT[op_token.kind]
-            # Left-associative: right side needs strictly higher precedence
-            right = self._parse_precedence(min_precedence=prec + 1)
+            # Right-associative: use same precedence; left-associative: strictly higher
+            next_prec = prec if op_token.kind in _RIGHT_ASSOCIATIVE else prec + 1
+            right = self._parse_precedence(min_precedence=next_prec)
             left = BinaryOp(
                 left=left,
                 operator=op_text,
@@ -400,6 +422,11 @@ class Parser:
         """Parse an integer literal."""
         token = self._advance()
         return IntegerLiteral(value=int(token.value), location=token.location)
+
+    def _parse_float(self) -> FloatLiteral:
+        """Parse a float literal."""
+        token = self._advance()
+        return FloatLiteral(value=float(token.value), location=token.location)
 
     def _parse_string(self) -> StringLiteral:
         """Parse a string literal."""
@@ -435,16 +462,27 @@ class Parser:
         )
 
     def _parse_negate(self) -> UnaryOp:
-        """Parse a unary negation (-x)."""
+        """Parse a unary negation (``-x``).
+
+        Negation binds less tightly than ``**`` so ``-2 ** 2`` is ``-(2**2)``.
+        """
         token = self._advance()
-        operand = self._parse_precedence(min_precedence=_PREFIX_PRECEDENCE)
+        operand = self._parse_precedence(
+            min_precedence=_INFIX_PRECEDENCE[TokenKind.STAR_STAR],
+        )
         return UnaryOp(operator="-", operand=operand, location=token.location)
 
     def _parse_not(self) -> UnaryOp:
-        """Parse a logical not (not x)."""
+        """Parse a logical not (``not x``)."""
         token = self._advance()
         operand = self._parse_precedence(min_precedence=_PREFIX_PRECEDENCE)
         return UnaryOp(operator="not", operand=operand, location=token.location)
+
+    def _parse_bitwise_not(self) -> UnaryOp:
+        """Parse a bitwise not (``~x``)."""
+        token = self._advance()
+        operand = self._parse_precedence(min_precedence=_PREFIX_PRECEDENCE)
+        return UnaryOp(operator="~", operand=operand, location=token.location)
 
     def _parse_grouped(self) -> Expression:
         """Parse a parenthesised expression."""
@@ -612,6 +650,7 @@ class Parser:
 
     _prefix_parsers: ClassVar[dict[TokenKind, Callable[[Parser], Expression]]] = {
         TokenKind.INTEGER: _parse_integer,
+        TokenKind.FLOAT: _parse_float,
         TokenKind.STRING: _parse_string,
         TokenKind.STRING_START: _parse_string_interpolation,
         TokenKind.TRUE: _parse_boolean,
@@ -619,6 +658,7 @@ class Parser:
         TokenKind.IDENTIFIER: _parse_identifier,
         TokenKind.MINUS: _parse_negate,
         TokenKind.NOT: _parse_not,
+        TokenKind.TILDE: _parse_bitwise_not,
         TokenKind.LEFT_PAREN: _parse_grouped,
         TokenKind.LEFT_BRACKET: _parse_array,
         TokenKind.LEFT_BRACE: _parse_dict,

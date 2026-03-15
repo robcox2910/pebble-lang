@@ -48,6 +48,7 @@ nav:
       - AST: concepts/ast.md
       - Parser: concepts/parser.md
       - Types: concepts/types.md
+      - Operators: concepts/operators.md
       - Statements: concepts/statements.md
       - Functions: concepts/functions.md
       - Semantic Analysis: concepts/analyzer.md

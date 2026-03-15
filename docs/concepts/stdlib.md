@@ -92,11 +92,19 @@ interpolation.
 
 ## int(value)
 
-Convert a text string to a whole number:
+Convert a value to a whole number. Works with strings, floats, and integers:
 
 ```pebble
 let age = int("12")
 print(age + 1)   # prints: 13
+```
+
+When converting a float, `int()` **truncates** toward zero (chops off the
+decimal part):
+
+```pebble
+print(int(3.7))    # prints: 3
+print(int(-2.9))   # prints: -2
 ```
 
 If the string doesn't look like a number, Pebble stops with an error:
@@ -112,20 +120,37 @@ not sure what type you have):
 print(int(42))   # prints: 42
 ```
 
+## float(value)
+
+Convert a value to a decimal number. Works with integers and strings:
+
+```pebble
+print(float(42))       # prints: 42.0
+print(float("3.14"))   # prints: 3.14
+print(float(1.5))      # prints: 1.5
+```
+
+If the string doesn't look like a number, Pebble stops with an error:
+
+```pebble
+float("hello")   # Error: Cannot convert 'hello' to float
+```
+
 ## type(value)
 
 Find out what kind of value something is:
 
 ```pebble
 print(type(42))        # prints: int
+print(type(3.14))      # prints: float
 print(type("hello"))   # prints: str
 print(type(true))      # prints: bool
 print(type([1, 2]))    # prints: list
 print(type({}))        # prints: dict
 ```
 
-The result is always a string like `"int"`, `"str"`, `"bool"`, `"list"`, or
-`"dict"`.
+The result is always a string like `"int"`, `"float"`, `"str"`, `"bool"`,
+`"list"`, `"dict"`, or `"fn"`.
 You can use it in conditions:
 
 ```pebble

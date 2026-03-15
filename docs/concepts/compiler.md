@@ -323,10 +323,18 @@ just knows the function exists so it can `CALL` it later.
 | `ADD` | — | Pop two values, push their sum |
 | `SUBTRACT` | — | Pop two values, push the difference |
 | `MULTIPLY` | — | Pop two values, push the product |
-| `DIVIDE` | — | Pop two values, push the quotient |
+| `DIVIDE` | — | Pop two values, push the quotient (always a float) |
+| `FLOOR_DIVIDE` | — | Pop two values, push the floored quotient |
 | `MODULO` | — | Pop two values, push the remainder |
+| `POWER` | — | Pop two values, push left raised to right |
 | `NEGATE` | — | Pop a value, push its negation |
 | `NOT` | — | Pop a value, push its logical NOT |
+| `BIT_AND` | — | Pop two ints, push bitwise AND |
+| `BIT_OR` | — | Pop two ints, push bitwise OR |
+| `BIT_XOR` | — | Pop two ints, push bitwise XOR |
+| `BIT_NOT` | — | Pop an int, push bitwise NOT |
+| `LEFT_SHIFT` | — | Pop two ints, push left shifted by right |
+| `RIGHT_SHIFT` | — | Pop two ints, push left shifted right by right |
 | `EQUAL` | — | Pop two values, push whether they're equal |
 | `NOT_EQUAL` | — | Pop two values, push whether they differ |
 | `LESS_THAN` | — | Pop two values, push whether left < right |

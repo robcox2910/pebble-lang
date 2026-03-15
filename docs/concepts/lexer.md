@@ -24,7 +24,7 @@ Here's what happens at each step:
 ```mermaid
 graph TD
     A[Read character] --> B{What is it?}
-    B -->|digit| C[Collect all digits → INTEGER token]
+    B -->|digit| C[Collect digits → INTEGER or FLOAT token]
     B -->|quote| D[Collect until closing quote → STRING token]
     B -->|letter / _| E[Collect word → keyword or IDENTIFIER]
     B -->|symbol| F[Match operator → PLUS, LESS_EQUAL, etc.]

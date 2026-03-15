@@ -21,7 +21,7 @@ from pebble.errors import PebbleRuntimeError
 if TYPE_CHECKING:
     from pebble.bytecode import CodeObject
 
-type Value = int | str | bool | list[Value] | dict[str, Value] | Closure
+type Value = int | float | str | bool | list[Value] | dict[str, Value] | Closure
 
 
 # -- Closure types ------------------------------------------------------------
@@ -55,11 +55,13 @@ class Closure:
 # -- Value formatting ----------------------------------------------------------
 
 
-def format_value(value: Value) -> str:
+def format_value(value: Value) -> str:  # noqa: PLR0911
     """Format *value* for Pebble-native output."""
     match value:
         case bool():
             return "true" if value else "false"
+        case float():
+            return str(value)
         case int():
             return str(value)
         case str():
@@ -83,10 +85,12 @@ def _builtin_str(args: list[Value]) -> Value:
 
 
 def _builtin_int(args: list[Value]) -> Value:
-    """Convert a string or integer to an integer."""
+    """Convert a string, float, or integer to an integer."""
     arg = args[0]
     if isinstance(arg, int) and not isinstance(arg, bool):
         return arg
+    if isinstance(arg, float):
+        return int(arg)
     if isinstance(arg, str):
         try:
             return int(arg)
@@ -98,12 +102,32 @@ def _builtin_int(args: list[Value]) -> Value:
     raise PebbleRuntimeError(msg, line=0, column=0)
 
 
-def _builtin_type(args: list[Value]) -> Value:
+def _builtin_float(args: list[Value]) -> Value:
+    """Convert a string, integer, or float to a float."""
+    arg = args[0]
+    if isinstance(arg, float):
+        return arg
+    if isinstance(arg, int) and not isinstance(arg, bool):
+        return float(arg)
+    if isinstance(arg, str):
+        try:
+            return float(arg)
+        except ValueError:
+            msg = f"Cannot convert '{arg}' to float"
+            raise PebbleRuntimeError(msg, line=0, column=0) from None
+    type_name = type(arg).__name__
+    msg = f"Cannot convert {type_name} to float"
+    raise PebbleRuntimeError(msg, line=0, column=0)
+
+
+def _builtin_type(args: list[Value]) -> Value:  # noqa: PLR0911
     """Return the type name of a value as a string."""
     arg = args[0]
     match arg:
         case bool():
             return "bool"
+        case float():
+            return "float"
         case int():
             return "int"
         case str():
@@ -177,6 +201,7 @@ type BuiltinHandler = Callable[[list[Value]], Value]
 BUILTINS: dict[str, tuple[int, BuiltinHandler]] = {
     "str": (1, _builtin_str),
     "int": (1, _builtin_int),
+    "float": (1, _builtin_float),
     "type": (1, _builtin_type),
     "len": (1, _builtin_len),
     "push": (2, _builtin_push),
