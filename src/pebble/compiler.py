@@ -40,6 +40,8 @@ from pebble.ast_nodes import (
     Statement,
     StringInterpolation,
     StringLiteral,
+    ThrowStatement,
+    TryCatch,
     UnaryOp,
     WhileLoop,
 )
@@ -83,6 +85,7 @@ class _LoopContext:
     continue_patches: list[int] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
+    try_depth_at_entry: int = 0
 
 
 class Compiler:
@@ -107,6 +110,7 @@ class Compiler:
         self._current = self._main
         self._loop_var_counter = 0
         self._loop_contexts: list[_LoopContext] = []
+        self._try_depth: int = 0
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
 
@@ -186,7 +190,7 @@ class Compiler:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _compile_statement(self, stmt: Statement) -> None:
+    def _compile_statement(self, stmt: Statement) -> None:  # noqa: PLR0912
         """Dispatch to the appropriate compilation method."""
         match stmt:
             case Assignment():
@@ -211,6 +215,10 @@ class Compiler:
                 self._compile_break(stmt)
             case ContinueStatement():
                 self._compile_continue(stmt)
+            case TryCatch():
+                self._compile_try(stmt)
+            case ThrowStatement():
+                self._compile_throw(stmt)
             case _:
                 # Expression statement (e.g. bare function call)
                 self._compile_expression(stmt)  # type: ignore[arg-type]
@@ -256,7 +264,7 @@ class Compiler:
         self._compile_expression(node.condition)
         exit_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=node.location)
 
-        self._loop_contexts.append(_LoopContext())
+        self._loop_contexts.append(_LoopContext(try_depth_at_entry=self._try_depth))
         for stmt in node.body:
             self._compile_statement(stmt)
         ctx = self._loop_contexts.pop()
@@ -302,7 +310,7 @@ class Compiler:
         exit_jump = self._compile_for_condition(nargs, node.variable, limit_name, counter, loc)
 
         # -- Body -------------------------------------------------------------
-        self._loop_contexts.append(_LoopContext())
+        self._loop_contexts.append(_LoopContext(try_depth_at_entry=self._try_depth))
         for stmt in node.body:
             self._compile_statement(stmt)
         ctx = self._loop_contexts.pop()
@@ -403,9 +411,11 @@ class Compiler:
         previous = self._current
         previous_counter = self._loop_var_counter
         previous_loop_contexts = self._loop_contexts
+        previous_try_depth = self._try_depth
         self._current = fn_code
         self._loop_var_counter = 0
         self._loop_contexts = []
+        self._try_depth = 0
 
         for stmt in node.body:
             self._compile_statement(stmt)
@@ -419,6 +429,7 @@ class Compiler:
         self._current = previous
         self._loop_var_counter = previous_counter
         self._loop_contexts = previous_loop_contexts
+        self._try_depth = previous_try_depth
 
         # If the function captures variables, it's a closure — emit MAKE_CLOSURE
         if fn_code.free_variables:
@@ -426,22 +437,73 @@ class Compiler:
             self._emit(OpCode.STORE_NAME, node.name, location=node.location)
 
     def _compile_return(self, node: ReturnStatement) -> None:
-        """Compile ``return`` or ``return expr``."""
+        """Compile ``return`` or ``return expr`` — pop try handlers first."""
         if node.value is not None:
             self._compile_expression(node.value)
         else:
             self._emit_constant(0, location=node.location)
+        for _ in range(self._try_depth):
+            self._emit(OpCode.POP_TRY, location=node.location)
         self._emit(OpCode.RETURN, location=node.location)
 
     def _compile_break(self, node: BreakStatement) -> None:
-        """Compile ``break`` — emit a forward JUMP to be patched after the loop."""
+        """Compile ``break`` — emit POP_TRY for handlers inside the loop, then JUMP."""
+        ctx = self._loop_contexts[-1]
+        for _ in range(self._try_depth - ctx.try_depth_at_entry):
+            self._emit(OpCode.POP_TRY, location=node.location)
         patch = self._emit(OpCode.JUMP, 0, location=node.location)
-        self._loop_contexts[-1].break_patches.append(patch)
+        ctx.break_patches.append(patch)
 
     def _compile_continue(self, node: ContinueStatement) -> None:
-        """Compile ``continue`` — emit a JUMP to be patched to the continue target."""
+        """Compile ``continue`` — emit POP_TRY for handlers inside the loop, then JUMP."""
+        ctx = self._loop_contexts[-1]
+        for _ in range(self._try_depth - ctx.try_depth_at_entry):
+            self._emit(OpCode.POP_TRY, location=node.location)
         patch = self._emit(OpCode.JUMP, 0, location=node.location)
-        self._loop_contexts[-1].continue_patches.append(patch)
+        ctx.continue_patches.append(patch)
+
+    def _compile_try(self, node: TryCatch) -> None:
+        """Compile ``try { body } catch [e] { handler } [finally { cleanup }]``."""
+        loc = node.location
+
+        # SETUP_TRY catch_ip
+        setup_try = self._emit(OpCode.SETUP_TRY, 0, location=loc)
+        self._try_depth += 1
+
+        # [try body]
+        for stmt in node.body:
+            self._compile_statement(stmt)
+
+        # POP_TRY — normal exit removes handler
+        self._emit(OpCode.POP_TRY, location=loc)
+        self._try_depth -= 1
+
+        # JUMP finally_or_end
+        jump_past_catch = self._emit(OpCode.JUMP, 0, location=loc)
+
+        # catch_ip: (handler was already popped by _unwind_exception)
+        self._patch_jump(setup_try)
+
+        # Bind or discard exception value
+        if node.catch_variable is not None:
+            self._emit_store(node.catch_variable, location=loc)
+        else:
+            self._emit(OpCode.POP, location=loc)
+
+        # [catch body]
+        for stmt in node.catch_body:
+            self._compile_statement(stmt)
+
+        # finally_ip: both normal and catch paths flow here
+        self._patch_jump(jump_past_catch)
+        if node.finally_body is not None:
+            for stmt in node.finally_body:
+                self._compile_statement(stmt)
+
+    def _compile_throw(self, node: ThrowStatement) -> None:
+        """Compile ``throw expr`` — evaluate expression and emit THROW."""
+        self._compile_expression(node.value)
+        self._emit(OpCode.THROW, location=node.location)
 
     # -- Expression dispatch --------------------------------------------------
 
@@ -554,9 +616,11 @@ class Compiler:
         previous = self._current
         previous_counter = self._loop_var_counter
         previous_loop_contexts = self._loop_contexts
+        previous_try_depth = self._try_depth
         self._current = fn_code
         self._loop_var_counter = 0
         self._loop_contexts = []
+        self._try_depth = 0
 
         for stmt in node.body:
             self._compile_statement(stmt)
@@ -569,6 +633,7 @@ class Compiler:
         self._current = previous
         self._loop_var_counter = previous_counter
         self._loop_contexts = previous_loop_contexts
+        self._try_depth = previous_try_depth
 
         # Always emit MAKE_CLOSURE — leaves a Closure value on the stack
         self._emit(OpCode.MAKE_CLOSURE, node.name, location=node.location)

@@ -256,6 +256,25 @@ class ContinueStatement:
 
 
 @dataclass(frozen=True)
+class TryCatch:
+    """A ``try/catch/finally`` block."""
+
+    body: list[Statement]
+    catch_variable: str | None
+    catch_body: list[Statement]
+    finally_body: list[Statement] | None
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class ThrowStatement:
+    """A ``throw expr`` statement."""
+
+    value: Expression
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class Program:
     """The root AST node containing the top-level statements."""
 
@@ -295,4 +314,6 @@ Statement = (
     | IndexAssignment
     | BreakStatement
     | ContinueStatement
+    | TryCatch
+    | ThrowStatement
 )

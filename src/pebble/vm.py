@@ -35,6 +35,30 @@ if TYPE_CHECKING:
 _DIVISION_BY_ZERO = "Division by zero"
 
 
+class _PebbleThrow(Exception):  # noqa: N818
+    """Internal exception for Pebble throw/catch unwinding."""
+
+    def __init__(self, value: Value) -> None:
+        """Create a throw with the given Pebble value."""
+        self.value = value
+
+
+@dataclass
+class _ExceptionHandler:
+    """Bookkeeping for one active try block.
+
+    Attributes:
+        handler_ip: IP to jump to (catch block).
+        stack_depth: Stack size to restore on unwind.
+        frame_depth: Call-stack size to restore on unwind.
+
+    """
+
+    handler_ip: int
+    stack_depth: int
+    frame_depth: int
+
+
 @dataclass
 class Frame:
     """A single activation record on the call stack.
@@ -71,6 +95,8 @@ class VirtualMachine:
         self._functions: dict[str, CodeObject] = {}
         self._output: TextIO = output or sys.stdout
         self._current_instruction: Instruction | None = None
+        self._exception_handlers: list[_ExceptionHandler] = []
+        self._min_depth: int = 0
 
     # -- Public API -----------------------------------------------------------
 
@@ -78,7 +104,11 @@ class VirtualMachine:
         """Execute *program* from the first instruction of ``main``."""
         self._functions = dict(program.functions)
         self._frames = [Frame(code=program.main)]
-        self._execute()
+        self._exception_handlers = []
+        try:
+            self._execute()
+        except _PebbleThrow as exc:
+            raise PebbleRuntimeError(str(exc.value), line=0, column=0) from None
 
     def run_repl(
         self,
@@ -91,7 +121,11 @@ class VirtualMachine:
         """
         self._functions = dict(program.functions)
         self._frames = [Frame(code=program.main, variables=dict(variables))]
-        self._execute()
+        self._exception_handlers = []
+        try:
+            self._execute()
+        except _PebbleThrow as exc:
+            raise PebbleRuntimeError(str(exc.value), line=0, column=0) from None
         return dict(self._frames[-1].variables)
 
     # -- Error helper ---------------------------------------------------------
@@ -112,65 +146,102 @@ class VirtualMachine:
         Run until the call-stack depth drops to *min_depth*, allowing nested
         execution for callbacks invoked by VM-level builtins.
         """
+        previous_min = self._min_depth
+        self._min_depth = min_depth
+        try:
+            self._execute_loop(min_depth)
+        finally:
+            self._min_depth = previous_min
+
+    def _execute_loop(self, min_depth: int) -> None:
+        """Inner execution loop with exception handling."""
         while len(self._frames) > min_depth:
             frame = self._frames[-1]
             instruction = frame.code.instructions[frame.ip]
             frame.ip += 1
             self._current_instruction = instruction
 
-            match instruction.opcode:
-                case (
-                    OpCode.LOAD_CONST
-                    | OpCode.STORE_NAME
-                    | OpCode.LOAD_NAME
-                    | OpCode.LOAD_CELL
-                    | OpCode.STORE_CELL
-                ):
-                    self._exec_variables(instruction, frame)
-                case (
-                    OpCode.ADD
-                    | OpCode.SUBTRACT
-                    | OpCode.MULTIPLY
-                    | OpCode.DIVIDE
-                    | OpCode.MODULO
-                    | OpCode.NEGATE
-                ):
-                    self._exec_arithmetic(instruction)
-                case (
-                    OpCode.NOT
-                    | OpCode.EQUAL
-                    | OpCode.NOT_EQUAL
-                    | OpCode.LESS_THAN
-                    | OpCode.LESS_EQUAL
-                    | OpCode.GREATER_THAN
-                    | OpCode.GREATER_EQUAL
-                    | OpCode.AND
-                    | OpCode.OR
-                ):
-                    self._exec_logic(instruction)
-                case OpCode.JUMP | OpCode.JUMP_IF_FALSE | OpCode.POP:
-                    self._exec_control(instruction, frame)
-                case (
-                    OpCode.BUILD_STRING
-                    | OpCode.BUILD_LIST
-                    | OpCode.BUILD_DICT
-                    | OpCode.INDEX_GET
-                    | OpCode.INDEX_SET
-                    | OpCode.SLICE_GET
-                ):
-                    self._exec_collection(instruction)
-                case OpCode.PRINT:
-                    self._output.write(self._format_value(self._stack.pop()) + "\n")
-                case OpCode.CALL:
-                    self._exec_call(instruction)
-                case OpCode.CALL_METHOD:
-                    self._exec_call_method(instruction)
-                case OpCode.RETURN:
-                    self._exec_return()
-                case OpCode.MAKE_CLOSURE:
-                    self._exec_make_closure(instruction)
-                case OpCode.HALT:
-                    return
+            if instruction.opcode is OpCode.HALT:
+                return
+
+            try:
+                self._dispatch(instruction, frame)
+            except _PebbleThrow as exc:
+                self._unwind_exception(exc.value)
+            except PebbleRuntimeError as exc:
+                if self._exception_handlers:
+                    self._unwind_exception(exc.message)
+                else:
+                    raise
+
+    def _dispatch(self, instruction: Instruction, frame: Frame) -> None:  # noqa: PLR0912
+        """Dispatch a single instruction."""
+        match instruction.opcode:
+            case (
+                OpCode.LOAD_CONST
+                | OpCode.STORE_NAME
+                | OpCode.LOAD_NAME
+                | OpCode.LOAD_CELL
+                | OpCode.STORE_CELL
+            ):
+                self._exec_variables(instruction, frame)
+            case (
+                OpCode.ADD
+                | OpCode.SUBTRACT
+                | OpCode.MULTIPLY
+                | OpCode.DIVIDE
+                | OpCode.MODULO
+                | OpCode.NEGATE
+            ):
+                self._exec_arithmetic(instruction)
+            case (
+                OpCode.NOT
+                | OpCode.EQUAL
+                | OpCode.NOT_EQUAL
+                | OpCode.LESS_THAN
+                | OpCode.LESS_EQUAL
+                | OpCode.GREATER_THAN
+                | OpCode.GREATER_EQUAL
+                | OpCode.AND
+                | OpCode.OR
+            ):
+                self._exec_logic(instruction)
+            case OpCode.JUMP | OpCode.JUMP_IF_FALSE | OpCode.POP:
+                self._exec_control(instruction, frame)
+            case (
+                OpCode.BUILD_STRING
+                | OpCode.BUILD_LIST
+                | OpCode.BUILD_DICT
+                | OpCode.INDEX_GET
+                | OpCode.INDEX_SET
+                | OpCode.SLICE_GET
+            ):
+                self._exec_collection(instruction)
+            case OpCode.PRINT:
+                self._output.write(self._format_value(self._stack.pop()) + "\n")
+            case OpCode.CALL:
+                self._exec_call(instruction)
+            case OpCode.CALL_METHOD:
+                self._exec_call_method(instruction)
+            case OpCode.RETURN:
+                self._exec_return()
+            case OpCode.MAKE_CLOSURE:
+                self._exec_make_closure(instruction)
+            case OpCode.SETUP_TRY:
+                target = _int_operand(instruction)
+                self._exception_handlers.append(
+                    _ExceptionHandler(
+                        handler_ip=target,
+                        stack_depth=len(self._stack),
+                        frame_depth=len(self._frames),
+                    )
+                )
+            case OpCode.POP_TRY:
+                self._exception_handlers.pop()
+            case OpCode.THROW:
+                raise _PebbleThrow(self._stack.pop())
+            case _:  # pragma: no cover
+                pass
 
     # -- Dispatch groups ------------------------------------------------------
 
@@ -543,6 +614,35 @@ class VirtualMachine:
         return_value = self._stack.pop()
         self._frames.pop()
         self._stack.append(return_value)
+
+    # -- Exception handling ---------------------------------------------------
+
+    def _unwind_exception(self, value: Value) -> None:
+        """Route an exception to the nearest handler, or re-raise."""
+        if not self._exception_handlers:
+            if isinstance(value, str):
+                self._runtime_error(value)
+            raise _PebbleThrow(value)
+
+        handler = self._exception_handlers[-1]
+
+        # If the handler belongs to an outer _execute context, re-raise
+        if handler.frame_depth <= self._min_depth and self._min_depth > 0:
+            raise _PebbleThrow(value)
+
+        self._exception_handlers.pop()
+
+        # Unwind call frames
+        while len(self._frames) > handler.frame_depth:
+            self._frames.pop()
+
+        # Unwind value stack
+        while len(self._stack) > handler.stack_depth:
+            self._stack.pop()
+
+        # Push exception value and jump to handler
+        self._stack.append(value)
+        self._frames[-1].ip = handler.handler_ip
 
     # -- Callable helper ------------------------------------------------------
 

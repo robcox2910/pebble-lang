@@ -38,6 +38,8 @@ from pebble.ast_nodes import (
     Statement,
     StringInterpolation,
     StringLiteral,
+    ThrowStatement,
+    TryCatch,
     UnaryOp,
     WhileLoop,
 )
@@ -215,6 +217,41 @@ class Parser:
         token = self._advance()  # consume 'continue'
         self._consume_newline()
         return ContinueStatement(location=token.location)
+
+    def _parse_try(self) -> TryCatch:
+        """Parse a ``try { body } catch [e] { handler } [finally { cleanup }]`` statement."""
+        try_token = self._advance()  # consume 'try'
+        body = self._parse_block()
+
+        self._expect(TokenKind.CATCH, "Expected 'catch' after try block")
+
+        # Optional catch variable
+        catch_variable: str | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.IDENTIFIER:
+            catch_variable = self._advance().value
+
+        catch_body = self._parse_block()
+
+        # Optional finally block
+        finally_body: list[Statement] | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.FINALLY:
+            self._advance()  # consume 'finally'
+            finally_body = self._parse_block()
+
+        return TryCatch(
+            body=body,
+            catch_variable=catch_variable,
+            catch_body=catch_body,
+            finally_body=finally_body,
+            location=try_token.location,
+        )
+
+    def _parse_throw(self) -> ThrowStatement:
+        """Parse a ``throw expr`` statement."""
+        throw_token = self._advance()  # consume 'throw'
+        value = self.parse_expression()
+        self._consume_newline()
+        return ThrowStatement(value=value, location=throw_token.location)
 
     def _parse_return(self) -> ReturnStatement:
         """Parse a ``return [expr]`` statement."""
@@ -589,6 +626,8 @@ class Parser:
         TokenKind.RETURN: _parse_return,
         TokenKind.BREAK: _parse_break,
         TokenKind.CONTINUE: _parse_continue,
+        TokenKind.TRY: _parse_try,
+        TokenKind.THROW: _parse_throw,
     }
 
     # -- Token helpers --------------------------------------------------------

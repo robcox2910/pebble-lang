@@ -59,4 +59,5 @@ nav:
       - Standard Library: concepts/stdlib.md
       - Closures: concepts/closures.md
       - Higher-Order Functions: concepts/higher-order.md
+      - Error Handling: concepts/error-handling.md
       - REPL: concepts/repl.md

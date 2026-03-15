@@ -57,6 +57,9 @@ class OpCode(StrEnum):
     # -- Control flow ---------------------------------------------------------
     JUMP = "JUMP"
     JUMP_IF_FALSE = "JUMP_IF_FALSE"
+    SETUP_TRY = "SETUP_TRY"
+    POP_TRY = "POP_TRY"
+    THROW = "THROW"
 
     # -- Stack ----------------------------------------------------------------
     POP = "POP"
