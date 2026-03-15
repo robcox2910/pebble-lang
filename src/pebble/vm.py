@@ -12,7 +12,17 @@ import sys
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar, Never
 
-from pebble.builtins import BUILTIN_ARITIES, BUILTINS, Cell, Closure, Value, format_value
+from pebble.builtins import (
+    BUILTIN_ARITIES,
+    BUILTINS,
+    LIST_METHODS,
+    METHOD_NONE,
+    STRING_METHODS,
+    Cell,
+    Closure,
+    Value,
+    format_value,
+)
 from pebble.bytecode import Instruction, OpCode
 from pebble.errors import PebbleRuntimeError
 
@@ -153,6 +163,8 @@ class VirtualMachine:
                     self._output.write(self._format_value(self._stack.pop()) + "\n")
                 case OpCode.CALL:
                     self._exec_call(instruction)
+                case OpCode.CALL_METHOD:
+                    self._exec_call_method(instruction)
                 case OpCode.RETURN:
                     self._exec_return()
                 case OpCode.MAKE_CLOSURE:
@@ -459,6 +471,45 @@ class VirtualMachine:
         new_frame = Frame(code=fn_code, variables=args)
         self._init_cells(new_frame)
         self._frames.append(new_frame)
+
+    def _exec_call_method(self, instruction: Instruction) -> None:
+        """Handle CALL_METHOD — pop args and target, dispatch to method handler."""
+        method_name = _str_operand(instruction)
+
+        # Determine max arity from whichever registry has this method
+        if method_name in STRING_METHODS:
+            max_arity = STRING_METHODS[method_name][0]
+        elif method_name in LIST_METHODS:
+            max_arity = LIST_METHODS[method_name][0]
+        else:
+            self._runtime_error(f"Unknown method '{method_name}'")
+
+        # Pop max_arity args, then target
+        raw_args = [self._stack.pop() for _ in range(max_arity)]
+        raw_args.reverse()
+        target = self._stack.pop()
+
+        # Filter out sentinel values
+        args: list[Value] = [a for a in raw_args if a != METHOD_NONE]
+
+        # Type dispatch
+        if isinstance(target, str):
+            if method_name not in STRING_METHODS:
+                self._runtime_error(f"String has no method '{method_name}'")
+            _, handler = STRING_METHODS[method_name]
+        elif isinstance(target, list):
+            if method_name not in LIST_METHODS:
+                self._runtime_error(f"List has no method '{method_name}'")
+            _, handler = LIST_METHODS[method_name]
+        else:
+            type_name = type(target).__name__
+            self._runtime_error(f"Cannot call methods on {type_name}")
+
+        try:
+            result = handler(target, args)
+        except PebbleRuntimeError as exc:
+            self._runtime_error(exc.message)
+        self._stack.append(result)
 
     def _exec_make_closure(self, instruction: Instruction) -> None:
         """Handle MAKE_CLOSURE — create a Closure from a function and captured cells."""

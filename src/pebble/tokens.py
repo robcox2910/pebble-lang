@@ -66,6 +66,7 @@ class TokenKind(StrEnum):
     RIGHT_BRACKET = "RIGHT_BRACKET"
     COMMA = "COMMA"
     COLON = "COLON"
+    DOT = "DOT"
     EQUAL = "EQUAL"
 
     # -- Special --------------------------------------------------------------

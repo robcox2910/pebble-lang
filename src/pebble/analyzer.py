@@ -31,6 +31,7 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    MethodCall,
     PrintStatement,
     Program,
     Reassignment,
@@ -42,7 +43,7 @@ from pebble.ast_nodes import (
     UnaryOp,
     WhileLoop,
 )
-from pebble.builtins import BUILTIN_ARITIES, Arity
+from pebble.builtins import BUILTIN_ARITIES, METHOD_ARITIES, Arity
 from pebble.errors import SemanticError
 from pebble.tokens import SourceLocation
 
@@ -373,6 +374,8 @@ class SemanticAnalyzer:
                     self._visit_expression(value)
             case IndexAccess() | SliceAccess():
                 self._visit_index_or_slice(expr)
+            case MethodCall():
+                self._visit_method_call(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
             case IntegerLiteral() | StringLiteral() | BooleanLiteral():
@@ -422,6 +425,26 @@ class SemanticAnalyzer:
         elif actual != expected:
             s = "" if expected == 1 else "s"
             msg = f"Function '{node.name}' expects {expected} argument{s}, got {actual}"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        for arg in node.arguments:
+            self._visit_expression(arg)
+
+    def _visit_method_call(self, node: MethodCall) -> None:
+        """Visit a method call — validate method name and argument count."""
+        self._visit_expression(node.target)
+        if node.method not in METHOD_ARITIES:
+            msg = f"Unknown method '{node.method}'"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        expected = METHOD_ARITIES[node.method]
+        actual = len(node.arguments)
+        if isinstance(expected, tuple):
+            if actual not in expected:
+                options = ", ".join(str(a) for a in expected)
+                msg = f"Method '{node.method}' expects {options} arguments, got {actual}"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        elif actual != expected:
+            s = "" if expected == 1 else "s"
+            msg = f"Method '{node.method}' expects {expected} argument{s}, got {actual}"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         for arg in node.arguments:
             self._visit_expression(arg)

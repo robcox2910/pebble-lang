@@ -31,6 +31,7 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    MethodCall,
     PrintStatement,
     Program,
     Reassignment,
@@ -42,6 +43,7 @@ from pebble.ast_nodes import (
     UnaryOp,
     WhileLoop,
 )
+from pebble.builtins import METHOD_ARITIES, METHOD_NONE
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 
 if TYPE_CHECKING:
@@ -446,11 +448,7 @@ class Compiler:
     def _compile_expression(self, expr: Expression) -> None:
         """Dispatch to the appropriate expression compiler."""
         match expr:
-            case IntegerLiteral():
-                self._emit_constant(expr.value, location=expr.location)
-            case StringLiteral():
-                self._emit_constant(expr.value, location=expr.location)
-            case BooleanLiteral():
+            case IntegerLiteral() | StringLiteral() | BooleanLiteral():
                 self._emit_constant(expr.value, location=expr.location)
             case Identifier():
                 self._emit_load(expr.name, location=expr.location)
@@ -468,6 +466,8 @@ class Compiler:
                 self._compile_dict_literal(expr)
             case IndexAccess() | SliceAccess():
                 self._compile_index_or_slice(expr)
+            case MethodCall():
+                self._compile_method_call(expr)
             case FunctionExpression():
                 self._compile_function_expression(expr)
 
@@ -489,6 +489,18 @@ class Compiler:
         for arg in node.arguments:
             self._compile_expression(arg)
         self._emit(OpCode.CALL, node.name, location=node.location)
+
+    def _compile_method_call(self, node: MethodCall) -> None:
+        """Compile a method call: push target, push args, pad, CALL_METHOD."""
+        self._compile_expression(node.target)
+        for arg in node.arguments:
+            self._compile_expression(arg)
+        # Pad with sentinels so the VM always pops the max arity
+        expected = METHOD_ARITIES[node.method]
+        max_arity = max(expected) if isinstance(expected, tuple) else expected
+        for _ in range(max_arity - len(node.arguments)):
+            self._emit_constant(METHOD_NONE, location=node.location)
+        self._emit(OpCode.CALL_METHOD, node.method, location=node.location)
 
     def _compile_string_interpolation(self, node: StringInterpolation) -> None:
         """Compile a string interpolation: push each part, then BUILD_STRING."""

@@ -18,6 +18,8 @@ from pebble.parser import Parser
 from pebble.tokens import TokenKind
 from pebble.vm import VirtualMachine
 
+TEN = 10
+
 # -- Named constants ----------------------------------------------------------
 
 ONE = 1
@@ -603,3 +605,108 @@ print("sub: {xs[1:3]}")"""
         """Slicing a non-list/non-string raises a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="Cannot slice"):
             _run_source("let x = 42\nprint(x[1:3])")
+
+
+# -- List methods: push (method syntax) ---------------------------------------
+
+
+class TestListMethodPush:
+    """Verify ``xs.push(val)`` method syntax."""
+
+    def test_method_push(self) -> None:
+        """``xs.push(4)`` appends to the list."""
+        source = "let xs = [1, 2, 3]\nxs.push(4)\nprint(xs)"
+        assert _run_source(source) == "[1, 2, 3, 4]\n"
+
+    def test_push_to_empty(self) -> None:
+        """``xs.push(1)`` works on empty lists."""
+        source = "let xs = []\nxs.push(1)\nprint(xs)"
+        assert _run_source(source) == "[1]\n"
+
+    def test_functional_push_still_works(self) -> None:
+        """Functional ``push(xs, 4)`` backward compat."""
+        source = "let xs = [1, 2, 3]\npush(xs, 4)\nprint(xs)"
+        assert _run_source(source) == "[1, 2, 3, 4]\n"
+
+
+# -- List methods: pop (method syntax) ----------------------------------------
+
+
+class TestListMethodPop:
+    """Verify ``xs.pop()`` method syntax."""
+
+    def test_method_pop(self) -> None:
+        """``xs.pop()`` removes and returns the last element."""
+        source = "let xs = [1, 2, 3]\nlet v = xs.pop()\nprint(v)\nprint(xs)"
+        assert _run_source(source) == "3\n[1, 2]\n"
+
+    def test_pop_empty_error(self) -> None:
+        """``xs.pop()`` on empty list raises error."""
+        with pytest.raises(PebbleRuntimeError, match="empty list"):
+            _run_source("let xs = []\nxs.pop()")
+
+    def test_functional_pop_still_works(self) -> None:
+        """Functional ``pop(xs)`` backward compat."""
+        source = "let xs = [1, 2, 3]\nlet v = pop(xs)\nprint(v)\nprint(xs)"
+        assert _run_source(source) == "3\n[1, 2]\n"
+
+
+# -- List methods: contains ---------------------------------------------------
+
+
+class TestListMethodContains:
+    """Verify ``xs.contains(val)`` method syntax."""
+
+    def test_found(self) -> None:
+        """``xs.contains(2)`` returns true when present."""
+        source = "let xs = [1, 2, 3]\nprint(xs.contains(2))"
+        assert _run_source(source) == "true\n"
+
+    def test_not_found(self) -> None:
+        """``xs.contains(99)`` returns false when absent."""
+        source = "let xs = [1, 2, 3]\nprint(xs.contains(99))"
+        assert _run_source(source) == "false\n"
+
+
+# -- List methods: reverse ----------------------------------------------------
+
+
+class TestListMethodReverse:
+    """Verify ``xs.reverse()`` method syntax."""
+
+    def test_reverse(self) -> None:
+        """``xs.reverse()`` reverses in place."""
+        source = "let xs = [1, 2, 3]\nxs.reverse()\nprint(xs)"
+        assert _run_source(source) == "[3, 2, 1]\n"
+
+
+# -- List methods: sort -------------------------------------------------------
+
+
+class TestListMethodSort:
+    """Verify ``xs.sort()`` method syntax."""
+
+    def test_sort_ints(self) -> None:
+        """``xs.sort()`` sorts integers in place."""
+        source = "let xs = [3, 1, 2]\nxs.sort()\nprint(xs)"
+        assert _run_source(source) == "[1, 2, 3]\n"
+
+    def test_sort_strings(self) -> None:
+        """``xs.sort()`` sorts strings alphabetically."""
+        source = 'let xs = ["cherry", "apple", "banana"]\nxs.sort()\nprint(xs)'
+        assert _run_source(source) == "[apple, banana, cherry]\n"
+
+    def test_sort_mixed_error(self) -> None:
+        """``xs.sort()`` on mixed types raises error."""
+        with pytest.raises(PebbleRuntimeError, match="same type"):
+            _run_source('let xs = [1, "a"]\nxs.sort()')
+
+    def test_sort_empty(self) -> None:
+        """``xs.sort()`` on empty list is a no-op."""
+        source = "let xs = []\nxs.sort()\nprint(xs)"
+        assert _run_source(source) == "[]\n"
+
+    def test_sort_ten_elements(self) -> None:
+        """``sort()`` handles a larger list."""
+        source = "let xs = [5, 3, 8, 1, 9, 2, 7, 4, 6, 0]\nxs.sort()\nprint(xs[0])"
+        assert _run_source(source) == "0\n"

@@ -134,6 +134,16 @@ class SliceAccess:
 
 
 @dataclass(frozen=True)
+class MethodCall:
+    """A method call like ``xs.push(42)`` or ``s.upper()``."""
+
+    target: Expression
+    method: str
+    arguments: list[Expression]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class FunctionExpression:
     """An anonymous function expression like ``fn(x) { return x + 1 }``."""
 
@@ -269,6 +279,7 @@ Expression = (
     | DictLiteral
     | IndexAccess
     | SliceAccess
+    | MethodCall
     | FunctionExpression
 )
 
