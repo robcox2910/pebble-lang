@@ -14,7 +14,6 @@ __all__ = ["Lexer", "LexerError"]
 
 _SINGLE_CHARS: dict[str, TokenKind] = {
     "+": TokenKind.PLUS,
-    "-": TokenKind.MINUS,
     "%": TokenKind.PERCENT,
     "(": TokenKind.LEFT_PAREN,
     ")": TokenKind.RIGHT_PAREN,
@@ -86,6 +85,8 @@ class Lexer:
             self._scan_identifier_or_keyword()
         elif ch in _SINGLE_CHARS:
             self._scan_single_char()
+        elif ch == "-":
+            self._scan_minus()
         elif ch == "*":
             self._scan_star()
         elif ch == "/":
@@ -467,6 +468,28 @@ class Lexer:
                 Token(
                     kind=TokenKind.SLASH,
                     value="/",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
+
+    def _scan_minus(self) -> None:
+        """Scan ``-`` or ``->``."""
+        start_col = self._column
+        self._advance()
+        if not self._at_end() and self._peek() == ">":
+            self._advance()
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.ARROW,
+                    value="->",
+                    location=SourceLocation(line=self._line, column=start_col),
+                )
+            )
+        else:
+            self._tokens.append(
+                Token(
+                    kind=TokenKind.MINUS,
+                    value="-",
                     location=SourceLocation(line=self._line, column=start_col),
                 )
             )

@@ -138,6 +138,7 @@ class Compiler:
         self._loop_contexts: list[_LoopContext] = []
         self._try_depth: int = 0
         self._structs: dict[str, list[str]] = {}
+        self._struct_field_types: dict[str, dict[str, str]] = {}
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
 
@@ -155,7 +156,12 @@ class Compiler:
         for stmt in program.statements:
             self._compile_statement(stmt)
         self._emit(OpCode.HALT)
-        return CompiledProgram(main=self._main, functions=self._functions, structs=self._structs)
+        return CompiledProgram(
+            main=self._main,
+            functions=self._functions,
+            structs=self._structs,
+            struct_field_types=self._struct_field_types,
+        )
 
     # -- Emit helpers ---------------------------------------------------------
 
@@ -270,13 +276,17 @@ class Compiler:
     # -- Statement compilers --------------------------------------------------
 
     def _compile_assignment(self, node: Assignment) -> None:
-        """Compile ``let name = value``."""
+        """Compile ``let name[: Type] = value``."""
         self._compile_expression(node.value)
+        if node.type_annotation is not None:
+            self._emit(OpCode.CHECK_TYPE, node.type_annotation, location=node.location)
         self._emit_store(node.name, location=node.location)
 
     def _compile_const_assignment(self, node: ConstAssignment) -> None:
-        """Compile ``const name = value`` — identical to ``let`` at bytecode level."""
+        """Compile ``const name[: Type] = value`` — identical to ``let`` at bytecode level."""
         self._compile_expression(node.value)
+        if node.type_annotation is not None:
+            self._emit(OpCode.CHECK_TYPE, node.type_annotation, location=node.location)
         self._emit_store(node.name, location=node.location)
 
     def _compile_reassignment(self, node: Reassignment) -> None:
@@ -474,7 +484,9 @@ class Compiler:
     def _compile_function_def(self, node: FunctionDef) -> None:
         """Compile a function definition into a separate CodeObject."""
         fn_code = CodeObject(name=node.name)
-        fn_code.parameters = list(node.parameters)
+        fn_code.parameters = [p.name for p in node.parameters]
+        fn_code.param_types = [p.type_annotation for p in node.parameters]
+        fn_code.return_type = node.return_type
         fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
         fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
         previous = self._current
@@ -496,6 +508,8 @@ class Compiler:
         # Implicit return 0 if no explicit return at the end
         if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
             self._emit_constant(0)
+            if node.return_type is not None:
+                self._emit(OpCode.CHECK_TYPE, node.return_type)
             self._emit(OpCode.RETURN)
 
         self._functions[node.name] = fn_code
@@ -517,6 +531,8 @@ class Compiler:
             self._compile_expression(node.value)
         else:
             self._emit_constant(0, location=node.location)
+        if self._current.return_type is not None:
+            self._emit(OpCode.CHECK_TYPE, self._current.return_type, location=node.location)
         for _ in range(self._try_depth):
             self._emit(OpCode.POP_TRY, location=node.location)
         self._emit(OpCode.RETURN, location=node.location)
@@ -816,7 +832,9 @@ class Compiler:
     def _compile_function_expression(self, node: FunctionExpression) -> None:
         """Compile an anonymous function expression into a closure on the stack."""
         fn_code = CodeObject(name=node.name)
-        fn_code.parameters = list(node.parameters)
+        fn_code.parameters = [p.name for p in node.parameters]
+        fn_code.param_types = [p.type_annotation for p in node.parameters]
+        fn_code.return_type = node.return_type
         fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
         fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
         previous = self._current
@@ -837,6 +855,8 @@ class Compiler:
 
         if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
             self._emit_constant(0)
+            if node.return_type is not None:
+                self._emit(OpCode.CHECK_TYPE, node.return_type)
             self._emit(OpCode.RETURN)
 
         self._functions[node.name] = fn_code
@@ -859,7 +879,10 @@ class Compiler:
 
     def _compile_struct_def(self, node: StructDef) -> None:
         """Compile a struct definition — store field metadata, emit no bytecode."""
-        self._structs[node.name] = node.fields
+        self._structs[node.name] = [f.name for f in node.fields]
+        annotated = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
+        if annotated:
+            self._struct_field_types[node.name] = annotated
 
     def _compile_field_access(self, node: FieldAccess) -> None:
         """Compile a field read: push target, then GET_FIELD."""

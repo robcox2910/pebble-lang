@@ -19,6 +19,7 @@ from pebble.ast_nodes import (
     Identifier,
     IfStatement,
     IntegerLiteral,
+    Parameter,
     PrintStatement,
     Program,
     Reassignment,
@@ -464,7 +465,7 @@ class TestFunctionDef:
         stmt = stmts[0]
         assert isinstance(stmt, FunctionDef)
         assert stmt.name == "square"
-        assert stmt.parameters == ["x"]
+        assert stmt.parameters == [Parameter(name="x")]
 
     def test_multiple_params(self) -> None:
         """Verify 'fn add(a, b) { return a + b }' parses with two parameters."""
@@ -474,7 +475,7 @@ class TestFunctionDef:
         stmt = stmts[0]
         assert isinstance(stmt, FunctionDef)
         assert stmt.name == "add"
-        assert stmt.parameters == ["a", "b"]
+        assert stmt.parameters == [Parameter(name="a"), Parameter(name="b")]
 
     def test_empty_body(self) -> None:
         """Verify 'fn noop() { }' parses with empty body."""

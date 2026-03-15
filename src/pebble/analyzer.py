@@ -67,6 +67,18 @@ from pebble.tokens import SourceLocation
 
 _BUILTIN_LOCATION = SourceLocation(line=0, column=0)
 
+_BUILTIN_TYPES = frozenset(
+    {
+        "Int",
+        "Float",
+        "String",
+        "Bool",
+        "List",
+        "Dict",
+        "Fn",
+    }
+)
+
 
 # -- Scope --------------------------------------------------------------------
 
@@ -226,6 +238,15 @@ class SemanticAnalyzer:
         assert self._scope.parent is not None  # noqa: S101
         self._scope = self._scope.parent
 
+    def _validate_type_name(self, name: str, location: SourceLocation) -> None:
+        """Validate that *name* is a known type (builtin or struct)."""
+        if name in _BUILTIN_TYPES:
+            return
+        if self._scope.resolve_function(name) is not None:
+            return
+        msg = f"Unknown type '{name}'"
+        raise SemanticError(msg, line=location.line, column=location.column)
+
     # -- Statement dispatch ---------------------------------------------------
 
     def _visit_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
@@ -291,11 +312,15 @@ class SemanticAnalyzer:
     def _visit_assignment(self, node: Assignment) -> None:
         """Visit a ``let`` declaration — check value, then declare name."""
         self._visit_expression(node.value)
+        if node.type_annotation is not None:
+            self._validate_type_name(node.type_annotation, node.location)
         self._scope.declare_variable(node.name, node.location)
 
     def _visit_const_assignment(self, node: ConstAssignment) -> None:
         """Visit a ``const`` declaration — check value, then declare as constant."""
         self._visit_expression(node.value)
+        if node.type_annotation is not None:
+            self._validate_type_name(node.type_annotation, node.location)
         self._scope.declare_constant(node.name, node.location)
 
     def _visit_reassignment(self, node: Reassignment) -> None:
@@ -374,7 +399,11 @@ class SemanticAnalyzer:
         self._push_scope()
         self._scope.function_name = node.name
         for param in node.parameters:
-            self._scope.declare_variable(param, node.location)
+            self._scope.declare_variable(param.name, node.location)
+            if param.type_annotation is not None:
+                self._validate_type_name(param.type_annotation, node.location)
+        if node.return_type is not None:
+            self._validate_type_name(node.return_type, node.location)
         prev_in_function = self._in_function
         self._in_function = True
         for stmt in node.body:
@@ -392,7 +421,11 @@ class SemanticAnalyzer:
         self._push_scope()
         self._scope.function_name = node.name
         for param in node.parameters:
-            self._scope.declare_variable(param, node.location)
+            self._scope.declare_variable(param.name, node.location)
+            if param.type_annotation is not None:
+                self._validate_type_name(param.type_annotation, node.location)
+        if node.return_type is not None:
+            self._validate_type_name(node.return_type, node.location)
         prev_in_function = self._in_function
         self._in_function = True
         for stmt in node.body:
@@ -586,6 +619,9 @@ class SemanticAnalyzer:
         """Visit a struct definition — register as both struct and function."""
         self._scope.declare_function(node.name, len(node.fields), node.location)
         self._scope.variables[node.name] = node.location
+        for f in node.fields:
+            if f.type_annotation is not None:
+                self._validate_type_name(f.type_annotation, node.location)
 
     def _visit_field_access(self, node: FieldAccess) -> None:
         """Visit a field access — validate target, defer field check to runtime."""

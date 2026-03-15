@@ -21,6 +21,19 @@ if TYPE_CHECKING:
     from pebble.tokens import SourceLocation
 
 # ---------------------------------------------------------------------------
+# Parameter node
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Parameter:
+    """A named slot with optional type annotation."""
+
+    name: str
+    type_annotation: str | None = None
+
+
+# ---------------------------------------------------------------------------
 # Expression nodes
 # ---------------------------------------------------------------------------
 
@@ -176,9 +189,10 @@ class FunctionExpression:
     """An anonymous function expression like ``fn(x) { return x + 1 }``."""
 
     name: str
-    parameters: list[str]
+    parameters: list[Parameter]
     body: list[Statement]
     location: SourceLocation
+    return_type: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +207,7 @@ class Assignment:
     name: str
     value: Expression
     location: SourceLocation
+    type_annotation: str | None = None
 
 
 @dataclass(frozen=True)
@@ -211,6 +226,7 @@ class ConstAssignment:
     name: str
     value: Expression
     location: SourceLocation
+    type_annotation: str | None = None
 
 
 @dataclass(frozen=True)
@@ -282,9 +298,10 @@ class FunctionDef:
     """A function definition like ``fn add(a, b) { ... }``."""
 
     name: str
-    parameters: list[str]
+    parameters: list[Parameter]
     body: list[Statement]
     location: SourceLocation
+    return_type: str | None = None
 
 
 @dataclass(frozen=True)
@@ -400,7 +417,7 @@ class StructDef:
     """A ``struct Point { x, y }`` definition."""
 
     name: str
-    fields: list[str]
+    fields: list[Parameter]
     body: list[Statement]
     location: SourceLocation
 

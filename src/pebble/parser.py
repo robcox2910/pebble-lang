@@ -42,6 +42,7 @@ from pebble.ast_nodes import (
     MatchStatement,
     MethodCall,
     OrPattern,
+    Parameter,
     Pattern,
     PrintStatement,
     Program,
@@ -179,9 +180,24 @@ class Parser:
         return self._parse_expression_statement()
 
     def _parse_let(self) -> Assignment | UnpackAssignment:
-        """Parse ``let name = expr`` or ``let x, y = expr`` declaration."""
+        """Parse ``let name[: Type] = expr`` or ``let x, y = expr`` declaration."""
         let_token = self._advance()  # consume 'let'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'let'")
+
+        # Optional type annotation
+        type_annotation: str | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.COLON:
+            self._advance()  # consume ':'
+            type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name after ':'")
+            type_annotation = type_token.value
+
+        # Type annotation + comma → error (no annotations on unpack)
+        if (
+            type_annotation is not None
+            and not self._at_end()
+            and self._peek().kind == TokenKind.COMMA
+        ):
+            self._error("Type annotations not supported in unpacking declarations")
 
         # Multi-target unpack: let x, y = expr
         if not self._at_end() and self._peek().kind == TokenKind.COMMA:
@@ -198,12 +214,32 @@ class Parser:
         self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
         value = self.parse_expression()
         self._consume_newline()
-        return Assignment(name=name_token.value, value=value, location=let_token.location)
+        return Assignment(
+            name=name_token.value,
+            value=value,
+            location=let_token.location,
+            type_annotation=type_annotation,
+        )
 
     def _parse_const(self) -> ConstAssignment | UnpackConstAssignment:
-        """Parse ``const name = expr`` or ``const x, y = expr`` declaration."""
+        """Parse ``const name[: Type] = expr`` or ``const x, y = expr`` declaration."""
         const_token = self._advance()  # consume 'const'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'const'")
+
+        # Optional type annotation
+        type_annotation: str | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.COLON:
+            self._advance()  # consume ':'
+            type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name after ':'")
+            type_annotation = type_token.value
+
+        # Type annotation + comma → error (no annotations on unpack)
+        if (
+            type_annotation is not None
+            and not self._at_end()
+            and self._peek().kind == TokenKind.COMMA
+        ):
+            self._error("Type annotations not supported in unpacking declarations")
 
         # Multi-target unpack: const x, y = expr
         if not self._at_end() and self._peek().kind == TokenKind.COMMA:
@@ -220,7 +256,12 @@ class Parser:
         self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
         value = self.parse_expression()
         self._consume_newline()
-        return ConstAssignment(name=name_token.value, value=value, location=const_token.location)
+        return ConstAssignment(
+            name=name_token.value,
+            value=value,
+            location=const_token.location,
+            type_annotation=type_annotation,
+        )
 
     def _parse_reassignment(self) -> Reassignment:
         """Parse a ``name = expr`` reassignment."""
@@ -380,28 +421,46 @@ class Parser:
         self._consume_newline()
         return ReturnStatement(value=value, location=return_token.location)
 
+    def _parse_parameter(self) -> Parameter:
+        """Parse ``name[: Type]`` — a parameter with optional type annotation."""
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
+        type_annotation: str | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.COLON:
+            self._advance()  # consume ':'
+            type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name after ':'")
+            type_annotation = type_token.value
+        return Parameter(name=name_token.value, type_annotation=type_annotation)
+
+    def _parse_return_type(self) -> str | None:
+        """Parse optional ``-> Type`` return type annotation."""
+        if not self._at_end() and self._peek().kind == TokenKind.ARROW:
+            self._advance()  # consume '->'
+            type_token = self._expect(TokenKind.IDENTIFIER, "Expected return type after '->'")
+            return type_token.value
+        return None
+
     def _parse_function_def(self) -> FunctionDef:
-        """Parse a ``fn name(params) { body }`` function definition."""
+        """Parse a ``fn name(params) [-> Type] { body }`` function definition."""
         fn_token = self._advance()  # consume 'fn'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected function name after 'fn'")
         self._expect(TokenKind.LEFT_PAREN, "Expected '(' after function name")
 
-        parameters: list[str] = []
+        parameters: list[Parameter] = []
         if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
-            param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
-            parameters.append(param.value)
+            parameters.append(self._parse_parameter())
             while not self._at_end() and self._peek().kind == TokenKind.COMMA:
                 self._advance()  # consume ','
-                param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
-                parameters.append(param.value)
+                parameters.append(self._parse_parameter())
 
         self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
+        return_type = self._parse_return_type()
         body = self._parse_block()
         return FunctionDef(
             name=name_token.value,
             parameters=parameters,
             body=body,
             location=fn_token.location,
+            return_type=return_type,
         )
 
     def _parse_match(self) -> MatchStatement:
@@ -505,27 +564,27 @@ class Parser:
         return self._error("Expected number after '-' in pattern")
 
     def _parse_struct_def(self) -> StructDef:
-        """Parse a ``struct Name { field1, field2 }`` definition."""
+        """Parse a ``struct Name { field1[: Type], field2[: Type] }`` definition."""
         struct_token = self._advance()  # consume 'struct'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected struct name after 'struct'")
         self._expect(TokenKind.LEFT_BRACE, "Expected '{' after struct name")
         self._skip_newlines()
 
-        fields: list[str] = []
+        fields: list[Parameter] = []
         seen: set[str] = set()
         if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACE:
-            field_token = self._expect(TokenKind.IDENTIFIER, "Expected field name")
-            fields.append(field_token.value)
-            seen.add(field_token.value)
+            field = self._parse_parameter()
+            if field.name in seen:
+                self._error(f"Duplicate field '{field.name}' in struct '{name_token.value}'")
+            fields.append(field)
+            seen.add(field.name)
             while not self._at_end() and self._peek().kind == TokenKind.COMMA:
                 self._advance()  # consume ','
-                field_token = self._expect(TokenKind.IDENTIFIER, "Expected field name after ','")
-                if field_token.value in seen:
-                    self._error(
-                        f"Duplicate field '{field_token.value}' in struct '{name_token.value}'"
-                    )
-                fields.append(field_token.value)
-                seen.add(field_token.value)
+                field = self._parse_parameter()
+                if field.name in seen:
+                    self._error(f"Duplicate field '{field.name}' in struct '{name_token.value}'")
+                fields.append(field)
+                seen.add(field.name)
             self._skip_newlines()
 
         self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after struct fields")
@@ -804,20 +863,19 @@ class Parser:
     _anon_counter: int = 0
 
     def _parse_fn_expression(self) -> FunctionExpression:
-        """Parse an anonymous function expression: ``fn(params) { body }``."""
+        """Parse an anonymous function expression: ``fn(params) [-> Type] { body }``."""
         fn_token = self._advance()  # consume 'fn'
         self._expect(TokenKind.LEFT_PAREN, "Expected '(' after 'fn'")
 
-        parameters: list[str] = []
+        parameters: list[Parameter] = []
         if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
-            param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
-            parameters.append(param.value)
+            parameters.append(self._parse_parameter())
             while not self._at_end() and self._peek().kind == TokenKind.COMMA:
                 self._advance()  # consume ','
-                param = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
-                parameters.append(param.value)
+                parameters.append(self._parse_parameter())
 
         self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
+        return_type = self._parse_return_type()
         body = self._parse_block()
         name = f"$anon_{Parser._anon_counter}"
         Parser._anon_counter += 1
@@ -826,6 +884,7 @@ class Parser:
             parameters=parameters,
             body=body,
             location=fn_token.location,
+            return_type=return_type,
         )
 
     def _parse_index_access(self, target: Expression) -> Expression:

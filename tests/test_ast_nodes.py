@@ -14,6 +14,7 @@ from pebble.ast_nodes import (
     Identifier,
     IfStatement,
     IntegerLiteral,
+    Parameter,
     PrintStatement,
     Program,
     Reassignment,
@@ -307,9 +308,10 @@ class TestFunctionDef:
         body_stmt = ReturnStatement(
             value=IntegerLiteral(value=ANSWER, location=_loc()), location=_loc()
         )
-        node = FunctionDef(name="add", parameters=["a", "b"], body=[body_stmt], location=_loc())
+        params = [Parameter(name="a"), Parameter(name="b")]
+        node = FunctionDef(name="add", parameters=params, body=[body_stmt], location=_loc())
         assert node.name == "add"
-        assert node.parameters == ["a", "b"]
+        assert node.parameters == params
         assert node.body == [body_stmt]
 
     def test_no_parameters(self) -> None:

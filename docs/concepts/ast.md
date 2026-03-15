@@ -68,7 +68,7 @@ nodes:
 | `IfStatement` | `if cond { } else { }` | Condition, then-body, else-body |
 | `WhileLoop` | `while cond { }` | Condition and loop body |
 | `ForLoop` | `for i in range(10) { }` | Variable, iterable, loop body |
-| `FunctionDef` | `fn add(a, b) { }` | Name, parameters, body |
+| `FunctionDef` | `fn add(a: Int, b: Int) -> Int { }` | Name, parameters (with optional types), body, return type |
 | `ReturnStatement` | `return 42` | The value to return (or nothing) |
 | `IndexAssignment` | `xs[0] = 42` | Target, index, and new value |
 | `BreakStatement` | `break` | Exit the nearest loop |
@@ -76,6 +76,15 @@ nodes:
 | `MatchStatement` | `match x { case 1 { } }` | Value, list of cases with patterns and bodies |
 | `ImportStatement` | `import "math.pbl"` | The path to the module file |
 | `FromImportStatement` | `from "utils.pbl" import add` | The path and the names to import |
+
+### Helper Nodes
+
+| Node | Example | What It Holds |
+|------|---------|---------------|
+| `Parameter` | `x: Int` | A name and an optional type annotation |
+
+`Parameter` is used for function parameters and struct fields. If no type
+annotation is given, `type_annotation` is `None`.
 
 The **Program** node sits at the very top and holds the list of all top-level
 statements.
