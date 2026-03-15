@@ -19,6 +19,7 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
+    ConstAssignment,
     ContinueStatement,
     DictLiteral,
     Expression,
@@ -195,6 +196,8 @@ class Compiler:
         match stmt:
             case Assignment():
                 self._compile_assignment(stmt)
+            case ConstAssignment():
+                self._compile_const_assignment(stmt)
             case Reassignment():
                 self._compile_reassignment(stmt)
             case PrintStatement():
@@ -228,6 +231,11 @@ class Compiler:
 
     def _compile_assignment(self, node: Assignment) -> None:
         """Compile ``let name = value``."""
+        self._compile_expression(node.value)
+        self._emit_store(node.name, location=node.location)
+
+    def _compile_const_assignment(self, node: ConstAssignment) -> None:
+        """Compile ``const name = value`` — identical to ``let`` at bytecode level."""
         self._compile_expression(node.value)
         self._emit_store(node.name, location=node.location)
 

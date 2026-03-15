@@ -27,6 +27,39 @@ This is like writing a label on a box and putting something inside. The `let`
 keyword says "I'm creating something new", the name is the label, and the value
 after `=` is what goes in the box.
 
+## Constants: `const`
+
+Sometimes you know a value should never change -- like the number of days in a
+week or a player's starting score. Use `const` instead of `let` to tell Pebble
+"this box is sealed shut -- once I put something in, nobody can swap it out":
+
+```pebble
+const pi = 3
+const greeting = "hello"
+```
+
+If you try to reassign a `const` variable, Pebble stops you before the program
+even runs:
+
+```pebble
+const max_lives = 3
+max_lives = 5  # Error: Cannot reassign constant 'max_lives'
+```
+
+Think of `const` as writing a label on a box *and then gluing the lid shut*.
+You can still look inside (read the value), but you can't swap what's in there.
+
+!!! note "Binding, not contents"
+    `const` locks the **label**, not the **value itself**. If the value is a
+    list, you can still change items inside the list -- you just can't point the
+    name at a completely different list:
+
+    ```pebble
+    const colours = ["red", "green"]
+    colours[0] = "blue"   # Fine -- changing an item inside
+    colours = [1, 2, 3]   # Error -- trying to replace the whole list
+    ```
+
 ## Reassignment
 
 Once a variable exists, you can change what's inside:
@@ -315,6 +348,7 @@ of statement it is:
 | First token | Statement type |
 |-------------|---------------|
 | `let` | Variable declaration |
+| `const` | Constant declaration |
 | `if` | If/else statement |
 | `while` | While loop |
 | `for` | For loop |
@@ -356,6 +390,7 @@ problem was found.
 | Expression | A question that gives you an answer |
 | Statement | An instruction on a to-do list |
 | `let` | Writing a label on a new box |
+| `const` | Labelling a box and gluing the lid shut |
 | Reassignment | Replacing what's inside an existing box |
 | `if/else` | A fork in the road |
 | `else if` | A traffic light with many signals |

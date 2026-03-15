@@ -24,6 +24,7 @@ class TokenKind(StrEnum):
     IDENTIFIER = "IDENTIFIER"
 
     # -- Keywords -------------------------------------------------------------
+    CONST = "CONST"
     LET = "LET"
     IF = "IF"
     ELSE = "ELSE"
@@ -107,6 +108,7 @@ class Token:
 
 
 KEYWORDS: dict[str, TokenKind] = {
+    "const": TokenKind.CONST,
     "let": TokenKind.LET,
     "if": TokenKind.IF,
     "else": TokenKind.ELSE,

@@ -17,6 +17,7 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
+    ConstAssignment,
     ContinueStatement,
     DictLiteral,
     Expression,
@@ -146,6 +147,15 @@ class Parser:
         value = self.parse_expression()
         self._consume_newline()
         return Assignment(name=name_token.value, value=value, location=let_token.location)
+
+    def _parse_const(self) -> ConstAssignment:
+        """Parse a ``const name = expr`` declaration."""
+        const_token = self._advance()  # consume 'const'
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'const'")
+        self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
+        value = self.parse_expression()
+        self._consume_newline()
+        return ConstAssignment(name=name_token.value, value=value, location=const_token.location)
 
     def _parse_reassignment(self) -> Reassignment:
         """Parse a ``name = expr`` reassignment."""
@@ -618,6 +628,7 @@ class Parser:
     # -- Statement dispatch table ---------------------------------------------
 
     _statement_parsers: ClassVar[dict[TokenKind, Callable[[Parser], Statement]]] = {
+        TokenKind.CONST: _parse_const,
         TokenKind.LET: _parse_let,
         TokenKind.IF: _parse_if,
         TokenKind.WHILE: _parse_while,

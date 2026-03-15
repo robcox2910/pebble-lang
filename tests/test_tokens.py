@@ -12,8 +12,8 @@ FIRST_LINE = 1
 FIRST_COLUMN = 1
 SECOND_LINE = 2
 FIFTH_COLUMN = 5
-KEYWORD_COUNT = 19
-TOTAL_TOKEN_KINDS = 48
+KEYWORD_COUNT = 20
+TOTAL_TOKEN_KINDS = 49
 
 
 class TestTokenKind:
@@ -38,6 +38,10 @@ class TestTokenKind:
         assert TokenKind.IDENTIFIER == "IDENTIFIER"
 
     # -- Keywords -------------------------------------------------------------
+
+    def test_keyword_const(self) -> None:
+        """Verify CONST keyword token kind exists."""
+        assert TokenKind.CONST == "CONST"
 
     def test_keyword_let(self) -> None:
         """Verify LET keyword token kind exists."""
@@ -292,6 +296,10 @@ class TestKeywords:
     def test_keywords_count(self) -> None:
         """Verify the number of keywords in the mapping."""
         assert len(KEYWORDS) == KEYWORD_COUNT
+
+    def test_const_keyword(self) -> None:
+        """Verify 'const' maps to TokenKind.CONST."""
+        assert KEYWORDS["const"] == TokenKind.CONST
 
     def test_let_keyword(self) -> None:
         """Verify 'let' maps to TokenKind.LET."""
