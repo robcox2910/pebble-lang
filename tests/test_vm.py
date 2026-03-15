@@ -48,7 +48,7 @@ def _run_source(source: str) -> str:
 
 def _program(
     instructions: list[Instruction],
-    constants: list[int | str | bool] | None = None,
+    constants: list[int | float | str | bool] | None = None,
 ) -> CompiledProgram:
     """Build a minimal CompiledProgram from raw instructions."""
     main = CodeObject(name="<main>")
@@ -136,13 +136,13 @@ class TestVMArithmetic:
         """``print(4 * 3)`` outputs ``12``."""
         assert _run_source("print(4 * 3)") == "12\n"
 
-    def test_divide_floor(self) -> None:
-        """``print(6 / 4)`` outputs ``1`` (floor division)."""
-        assert _run_source("print(6 / 4)") == "1\n"
+    def test_divide_true(self) -> None:
+        """``print(6 / 4)`` outputs ``1.5`` (true division)."""
+        assert _run_source("print(6 / 4)") == "1.5\n"
 
     def test_divide_exact(self) -> None:
-        """``print(10 / 2)`` outputs ``5``."""
-        assert _run_source("print(10 / 2)") == "5\n"
+        """``print(10 / 2)`` outputs ``5.0`` (always float)."""
+        assert _run_source("print(10 / 2)") == "5.0\n"
 
     def test_modulo(self) -> None:
         """``print(7 % 3)`` outputs ``1``."""

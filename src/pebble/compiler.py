@@ -23,6 +23,7 @@ from pebble.ast_nodes import (
     ContinueStatement,
     DictLiteral,
     Expression,
+    FloatLiteral,
     ForLoop,
     FunctionCall,
     FunctionDef,
@@ -58,7 +59,9 @@ _BINARY_OPS: dict[str, OpCode] = {
     "+": OpCode.ADD,
     "-": OpCode.SUBTRACT,
     "*": OpCode.MULTIPLY,
+    "**": OpCode.POWER,
     "/": OpCode.DIVIDE,
+    "//": OpCode.FLOOR_DIVIDE,
     "%": OpCode.MODULO,
     "==": OpCode.EQUAL,
     "!=": OpCode.NOT_EQUAL,
@@ -68,11 +71,17 @@ _BINARY_OPS: dict[str, OpCode] = {
     ">=": OpCode.GREATER_EQUAL,
     "and": OpCode.AND,
     "or": OpCode.OR,
+    "&": OpCode.BIT_AND,
+    "|": OpCode.BIT_OR,
+    "^": OpCode.BIT_XOR,
+    "<<": OpCode.LEFT_SHIFT,
+    ">>": OpCode.RIGHT_SHIFT,
 }
 
 _UNARY_OPS: dict[str, OpCode] = {
     "-": OpCode.NEGATE,
     "not": OpCode.NOT,
+    "~": OpCode.BIT_NOT,
 }
 
 
@@ -146,7 +155,7 @@ class Compiler:
 
     def _emit_constant(
         self,
-        value: int | str | bool,  # noqa: FBT001
+        value: int | float | str | bool,  # noqa: FBT001
         *,
         location: SourceLocation | None = None,
     ) -> None:
@@ -518,7 +527,7 @@ class Compiler:
     def _compile_expression(self, expr: Expression) -> None:
         """Dispatch to the appropriate expression compiler."""
         match expr:
-            case IntegerLiteral() | StringLiteral() | BooleanLiteral():
+            case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
                 self._emit_constant(expr.value, location=expr.location)
             case Identifier():
                 self._emit_load(expr.name, location=expr.location)

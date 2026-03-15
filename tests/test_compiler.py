@@ -57,7 +57,7 @@ def _instructions(source: str) -> list[Instruction]:
     return _strip_locations(_compile(source).main.instructions)
 
 
-def _constants(source: str) -> list[int | str | bool]:
+def _constants(source: str) -> list[int | float | str | bool]:
     """Return the main constant pool for *source*."""
     return _compile(source).main.constants
 

@@ -25,8 +25,8 @@ from pebble.vm import VirtualMachine
 
 # -- Named constants ----------------------------------------------------------
 
-RUNTIME_BUILTIN_COUNT = 8
-TOTAL_BUILTIN_COUNT = 13
+RUNTIME_BUILTIN_COUNT = 9
+TOTAL_BUILTIN_COUNT = 14
 STRING_METHOD_COUNT = 12
 LIST_METHOD_COUNT = 5
 METHOD_ARITY_COUNT = 16

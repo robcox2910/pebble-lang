@@ -17,6 +17,7 @@ class TokenKind(StrEnum):
 
     # -- Literals -------------------------------------------------------------
     INTEGER = "INTEGER"
+    FLOAT = "FLOAT"
     STRING = "STRING"
     STRING_START = "STRING_START"
     STRING_MIDDLE = "STRING_MIDDLE"
@@ -46,8 +47,18 @@ class TokenKind(StrEnum):
     PLUS = "PLUS"
     MINUS = "MINUS"
     STAR = "STAR"
+    STAR_STAR = "STAR_STAR"
     SLASH = "SLASH"
+    SLASH_SLASH = "SLASH_SLASH"
     PERCENT = "PERCENT"
+
+    # -- Bitwise --------------------------------------------------------------
+    AMPERSAND = "AMPERSAND"
+    PIPE = "PIPE"
+    CARET = "CARET"
+    TILDE = "TILDE"
+    LESS_LESS = "LESS_LESS"
+    GREATER_GREATER = "GREATER_GREATER"
 
     # -- Comparison -----------------------------------------------------------
     EQUAL_EQUAL = "EQUAL_EQUAL"

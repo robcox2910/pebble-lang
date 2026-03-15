@@ -33,6 +33,7 @@ These are the actual data values in your code:
 | Token | Example | What It Means |
 |-------|---------|---------------|
 | `INTEGER` | `42` | A whole number |
+| `FLOAT` | `3.14` | A number with a decimal point |
 | `STRING` | `"hello"` | A piece of text |
 | `IDENTIFIER` | `score` | A name you gave to something |
 
@@ -77,8 +78,16 @@ Operators tell Pebble to *do* something with values:
 | `PLUS` | `+` | Add two numbers |
 | `MINUS` | `-` | Subtract (or negate) |
 | `STAR` | `*` | Multiply |
-| `SLASH` | `/` | Divide |
+| `SLASH` | `/` | True division (always returns a float) |
+| `SLASH_SLASH` | `//` | Floor division (rounds down) |
 | `PERCENT` | `%` | Remainder after division |
+| `STAR_STAR` | `**` | Exponentiation (raise to a power) |
+| `AMPERSAND` | `&` | Bitwise AND |
+| `PIPE` | `\|` | Bitwise OR |
+| `CARET` | `^` | Bitwise XOR |
+| `TILDE` | `~` | Bitwise NOT |
+| `LESS_LESS` | `<<` | Left shift |
+| `GREATER_GREATER` | `>>` | Right shift |
 
 ### Comparisons -- Asking Questions
 

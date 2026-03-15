@@ -41,6 +41,7 @@ Values are automatically turned into text:
 | Type    | Example        | Text     |
 |---------|---------------|----------|
 | Integer | `{42}`        | `42`     |
+| Float   | `{3.14}`      | `3.14`   |
 | String  | `{"hi"}`      | `hi`     |
 | Boolean | `{true}`      | `true`   |
 

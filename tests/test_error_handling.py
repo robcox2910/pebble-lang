@@ -479,7 +479,7 @@ class TestVMIntegration:
         )
         output = _run(source)
         lines = output.strip().split("\n")
-        assert lines == ["5", "0"]
+        assert lines == ["5.0", "0"]
 
     def test_throw_from_deeply_nested_calls(self) -> None:
         """Exception propagates through multiple function call levels."""

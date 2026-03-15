@@ -23,6 +23,7 @@ from pebble.ast_nodes import (
     ContinueStatement,
     DictLiteral,
     Expression,
+    FloatLiteral,
     ForLoop,
     FunctionCall,
     FunctionDef,
@@ -427,7 +428,7 @@ class SemanticAnalyzer:
                 self._visit_method_call(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
-            case IntegerLiteral() | StringLiteral() | BooleanLiteral():
+            case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
                 pass  # Literals need no semantic checks
 
     # -- Closure helpers ------------------------------------------------------

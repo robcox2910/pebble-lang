@@ -41,13 +41,20 @@ than others, just like multiplication before addition in maths:
 
 | Priority | Operators | Example |
 |----------|-----------|---------|
-| Highest | `-x`, `not x` (unary) | `-5`, `not true` |
-| | `*`, `/`, `%` | `2 * 3` |
+| Highest | `-x`, `not x`, `~x` (unary) | `-5`, `not true`, `~3` |
+| | `**` (power) | `2 ** 3` |
+| | `*`, `/`, `//`, `%` | `2 * 3` |
 | | `+`, `-` | `1 + 2` |
+| | `<<`, `>>` (shifts) | `1 << 3` |
+| | `&` (bitwise AND) | `5 & 3` |
+| | `^` (bitwise XOR) | `5 ^ 3` |
+| | `\|` (bitwise OR) | `5 \| 3` |
 | | `<`, `<=`, `>`, `>=` | `x > 10` |
 | | `==`, `!=` | `x == 5` |
 | | `and` | `a and b` |
 | Lowest | `or` | `a or b` |
+
+See [Operators](operators.md) for a complete reference with examples.
 
 Operators with higher priority get "pulled in" first and end up deeper in the
 tree.
