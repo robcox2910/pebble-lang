@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/types/">
       
       
+        <link rel="prev" href="../parser/">
       
-        <link rel="next" href="concepts/tokens/">
+      
+        <link rel="next" href="../statements/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
-        <title>Pebble</title>
+        <title>Types - Pebble</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#what-is-a-compiler" class="md-skip">
+        <a href="#types" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Pebble" class="md-header__button md-logo" aria-label="Pebble" data-md-component="logo">
+    <a href="../.." title="Pebble" class="md-header__button md-logo" aria-label="Pebble" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Types
             
           </span>
         </div>
@@ -230,7 +232,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Pebble" class="md-nav__button md-logo" aria-label="Pebble" data-md-component="logo">
+    <a href="../.." title="Pebble" class="md-nav__button md-logo" aria-label="Pebble" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -257,37 +259,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -303,59 +278,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-pebble-language" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Pebble Language
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-a-compiler-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How a Compiler Works
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-build-a-compiler" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Build a Compiler?
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -364,8 +286,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -376,13 +300,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -403,7 +325,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -421,7 +343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/tokens/" class="md-nav__link">
+      <a href="../tokens/" class="md-nav__link">
         
   
   
@@ -449,7 +371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/lexer/" class="md-nav__link">
+      <a href="../lexer/" class="md-nav__link">
         
   
   
@@ -477,7 +399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/errors/" class="md-nav__link">
+      <a href="../errors/" class="md-nav__link">
         
   
   
@@ -505,7 +427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/ast/" class="md-nav__link">
+      <a href="../ast/" class="md-nav__link">
         
   
   
@@ -533,7 +455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/parser/" class="md-nav__link">
+      <a href="../parser/" class="md-nav__link">
         
   
   
@@ -558,10 +480,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="concepts/types/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -577,6 +526,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-six-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Six Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-a-type-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking a Type: type()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-each-type-can-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Each Type Can Do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#automatic-conversions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Conversions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -589,7 +613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/statements/" class="md-nav__link">
+      <a href="../statements/" class="md-nav__link">
         
   
   
@@ -617,7 +641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/functions/" class="md-nav__link">
+      <a href="../functions/" class="md-nav__link">
         
   
   
@@ -645,7 +669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/analyzer/" class="md-nav__link">
+      <a href="../analyzer/" class="md-nav__link">
         
   
   
@@ -673,7 +697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/compiler/" class="md-nav__link">
+      <a href="../compiler/" class="md-nav__link">
         
   
   
@@ -701,7 +725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/vm/" class="md-nav__link">
+      <a href="../vm/" class="md-nav__link">
         
   
   
@@ -729,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/string-interpolation/" class="md-nav__link">
+      <a href="../string-interpolation/" class="md-nav__link">
         
   
   
@@ -757,7 +781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/arrays/" class="md-nav__link">
+      <a href="../arrays/" class="md-nav__link">
         
   
   
@@ -785,7 +809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/strings/" class="md-nav__link">
+      <a href="../strings/" class="md-nav__link">
         
   
   
@@ -813,7 +837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/dicts/" class="md-nav__link">
+      <a href="../dicts/" class="md-nav__link">
         
   
   
@@ -841,7 +865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/stdlib/" class="md-nav__link">
+      <a href="../stdlib/" class="md-nav__link">
         
   
   
@@ -869,7 +893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/closures/" class="md-nav__link">
+      <a href="../closures/" class="md-nav__link">
         
   
   
@@ -897,7 +921,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/higher-order/" class="md-nav__link">
+      <a href="../higher-order/" class="md-nav__link">
         
   
   
@@ -925,7 +949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/error-handling/" class="md-nav__link">
+      <a href="../error-handling/" class="md-nav__link">
         
   
   
@@ -953,7 +977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/repl/" class="md-nav__link">
+      <a href="../repl/" class="md-nav__link">
         
   
   
@@ -1001,54 +1025,161 @@
   
 
 
-<h1 id="what-is-a-compiler">What Is a Compiler?</h1>
-<p>Imagine you only speak English, and you need to give instructions to a robot
-that only understands a list of numbered steps. You'd need a <strong>translator</strong> who
-can read your English sentences and convert them into the robot's numbered
-instructions. That translator is a <strong>compiler</strong>.</p>
-<h2 id="the-pebble-language">The Pebble Language</h2>
-<p><strong>Pebble</strong> is a small programming language designed for learning. It's simple
-enough to understand completely, but powerful enough to do real things:
-calculate numbers, make decisions, repeat actions, and organise code into
-reusable functions.</p>
-<p>Here's what Pebble code looks like:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let greeting = &quot;Hello, world!&quot;
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(greeting)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>let count = 0
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>while count &lt; 5 {
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    print(count)
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    count = count + 1
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>}
+<h1 id="types">Types</h1>
+<p>Every value in Pebble is one of <strong>six types</strong>. Think of a type as a label
+that tells you what <em>kind</em> of thing a value is -- just like how you'd sort
+items in a toolbox into screwdrivers, hammers, and wrenches.</p>
+<h2 id="the-six-types">The Six Types</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What it is</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td>A whole number</td>
+<td><code>0</code>, <code>42</code>, <code>-7</code></td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td>A piece of text</td>
+<td><code>"hello"</code>, <code>""</code></td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td>True or false</td>
+<td><code>true</code>, <code>false</code></td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td>An ordered collection</td>
+<td><code>[1, 2, 3]</code>, <code>[]</code></td>
+</tr>
+<tr>
+<td><code>dict</code></td>
+<td>A collection of key-value pairs</td>
+<td><code>{"name": "Alice"}</code></td>
+</tr>
+<tr>
+<td><code>fn</code></td>
+<td>A function</td>
+<td><code>fn(x) { return x * 2 }</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="checking-a-type-type">Checking a Type: <code>type()</code></h2>
+<p>The built-in <code>type()</code> function tells you what type a value is. It always
+returns a string:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>print(type(42))        # prints: int
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(type(&quot;hello&quot;))   # prints: str
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>print(type(true))      # prints: bool
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>print(type([1, 2]))    # prints: list
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print(type({}))        # prints: dict
 </code></pre></div>
-<h2 id="how-a-compiler-works">How a Compiler Works</h2>
-<p>A compiler reads your code and transforms it through several stages, like an
-assembly line in a factory:</p>
-<pre class="mermaid"><code>graph LR
-    A[Source Code] --&gt; B[Lexer]
-    B --&gt; C[Parser]
-    C --&gt; D[Analyzer]
-    D --&gt; E[Code Generator]
-    E --&gt; F[Virtual Machine]</code></pre>
-<ol>
-<li><strong>Lexer</strong> -- Breaks the text into small pieces called <em>tokens</em> (like
-   splitting a sentence into words)</li>
-<li><strong>Parser</strong> -- Arranges the tokens into a tree structure that shows how they
-   relate to each other (like diagramming a sentence)</li>
-<li><strong>Analyzer</strong> -- Checks the tree for mistakes (like a teacher proofreading
-   your essay)</li>
-<li><strong>Code Generator</strong> -- Translates the tree into simple numbered instructions
-   called <em>bytecode</em> (like writing a recipe as step-by-step directions)</li>
-<li><strong>Virtual Machine</strong> -- Follows the instructions one by one and produces the
-   result (like a cook following a recipe)</li>
-</ol>
-<h2 id="why-build-a-compiler">Why Build a Compiler?</h2>
-<p>Building a compiler teaches you how programming languages <em>actually work</em>.
-Every time you write Python, JavaScript, or any other language, a compiler or
-interpreter is doing these same steps behind the scenes. By building one
-yourself, you peek behind the curtain and see the magic trick explained.</p>
-<p>Think of it like learning to cook instead of just ordering food -- once you
-know how it works, you understand it on a completely different level.</p>
+<p>You can use it in conditions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let x = 42
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>if type(x) == &quot;int&quot; {
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    print(&quot;it is a number&quot;)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>}
+</code></pre></div>
+<h2 id="what-each-type-can-do">What Each Type Can Do</h2>
+<p>Different types support different operations and methods. Here's a quick
+map:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Operators</th>
+<th>Methods</th>
+<th>More info</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>+ - * / %</code>, comparisons</td>
+<td>--</td>
+<td><a href="../statements/">Statements</a></td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td><code>+</code> (join)</td>
+<td><code>upper()</code>, <code>split()</code>, etc.</td>
+<td><a href="../strings/">String Methods</a></td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>and</code>, <code>or</code>, <code>not</code></td>
+<td>--</td>
+<td><a href="../statements/">Statements</a></td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td><code>+</code> (concatenate)</td>
+<td><code>push()</code>, <code>pop()</code>, etc.</td>
+<td><a href="../arrays/">Arrays</a></td>
+</tr>
+<tr>
+<td><code>dict</code></td>
+<td>index <code>d["key"]</code></td>
+<td>--</td>
+<td><a href="../dicts/">Dictionaries</a></td>
+</tr>
+<tr>
+<td><code>fn</code></td>
+<td>call <code>f()</code></td>
+<td>--</td>
+<td><a href="../functions/">Functions</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="automatic-conversions">Automatic Conversions</h2>
+<p>Pebble does <strong>not</strong> automatically convert between types. If you try to add
+a number and a string, you get an error:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(1 + &quot;hello&quot;)   # Error: Cannot add int and str
+</code></pre></div>
+<p>To convert explicitly, use <code>str()</code> or <code>int()</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let x = 42
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(&quot;answer: &quot; + str(x))   # prints: answer: 42
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>let s = &quot;7&quot;
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>print(int(s) + 3)             # prints: 10
+</code></pre></div>
+<p>Or use string interpolation, which converts automatically:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>let x = 42
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>print(&quot;answer: {x}&quot;)   # prints: answer: 42
+</code></pre></div>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Analogy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>A label on a toolbox drawer</td>
+</tr>
+<tr>
+<td><code>type()</code></td>
+<td>Reading the label to see what's inside</td>
+</tr>
+<tr>
+<td>No auto-conversion</td>
+<td>You can't hammer with a screwdriver</td>
+</tr>
+<tr>
+<td><code>str()</code> / <code>int()</code></td>
+<td>Reshaping a tool to fit a different drawer</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -1098,10 +1229,10 @@ know how it works, you understand it on a completely different level.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

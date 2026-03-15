@@ -483,6 +483,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../statements/" class="md-nav__link">
         
   
@@ -1262,44 +1290,58 @@ that position the normal way.</p>
 <p><strong>Slicing</strong> lets you grab a portion of a list (or string) in one step — like
 tearing a page out of a notebook. You write <code>xs[start:stop]</code>, where <code>start</code>
 is the first index to include and <code>stop</code> is the first index to <em>exclude</em>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let xs = [10, 20, 30, 40, 50]
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(xs[1:3])   # prints: [20, 30]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>  xs = [10, 20, 30, 40, 50]
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>         0   1   2   3   4     ← indices
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  xs[1:4]
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>         start ↓       ↓ stop (excluded)
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        [10, 20, 30, 40, 50]
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>              ──────────
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>         result: [20, 30, 40]
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>  xs[::2]   (step = 2, take every other element)
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>        [10, 20, 30, 40, 50]
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>          ✓       ✓       ✓
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>         result: [10, 30, 50]
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let xs = [10, 20, 30, 40, 50]
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(xs[1:3])   # prints: [20, 30]
 </code></pre></div>
 <p>You can leave out parts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>print(xs[:3])    # first three: [10, 20, 30]
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(xs[2:])    # from index 2 onward: [30, 40, 50]
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>print(xs[:])     # a full copy: [10, 20, 30, 40, 50]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(xs[:3])    # first three: [10, 20, 30]
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(xs[2:])    # from index 2 onward: [30, 40, 50]
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>print(xs[:])     # a full copy: [10, 20, 30, 40, 50]
 </code></pre></div>
 <p>Add a <strong>step</strong> after a second colon to skip elements:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(xs[::2])   # every other: [10, 30, 50]
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(xs[1:4:2]) # index 1 and 3: [20, 40]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>print(xs[::2])   # every other: [10, 30, 50]
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>print(xs[1:4:2]) # index 1 and 3: [20, 40]
 </code></pre></div>
 <p>A negative step reverses the direction:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>print(xs[::-1])  # reversed: [50, 40, 30, 20, 10]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(xs[::-1])  # reversed: [50, 40, 30, 20, 10]
 </code></pre></div>
 <p>Negative indices work too — just like regular indexing:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(xs[-2:])   # last two: [40, 50]
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>print(xs[:-1])   # everything except the last: [10, 20, 30, 40]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(xs[-2:])   # last two: [40, 50]
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(xs[:-1])   # everything except the last: [10, 20, 30, 40]
 </code></pre></div>
 <p>If your indices go past the end, Pebble silently clamps them — no error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(xs[0:100]) # [10, 20, 30, 40, 50]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>print(xs[0:100]) # [10, 20, 30, 40, 50]
 </code></pre></div>
 <p>But a step of zero is an error (you'd never move forward!):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>print(xs[::0])   # Error: Slice step cannot be zero
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>print(xs[::0])   # Error: Slice step cannot be zero
 </code></pre></div>
 <h3 id="slicing-strings">Slicing strings</h3>
 <p>Slicing works on strings just the same way:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>let s = &quot;hello&quot;
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>print(s[1:4])    # prints: ell
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>print(s[::-1])   # prints: olleh
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let s = &quot;hello&quot;
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(s[1:4])    # prints: ell
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>print(s[::-1])   # prints: olleh
 </code></pre></div>
 <h3 id="slicing-creates-a-copy">Slicing creates a copy</h3>
 <p>Slicing always produces a <strong>new</strong> list (or string). The original stays
 untouched:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let xs = [10, 20, 30]
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>let ys = xs[:]
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>ys[0] = 99
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>print(xs[0])   # prints: 10  (original unchanged)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let xs = [10, 20, 30]
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>let ys = xs[:]
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>ys[0] = 99
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>print(xs[0])   # prints: 10  (original unchanged)
 </code></pre></div>
 <p>Under the hood the compiler pushes the target, start, stop, and step onto
 the stack, then emits a <code>SLICE_GET</code> instruction. The VM uses Python's built-in
@@ -1307,12 +1349,12 @@ slice machinery to do the heavy lifting — handling negative indices, clamping,
 and stepping all in one go.</p>
 <h2 id="list-methods">List Methods</h2>
 <p>Lists have their own set of <strong>methods</strong> you can call using dot notation —
-just like string methods.</p>
+the same <code>value.method()</code> pattern used by <a href="../strings/">strings</a>.</p>
 <h3 id="push">push()</h3>
 <p>Add a value to the end of the list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>xs.push(4)
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>print(xs)   # prints: [1, 2, 3, 4]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>xs.push(4)
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>print(xs)   # prints: [1, 2, 3, 4]
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1320,29 +1362,33 @@ just like string methods.</p>
 </div>
 <h3 id="pop">pop()</h3>
 <p>Remove and return the last element:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>let last = xs.pop()
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>print(last)   # prints: 3
-<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>print(xs)     # prints: [1, 2]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>let last = xs.pop()
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>print(last)   # prints: 3
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>print(xs)     # prints: [1, 2]
 </code></pre></div>
 <p>Popping from an empty list is an error.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The functional form <code>pop(xs)</code> still works too.</p>
+</div>
 <h3 id="contains">contains()</h3>
 <p>Check if a value is in the list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>print(xs.contains(2))    # prints: true
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>print(xs.contains(99))   # prints: false
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>print(xs.contains(2))    # prints: true
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>print(xs.contains(99))   # prints: false
 </code></pre></div>
 <h3 id="reverse">reverse()</h3>
 <p>Reverse the list in place:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>xs.reverse()
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>print(xs)   # prints: [3, 2, 1]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>xs.reverse()
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>print(xs)   # prints: [3, 2, 1]
 </code></pre></div>
 <h3 id="sort">sort()</h3>
 <p>Sort the list in place:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>let xs = [3, 1, 2]
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>xs.sort()
-<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>print(xs)   # prints: [1, 2, 3]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>let xs = [3, 1, 2]
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>xs.sort()
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>print(xs)   # prints: [1, 2, 3]
 </code></pre></div>
 <p>Sorting works on lists of all integers or all strings. Mixing types is an
 error.</p>
@@ -1391,38 +1437,38 @@ error.</p>
 </table>
 <h2 id="changing-an-element">Changing an Element</h2>
 <p>Assign to a specific position to replace the value in that box:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>let scores = [0, 0, 0]
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>scores[1] = 42
-<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>print(scores)   # prints: [0, 42, 0]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>let scores = [0, 0, 0]
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>scores[1] = 42
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>print(scores)   # prints: [0, 42, 0]
 </code></pre></div>
 <h2 id="finding-the-length">Finding the Length</h2>
 <p>The built-in <code>len()</code> function tells you how many elements a list has:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>let xs = [10, 20, 30, 40]
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>print(len(xs))   # prints: 4
-<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>print(len([]))   # prints: 0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>let xs = [10, 20, 30, 40]
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>print(len(xs))   # prints: 4
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>print(len([]))   # prints: 0
 </code></pre></div>
 <p><code>len()</code> also works on strings:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>print(len(&quot;hello&quot;))   # prints: 5
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>print(len(&quot;hello&quot;))   # prints: 5
 </code></pre></div>
 <h2 id="looping-over-a-list">Looping Over a List</h2>
 <p>Combine <code>for</code> + <code>range</code> + indexing to visit every element:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>let colours = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>for i in range(len(colours)) {
-<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    print(colours[i])
-<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>let colours = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>for i in range(len(colours)) {
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>    print(colours[i])
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>}
 </code></pre></div>
 <p>This prints each colour on its own line.</p>
 <h2 id="lists-with-other-features">Lists with Other Features</h2>
 <h3 id="string-interpolation">String Interpolation</h3>
 <p>You can use list elements inside <code>{…}</code> strings:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>print(&quot;first: {xs[0]}, total: {len(xs)}&quot;)
-<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a># prints: first: 1, total: 3
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>let xs = [1, 2, 3]
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>print(&quot;first: {xs[0]}, total: {len(xs)}&quot;)
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a># prints: first: 1, total: 3
 </code></pre></div>
 <h3 id="functions">Functions</h3>
 <p>Lists can be passed to functions and returned from them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>fn first(xs) { return xs[0] }
-<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>print(first([42, 99]))   # prints: 42
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>fn first(xs) { return xs[0] }
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>print(first([42, 99]))   # prints: 42
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>When the <strong>compiler</strong> sees <code>[1, 2, 3]</code>, it emits instructions to push each

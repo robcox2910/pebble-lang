@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#functions-for-loops" class="md-skip">
+        <a href="#functions" class="md-skip">
           Skip to content
         </a>
       
@@ -483,6 +483,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../statements/" class="md-nav__link">
         
   
@@ -628,34 +656,6 @@
       
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#going-through-items-for-loops" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Going Through Items: for Loops
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Going Through Items: for Loops">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#for-vs-while" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For vs While
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1092,7 +1092,7 @@
   
 
 
-<h1 id="functions-for-loops">Functions &amp; For Loops</h1>
+<h1 id="functions">Functions</h1>
 <h2 id="what-is-a-function">What Is a Function?</h2>
 <p>A <strong>function</strong> is like a <strong>recipe card</strong>. You write down the steps once, give
 it a name, and then use that recipe whenever you need it -- without rewriting
@@ -1165,79 +1165,15 @@ means "stop here, I'm done":</p>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    print(x)
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>}
 </code></pre></div>
-<h2 id="going-through-items-for-loops">Going Through Items: <code>for</code> Loops</h2>
-<p>A <strong>for loop</strong> is like doing a <strong>roll call</strong> -- you go through a list of items
-one by one, doing something with each one:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>for i in range(5) {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    print(i)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
-</code></pre></div>
-<p>This prints <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>. Each time around the loop, <code>i</code> takes
-the next value from <code>range(5)</code>.</p>
-<p>The structure is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>for variable in iterable {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    body
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
-</code></pre></div>
-<ul>
-<li><strong>variable</strong> -- a name that holds the current item (like <code>i</code>)</li>
-<li><strong>iterable</strong> -- something that produces items to loop over</li>
-<li><strong>body</strong> -- what to do with each item</li>
-</ul>
-<p>You can also give <code>range</code> a starting point, or a step size:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>for i in range(2, 5) {
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print(i)
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>}
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a># prints: 2, 3, 4
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>for i in range(0, 10, 2) {
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    print(i)
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>}
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a># prints: 0, 2, 4, 6, 8
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>for i in range(5, 0, -1) {
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    print(i)
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>}
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a># prints: 5, 4, 3, 2, 1
-</code></pre></div>
-<p>See <a href="../stdlib/">Standard Library</a> for all <code>range()</code> forms.</p>
-<h3 id="for-vs-while">For vs While</h3>
-<p>Both <code>for</code> and <code>while</code> repeat things, but they're suited for different jobs:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th><code>for</code></th>
-<th><code>while</code></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Best for</td>
-<td>Going through a collection</td>
-<td>Repeating until a condition changes</td>
-</tr>
-<tr>
-<td>Counter needed?</td>
-<td>Built-in (<code>i</code> in <code>for i in ...</code>)</td>
-<td>You manage it yourself</td>
-</tr>
-<tr>
-<td>Analogy</td>
-<td>Roll call</td>
-<td>Broken record</td>
-</tr>
-</tbody>
-</table>
 <h2 id="functions-are-values">Functions Are Values</h2>
 <p>In Pebble, functions are <strong>first-class values</strong> -- just like numbers and
 strings. That means you can store a function in a variable, put it in a list,
 or pass it as an argument to another function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>let f = double
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(f(5))          # prints: 10
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>print(type(double))  # prints: fn
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>let f = double
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>print(f(5))          # prints: 10
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>print(type(double))  # prints: fn
 </code></pre></div>
 <p>Think of it this way: the recipe card itself is a thing you can pick up, hand
 to someone, or put in a drawer. You can use it later, or give it to a
@@ -1245,28 +1181,28 @@ different chef.</p>
 <h3 id="anonymous-functions">Anonymous Functions</h3>
 <p>Sometimes you need a tiny recipe that you'll only use once. Instead of giving
 it a name, you can write it inline:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let triple = fn(x) { return x * 3 }
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(triple(4))   # prints: 12
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let triple = fn(x) { return x * 3 }
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(triple(4))   # prints: 12
 </code></pre></div>
 <p>This creates a function without the usual <code>fn name(...)</code> form -- just
 <code>fn(params) { body }</code> directly in an expression. It's especially useful with
 <a href="../higher-order/">higher-order functions</a> like <code>map</code>, <code>filter</code>, and <code>reduce</code>.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
-<p>Here's a program that uses functions and for loops together:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>fn greet(name) {
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    print(name)
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>}
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>fn count_up(n) {
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    for i in range(n) {
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>        print(i)
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    }
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>}
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>greet(&quot;Alice&quot;)
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>count_up(3)
+<p>Here's a program that uses functions with other features:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn greet(name) {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print(name)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>}
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>fn count_up(n) {
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    for i in range(n) {
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        print(i)
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    }
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>}
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>greet(&quot;Alice&quot;)
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>count_up(3)
 </code></pre></div>
-<p>Functions can contain for loops, for loops can contain if statements -- you can
+<p>Functions can contain loops, conditions, and other statements -- you can
 nest them however you like to build up complex behaviour from simple pieces.</p>
 <h2 id="what-can-go-wrong">What Can Go Wrong?</h2>
 <p>The parser catches several mistakes:</p>
@@ -1285,14 +1221,6 @@ nest them however you like to build up complex behaviour from simple pieces.</p>
 <tr>
 <td><code>foo(1,)</code></td>
 <td>Unexpected token ')'</td>
-</tr>
-<tr>
-<td><code>for in items { }</code></td>
-<td>Expected loop variable after 'for'</td>
-</tr>
-<tr>
-<td><code>for i items { }</code></td>
-<td>Expected 'in' after loop variable</td>
 </tr>
 <tr>
 <td><code>fn () { }</code></td>
@@ -1328,10 +1256,6 @@ nest them however you like to build up complex behaviour from simple pieces.</p>
 <tr>
 <td><code>return</code></td>
 <td>Handing back the finished dish</td>
-</tr>
-<tr>
-<td><code>for</code> loop</td>
-<td>Roll call -- go through each item one by one</td>
 </tr>
 <tr>
 <td>Function call <code>()</code></td>
