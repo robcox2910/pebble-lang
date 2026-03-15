@@ -74,6 +74,8 @@ nodes:
 | `BreakStatement` | `break` | Exit the nearest loop |
 | `ContinueStatement` | `continue` | Skip to the next loop iteration |
 | `MatchStatement` | `match x { case 1 { } }` | Value, list of cases with patterns and bodies |
+| `ImportStatement` | `import "math.pbl"` | The path to the module file |
+| `FromImportStatement` | `from "utils.pbl" import add` | The path and the names to import |
 
 The **Program** node sits at the very top and holds the list of all top-level
 statements.

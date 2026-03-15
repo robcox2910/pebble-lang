@@ -70,6 +70,8 @@ them as variable names because they already mean something:
 | `NOT` | `not` | Logical "flip true to false" |
 | `MATCH` | `match` | Start a pattern-matching block |
 | `CASE` | `case` | Define one arm of a match block |
+| `IMPORT` | `import` | Bring definitions in from another file |
+| `FROM` | `from` | Choose which file to import from |
 
 ### Operators -- The Action Symbols
 

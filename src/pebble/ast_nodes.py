@@ -416,6 +416,23 @@ class FieldAssignment:
 
 
 @dataclass(frozen=True)
+class ImportStatement:
+    """An ``import "path.pbl"`` statement."""
+
+    path: str
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class FromImportStatement:
+    """A ``from "path.pbl" import name1, name2`` statement."""
+
+    path: str
+    names: list[str]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class Program:
     """The root AST node containing the top-level statements."""
 
@@ -467,4 +484,6 @@ Statement = (
     | MatchStatement
     | StructDef
     | FieldAssignment
+    | ImportStatement
+    | FromImportStatement
 )

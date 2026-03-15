@@ -28,11 +28,13 @@ from pebble.ast_nodes import (
     FieldAssignment,
     FloatLiteral,
     ForLoop,
+    FromImportStatement,
     FunctionCall,
     FunctionDef,
     FunctionExpression,
     Identifier,
     IfStatement,
+    ImportStatement,
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
@@ -258,6 +260,8 @@ class Compiler:
                 self._compile_struct_def(stmt)
             case FieldAssignment():
                 self._compile_field_assignment(stmt)
+            case ImportStatement() | FromImportStatement():
+                pass  # Resolved at compile time by ModuleResolver
             case _:
                 # Expression statement (e.g. bare function call)
                 self._compile_expression(stmt)  # type: ignore[arg-type]

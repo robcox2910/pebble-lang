@@ -26,11 +26,13 @@ from pebble.ast_nodes import (
     FieldAssignment,
     FloatLiteral,
     ForLoop,
+    FromImportStatement,
     FunctionCall,
     FunctionDef,
     FunctionExpression,
     Identifier,
     IfStatement,
+    ImportStatement,
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
@@ -535,6 +537,27 @@ class Parser:
             location=struct_token.location,
         )
 
+    def _parse_import(self) -> ImportStatement:
+        """Parse ``import "path.pbl"``."""
+        import_token = self._advance()  # consume 'import'
+        path_token = self._expect(TokenKind.STRING, "Expected module path string after 'import'")
+        self._consume_newline()
+        return ImportStatement(path=path_token.value, location=import_token.location)
+
+    def _parse_from_import(self) -> FromImportStatement:
+        """Parse ``from "path.pbl" import name1, name2``."""
+        from_token = self._advance()  # consume 'from'
+        path_token = self._expect(TokenKind.STRING, "Expected module path string after 'from'")
+        self._expect(TokenKind.IMPORT, "Expected 'import' after module path")
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected name after 'import'")
+        names = [name_token.value]
+        while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+            self._advance()  # consume ','
+            name_token = self._expect(TokenKind.IDENTIFIER, "Expected name after ','")
+            names.append(name_token.value)
+        self._consume_newline()
+        return FromImportStatement(path=path_token.value, names=names, location=from_token.location)
+
     def _parse_block(self) -> list[Statement]:
         """Parse a ``{ stmt; ... }`` block and return the statement list."""
         self._expect(TokenKind.LEFT_BRACE, "Expected '{'")
@@ -948,6 +971,8 @@ class Parser:
         TokenKind.THROW: _parse_throw,
         TokenKind.MATCH: _parse_match,
         TokenKind.STRUCT: _parse_struct_def,
+        TokenKind.IMPORT: _parse_import,
+        TokenKind.FROM: _parse_from_import,
     }
 
     # -- Token helpers --------------------------------------------------------
