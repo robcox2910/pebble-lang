@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/structs/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/classes/">
       
       
-        <link rel="prev" href="../tuple-unpacking/">
+        <link rel="prev" href="../structs/">
       
       
-        <link rel="next" href="../classes/">
+        <link rel="next" href="../modules/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Structs - Pebble</title>
+        <title>Classes - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#structs" class="md-skip">
+        <a href="#classes" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Structs
+              Classes
             
           </span>
         </div>
@@ -984,6 +984,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../structs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1003,7 +1031,7 @@
   <span class="md-ellipsis">
     
   
-    Structs
+    Classes
   
 
     
@@ -1021,7 +1049,7 @@
   <span class="md-ellipsis">
     
   
-    Structs
+    Classes
   
 
     
@@ -1047,10 +1075,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-custom-blueprint" class="md-nav__link">
+  <a href="#the-blueprint-that-does-things" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Custom Blueprint
+        The Blueprint That Does Things
       
     </span>
   </a>
@@ -1058,10 +1086,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-a-struct" class="md-nav__link">
+  <a href="#defining-a-class" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Defining a Struct
+        Defining a Class
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-self-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The self Parameter
       
     </span>
   </a>
@@ -1080,10 +1119,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reading-fields" class="md-nav__link">
+  <a href="#calling-methods" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reading Fields
+        Calling Methods
       
     </span>
   </a>
@@ -1091,10 +1130,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#changing-fields" class="md-nav__link">
+  <a href="#methods-that-change-things" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Changing Fields
+        Methods That Change Things
       
     </span>
   </a>
@@ -1102,10 +1141,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#printing-structs" class="md-nav__link">
+  <a href="#methods-with-extra-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Printing Structs
+        Methods with Extra Parameters
       
     </span>
   </a>
@@ -1113,10 +1152,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#checking-the-type" class="md-nav__link">
+  <a href="#methods-that-return-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Checking the Type
+        Methods That Return Values
       
     </span>
   </a>
@@ -1124,10 +1163,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structs-as-values" class="md-nav__link">
+  <a href="#type-annotations-on-methods" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structs as Values
+        Type Annotations on Methods
       
     </span>
   </a>
@@ -1135,10 +1174,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparing-structs" class="md-nav__link">
+  <a href="#structs-vs-classes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparing Structs
+        Structs vs Classes
       
     </span>
   </a>
@@ -1169,10 +1208,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rgb-color" class="md-nav__link">
+  <a href="#counter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RGB Color
+        Counter
       
     </span>
   </a>
@@ -1180,10 +1219,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#student-record" class="md-nav__link">
+  <a href="#bank-account" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Student Record
+        Bank Account
       
     </span>
   </a>
@@ -1191,10 +1230,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#linked-list-node" class="md-nav__link">
+  <a href="#game-character" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Linked List Node
+        Game Character
       
     </span>
   </a>
@@ -1219,10 +1258,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#defining-a-struct_1" class="md-nav__link">
+  <a href="#defining-a-class_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Defining a Struct
+        Defining a Class
       
     </span>
   </a>
@@ -1241,10 +1280,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#reading-a-field" class="md-nav__link">
+  <a href="#calling-a-method" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reading a Field
+        Calling a Method
       
     </span>
   </a>
@@ -1252,10 +1291,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#writing-a-field" class="md-nav__link">
+  <a href="#why-not-reuse-call_method" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Writing a Field
+        Why Not Reuse CALL_METHOD?
       
     </span>
   </a>
@@ -1264,17 +1303,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#structs-vs-classes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Structs vs Classes
-      
-    </span>
-  </a>
   
 </li>
       
@@ -1293,34 +1321,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../classes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Classes
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1437,188 +1437,320 @@
   
 
 
-<h1 id="structs">Structs</h1>
-<h2 id="the-custom-blueprint">The Custom Blueprint</h2>
-<p>Imagine you're building with LEGO. You've been using single bricks
-(numbers, strings, booleans) and bags of bricks (lists). But what if
-you want to build something more specific -- like a little LEGO car
-with a <strong>color</strong>, a <strong>speed</strong>, and a <strong>name</strong>? You'd want a blueprint
-that says: "every car I build has these three labeled compartments."</p>
-<p>A <strong>struct</strong> is exactly that -- a blueprint for a custom box with
-labeled compartments (called <strong>fields</strong>). You define the blueprint
-once, then create as many boxes as you want from it.</p>
-<h2 id="defining-a-struct">Defining a Struct</h2>
-<p>Use the <code>struct</code> keyword followed by a name and a list of field names
-inside curly braces:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>struct Point { x, y }
+<h1 id="classes">Classes</h1>
+<h2 id="the-blueprint-that-does-things">The Blueprint That Does Things</h2>
+<p>In <a href="../structs/">Structs</a> we built custom boxes with labeled
+compartments -- like a LEGO car with slots for <strong>color</strong>, <strong>speed</strong>,
+and <strong>name</strong>. But what if you wanted the car to <em>drive</em>? Or <em>honk</em>?
+A struct can hold data, but it can't <strong>do</strong> anything with it.</p>
+<p>A <strong>class</strong> is like a struct that has learned some tricks. It has
+fields (the labeled compartments) <strong>and</strong> methods (things it knows
+how to do). Think of a class as a blueprint that includes both the
+<em>parts list</em> and the <em>instruction manual</em>.</p>
+<h2 id="defining-a-class">Defining a Class</h2>
+<p>Use the <code>class</code> keyword followed by a name, then list the fields and
+methods inside curly braces:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>class Dog {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    name,
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    age,
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    fn bark(self) {
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        print(&quot;Woof! My name is &quot; + self.name)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    }
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    fn birthday(self) {
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        self.age = self.age + 1
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    }
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>}
 </code></pre></div>
-<p>This says: "I'm defining a new type called <code>Point</code> that has two fields,
-<code>x</code> and <code>y</code>."</p>
-<p>The name should start with a capital letter (like <code>Point</code>, <code>Color</code>,
-<code>Student</code>) -- that's how Pebble programmers tell struct types apart
-from regular variables at a glance.</p>
+<p>The fields come first (comma-separated, just like struct fields),
+and then the methods (defined with <code>fn</code>, just like regular functions).</p>
+<h2 id="the-self-parameter">The <code>self</code> Parameter</h2>
+<p>Every method must have <code>self</code> as its <strong>first parameter</strong>. This is
+how the method knows <em>which</em> instance it belongs to.</p>
+<p>When you call <code>myDog.bark()</code>, Pebble automatically passes <code>myDog</code> as
+<code>self</code>. You don't type <code>self</code> in the call -- Pebble handles it for
+you. Inside the method, <code>self.name</code> means "the <code>name</code> field of
+whichever dog called this method."</p>
+<p>Think of <code>self</code> as a mirror. When the dog looks in the mirror, it
+sees <em>itself</em> -- its own name, its own age, its own data.</p>
 <h2 id="creating-instances">Creating Instances</h2>
-<p>Once you have a blueprint, you create a concrete value by calling the
-struct name like a function, passing one value for each field:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>struct Point { x, y }
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>let p = Point(10, 20)
+<p>You create a class instance the same way you create a struct -- call
+the class name like a function, passing one value for each field:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let rex = Dog(&quot;Rex&quot;, 3)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>let luna = Dog(&quot;Luna&quot;, 5)
 </code></pre></div>
-<p>The arguments are <strong>positional</strong> -- the first value goes to the first
-field, the second to the second, and so on. If you pass the wrong
-number of arguments, Pebble reports an error before the program even
-runs.</p>
-<h2 id="reading-fields">Reading Fields</h2>
-<p>Use a dot (<code>.</code>) to read a field:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(p.x)   # prints: 10
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(p.y)   # prints: 20
+<p>The arguments are <strong>positional</strong> -- the first value fills the first
+field, the second value fills the second field, and so on. If you
+pass the wrong number of arguments, Pebble catches the mistake
+before your program runs.</p>
+<h2 id="calling-methods">Calling Methods</h2>
+<p>Use a dot (<code>.</code>) followed by the method name and parentheses:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>rex.bark()       # prints: Woof! My name is Rex
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>luna.bark()      # prints: Woof! My name is Luna
 </code></pre></div>
-<p>Think of the dot as opening a specific compartment by its label.</p>
-<h2 id="changing-fields">Changing Fields</h2>
-<p>Use dot-equals to write a new value into a field:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>p.x = 30
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(p.x)   # prints: 30
+<p>Even though both dogs use the same <code>bark</code> method, each one sees its
+own data through <code>self</code>. Rex's <code>self.name</code> is <code>"Rex"</code>, while Luna's
+<code>self.name</code> is <code>"Luna"</code>.</p>
+<h2 id="methods-that-change-things">Methods That Change Things</h2>
+<p>Methods can modify the instance's fields using <code>self.field = value</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>print(rex.age)    # prints: 3
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>rex.birthday()
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>print(rex.age)    # prints: 4
 </code></pre></div>
-<p>Fields are always changeable -- even if the variable holding the
-struct is declared with <code>const</code>. That's the same rule Pebble uses for
-lists: <code>const</code> means you can't point the name at a different value,
-but you <em>can</em> still change what's inside.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>const origin = Point(0, 0)
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>origin.x = 5   # this is fine -- modifying the contents, not the binding
+<p>The <code>birthday</code> method changed Rex's age, but Luna's age stays the
+same. Each instance is independent.</p>
+<h2 id="methods-with-extra-parameters">Methods with Extra Parameters</h2>
+<p>Methods can take additional parameters beyond <code>self</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>class Calculator {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    value,
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    fn add(self, n) {
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        self.value = self.value + n
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    fn multiply(self, n) {
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        self.value = self.value * n
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    }
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>}
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>let calc = Calculator(0)
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>calc.add(10)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>calc.multiply(3)
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>print(calc.value)   # prints: 30
 </code></pre></div>
-<h2 id="printing-structs">Printing Structs</h2>
-<p><code>print()</code> knows how to display a struct with all its fields:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let p = Point(10, 20)
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(p)   # prints: Point(x=10, y=20)
+<p>When calling <code>calc.add(10)</code>, Pebble passes <code>calc</code> as <code>self</code> and <code>10</code>
+as <code>n</code>. You only write the extra arguments in the call.</p>
+<h2 id="methods-that-return-values">Methods That Return Values</h2>
+<p>Methods can return values just like regular functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>class Rectangle {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    width,
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    height,
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    fn area(self) -&gt; Int {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        return self.width * self.height
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    }
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    fn is_square(self) -&gt; Bool {
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        return self.width == self.height
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    }
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>}
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>let r = Rectangle(4, 6)
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>print(r.area())       # prints: 24
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>print(r.is_square())  # prints: false
 </code></pre></div>
-<h2 id="checking-the-type">Checking the Type</h2>
-<p>The <code>type()</code> function returns the struct's name as a string:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(type(p))   # prints: Point
+<h2 id="type-annotations-on-methods">Type Annotations on Methods</h2>
+<p>Method parameters and return types can have type annotations, just
+like regular functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>class Greeter {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    name: String,
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    fn greet(self, greeting: String) -&gt; String {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        return greeting + &quot;, &quot; + self.name + &quot;!&quot;
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    }
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>}
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>let g = Greeter(&quot;Alice&quot;)
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>print(g.greet(&quot;Hello&quot;))   # prints: Hello, Alice!
 </code></pre></div>
-<h2 id="structs-as-values">Structs as Values</h2>
-<p>Struct instances are values just like numbers or strings. You can:</p>
-<p><strong>Pass them to functions:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn distance_from_origin(point) {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return (point.x ** 2 + point.y ** 2) ** 0.5
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>print(distance_from_origin(Point(3, 4)))   # prints: 5.0
-</code></pre></div>
-<p><strong>Return them from functions:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn origin() {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    return Point(0, 0)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
-</code></pre></div>
-<p><strong>Store them in lists:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let points = [Point(1, 2), Point(3, 4), Point(5, 6)]
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(points[0].x)   # prints: 1
-</code></pre></div>
-<p><strong>Store them in dictionaries:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let locations = {&quot;home&quot;: Point(0, 0), &quot;school&quot;: Point(10, 5)}
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(locations[&quot;school&quot;].y)   # prints: 5
-</code></pre></div>
-<p><strong>Nest them inside other structs:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>struct Line { start, end }
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>let line = Line(Point(0, 0), Point(10, 10))
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(line.start.x)   # prints: 0
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>print(line.end.y)      # prints: 10
-</code></pre></div>
-<h2 id="comparing-structs">Comparing Structs</h2>
-<p>Two struct instances are <strong>equal</strong> if they have the same type name
-<em>and</em> the same field values:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let a = Point(10, 20)
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>let b = Point(10, 20)
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>print(a == b)   # prints: true
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>let c = Point(10, 30)
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>print(a == c)   # prints: false
-</code></pre></div>
-<p>Different struct types are never equal, even if they have the same
-field values:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>struct Vec { x, y }
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>let p = Point(10, 20)
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>let v = Vec(10, 20)
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>print(p == v)   # prints: false
-</code></pre></div>
+<p>Fields can have type annotations too -- they work the same way as
+struct field annotations.</p>
+<h2 id="structs-vs-classes">Structs vs Classes</h2>
+<p>Pebble has both <code>struct</code> and <code>class</code>. Here's when to use each:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Struct</th>
+<th>Class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fields</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Methods</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Use when...</td>
+<td>You just need to group data</td>
+<td>Your data needs to <em>do things</em></td>
+</tr>
+</tbody>
+</table>
+<p>Think of it this way:</p>
+<ul>
+<li>A <strong>struct</strong> is a <strong>form</strong> -- it has blanks to fill in, but it
+  doesn't do anything on its own. Like an address card with name,
+  street, and city.</li>
+<li>A <strong>class</strong> is a <strong>robot</strong> -- it has data <em>and</em> it knows how to
+  act on that data. Like a calculator that holds a number and can
+  add, subtract, or multiply.</li>
+</ul>
+<p>Both structs and classes create instances the same way (<code>Name(args)</code>),
+and both support field access (<code>inst.field</code>) and field mutation
+(<code>inst.field = value</code>).</p>
 <h2 id="error-cases">Error Cases</h2>
-<p>Pebble catches mistakes early:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a># Wrong number of arguments
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>let p = Point(1)          # Error: expects 2 arguments, got 1
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a># Accessing a field that doesn&#39;t exist
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>print(p.z)                # Error: has no field &#39;z&#39;
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a># Setting a field that doesn&#39;t exist
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>p.z = 5                   # Error: has no field &#39;z&#39;
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a># Using dot on a non-struct
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>let x = 42
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>print(x.y)                # Error: not a struct
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a># Duplicate field name
-<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>struct Bad { x, x }       # Error: Duplicate field &#39;x&#39;
+<p>Pebble catches class-related mistakes early:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a># Method missing self parameter
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>class Bad {
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    fn do_thing() { }          # Error: first parameter must be &#39;self&#39;
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a># Wrong number of constructor arguments
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>let d = Dog(&quot;Rex&quot;)             # Error: expects 2 arguments, got 1
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a># Calling a method that doesn&#39;t exist
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>d.fly()                        # Error: Class &#39;Dog&#39; has no method &#39;fly&#39;
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a># Calling a method on a non-class value
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>let x = 42
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>x.bark()                       # Error: not a struct
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a># Duplicate field names
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>class Bad { x, x }             # Error: Duplicate field &#39;x&#39;
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a># Duplicate method names
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>class Bad {
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>    fn go(self) { }
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>    fn go(self) { }            # Error: Duplicate method &#39;go&#39;
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>}
 </code></pre></div>
 <h2 id="practical-examples">Practical Examples</h2>
-<h3 id="rgb-color">RGB Color</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>struct Color { r, g, b }
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>let red = Color(255, 0, 0)
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>let blue = Color(0, 0, 255)
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>print(red)    # prints: Color(r=255, g=0, b=0)
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>print(blue)   # prints: Color(r=0, g=0, b=255)
+<h3 id="counter">Counter</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>class Counter {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    count,
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    fn increment(self) {
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        self.count = self.count + 1
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    }
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    fn reset(self) {
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        self.count = 0
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    }
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    fn get(self) -&gt; Int {
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        return self.count
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    }
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>}
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>let c = Counter(0)
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>c.increment()
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>c.increment()
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>c.increment()
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>print(c.get())   # prints: 3
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>c.reset()
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>print(c.get())   # prints: 0
 </code></pre></div>
-<h3 id="student-record">Student Record</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>struct Student { name, age, grade }
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>let alice = Student(&quot;Alice&quot;, 12, &quot;A&quot;)
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>print(alice.name)    # prints: Alice
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>print(alice.grade)   # prints: A
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>alice.grade = &quot;A+&quot;
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>print(alice)   # prints: Student(name=Alice, age=12, grade=A+)
+<h3 id="bank-account">Bank Account</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>class Account {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    owner,
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    balance,
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    fn deposit(self, amount) {
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        self.balance = self.balance + amount
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    }
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    fn withdraw(self, amount) {
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        self.balance = self.balance - amount
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    }
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    fn summary(self) -&gt; String {
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        return self.owner + &quot;: $&quot; + string(self.balance)
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    }
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>}
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>let acc = Account(&quot;Alice&quot;, 100)
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>acc.deposit(50)
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>acc.withdraw(30)
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>print(acc.summary())   # prints: Alice: $120
 </code></pre></div>
-<h3 id="linked-list-node">Linked List Node</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>struct Node { value, next }
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>let list = Node(1, Node(2, Node(3, 0)))
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>print(list.value)              # prints: 1
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>print(list.next.value)         # prints: 2
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>print(list.next.next.value)    # prints: 3
+<h3 id="game-character">Game Character</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>class Player {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    name,
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    hp,
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    score,
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    fn take_damage(self, amount) {
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        self.hp = self.hp - amount
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    }
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    fn earn_points(self, points) {
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>        self.score = self.score + points
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    }
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    fn is_alive(self) -&gt; Bool {
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>        return self.hp &gt; 0
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>    }
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>}
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>let hero = Player(&quot;Knight&quot;, 100, 0)
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>hero.earn_points(50)
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>hero.take_damage(30)
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>print(hero.hp)          # prints: 70
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>print(hero.is_alive())  # prints: true
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
-<h3 id="defining-a-struct_1">Defining a Struct</h3>
-<p>When the compiler sees <code>struct Point { x, y }</code>, it <strong>does not</strong> emit
-any bytecode. Instead, it stores metadata: the struct name and its
-ordered field list. This metadata travels with the compiled program to
-the VM.</p>
+<h3 id="defining-a-class_1">Defining a Class</h3>
+<p>When the compiler sees a class definition, it does two things:</p>
+<ol>
+<li><strong>Stores field metadata</strong> -- same as structs. The class name and
+   ordered field list go into the struct registry so the VM knows
+   how to construct instances.</li>
+<li><strong>Compiles each method as a function</strong> -- with a special mangled
+   name. The method <code>bark</code> in class <code>Dog</code> becomes a function called
+   <code>"Dog.bark"</code>. This lets Pebble reuse its entire existing function
+   machinery -- no special "method frame" needed.</li>
+</ol>
 <h3 id="constructing-an-instance">Constructing an Instance</h3>
-<p>When the VM encounters <code>CALL "Point"</code>, it checks its struct registry.
-If the name matches, it:</p>
+<p>Class instances are created exactly like struct instances. When the
+VM sees <code>CALL "Dog"</code>, it checks the struct registry, pops the field
+values, and builds a <code>StructInstance</code>. No new opcode needed -- classes
+and structs share the same construction path.</p>
+<h3 id="calling-a-method">Calling a Method</h3>
+<p>When you write <code>d.bark()</code>, the compiler emits a special instruction:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>LOAD_NAME &quot;d&quot;
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>CALL_INSTANCE_METHOD &quot;bark:0&quot;
+</code></pre></div>
+<p>The operand <code>"bark:0"</code> encodes two things: the method name (<code>bark</code>)
+and the number of extra arguments (<code>0</code>).</p>
+<p>The VM then:</p>
 <ol>
-<li>Pops the right number of values from the stack (one per field).</li>
-<li>Builds a <code>StructInstance</code> with those values.</li>
-<li>Pushes the instance onto the stack.</li>
+<li>Pops the arguments (if any) from the stack</li>
+<li>Pops the target instance (<code>d</code>)</li>
+<li>Looks up <code>"Dog.bark"</code> in the function registry</li>
+<li>Creates a new frame with <code>self</code> bound to <code>d</code></li>
+<li>Executes the method body</li>
 </ol>
-<p>No special opcode needed -- the existing <code>CALL</code> opcode handles it.</p>
-<h3 id="reading-a-field">Reading a Field</h3>
-<p><code>p.x</code> compiles to:</p>
-<ol>
-<li><code>LOAD_NAME "p"</code> -- push the struct instance onto the stack.</li>
-<li><code>GET_FIELD "x"</code> -- pop the instance, look up field <code>"x"</code>, push its
-   value.</li>
-</ol>
-<h3 id="writing-a-field">Writing a Field</h3>
-<p><code>p.x = 30</code> compiles to:</p>
-<ol>
-<li><code>LOAD_NAME "p"</code> -- push the struct instance.</li>
-<li><code>LOAD_CONST 30</code> -- push the new value.</li>
-<li><code>SET_FIELD "x"</code> -- pop both, update the field in place.</li>
-</ol>
-<h2 id="structs-vs-classes">Structs vs Classes</h2>
-<p>Pebble also has <strong>classes</strong>, which are like structs that can do things.
-If your type only needs to hold data, use a struct. If it also needs
-methods (functions attached to the data), use a class. See the
-<a href="../classes/">Classes</a> chapter for details.</p>
+<p>Here's the flow as a diagram:</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Code as Your Code
+    participant Compiler
+    participant VM
+    participant Stack
+
+    Code-&gt;&gt;Compiler: d.bark()
+    Compiler-&gt;&gt;VM: LOAD_NAME "d"
+    VM-&gt;&gt;Stack: push Dog instance
+    Compiler-&gt;&gt;VM: CALL_INSTANCE_METHOD "bark:0"
+    VM-&gt;&gt;Stack: pop 0 args
+    VM-&gt;&gt;Stack: pop target (Dog instance)
+    VM-&gt;&gt;VM: look up "Dog.bark" function
+    VM-&gt;&gt;VM: bind self = target
+    VM-&gt;&gt;VM: push new frame, execute body</code></pre>
+<h3 id="why-not-reuse-call_method">Why Not Reuse CALL_METHOD?</h3>
+<p>Pebble already has a <code>CALL_METHOD</code> opcode for built-in methods like
+<code>push()</code> on lists or <code>upper()</code> on strings. Those built-in methods
+have fixed arities and use a special padding scheme on the stack.</p>
+<p>User-defined class methods can have any number of parameters, so
+Pebble uses a separate <code>CALL_INSTANCE_METHOD</code> opcode with a simpler
+design. This keeps both paths clean and avoids mixing concerns.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
@@ -1629,40 +1761,28 @@ methods (functions attached to the data), use a class. See the
 </thead>
 <tbody>
 <tr>
-<td><code>struct Name { a, b }</code></td>
-<td>Define a new struct type with fields a, b</td>
+<td><code>class Name { fields, fn method(self) { } }</code></td>
+<td>Define a class with fields and methods</td>
 </tr>
 <tr>
-<td><code>Name(1, 2)</code></td>
-<td>Create an instance (like a function call)</td>
+<td><code>Name(a, b)</code></td>
+<td>Create an instance (same as structs)</td>
 </tr>
 <tr>
-<td><code>inst.field</code></td>
-<td>Read a field value</td>
+<td><code>inst.method()</code></td>
+<td>Call a method on an instance</td>
 </tr>
 <tr>
-<td><code>inst.field = expr</code></td>
-<td>Write a new value to a field</td>
+<td><code>self.field</code></td>
+<td>Read a field inside a method</td>
 </tr>
 <tr>
-<td><code>type(inst)</code></td>
-<td>Returns the struct's type name as a string</td>
+<td><code>self.field = expr</code></td>
+<td>Write a field inside a method</td>
 </tr>
 <tr>
-<td><code>print(inst)</code></td>
-<td>Displays <code>Name(field=value, ...)</code></td>
-</tr>
-<tr>
-<td><code>a == b</code></td>
-<td>True if same type and all fields match</td>
-</tr>
-<tr>
-<td><code>GET_FIELD "name"</code></td>
-<td>VM instruction: pop instance, push field</td>
-</tr>
-<tr>
-<td><code>SET_FIELD "name"</code></td>
-<td>VM instruction: pop value + instance, write</td>
+<td><code>CALL_INSTANCE_METHOD "name:n"</code></td>
+<td>VM instruction: call a class method with n args</td>
 </tr>
 </tbody>
 </table>

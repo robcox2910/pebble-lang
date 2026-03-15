@@ -805,6 +805,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#class-method-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class Method Calls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#putting-it-all-together" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1178,6 +1189,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../classes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Classes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../modules/" class="md-nav__link">
         
   
@@ -1445,9 +1484,22 @@ These are called <strong>runtime errors</strong>:</p>
 </tbody>
 </table>
 <p>When a runtime error happens, the VM stops and reports what went wrong.</p>
+<h2 id="class-method-calls">Class Method Calls</h2>
+<p>When you call a method on a class instance (like <code>dog.bark()</code>), the
+VM uses a special opcode called <code>CALL_INSTANCE_METHOD</code>. It works like
+<code>CALL</code> but with an extra step: it automatically passes the instance
+as the <code>self</code> parameter.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>LOAD_NAME &quot;dog&quot;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>CALL_INSTANCE_METHOD &quot;bark:0&quot;
+</code></pre></div>
+<p>The operand <code>"bark:0"</code> encodes the method name and the number of extra
+arguments (not counting <code>self</code>). The VM pops the arguments, pops the
+target instance, looks up the mangled function name (<code>"Dog.bark"</code>),
+binds <code>self</code> to the instance, and pushes a new frame.</p>
+<p>See <a href="../classes/">Classes</a> for the full story.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>Here's what happens when you run <code>pebble hello.pbl</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>hello.pbl → Lexer → Parser → Analyzer → Compiler → VM → output
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>hello.pbl → Lexer → Parser → Analyzer → Compiler → VM → output
 </code></pre></div>
 <ol>
 <li>The <strong>lexer</strong> breaks the source into tokens</li>
@@ -1457,23 +1509,23 @@ These are called <strong>runtime errors</strong>:</p>
 <li>The <strong>VM</strong> follows those instructions and produces output</li>
 </ol>
 <h2 id="a-complete-example">A Complete Example</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn double(n) {
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    return n * 2
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>}
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>print(double(5))
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>fn double(n) {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    return n * 2
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>}
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>print(double(5))
 </code></pre></div>
 <p>The compiler produces:</p>
 <p><strong>Main instructions:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>0  LOAD_CONST 0     # push 5
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>1  CALL &quot;double&quot;    # call the function
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>2  PRINT            # print the result
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>3  HALT
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>0  LOAD_CONST 0     # push 5
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>1  CALL &quot;double&quot;    # call the function
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>2  PRINT            # print the result
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>3  HALT
 </code></pre></div>
 <p><strong>double instructions:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>0  LOAD_NAME &quot;n&quot;    # push the parameter
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>1  LOAD_CONST 0     # push 2
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>2  MULTIPLY         # n * 2
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>3  RETURN           # hand back the result
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>0  LOAD_NAME &quot;n&quot;    # push the parameter
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>1  LOAD_CONST 0     # push 2
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>2  MULTIPLY         # n * 2
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>3  RETURN           # hand back the result
 </code></pre></div>
 <p>The VM runs it like this:</p>
 <ol>

@@ -1272,6 +1272,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../classes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Classes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../modules/" class="md-nav__link">
         
   
@@ -1810,7 +1838,12 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <tr>
 <td><code>CALL_METHOD</code></td>
 <td>name</td>
-<td>Call a method on the top-of-stack value</td>
+<td>Call a built-in method on the top-of-stack value</td>
+</tr>
+<tr>
+<td><code>CALL_INSTANCE_METHOD</code></td>
+<td>name:count</td>
+<td>Call a class method with <em>count</em> extra args</td>
 </tr>
 <tr>
 <td><code>SLICE_GET</code></td>
@@ -1846,6 +1879,16 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <td><code>STORE_CELL</code></td>
 <td>name</td>
 <td>Pop and store into a captured variable</td>
+</tr>
+<tr>
+<td><code>UNPACK_SEQUENCE</code></td>
+<td>count</td>
+<td>Pop a list, push each of its <em>count</em> elements</td>
+</tr>
+<tr>
+<td><code>CHECK_TYPE</code></td>
+<td>type</td>
+<td>Pop a value and error if it doesn't match the type</td>
 </tr>
 <tr>
 <td><code>GET_FIELD</code></td>
