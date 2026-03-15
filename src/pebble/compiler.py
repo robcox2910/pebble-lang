@@ -19,6 +19,7 @@ from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
+    CapturePattern,
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
@@ -33,7 +34,10 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    LiteralPattern,
+    MatchStatement,
     MethodCall,
+    OrPattern,
     PrintStatement,
     Program,
     Reassignment,
@@ -46,6 +50,7 @@ from pebble.ast_nodes import (
     TryCatch,
     UnaryOp,
     WhileLoop,
+    WildcardPattern,
 )
 from pebble.builtins import METHOD_ARITIES, METHOD_NONE
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
@@ -119,6 +124,7 @@ class Compiler:
         self._functions: dict[str, CodeObject] = {}
         self._current = self._main
         self._loop_var_counter = 0
+        self._match_var_counter = 0
         self._loop_contexts: list[_LoopContext] = []
         self._try_depth: int = 0
         self._cell_vars = cell_vars or {}
@@ -200,7 +206,7 @@ class Compiler:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _compile_statement(self, stmt: Statement) -> None:  # noqa: PLR0912
+    def _compile_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912
         """Dispatch to the appropriate compilation method."""
         match stmt:
             case Assignment():
@@ -231,6 +237,8 @@ class Compiler:
                 self._compile_try(stmt)
             case ThrowStatement():
                 self._compile_throw(stmt)
+            case MatchStatement():
+                self._compile_match(stmt)
             case _:
                 # Expression statement (e.g. bare function call)
                 self._compile_expression(stmt)  # type: ignore[arg-type]
@@ -426,11 +434,13 @@ class Compiler:
         fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
         fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
         previous = self._current
-        previous_counter = self._loop_var_counter
+        previous_loop_counter = self._loop_var_counter
+        previous_match_counter = self._match_var_counter
         previous_loop_contexts = self._loop_contexts
         previous_try_depth = self._try_depth
         self._current = fn_code
         self._loop_var_counter = 0
+        self._match_var_counter = 0
         self._loop_contexts = []
         self._try_depth = 0
 
@@ -444,7 +454,8 @@ class Compiler:
 
         self._functions[node.name] = fn_code
         self._current = previous
-        self._loop_var_counter = previous_counter
+        self._loop_var_counter = previous_loop_counter
+        self._match_var_counter = previous_match_counter
         self._loop_contexts = previous_loop_contexts
         self._try_depth = previous_try_depth
 
@@ -521,6 +532,65 @@ class Compiler:
         """Compile ``throw expr`` — evaluate expression and emit THROW."""
         self._compile_expression(node.value)
         self._emit(OpCode.THROW, location=node.location)
+
+    def _compile_match(self, node: MatchStatement) -> None:
+        """Compile ``match value { case pattern { body } ... }``."""
+        loc = node.location
+        match_var = f"$match_{self._match_var_counter}"
+        self._match_var_counter += 1
+
+        # Evaluate value and store in hidden variable
+        self._compile_expression(node.value)
+        self._emit(OpCode.STORE_NAME, match_var, location=loc)
+
+        end_jumps: list[int] = []
+
+        for case in node.cases:
+            pattern = case.pattern
+
+            match pattern:
+                case LiteralPattern():
+                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                    self._emit_constant(pattern.value, location=loc)
+                    self._emit(OpCode.EQUAL, location=loc)
+                    skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+                    for stmt in case.body:
+                        self._compile_statement(stmt)
+                    end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
+                    self._patch_jump(skip)
+
+                case OrPattern():
+                    # First alternative
+                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                    self._emit_constant(pattern.patterns[0].value, location=loc)
+                    self._emit(OpCode.EQUAL, location=loc)
+                    # Remaining alternatives: OR-chain
+                    for alt in pattern.patterns[1:]:
+                        self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                        self._emit_constant(alt.value, location=loc)
+                        self._emit(OpCode.EQUAL, location=loc)
+                        self._emit(OpCode.OR, location=loc)
+                    skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+                    for stmt in case.body:
+                        self._compile_statement(stmt)
+                    end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
+                    self._patch_jump(skip)
+
+                case CapturePattern():
+                    # Bind value to capture variable, then body (always last)
+                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                    self._emit(OpCode.STORE_NAME, pattern.name, location=loc)
+                    for stmt in case.body:
+                        self._compile_statement(stmt)
+
+                case WildcardPattern():
+                    # Always matches, no test needed (always last)
+                    for stmt in case.body:
+                        self._compile_statement(stmt)
+
+        # Backpatch all end jumps
+        for jump_idx in end_jumps:
+            self._patch_jump(jump_idx)
 
     # -- Expression dispatch --------------------------------------------------
 
@@ -631,11 +701,13 @@ class Compiler:
         fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
         fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
         previous = self._current
-        previous_counter = self._loop_var_counter
+        previous_loop_counter = self._loop_var_counter
+        previous_match_counter = self._match_var_counter
         previous_loop_contexts = self._loop_contexts
         previous_try_depth = self._try_depth
         self._current = fn_code
         self._loop_var_counter = 0
+        self._match_var_counter = 0
         self._loop_contexts = []
         self._try_depth = 0
 
@@ -648,7 +720,8 @@ class Compiler:
 
         self._functions[node.name] = fn_code
         self._current = previous
-        self._loop_var_counter = previous_counter
+        self._loop_var_counter = previous_loop_counter
+        self._match_var_counter = previous_match_counter
         self._loop_contexts = previous_loop_contexts
         self._try_depth = previous_try_depth
 

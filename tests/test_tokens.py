@@ -12,8 +12,8 @@ FIRST_LINE = 1
 FIRST_COLUMN = 1
 SECOND_LINE = 2
 FIFTH_COLUMN = 5
-KEYWORD_COUNT = 20
-TOTAL_TOKEN_KINDS = 58
+KEYWORD_COUNT = 22
+TOTAL_TOKEN_KINDS = 60
 
 
 class TestTokenKind:
@@ -102,6 +102,14 @@ class TestTokenKind:
     def test_keyword_throw(self) -> None:
         """Verify THROW keyword token kind exists."""
         assert TokenKind.THROW == "THROW"
+
+    def test_keyword_match(self) -> None:
+        """Verify MATCH keyword token kind exists."""
+        assert TokenKind.MATCH == "MATCH"
+
+    def test_keyword_case(self) -> None:
+        """Verify CASE keyword token kind exists."""
+        assert TokenKind.CASE == "CASE"
 
     def test_keyword_false(self) -> None:
         """Verify FALSE keyword token kind exists."""
@@ -376,6 +384,14 @@ class TestKeywords:
     def test_throw_keyword(self) -> None:
         """Verify 'throw' maps to TokenKind.THROW."""
         assert KEYWORDS["throw"] == TokenKind.THROW
+
+    def test_match_keyword(self) -> None:
+        """Verify 'match' maps to TokenKind.MATCH."""
+        assert KEYWORDS["match"] == TokenKind.MATCH
+
+    def test_case_keyword(self) -> None:
+        """Verify 'case' maps to TokenKind.CASE."""
+        assert KEYWORDS["case"] == TokenKind.CASE
 
     def test_non_keyword_returns_none(self) -> None:
         """Verify a non-keyword string is not in the mapping."""

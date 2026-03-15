@@ -40,6 +40,8 @@ class TokenKind(StrEnum):
     CATCH = "CATCH"
     FINALLY = "FINALLY"
     THROW = "THROW"
+    MATCH = "MATCH"
+    CASE = "CASE"
     TRUE = "TRUE"
     FALSE = "FALSE"
 
@@ -134,6 +136,8 @@ KEYWORDS: dict[str, TokenKind] = {
     "catch": TokenKind.CATCH,
     "finally": TokenKind.FINALLY,
     "throw": TokenKind.THROW,
+    "match": TokenKind.MATCH,
+    "case": TokenKind.CASE,
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
     "and": TokenKind.AND,

@@ -291,6 +291,63 @@ class ThrowStatement:
     location: SourceLocation
 
 
+# ---------------------------------------------------------------------------
+# Pattern nodes (for match/case)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class LiteralPattern:
+    """A pattern that matches an exact literal value."""
+
+    value: int | float | str | bool
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class WildcardPattern:
+    """A pattern that matches anything without binding."""
+
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class CapturePattern:
+    """A pattern that matches anything and binds the value to a name."""
+
+    name: str
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class OrPattern:
+    """A pattern that matches any of several literal alternatives."""
+
+    patterns: list[LiteralPattern]
+    location: SourceLocation
+
+
+Pattern = LiteralPattern | WildcardPattern | CapturePattern | OrPattern
+
+
+@dataclass(frozen=True)
+class MatchCase:
+    """A single ``case`` arm inside a ``match`` statement."""
+
+    pattern: Pattern
+    body: list[Statement]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class MatchStatement:
+    """A ``match value { case ... }`` statement."""
+
+    value: Expression
+    cases: list[MatchCase]
+    location: SourceLocation
+
+
 @dataclass(frozen=True)
 class Program:
     """The root AST node containing the top-level statements."""
@@ -335,4 +392,5 @@ Statement = (
     | ContinueStatement
     | TryCatch
     | ThrowStatement
+    | MatchStatement
 )

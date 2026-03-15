@@ -68,6 +68,8 @@ them as variable names because they already mean something:
 | `AND` | `and` | Logical "both must be true" |
 | `OR` | `or` | Logical "at least one must be true" |
 | `NOT` | `not` | Logical "flip true to false" |
+| `MATCH` | `match` | Start a pattern-matching block |
+| `CASE` | `case` | Define one arm of a match block |
 
 ### Operators -- The Action Symbols
 
