@@ -29,6 +29,7 @@ from pebble.ast_nodes import (
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
+    MethodCall,
     PrintStatement,
     Program,
     Reassignment,
@@ -308,6 +309,11 @@ class Parser:
                 left = self._parse_index_access(left)
                 continue
 
+            # Postfix method call: expr.method(args)
+            if self._peek().kind == TokenKind.DOT:
+                left = self._parse_method_call(left)
+                continue
+
             if self._peek().kind not in _INFIX_PRECEDENCE:
                 break
             prec = _INFIX_PRECEDENCE[self._peek().kind]
@@ -474,6 +480,25 @@ class Parser:
         # No colon → plain index access
         self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after index")
         return IndexAccess(target=target, index=first, location=bracket_token.location)
+
+    def _parse_method_call(self, target: Expression) -> MethodCall:
+        """Parse a method call: ``target.method(args)``."""
+        dot_token = self._advance()  # consume '.'
+        method_token = self._expect(TokenKind.IDENTIFIER, "Expected method name after '.'")
+        self._expect(TokenKind.LEFT_PAREN, "Expected '(' after method name")
+        arguments: list[Expression] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
+            arguments.append(self._parse_precedence(min_precedence=0))
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                arguments.append(self._parse_precedence(min_precedence=0))
+        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after method arguments")
+        return MethodCall(
+            target=target,
+            method=method_token.value,
+            arguments=arguments,
+            location=dot_token.location,
+        )
 
     def _parse_slice(
         self,

@@ -9,7 +9,14 @@ from io import StringIO
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.builtins import BUILTIN_ARITIES, BUILTINS, format_value
+from pebble.builtins import (
+    BUILTIN_ARITIES,
+    BUILTINS,
+    LIST_METHODS,
+    METHOD_ARITIES,
+    STRING_METHODS,
+    format_value,
+)
 from pebble.compiler import Compiler
 from pebble.errors import PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
@@ -20,6 +27,9 @@ from pebble.vm import VirtualMachine
 
 RUNTIME_BUILTIN_COUNT = 8
 TOTAL_BUILTIN_COUNT = 13
+STRING_METHOD_COUNT = 12
+LIST_METHOD_COUNT = 5
+METHOD_ARITY_COUNT = 16
 
 
 # -- Helpers ------------------------------------------------------------------
@@ -54,6 +64,18 @@ class TestBuiltinsModule:
         """Every runtime builtin appears in BUILTIN_ARITIES."""
         for name in BUILTINS:
             assert name in BUILTIN_ARITIES
+
+    def test_string_method_count(self) -> None:
+        """There are 12 string methods."""
+        assert len(STRING_METHODS) == STRING_METHOD_COUNT
+
+    def test_list_method_count(self) -> None:
+        """There are 5 list methods."""
+        assert len(LIST_METHODS) == LIST_METHOD_COUNT
+
+    def test_method_arity_count(self) -> None:
+        """METHOD_ARITIES covers all 16 method names."""
+        assert len(METHOD_ARITIES) == METHOD_ARITY_COUNT
 
 
 class TestFormatValue:

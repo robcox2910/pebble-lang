@@ -206,3 +206,248 @@ BUILTIN_ARITIES: dict[str, Arity] = {
     "reduce": _REDUCE_ARITY,
 }
 """Map of ALL builtin names (runtime + compile-time) to arity."""
+
+
+METHOD_NONE = "$METHOD_NONE"
+"""Sentinel value used to pad variable-arity method calls."""
+
+
+# -- Method arities (for analyzer validation) ---------------------------------
+
+METHOD_ARITIES: dict[str, Arity] = {
+    # String methods (user-visible arg count, excluding target)
+    "upper": 0,
+    "lower": 0,
+    "strip": 0,
+    "split": (0, 1),
+    "replace": 2,
+    "contains": 1,
+    "starts_with": 1,
+    "ends_with": 1,
+    "find": 1,
+    "count": 1,
+    "join": 1,
+    "repeat": 1,
+    # List methods
+    "push": 1,
+    "pop": 0,
+    "reverse": 0,
+    "sort": 0,
+}
+"""Map of method names to their user-visible argument count (excluding target)."""
+
+
+# -- Method handler type -------------------------------------------------------
+
+type MethodHandler = Callable[[Value, list[Value]], Value]
+"""Handle a method call: take (target, filtered_args), return result."""
+
+
+# -- String method handlers ----------------------------------------------------
+
+
+def _method_upper(target: Value, _args: list[Value]) -> Value:
+    """Convert a string to uppercase."""
+    assert isinstance(target, str)  # noqa: S101
+    return target.upper()
+
+
+def _method_lower(target: Value, _args: list[Value]) -> Value:
+    """Convert a string to lowercase."""
+    assert isinstance(target, str)  # noqa: S101
+    return target.lower()
+
+
+def _method_strip(target: Value, _args: list[Value]) -> Value:
+    """Remove leading and trailing whitespace."""
+    assert isinstance(target, str)  # noqa: S101
+    return target.strip()
+
+
+def _method_split(target: Value, args: list[Value]) -> Value:
+    """Split a string into a list of substrings."""
+    assert isinstance(target, str)  # noqa: S101
+    if not args:
+        result: list[Value] = list(target.split())
+        return result
+    sep = args[0]
+    if not isinstance(sep, str):
+        type_name = type(sep).__name__
+        msg = f"split() separator must be a string, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    if sep == "":
+        msg = "split() separator cannot be empty"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    parts: list[Value] = list(target.split(sep))
+    return parts
+
+
+def _method_replace(target: Value, args: list[Value]) -> Value:
+    """Replace all occurrences of a substring."""
+    assert isinstance(target, str)  # noqa: S101
+    old, new = args[0], args[1]
+    if not isinstance(old, str) or not isinstance(new, str):
+        msg = "replace() arguments must be strings"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target.replace(old, new)
+
+
+def _method_str_contains(target: Value, args: list[Value]) -> Value:
+    """Check if a string contains a substring."""
+    assert isinstance(target, str)  # noqa: S101
+    sub = args[0]
+    if not isinstance(sub, str):
+        type_name = type(sub).__name__
+        msg = f"contains() argument must be a string, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return sub in target
+
+
+def _method_starts_with(target: Value, args: list[Value]) -> Value:
+    """Check if a string starts with a prefix."""
+    assert isinstance(target, str)  # noqa: S101
+    prefix = args[0]
+    if not isinstance(prefix, str):
+        type_name = type(prefix).__name__
+        msg = f"starts_with() argument must be a string, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target.startswith(prefix)
+
+
+def _method_ends_with(target: Value, args: list[Value]) -> Value:
+    """Check if a string ends with a suffix."""
+    assert isinstance(target, str)  # noqa: S101
+    suffix = args[0]
+    if not isinstance(suffix, str):
+        type_name = type(suffix).__name__
+        msg = f"ends_with() argument must be a string, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target.endswith(suffix)
+
+
+def _method_find(target: Value, args: list[Value]) -> Value:
+    """Find the index of a substring, or -1 if not found."""
+    assert isinstance(target, str)  # noqa: S101
+    sub = args[0]
+    if not isinstance(sub, str):
+        type_name = type(sub).__name__
+        msg = f"find() argument must be a string, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target.find(sub)
+
+
+def _method_count(target: Value, args: list[Value]) -> Value:
+    """Count non-overlapping occurrences of a substring."""
+    assert isinstance(target, str)  # noqa: S101
+    sub = args[0]
+    if not isinstance(sub, str):
+        type_name = type(sub).__name__
+        msg = f"count() argument must be a string, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target.count(sub)
+
+
+def _method_join(target: Value, args: list[Value]) -> Value:
+    """Join a list of strings with the target as separator."""
+    assert isinstance(target, str)  # noqa: S101
+    items = args[0]
+    if not isinstance(items, list):
+        type_name = type(items).__name__
+        msg = f"join() argument must be a list, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    parts: list[str] = []
+    for item in items:
+        if not isinstance(item, str):
+            type_name = type(item).__name__
+            msg = f"join() list must contain strings, got {type_name}"
+            raise PebbleRuntimeError(msg, line=0, column=0)
+        parts.append(item)
+    return target.join(parts)
+
+
+def _method_repeat(target: Value, args: list[Value]) -> Value:
+    """Repeat a string n times."""
+    assert isinstance(target, str)  # noqa: S101
+    n = args[0]
+    if not isinstance(n, int) or isinstance(n, bool):
+        type_name = type(n).__name__
+        msg = f"repeat() argument must be an integer, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    if n < 0:
+        msg = "repeat() count must not be negative"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target * n
+
+
+# -- List method handlers ------------------------------------------------------
+
+
+def _method_list_push(target: Value, args: list[Value]) -> Value:
+    """Append a value to the list. Return 0."""
+    assert isinstance(target, list)  # noqa: S101
+    target.append(args[0])
+    return 0
+
+
+def _method_list_pop(target: Value, _args: list[Value]) -> Value:
+    """Remove and return the last element."""
+    assert isinstance(target, list)  # noqa: S101
+    if not target:
+        msg = "Cannot pop from an empty list"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target.pop()
+
+
+def _method_list_contains(target: Value, args: list[Value]) -> Value:
+    """Check if a list contains a value."""
+    assert isinstance(target, list)  # noqa: S101
+    return args[0] in target
+
+
+def _method_list_reverse(target: Value, _args: list[Value]) -> Value:
+    """Reverse the list in place. Return 0."""
+    assert isinstance(target, list)  # noqa: S101
+    target.reverse()
+    return 0
+
+
+def _method_list_sort(target: Value, _args: list[Value]) -> Value:
+    """Sort the list in place. Return 0."""
+    assert isinstance(target, list)  # noqa: S101
+    # Check for mixed types — only allow homogeneous int or string lists
+    if target:
+        first_type = type(target[0])
+        for item in target[1:]:
+            if type(item) is not first_type:
+                msg = "sort() requires all elements to be the same type"
+                raise PebbleRuntimeError(msg, line=0, column=0)
+    target.sort()  # type: ignore[type-var]
+    return 0
+
+
+# -- Method registries ---------------------------------------------------------
+
+STRING_METHODS: dict[str, tuple[int, MethodHandler]] = {
+    "upper": (0, _method_upper),
+    "lower": (0, _method_lower),
+    "strip": (0, _method_strip),
+    "split": (1, _method_split),
+    "replace": (2, _method_replace),
+    "contains": (1, _method_str_contains),
+    "starts_with": (1, _method_starts_with),
+    "ends_with": (1, _method_ends_with),
+    "find": (1, _method_find),
+    "count": (1, _method_count),
+    "join": (1, _method_join),
+    "repeat": (1, _method_repeat),
+}
+"""Map of string method names to ``(max_arity, handler)`` pairs."""
+
+LIST_METHODS: dict[str, tuple[int, MethodHandler]] = {
+    "push": (1, _method_list_push),
+    "pop": (0, _method_list_pop),
+    "contains": (1, _method_list_contains),
+    "reverse": (0, _method_list_reverse),
+    "sort": (0, _method_list_sort),
+}
+"""Map of list method names to ``(max_arity, handler)`` pairs."""

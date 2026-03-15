@@ -174,6 +174,80 @@ the stack, then emits a `SLICE_GET` instruction. The VM uses Python's built-in
 slice machinery to do the heavy lifting — handling negative indices, clamping,
 and stepping all in one go.
 
+## List Methods
+
+Lists have their own set of **methods** you can call using dot notation —
+just like string methods.
+
+### push()
+
+Add a value to the end of the list:
+
+```pebble
+let xs = [1, 2, 3]
+xs.push(4)
+print(xs)   # prints: [1, 2, 3, 4]
+```
+
+!!! note
+    The functional form `push(xs, 4)` still works too.
+
+### pop()
+
+Remove and return the last element:
+
+```pebble
+let xs = [1, 2, 3]
+let last = xs.pop()
+print(last)   # prints: 3
+print(xs)     # prints: [1, 2]
+```
+
+Popping from an empty list is an error.
+
+### contains()
+
+Check if a value is in the list:
+
+```pebble
+let xs = [1, 2, 3]
+print(xs.contains(2))    # prints: true
+print(xs.contains(99))   # prints: false
+```
+
+### reverse()
+
+Reverse the list in place:
+
+```pebble
+let xs = [1, 2, 3]
+xs.reverse()
+print(xs)   # prints: [3, 2, 1]
+```
+
+### sort()
+
+Sort the list in place:
+
+```pebble
+let xs = [3, 1, 2]
+xs.sort()
+print(xs)   # prints: [1, 2, 3]
+```
+
+Sorting works on lists of all integers or all strings. Mixing types is an
+error.
+
+### Quick Reference
+
+| Method          | Args | Returns | Description                 |
+| --------------- | ---- | ------- | --------------------------- |
+| `push(value)`   | 1    | 0       | Append to end               |
+| `pop()`         | 0    | value   | Remove and return last      |
+| `contains(val)` | 1    | bool    | Is `val` in the list?       |
+| `reverse()`     | 0    | 0       | Reverse in place            |
+| `sort()`        | 0    | 0       | Sort in place               |
+
 ## Changing an Element
 
 Assign to a specific position to replace the value in that box:

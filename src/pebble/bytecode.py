@@ -63,6 +63,7 @@ class OpCode(StrEnum):
 
     # -- Functions ------------------------------------------------------------
     CALL = "CALL"
+    CALL_METHOD = "CALL_METHOD"
     RETURN = "RETURN"
 
     # -- Closures -------------------------------------------------------------
