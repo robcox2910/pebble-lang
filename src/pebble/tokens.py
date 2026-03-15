@@ -34,6 +34,10 @@ class TokenKind(StrEnum):
     RETURN = "RETURN"
     BREAK = "BREAK"
     CONTINUE = "CONTINUE"
+    TRY = "TRY"
+    CATCH = "CATCH"
+    FINALLY = "FINALLY"
+    THROW = "THROW"
     TRUE = "TRUE"
     FALSE = "FALSE"
 
@@ -113,6 +117,10 @@ KEYWORDS: dict[str, TokenKind] = {
     "return": TokenKind.RETURN,
     "break": TokenKind.BREAK,
     "continue": TokenKind.CONTINUE,
+    "try": TokenKind.TRY,
+    "catch": TokenKind.CATCH,
+    "finally": TokenKind.FINALLY,
+    "throw": TokenKind.THROW,
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
     "and": TokenKind.AND,

@@ -40,6 +40,8 @@ from pebble.ast_nodes import (
     Statement,
     StringInterpolation,
     StringLiteral,
+    ThrowStatement,
+    TryCatch,
     UnaryOp,
     WhileLoop,
 )
@@ -195,7 +197,7 @@ class SemanticAnalyzer:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _visit_statement(self, stmt: Statement) -> None:
+    def _visit_statement(self, stmt: Statement) -> None:  # noqa: PLR0912
         """Dispatch to the appropriate visitor based on statement type."""
         match stmt:
             case Assignment():
@@ -220,6 +222,10 @@ class SemanticAnalyzer:
                 self._visit_break(stmt)
             case ContinueStatement():
                 self._visit_continue(stmt)
+            case TryCatch():
+                self._visit_try(stmt)
+            case ThrowStatement():
+                self._visit_throw(stmt)
             case _:
                 # Expression statements (e.g. bare function calls)
                 self._visit_expression(stmt)  # type: ignore[arg-type]
@@ -335,6 +341,22 @@ class SemanticAnalyzer:
         if self._loop_depth == 0:
             msg = "'continue' outside loop"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+    def _visit_try(self, node: TryCatch) -> None:
+        """Visit a ``try/catch/finally`` block — scope catch variable."""
+        self._visit_block(node.body)
+        self._push_scope()
+        if node.catch_variable is not None:
+            self._scope.declare_variable(node.catch_variable, node.location)
+        for stmt in node.catch_body:
+            self._visit_statement(stmt)
+        self._pop_scope()
+        if node.finally_body is not None:
+            self._visit_block(node.finally_body)
+
+    def _visit_throw(self, node: ThrowStatement) -> None:
+        """Visit a ``throw`` statement — validate the expression."""
+        self._visit_expression(node.value)
 
     # -- Block helper ---------------------------------------------------------
 

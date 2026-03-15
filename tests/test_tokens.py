@@ -12,8 +12,8 @@ FIRST_LINE = 1
 FIRST_COLUMN = 1
 SECOND_LINE = 2
 FIFTH_COLUMN = 5
-KEYWORD_COUNT = 15
-TOTAL_TOKEN_KINDS = 44
+KEYWORD_COUNT = 19
+TOTAL_TOKEN_KINDS = 48
 
 
 class TestTokenKind:
@@ -82,6 +82,22 @@ class TestTokenKind:
     def test_keyword_continue(self) -> None:
         """Verify CONTINUE keyword token kind exists."""
         assert TokenKind.CONTINUE == "CONTINUE"
+
+    def test_keyword_try(self) -> None:
+        """Verify TRY keyword token kind exists."""
+        assert TokenKind.TRY == "TRY"
+
+    def test_keyword_catch(self) -> None:
+        """Verify CATCH keyword token kind exists."""
+        assert TokenKind.CATCH == "CATCH"
+
+    def test_keyword_finally(self) -> None:
+        """Verify FINALLY keyword token kind exists."""
+        assert TokenKind.FINALLY == "FINALLY"
+
+    def test_keyword_throw(self) -> None:
+        """Verify THROW keyword token kind exists."""
+        assert TokenKind.THROW == "THROW"
 
     def test_keyword_false(self) -> None:
         """Verify FALSE keyword token kind exists."""
@@ -336,6 +352,22 @@ class TestKeywords:
     def test_continue_keyword(self) -> None:
         """Verify 'continue' maps to TokenKind.CONTINUE."""
         assert KEYWORDS["continue"] == TokenKind.CONTINUE
+
+    def test_try_keyword(self) -> None:
+        """Verify 'try' maps to TokenKind.TRY."""
+        assert KEYWORDS["try"] == TokenKind.TRY
+
+    def test_catch_keyword(self) -> None:
+        """Verify 'catch' maps to TokenKind.CATCH."""
+        assert KEYWORDS["catch"] == TokenKind.CATCH
+
+    def test_finally_keyword(self) -> None:
+        """Verify 'finally' maps to TokenKind.FINALLY."""
+        assert KEYWORDS["finally"] == TokenKind.FINALLY
+
+    def test_throw_keyword(self) -> None:
+        """Verify 'throw' maps to TokenKind.THROW."""
+        assert KEYWORDS["throw"] == TokenKind.THROW
 
     def test_non_keyword_returns_none(self) -> None:
         """Verify a non-keyword string is not in the mapping."""
