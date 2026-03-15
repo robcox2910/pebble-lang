@@ -66,4 +66,5 @@ nav:
       - List Comprehensions: concepts/list-comprehensions.md
       - Tuple Unpacking: concepts/tuple-unpacking.md
       - Structs: concepts/structs.md
+      - Modules: concepts/modules.md
       - REPL: concepts/repl.md

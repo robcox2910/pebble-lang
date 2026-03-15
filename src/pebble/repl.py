@@ -15,6 +15,7 @@ Usage::
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pebble.analyzer import SemanticAnalyzer
@@ -23,6 +24,7 @@ from pebble.compiler import Compiler
 from pebble.errors import PebbleError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
+from pebble.resolver import ModuleResolver
 from pebble.vm import VirtualMachine
 
 if TYPE_CHECKING:
@@ -63,8 +65,13 @@ class Repl:
         if not source.strip():
             return
 
+        self._analyzer.reset_import_barrier()
         tokens = Lexer(source).tokenize()
         program = Parser(tokens).parse()
+
+        resolver = ModuleResolver(base_dir=Path.cwd())
+        resolver.resolve_imports(program, self._analyzer)
+
         analyzed = self._analyzer.analyze(program)
 
         compiled = Compiler(
@@ -73,8 +80,8 @@ class Repl:
         ).compile(analyzed)
 
         # Merge new functions and structs with previously-defined ones
-        all_functions = self._functions | compiled.functions
-        all_structs = self._structs | compiled.structs
+        all_functions = self._functions | resolver.merged_functions | compiled.functions
+        all_structs = self._structs | resolver.merged_structs | compiled.structs
         full_program = CompiledProgram(
             main=compiled.main, functions=all_functions, structs=all_structs
         )
@@ -84,7 +91,9 @@ class Repl:
 
         # Success — persist state
         self._variables = new_vars
+        self._functions.update(resolver.merged_functions)
         self._functions.update(compiled.functions)
+        self._structs.update(resolver.merged_structs)
         self._structs.update(compiled.structs)
 
 

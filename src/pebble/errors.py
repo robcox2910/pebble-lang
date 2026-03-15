@@ -49,6 +49,10 @@ class PebbleRuntimeError(PebbleError):
     """Raise when the virtual machine encounters an execution error."""
 
 
+class PebbleImportError(PebbleError):
+    """Raise when an import fails (file not found, circular, name missing)."""
+
+
 # ---------------------------------------------------------------------------
 # Error formatting
 # ---------------------------------------------------------------------------

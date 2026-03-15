@@ -28,11 +28,13 @@ from pebble.ast_nodes import (
     FieldAssignment,
     FloatLiteral,
     ForLoop,
+    FromImportStatement,
     FunctionCall,
     FunctionDef,
     FunctionExpression,
     Identifier,
     IfStatement,
+    ImportStatement,
     IndexAccess,
     IndexAssignment,
     IntegerLiteral,
@@ -189,6 +191,7 @@ class SemanticAnalyzer:
             self._scope.functions[name] = (arity, _BUILTIN_LOCATION)
         self._in_function = False
         self._loop_depth = 0
+        self._past_imports = False
         self._cell_vars: dict[str, set[str]] = {}
         self._free_vars: dict[str, set[str]] = {}
 
@@ -225,8 +228,17 @@ class SemanticAnalyzer:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _visit_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912
+    def _visit_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
         """Dispatch to the appropriate visitor based on statement type."""
+        # -- Import ordering enforcement --
+        if isinstance(stmt, ImportStatement | FromImportStatement):
+            if self._past_imports:
+                loc = stmt.location
+                msg = "Imports must appear at the top of the file"
+                raise SemanticError(msg, line=loc.line, column=loc.column)
+        else:
+            self._past_imports = True
+
         match stmt:
             case Assignment():
                 self._visit_assignment(stmt)
@@ -268,6 +280,8 @@ class SemanticAnalyzer:
                 self._visit_struct_def(stmt)
             case FieldAssignment():
                 self._visit_field_assignment(stmt)
+            case ImportStatement() | FromImportStatement():
+                pass  # Names registered by resolver before analyze()
             case _:
                 # Expression statements (e.g. bare function calls)
                 self._visit_expression(stmt)  # type: ignore[arg-type]
@@ -581,6 +595,24 @@ class SemanticAnalyzer:
         """Visit a field assignment — validate target and value expressions."""
         self._visit_expression(node.target)
         self._visit_expression(node.value)
+
+    # -- Import registration (called by resolver before analyze()) ----------
+
+    def register_imported_function(self, name: str, arity: int, location: SourceLocation) -> None:
+        """Register an imported function in the global scope."""
+        self._scope.declare_function(name, arity, location)
+        self._scope.variables[name] = location
+
+    def register_imported_struct(
+        self, name: str, field_count: int, location: SourceLocation
+    ) -> None:
+        """Register an imported struct in the global scope."""
+        self._scope.declare_function(name, field_count, location)
+        self._scope.variables[name] = location
+
+    def reset_import_barrier(self) -> None:
+        """Reset the import-ordering flag (for REPL re-entry)."""
+        self._past_imports = False
 
     def _visit_method_call(self, node: MethodCall) -> None:
         """Visit a method call — validate method name and argument count."""

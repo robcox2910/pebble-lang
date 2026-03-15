@@ -43,6 +43,8 @@ class TokenKind(StrEnum):
     MATCH = "MATCH"
     CASE = "CASE"
     STRUCT = "STRUCT"
+    IMPORT = "IMPORT"
+    FROM = "FROM"
     TRUE = "TRUE"
     FALSE = "FALSE"
 
@@ -140,6 +142,8 @@ KEYWORDS: dict[str, TokenKind] = {
     "match": TokenKind.MATCH,
     "case": TokenKind.CASE,
     "struct": TokenKind.STRUCT,
+    "import": TokenKind.IMPORT,
+    "from": TokenKind.FROM,
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
     "and": TokenKind.AND,
