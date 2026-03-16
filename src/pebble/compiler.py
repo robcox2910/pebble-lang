@@ -43,6 +43,7 @@ from pebble.ast_nodes import (
     IntegerLiteral,
     ListComprehension,
     LiteralPattern,
+    MatchCase,
     MatchStatement,
     MethodCall,
     NullLiteral,
@@ -105,17 +106,17 @@ _UNARY_OPS: dict[str, OpCode] = {
     "~": OpCode.BIT_NOT,
 }
 
+# Maximum number of args for a "simple" range (no step parameter).
+_MAX_SIMPLE_RANGE_ARGS = 2
+_TWO_ARG_RANGE = 2
+
 
 @dataclass
 class _LoopContext:
     """Track pending break/continue jump patches for the current loop."""
 
-    break_patches: list[int] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
-    continue_patches: list[int] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
+    break_patches: list[int] = field(default_factory=lambda: [])
+    continue_patches: list[int] = field(default_factory=lambda: [])
     try_depth_at_entry: int = 0
 
 
@@ -139,6 +140,7 @@ class Compiler:
         structs: dict[str, list[str]] | None = None,
         class_methods: dict[str, list[str]] | None = None,
         functions: dict[str, CodeObject] | None = None,
+        variable_arity_functions: dict[str, int] | None = None,
     ) -> None:
         """Create a compiler with an empty main CodeObject."""
         self._main = CodeObject(name="<main>")
@@ -158,6 +160,9 @@ class Compiler:
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
         self._function_defaults: dict[str, list[Expression | None]] = {}
+        self._variable_arity_functions: dict[str, int] = (
+            dict(variable_arity_functions) if variable_arity_functions else {}
+        )
 
     def _is_cell_var(self, name: str) -> bool:
         """Return True if *name* is a cell or free variable of the current function."""
@@ -198,7 +203,7 @@ class Compiler:
 
     def _emit_constant(
         self,
-        value: int | float | str | bool | None,  # noqa: FBT001
+        value: int | float | str | bool | None,
         *,
         location: SourceLocation | None = None,
     ) -> None:
@@ -243,8 +248,44 @@ class Compiler:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _compile_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
+    def _compile_statement(self, stmt: Statement) -> None:
         """Dispatch to the appropriate compilation method."""
+        match stmt:
+            case Assignment() | UnpackAssignment() | ConstAssignment():
+                self._compile_variable_statement(stmt)
+            case UnpackConstAssignment() | Reassignment() | UnpackReassignment():
+                self._compile_variable_statement(stmt)
+            case PrintStatement():
+                self._compile_print(stmt)
+            case IfStatement() | WhileLoop() | ForLoop():
+                self._compile_control_flow(stmt)
+            case FunctionDef() | ReturnStatement() | YieldStatement():
+                self._compile_callable_statement(stmt)
+            case BreakStatement() | ContinueStatement():
+                self._compile_loop_control(stmt)
+            case IndexAssignment() | FieldAssignment():
+                self._compile_compound_assignment(stmt)
+            case TryCatch() | ThrowStatement() | MatchStatement():
+                self._compile_advanced_statement(stmt)
+            case StructDef() | ClassDef() | EnumDef():
+                self._compile_type_definition(stmt)
+            case ImportStatement() | FromImportStatement():
+                pass  # Resolved at compile time by ModuleResolver
+            case _:
+                # Expression statement (e.g. bare function call)
+                self._compile_expression(stmt)  # type: ignore[arg-type]
+                self._emit(OpCode.POP)
+
+    def _compile_variable_statement(
+        self,
+        stmt: Assignment
+        | UnpackAssignment
+        | ConstAssignment
+        | UnpackConstAssignment
+        | Reassignment
+        | UnpackReassignment,
+    ) -> None:
+        """Compile variable declarations and reassignments."""
         match stmt:
             case Assignment():
                 self._compile_assignment(stmt)
@@ -258,46 +299,71 @@ class Compiler:
                 self._compile_reassignment(stmt)
             case UnpackReassignment():
                 self._compile_unpack_reassignment(stmt)
-            case PrintStatement():
-                self._compile_print(stmt)
+
+    def _compile_control_flow(self, stmt: IfStatement | WhileLoop | ForLoop) -> None:
+        """Compile control-flow statements (if, while, for)."""
+        match stmt:
             case IfStatement():
                 self._compile_if(stmt)
             case WhileLoop():
                 self._compile_while(stmt)
             case ForLoop():
                 self._compile_for(stmt)
+
+    def _compile_callable_statement(
+        self,
+        stmt: FunctionDef | ReturnStatement | YieldStatement,
+    ) -> None:
+        """Compile function-related statements (def, return, yield)."""
+        match stmt:
             case FunctionDef():
                 self._compile_function_def(stmt)
             case ReturnStatement():
                 self._compile_return(stmt)
             case YieldStatement():
                 self._compile_yield(stmt)
-            case IndexAssignment():
-                self._compile_index_assignment(stmt)
+
+    def _compile_loop_control(self, stmt: BreakStatement | ContinueStatement) -> None:
+        """Compile loop-control statements (break, continue)."""
+        match stmt:
             case BreakStatement():
                 self._compile_break(stmt)
             case ContinueStatement():
                 self._compile_continue(stmt)
+
+    def _compile_compound_assignment(
+        self,
+        stmt: IndexAssignment | FieldAssignment,
+    ) -> None:
+        """Compile compound assignment targets (index, field)."""
+        match stmt:
+            case IndexAssignment():
+                self._compile_index_assignment(stmt)
+            case FieldAssignment():
+                self._compile_field_assignment(stmt)
+
+    def _compile_advanced_statement(
+        self,
+        stmt: TryCatch | ThrowStatement | MatchStatement,
+    ) -> None:
+        """Compile advanced statements (try/catch, throw, match)."""
+        match stmt:
             case TryCatch():
                 self._compile_try(stmt)
             case ThrowStatement():
                 self._compile_throw(stmt)
             case MatchStatement():
                 self._compile_match(stmt)
+
+    def _compile_type_definition(self, stmt: StructDef | ClassDef | EnumDef) -> None:
+        """Compile type definitions (struct, class, enum)."""
+        match stmt:
             case StructDef():
                 self._compile_struct_def(stmt)
             case ClassDef():
                 self._compile_class_def(stmt)
             case EnumDef():
                 self._compile_enum_def(stmt)
-            case FieldAssignment():
-                self._compile_field_assignment(stmt)
-            case ImportStatement() | FromImportStatement():
-                pass  # Resolved at compile time by ModuleResolver
-            case _:
-                # Expression statement (e.g. bare function call)
-                self._compile_expression(stmt)  # type: ignore[arg-type]
-                self._emit(OpCode.POP)
 
     # -- Statement compilers --------------------------------------------------
 
@@ -391,7 +457,9 @@ class Compiler:
         self._loop_var_counter += 1
         loc = node.location
 
-        assert isinstance(node.iterable, FunctionCall)  # noqa: S101
+        if not isinstance(node.iterable, FunctionCall):
+            msg = "for-range requires a function call as iterable"
+            raise TypeError(msg)
         args = node.iterable.arguments
         nargs = len(args)
 
@@ -414,7 +482,7 @@ class Compiler:
 
         # -- Increment --------------------------------------------------------
         self._emit_load(node.variable, location=loc)
-        if nargs <= 2:  # noqa: PLR2004
+        if nargs <= _MAX_SIMPLE_RANGE_ARGS:
             self._emit_constant(1, location=loc)
         else:
             self._emit_load(f"$for_step_{counter}", location=loc)
@@ -478,7 +546,7 @@ class Compiler:
             self._emit_store(limit_name, location=loc)
             self._emit_constant(0, location=loc)
             self._emit_store(variable, location=loc)
-        elif nargs == 2:  # noqa: PLR2004
+        elif nargs == _TWO_ARG_RANGE:
             # range(start, stop): limit = stop, start = start
             self._compile_expression(args[1])
             self._emit_store(limit_name, location=loc)
@@ -503,7 +571,7 @@ class Compiler:
         loc: SourceLocation,
     ) -> int:
         """Emit the loop condition and return the exit-jump instruction index."""
-        if nargs <= 2:  # noqa: PLR2004
+        if nargs <= _MAX_SIMPLE_RANGE_ARGS:
             # Simple condition: i < limit
             self._emit_load(variable, location=loc)
             self._emit_load(limit_name, location=loc)
@@ -628,31 +696,40 @@ class Compiler:
         self._emit(OpCode.YIELD, location=node.location)
 
     @staticmethod
-    def _contains_yield(stmts: list[Statement]) -> bool:  # noqa: PLR0911, PLR0912
+    def _contains_yield(stmts: list[Statement]) -> bool:
         """Return True if *stmts* contain a YieldStatement (non-recursing into fn/class)."""
-        for stmt in stmts:
-            if isinstance(stmt, YieldStatement):
-                return True
-            if isinstance(stmt, IfStatement):
-                if Compiler._contains_yield(stmt.body):
-                    return True
-                if stmt.else_body is not None and Compiler._contains_yield(stmt.else_body):
-                    return True
-            elif isinstance(stmt, WhileLoop | ForLoop):
-                if Compiler._contains_yield(stmt.body):
-                    return True
-            elif isinstance(stmt, TryCatch):
-                if Compiler._contains_yield(stmt.body):
-                    return True
-                if Compiler._contains_yield(stmt.catch_body):
-                    return True
-                if stmt.finally_body is not None and Compiler._contains_yield(stmt.finally_body):
-                    return True
-            elif isinstance(stmt, MatchStatement):
-                for case in stmt.cases:
-                    if Compiler._contains_yield(case.body):
-                        return True
-        return False
+        return any(Compiler._stmt_has_yield(stmt) for stmt in stmts)
+
+    @staticmethod
+    def _stmt_has_yield(stmt: Statement) -> bool:
+        """Return True if a single statement contains a YieldStatement."""
+        if isinstance(stmt, YieldStatement):
+            return True
+        nested = Compiler._nested_bodies(stmt)
+        return any(Compiler._contains_yield(body) for body in nested)
+
+    @staticmethod
+    def _nested_bodies(stmt: Statement) -> list[list[Statement]]:
+        """Return the list of nested statement bodies for yield checking.
+
+        Skip function and class definitions because yield in a nested
+        function belongs to that inner function, not the outer one.
+        """
+        if isinstance(stmt, IfStatement):
+            bodies: list[list[Statement]] = [stmt.body]
+            if stmt.else_body is not None:
+                bodies.append(stmt.else_body)
+            return bodies
+        if isinstance(stmt, WhileLoop | ForLoop):
+            return [stmt.body]
+        if isinstance(stmt, TryCatch):
+            bodies = [stmt.body, stmt.catch_body]
+            if stmt.finally_body is not None:
+                bodies.append(stmt.finally_body)
+            return bodies
+        if isinstance(stmt, MatchStatement):
+            return [case.body for case in stmt.cases]
+        return []
 
     def _compile_break(self, node: BreakStatement) -> None:
         """Compile ``break`` — emit POP_TRY for handlers inside the loop, then JUMP."""
@@ -713,7 +790,7 @@ class Compiler:
         self._compile_expression(node.value)
         self._emit(OpCode.THROW, location=node.location)
 
-    def _compile_match(self, node: MatchStatement) -> None:  # noqa: PLR0912
+    def _compile_match(self, node: MatchStatement) -> None:
         """Compile ``match value { case pattern { body } ... }``."""
         loc = node.location
         match_var = f"$match_{self._match_var_counter}"
@@ -725,68 +802,74 @@ class Compiler:
 
         end_jumps: list[int] = []
 
-        for case in node.cases:
-            pattern = case.pattern
-
-            match pattern:
-                case LiteralPattern():
-                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
-                    self._emit_constant(pattern.value, location=loc)
-                    self._emit(OpCode.EQUAL, location=loc)
-                    skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
-                    for stmt in case.body:
-                        self._compile_statement(stmt)
-                    end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
-                    self._patch_jump(skip)
-
-                case OrPattern():
-                    # First alternative
-                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
-                    self._emit_constant(pattern.patterns[0].value, location=loc)
-                    self._emit(OpCode.EQUAL, location=loc)
-                    # Remaining alternatives: OR-chain
-                    for alt in pattern.patterns[1:]:
-                        self._emit(OpCode.LOAD_NAME, match_var, location=loc)
-                        self._emit_constant(alt.value, location=loc)
-                        self._emit(OpCode.EQUAL, location=loc)
-                        self._emit(OpCode.OR, location=loc)
-                    skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
-                    for stmt in case.body:
-                        self._compile_statement(stmt)
-                    end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
-                    self._patch_jump(skip)
-
-                case EnumPattern():
-                    variant_key = f"{pattern.enum_name}:{pattern.variant_name}"
-                    idx = self._current.add_constant(variant_key)
-                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
-                    self._emit(OpCode.LOAD_ENUM_VARIANT, idx, location=loc)
-                    self._emit(OpCode.EQUAL, location=loc)
-                    skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
-                    for stmt in case.body:
-                        self._compile_statement(stmt)
-                    end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
-                    self._patch_jump(skip)
-
-                case CapturePattern():
-                    # Bind value to capture variable, then body (always last)
-                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
-                    self._emit(OpCode.STORE_NAME, pattern.name, location=loc)
-                    for stmt in case.body:
-                        self._compile_statement(stmt)
-
-                case WildcardPattern():
-                    # Always matches, no test needed (always last)
-                    for stmt in case.body:
-                        self._compile_statement(stmt)
+        for match_case in node.cases:
+            jump = self._compile_match_case(match_case, match_var, loc)
+            if jump is not None:
+                end_jumps.append(jump)
 
         # Backpatch all end jumps
         for jump_idx in end_jumps:
             self._patch_jump(jump_idx)
 
+    def _compile_match_case(
+        self,
+        match_case: MatchCase,
+        match_var: str,
+        loc: SourceLocation,
+    ) -> int | None:
+        """Compile a single match case and return the end-jump index, if any."""
+        pattern = match_case.pattern
+        body = match_case.body
+        match pattern:
+            case LiteralPattern() | OrPattern() | EnumPattern():
+                self._compile_match_test(pattern, match_var, loc)
+                skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+                for stmt in body:
+                    self._compile_statement(stmt)
+                end_jump = self._emit(OpCode.JUMP, 0, location=loc)
+                self._patch_jump(skip)
+                return end_jump
+            case CapturePattern():
+                self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                self._emit(OpCode.STORE_NAME, pattern.name, location=loc)
+                for stmt in body:
+                    self._compile_statement(stmt)
+            case WildcardPattern():
+                for stmt in body:
+                    self._compile_statement(stmt)
+        return None
+
+    def _compile_match_test(
+        self,
+        pattern: LiteralPattern | OrPattern | EnumPattern,
+        match_var: str,
+        loc: SourceLocation,
+    ) -> None:
+        """Emit the comparison test for a match pattern, leaving a bool on the stack."""
+        match pattern:
+            case LiteralPattern():
+                self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                self._emit_constant(pattern.value, location=loc)
+                self._emit(OpCode.EQUAL, location=loc)
+            case OrPattern():
+                self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                self._emit_constant(pattern.patterns[0].value, location=loc)
+                self._emit(OpCode.EQUAL, location=loc)
+                for alt in pattern.patterns[1:]:
+                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                    self._emit_constant(alt.value, location=loc)
+                    self._emit(OpCode.EQUAL, location=loc)
+                    self._emit(OpCode.OR, location=loc)
+            case EnumPattern():
+                variant_key = f"{pattern.enum_name}:{pattern.variant_name}"
+                idx = self._current.add_constant(variant_key)
+                self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                self._emit(OpCode.LOAD_ENUM_VARIANT, idx, location=loc)
+                self._emit(OpCode.EQUAL, location=loc)
+
     # -- Expression dispatch --------------------------------------------------
 
-    def _compile_expression(self, expr: Expression) -> None:  # noqa: C901, PLR0912
+    def _compile_expression(self, expr: Expression) -> None:
         """Dispatch to the appropriate expression compiler."""
         match expr:
             case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
@@ -795,28 +878,61 @@ class Compiler:
                 self._emit_constant(None, location=expr.location)
             case Identifier():
                 self._emit_load(expr.name, location=expr.location)
+            case BinaryOp() | UnaryOp():
+                self._compile_operator_expression(expr)
+            case FunctionCall() | StringInterpolation():
+                self._compile_call_or_interpolation(expr)
+            case ArrayLiteral() | ListComprehension() | DictLiteral():
+                self._compile_collection_expression(expr)
+            case IndexAccess() | SliceAccess():
+                self._compile_index_or_slice(expr)
+            case MethodCall() | FieldAccess() | SuperMethodCall():
+                self._compile_member_expression(expr)
+            case FunctionExpression():
+                self._compile_function_expression(expr)
+
+    def _compile_operator_expression(self, expr: BinaryOp | UnaryOp) -> None:
+        """Compile operator expressions (binary and unary)."""
+        match expr:
             case BinaryOp():
                 self._compile_binary(expr)
             case UnaryOp():
                 self._compile_unary(expr)
+
+    def _compile_call_or_interpolation(
+        self,
+        expr: FunctionCall | StringInterpolation,
+    ) -> None:
+        """Compile function calls and string interpolations."""
+        match expr:
             case FunctionCall():
                 self._compile_call(expr)
             case StringInterpolation():
                 self._compile_string_interpolation(expr)
+
+    def _compile_collection_expression(
+        self,
+        expr: ArrayLiteral | ListComprehension | DictLiteral,
+    ) -> None:
+        """Compile collection literal expressions (array, list comprehension, dict)."""
+        match expr:
             case ArrayLiteral():
                 self._compile_array_literal(expr)
             case ListComprehension():
                 self._compile_list_comprehension(expr)
             case DictLiteral():
                 self._compile_dict_literal(expr)
-            case IndexAccess() | SliceAccess():
-                self._compile_index_or_slice(expr)
+
+    def _compile_member_expression(
+        self,
+        expr: MethodCall | FieldAccess | SuperMethodCall,
+    ) -> None:
+        """Compile member access expressions (method call, field access, super call)."""
+        match expr:
             case MethodCall():
                 self._compile_method_call(expr)
             case FieldAccess():
                 self._compile_field_access(expr)
-            case FunctionExpression():
-                self._compile_function_expression(expr)
             case SuperMethodCall():
                 self._compile_super_method_call(expr)
 
@@ -842,8 +958,17 @@ class Compiler:
             nargs = len(node.arguments)
             for i in range(nargs, len(defaults)):
                 default_expr = defaults[i]
-                assert default_expr is not None  # noqa: S101
+                if default_expr is None:
+                    msg = "Expected default expression but got None"
+                    raise TypeError(msg)
                 self._compile_expression(default_expr)
+        elif node.name in self._variable_arity_functions:
+            # Variable-arity imported functions (e.g. stdlib input()) —
+            # pad to max arity with METHOD_NONE so the VM can pop a
+            # consistent number of values from the stack.
+            max_arity = self._variable_arity_functions[node.name]
+            for _ in range(max_arity - len(node.arguments)):
+                self._emit_constant(METHOD_NONE, location=node.location)
         self._emit(OpCode.CALL, node.name, location=node.location)
 
     def _compile_method_call(self, node: MethodCall) -> None:
@@ -901,7 +1026,9 @@ class Compiler:
         self._emit(OpCode.BUILD_LIST, 0, location=loc)
         self._emit_store(comp_name, location=loc)
 
-        assert isinstance(node.iterable, FunctionCall)  # noqa: S101
+        if not isinstance(node.iterable, FunctionCall):
+            msg = "for-range requires a function call as iterable"
+            raise TypeError(msg)
         args = node.iterable.arguments
         nargs = len(args)
 
@@ -928,7 +1055,7 @@ class Compiler:
 
         # Increment loop variable
         self._emit_load(node.variable, location=loc)
-        if nargs <= 2:  # noqa: PLR2004
+        if nargs <= _MAX_SIMPLE_RANGE_ARGS:
             self._emit_constant(1, location=loc)
         else:
             self._emit_load(f"$for_step_{counter}", location=loc)

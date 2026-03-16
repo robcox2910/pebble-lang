@@ -26,6 +26,7 @@ from pebble.vm import VirtualMachine
 RANGE_FIVE = 5
 RANGE_SIX = 6
 RANGE_TEN = 10
+EXPECTED_ELEMENT_COUNT = 3
 
 
 # -- Helpers ------------------------------------------------------------------
@@ -182,7 +183,7 @@ class TestListComprehensionParser:
         """``[1, 2, 3]`` still parses to an ArrayLiteral (regression)."""
         node = _parse_expr("[1, 2, 3]")
         assert isinstance(node, ArrayLiteral)
-        assert len(node.elements) == 3  # noqa: PLR2004
+        assert len(node.elements) == EXPECTED_ELEMENT_COUNT
 
     def test_single_element_still_works(self) -> None:
         """``[42]`` still parses to an ArrayLiteral (regression)."""

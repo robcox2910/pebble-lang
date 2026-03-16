@@ -340,8 +340,8 @@ to continue working.
 ## What's Next?
 
 You've now seen how to teach your classes to understand operators.
-Next up is [Enums](enums.md) -- a fixed menu of named choices, like
-picking a color from a list of options.
+Next up is [Iterators & Generators](iterators.md) -- a way to produce
+values one at a time, like dealing cards from a deck.
 
 ## Summary
 

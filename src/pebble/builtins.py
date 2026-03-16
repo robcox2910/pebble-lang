@@ -134,38 +134,61 @@ class GeneratorObject:
 # -- Value formatting ----------------------------------------------------------
 
 
-def format_value(value: Value) -> str:  # noqa: PLR0911, PLR0912
+def _format_scalar(value: Value) -> str | None:
+    """Format scalar types (null, bool, numbers, strings).
+
+    Return ``None`` if *value* is not a scalar.
+    """
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int | float):
+        return str(value)
+    if isinstance(value, str):
+        return value
+    return None
+
+
+def _format_collection(value: Value) -> str | None:
+    """Format compound types (dict, list, enum, struct).
+
+    Return ``None`` if *value* is not a compound type.
+    """
+    if isinstance(value, dict):
+        pairs = ", ".join(f"{k}: {format_value(v)}" for k, v in value.items())
+        return f"{{{pairs}}}"
+    if isinstance(value, list):
+        items = ", ".join(format_value(v) for v in value)
+        return f"[{items}]"
+    if isinstance(value, EnumVariant):
+        return f"{value.enum_name}.{value.variant_name}"
+    if isinstance(value, StructInstance):
+        fields = ", ".join(f"{k}={format_value(v)}" for k, v in value.fields.items())
+        return f"{value.type_name}({fields})"
+    return None
+
+
+def _format_internal(value: Value) -> str:
+    """Format internal VM types (closures, generators, iterators)."""
+    if isinstance(value, Closure):
+        return f"<fn {value.code.name}>"
+    if isinstance(value, GeneratorObject):
+        return f"<generator {value.code.name}>"
+    if isinstance(value, SequenceIterator):
+        return "<iterator>"
+    return str(value)  # pragma: no cover
+
+
+def format_value(value: Value) -> str:
     """Format *value* for Pebble-native output."""
-    match value:
-        case None:
-            return "null"
-        case bool():
-            return "true" if value else "false"
-        case float():
-            return str(value)
-        case int():
-            return str(value)
-        case str():
-            return value
-        case dict():
-            pairs = ", ".join(f"{k}: {format_value(v)}" for k, v in value.items())
-            return f"{{{pairs}}}"
-        case list():
-            items = ", ".join(format_value(v) for v in value)
-            return f"[{items}]"
-        case EnumVariant():
-            return f"{value.enum_name}.{value.variant_name}"
-        case StructInstance():
-            fields = ", ".join(f"{k}={format_value(v)}" for k, v in value.fields.items())
-            return f"{value.type_name}({fields})"
-        case Closure():
-            return f"<fn {value.code.name}>"
-        case GeneratorObject():
-            return f"<generator {value.code.name}>"
-        case SequenceIterator():
-            return "<iterator>"
-        case _:  # pragma: no cover
-            return str(value)
+    scalar = _format_scalar(value)
+    if scalar is not None:
+        return scalar
+    collection = _format_collection(value)
+    if collection is not None:
+        return collection
+    return _format_internal(value)
 
 
 # -- Builtin handlers ---------------------------------------------------------
@@ -207,34 +230,31 @@ def _builtin_float(args: list[Value]) -> Value:
     raise PebbleRuntimeError(msg, line=0, column=0)
 
 
-def _builtin_type(args: list[Value]) -> Value:  # noqa: PLR0911
+_TYPE_NAMES: dict[type, str] = {
+    type(None): "null",
+    bool: "bool",
+    float: "float",
+    int: "int",
+    str: "str",
+    dict: "dict",
+    list: "list",
+    Closure: "fn",
+    GeneratorObject: "generator",
+    SequenceIterator: "iterator",
+}
+
+
+def _builtin_type(args: list[Value]) -> Value:
     """Return the type name of a value as a string."""
     arg = args[0]
-    match arg:
-        case None:
-            return "null"
-        case bool():
-            return "bool"
-        case float():
-            return "float"
-        case int():
-            return "int"
-        case str():
-            return "str"
-        case dict():
-            return "dict"
-        case list():
-            return "list"
-        case EnumVariant():
-            return arg.enum_name
-        case StructInstance():
-            return arg.type_name
-        case Closure():
-            return "fn"
-        case GeneratorObject():
-            return "generator"
-        case SequenceIterator():
-            return "iterator"
+    type_name = _TYPE_NAMES.get(type(arg))
+    if type_name is not None:
+        return type_name
+    if isinstance(arg, EnumVariant):
+        return arg.enum_name
+    if isinstance(arg, StructInstance):
+        return arg.type_name
+    return "unknown"  # pragma: no cover
 
 
 def _builtin_len(args: list[Value]) -> Value:
@@ -380,32 +400,50 @@ def _require_str_arg(arg: Value, method_name: str) -> str:
     return arg
 
 
+def _require_str_target(target: Value, method_name: str) -> str:
+    """Narrow *target* to ``str`` or raise a runtime error."""
+    if not isinstance(target, str):
+        type_name = type(target).__name__
+        msg = f"{method_name}() requires a string target, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target
+
+
+def _require_list_target(target: Value, method_name: str) -> list[Value]:
+    """Narrow *target* to ``list`` or raise a runtime error."""
+    if not isinstance(target, list):
+        type_name = type(target).__name__
+        msg = f"{method_name}() requires a list target, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return target
+
+
 # -- String method handlers ----------------------------------------------------
 
 
 def _method_upper(target: Value, _args: list[Value]) -> Value:
     """Convert a string to uppercase."""
-    assert isinstance(target, str)  # noqa: S101
-    return target.upper()
+    s = _require_str_target(target, "upper")
+    return s.upper()
 
 
 def _method_lower(target: Value, _args: list[Value]) -> Value:
     """Convert a string to lowercase."""
-    assert isinstance(target, str)  # noqa: S101
-    return target.lower()
+    s = _require_str_target(target, "lower")
+    return s.lower()
 
 
 def _method_strip(target: Value, _args: list[Value]) -> Value:
     """Remove leading and trailing whitespace."""
-    assert isinstance(target, str)  # noqa: S101
-    return target.strip()
+    s = _require_str_target(target, "strip")
+    return s.strip()
 
 
 def _method_split(target: Value, args: list[Value]) -> Value:
     """Split a string into a list of substrings."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "split")
     if not args:
-        result: list[Value] = list(target.split())
+        result: list[Value] = list(s.split())
         return result
     sep = args[0]
     if not isinstance(sep, str):
@@ -415,58 +453,58 @@ def _method_split(target: Value, args: list[Value]) -> Value:
     if sep == "":
         msg = "split() separator cannot be empty"
         raise PebbleRuntimeError(msg, line=0, column=0)
-    parts: list[Value] = list(target.split(sep))
+    parts: list[Value] = list(s.split(sep))
     return parts
 
 
 def _method_replace(target: Value, args: list[Value]) -> Value:
     """Replace all occurrences of a substring."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "replace")
     old, new = args[0], args[1]
     if not isinstance(old, str) or not isinstance(new, str):
         msg = "replace() arguments must be strings"
         raise PebbleRuntimeError(msg, line=0, column=0)
-    return target.replace(old, new)
+    return s.replace(old, new)
 
 
 def _method_str_contains(target: Value, args: list[Value]) -> Value:
     """Check if a string contains a substring."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "contains")
     sub = _require_str_arg(args[0], "contains")
-    return sub in target
+    return sub in s
 
 
 def _method_starts_with(target: Value, args: list[Value]) -> Value:
     """Check if a string starts with a prefix."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "starts_with")
     prefix = _require_str_arg(args[0], "starts_with")
-    return target.startswith(prefix)
+    return s.startswith(prefix)
 
 
 def _method_ends_with(target: Value, args: list[Value]) -> Value:
     """Check if a string ends with a suffix."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "ends_with")
     suffix = _require_str_arg(args[0], "ends_with")
-    return target.endswith(suffix)
+    return s.endswith(suffix)
 
 
 def _method_find(target: Value, args: list[Value]) -> Value:
     """Find the index of a substring, or -1 if not found."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "find")
     sub = _require_str_arg(args[0], "find")
-    return target.find(sub)
+    return s.find(sub)
 
 
 def _method_count(target: Value, args: list[Value]) -> Value:
     """Count non-overlapping occurrences of a substring."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "count")
     sub = _require_str_arg(args[0], "count")
-    return target.count(sub)
+    return s.count(sub)
 
 
 def _method_join(target: Value, args: list[Value]) -> Value:
     """Join a list of strings with the target as separator."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "join")
     items = args[0]
     if not isinstance(items, list):
         type_name = type(items).__name__
@@ -479,12 +517,12 @@ def _method_join(target: Value, args: list[Value]) -> Value:
             msg = f"join() list must contain strings, got {type_name}"
             raise PebbleRuntimeError(msg, line=0, column=0)
         parts.append(item)
-    return target.join(parts)
+    return s.join(parts)
 
 
 def _method_repeat(target: Value, args: list[Value]) -> Value:
     """Repeat a string n times."""
-    assert isinstance(target, str)  # noqa: S101
+    s = _require_str_target(target, "repeat")
     n = args[0]
     if not isinstance(n, int) or isinstance(n, bool):
         type_name = type(n).__name__
@@ -493,7 +531,7 @@ def _method_repeat(target: Value, args: list[Value]) -> Value:
     if n < 0:
         msg = "repeat() count must not be negative"
         raise PebbleRuntimeError(msg, line=0, column=0)
-    return target * n
+    return s * n
 
 
 _VOID: Value = None
@@ -505,44 +543,44 @@ _VOID: Value = None
 
 def _method_list_push(target: Value, args: list[Value]) -> Value:
     """Append a value to the list. Return null."""
-    assert isinstance(target, list)  # noqa: S101
-    target.append(args[0])
+    lst = _require_list_target(target, "push")
+    lst.append(args[0])
     return _VOID
 
 
 def _method_list_pop(target: Value, _args: list[Value]) -> Value:
     """Remove and return the last element."""
-    assert isinstance(target, list)  # noqa: S101
-    if not target:
+    lst = _require_list_target(target, "pop")
+    if not lst:
         msg = "Cannot pop from an empty list"
         raise PebbleRuntimeError(msg, line=0, column=0)
-    return target.pop()
+    return lst.pop()
 
 
 def _method_list_contains(target: Value, args: list[Value]) -> Value:
     """Check if a list contains a value."""
-    assert isinstance(target, list)  # noqa: S101
-    return args[0] in target
+    lst = _require_list_target(target, "contains")
+    return args[0] in lst
 
 
 def _method_list_reverse(target: Value, _args: list[Value]) -> Value:
     """Reverse the list in place."""
-    assert isinstance(target, list)  # noqa: S101
-    target.reverse()
+    lst = _require_list_target(target, "reverse")
+    lst.reverse()
     return _VOID
 
 
 def _method_list_sort(target: Value, _args: list[Value]) -> Value:
     """Sort the list in place."""
-    assert isinstance(target, list)  # noqa: S101
+    lst = _require_list_target(target, "sort")
     # Check for mixed types — only allow homogeneous int or string lists
-    if target:
-        first_type = type(target[0])
-        for item in target[1:]:
+    if lst:
+        first_type = type(lst[0])
+        for item in lst[1:]:
             if type(item) is not first_type:
                 msg = "sort() requires all elements to be the same type"
                 raise PebbleRuntimeError(msg, line=0, column=0)
-    target.sort()  # type: ignore[type-var]
+    lst.sort()  # type: ignore[type-var]
     return _VOID
 
 

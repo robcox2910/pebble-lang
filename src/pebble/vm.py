@@ -8,6 +8,7 @@ a ``HALT`` opcode.
 
 from __future__ import annotations
 
+import operator
 import sys
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar, Never
@@ -36,6 +37,7 @@ if TYPE_CHECKING:
     from typing import TextIO
 
     from pebble.bytecode import CodeObject, CompiledProgram
+    from pebble.stdlib import StdlibHandler
 
 _DIVISION_BY_ZERO = "Division by zero"
 
@@ -60,8 +62,42 @@ _TYPE_DISPLAY: dict[str, str] = {
     "dict": "Dict",
 }
 
+# Dispatch table for binary arithmetic ops that share a dunder + _apply_numeric pattern.
+# Each entry: (dunder_name, symbol, operator_func, check_zero_divisor).
+_ARITH_OPS: dict[
+    OpCode,
+    tuple[str, str, Callable[[int | float, int | float], int | float], bool],
+] = {
+    OpCode.SUBTRACT: ("__sub__", "-", operator.sub, False),
+    OpCode.MULTIPLY: ("__mul__", "*", operator.mul, False),
+    OpCode.FLOOR_DIVIDE: ("__floordiv__", "//", operator.floordiv, True),
+    OpCode.MODULO: ("__mod__", "%", operator.mod, True),
+}
 
-class _PebbleThrow(Exception):  # noqa: N818
+# Dispatch table for equality operators.
+# Each entry: (dunder_name, fallback_func).
+_EQUALITY_OPS: dict[
+    OpCode,
+    tuple[str, Callable[[Value, Value], bool]],
+] = {
+    OpCode.EQUAL: ("__eq__", operator.eq),
+    OpCode.NOT_EQUAL: ("__ne__", operator.ne),
+}
+
+# Dispatch table for ordering comparison operators.
+# Each entry: (dunder_name, symbol, operator_func).
+_COMPARISON_OPS: dict[
+    OpCode,
+    tuple[str, str, Callable[[int | float, int | float], bool]],
+] = {
+    OpCode.LESS_THAN: ("__lt__", "<", operator.lt),
+    OpCode.LESS_EQUAL: ("__le__", "<=", operator.le),
+    OpCode.GREATER_THAN: ("__gt__", ">", operator.gt),
+    OpCode.GREATER_EQUAL: ("__ge__", ">=", operator.ge),
+}
+
+
+class _PebbleThrowError(Exception):
     """Internal exception for Pebble throw/catch unwinding."""
 
     def __init__(self, value: Value) -> None:
@@ -98,12 +134,8 @@ class Frame:
 
     code: CodeObject
     ip: int = 0
-    variables: dict[str, Value] = field(
-        default_factory=lambda: {},  # noqa: PIE807
-    )
-    cells: dict[str, Cell] = field(
-        default_factory=lambda: {},  # noqa: PIE807
-    )
+    variables: dict[str, Value] = field(default_factory=lambda: {})
+    cells: dict[str, Cell] = field(default_factory=lambda: {})
     generator: GeneratorObject | None = None
 
 
@@ -112,10 +144,15 @@ class VirtualMachine:
 
     Args:
         output: Writable text stream for ``print`` output (default ``sys.stdout``).
+        input_stream: Readable text stream for ``input()`` (default ``sys.stdin``).
 
     """
 
-    def __init__(self, output: TextIO | None = None) -> None:
+    def __init__(
+        self,
+        output: TextIO | None = None,
+        input_stream: TextIO | None = None,
+    ) -> None:
         """Create a VM with an empty stack and call stack."""
         self._stack: list[Value] = []
         self._frames: list[Frame] = []
@@ -126,13 +163,22 @@ class VirtualMachine:
         self._class_parents: dict[str, str] = {}
         self._enums: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
+        self._input_stream: TextIO = input_stream or sys.stdin
         self._current_instruction: Instruction | None = None
         self._exception_handlers: list[_ExceptionHandler] = []
         self._min_depth: int = 0
+        self._stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] = {}
+        self._globals: dict[str, Value] = {}
 
     # -- Public API -----------------------------------------------------------
 
-    def run(self, program: CompiledProgram) -> None:
+    def run(
+        self,
+        program: CompiledProgram,
+        *,
+        stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] | None = None,
+        stdlib_constants: dict[str, Value] | None = None,
+    ) -> None:
         """Execute *program* from the first instruction of ``main``."""
         self._functions = dict(program.functions)
         self._structs = dict(program.structs)
@@ -140,17 +186,22 @@ class VirtualMachine:
         self._class_methods = dict(program.class_methods)
         self._class_parents = dict(program.class_parents)
         self._enums = dict(program.enums)
-        self._frames = [Frame(code=program.main)]
+        self._stdlib_handlers = dict(stdlib_handlers) if stdlib_handlers else {}
+        self._globals = dict(stdlib_constants) if stdlib_constants else {}
+        self._frames = [Frame(code=program.main, variables=dict(self._globals))]
         self._exception_handlers = []
         try:
             self._execute()
-        except _PebbleThrow as exc:
+        except _PebbleThrowError as exc:
             raise PebbleRuntimeError(str(exc.value), line=0, column=0) from None
 
     def run_repl(
         self,
         program: CompiledProgram,
         variables: dict[str, Value],
+        *,
+        stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] | None = None,
+        stdlib_constants: dict[str, Value] | None = None,
     ) -> dict[str, Value]:
         """Execute *program* with initial *variables*, return updated state.
 
@@ -162,11 +213,14 @@ class VirtualMachine:
         self._class_methods = dict(program.class_methods)
         self._class_parents = dict(program.class_parents)
         self._enums = dict(program.enums)
-        self._frames = [Frame(code=program.main, variables=dict(variables))]
+        self._stdlib_handlers = dict(stdlib_handlers) if stdlib_handlers else {}
+        self._globals = dict(stdlib_constants) if stdlib_constants else {}
+        initial_vars = {**self._globals, **variables}
+        self._frames = [Frame(code=program.main, variables=initial_vars)]
         self._exception_handlers = []
         try:
             self._execute()
-        except _PebbleThrow as exc:
+        except _PebbleThrowError as exc:
             raise PebbleRuntimeError(str(exc.value), line=0, column=0) from None
         return dict(self._frames[-1].variables)
 
@@ -208,7 +262,7 @@ class VirtualMachine:
 
             try:
                 self._dispatch(instruction, frame)
-            except _PebbleThrow as exc:
+            except _PebbleThrowError as exc:
                 self._unwind_exception(exc.value)
             except PebbleRuntimeError as exc:
                 if self._exception_handlers:
@@ -216,7 +270,7 @@ class VirtualMachine:
                 else:
                     raise
 
-    def _dispatch(self, instruction: Instruction, frame: Frame) -> None:  # noqa: C901, PLR0912
+    def _dispatch(self, instruction: Instruction, frame: Frame) -> None:
         """Dispatch a single instruction."""
         match instruction.opcode:
             case (
@@ -274,41 +328,20 @@ class VirtualMachine:
                 | OpCode.RIGHT_SHIFT
             ):
                 self._exec_bitwise(instruction)
-            case OpCode.PRINT:
-                self._output.write(self._format_value(self._stack.pop()) + "\n")
-            case OpCode.CALL:
-                self._exec_call(instruction)
-            case OpCode.CALL_METHOD:
-                self._exec_call_method(instruction)
-            case OpCode.CALL_INSTANCE_METHOD:
-                self._exec_call_instance_method(instruction)
-            case OpCode.RETURN:
-                self._exec_return()
-            case OpCode.YIELD:
-                self._exec_yield()
-            case OpCode.GET_ITER:
-                self._exec_get_iter()
-            case OpCode.FOR_ITER:
-                self._exec_for_iter(instruction, frame)
-            case OpCode.MAKE_CLOSURE:
-                self._exec_make_closure(instruction)
-            case OpCode.SETUP_TRY:
-                target = _int_operand(instruction)
-                self._exception_handlers.append(
-                    _ExceptionHandler(
-                        handler_ip=target,
-                        stack_depth=len(self._stack),
-                        frame_depth=len(self._frames),
-                    )
-                )
-            case OpCode.POP_TRY:
-                self._exception_handlers.pop()
-            case OpCode.THROW:
-                raise _PebbleThrow(self._stack.pop())
-            case OpCode.CHECK_TYPE:
-                self._exec_check_type(instruction)
-            case OpCode.LOAD_ENUM_VARIANT:
-                self._exec_load_enum_variant(instruction)
+            case OpCode.CALL | OpCode.CALL_METHOD | OpCode.CALL_INSTANCE_METHOD:
+                self._exec_call_dispatch(instruction)
+            case (
+                OpCode.PRINT
+                | OpCode.RETURN
+                | OpCode.YIELD
+                | OpCode.CHECK_TYPE
+                | OpCode.LOAD_ENUM_VARIANT
+            ):
+                self._exec_misc(instruction)
+            case OpCode.SETUP_TRY | OpCode.POP_TRY | OpCode.THROW:
+                self._exec_exception(instruction)
+            case OpCode.GET_ITER | OpCode.FOR_ITER | OpCode.MAKE_CLOSURE:
+                self._exec_iter_closure(instruction, frame)
             case _:  # pragma: no cover
                 pass
 
@@ -393,60 +426,45 @@ class VirtualMachine:
                 return result
         return format_value(value)
 
-    def _exec_arithmetic(self, instruction: Instruction) -> None:  # noqa: PLR0912
+    def _exec_arithmetic(self, instruction: Instruction) -> None:
         """Handle ADD, SUBTRACT, MULTIPLY, POWER, DIVIDE, FLOOR_DIVIDE, MODULO, NEGATE."""
         match instruction.opcode:
             case OpCode.ADD:
                 self._exec_add()
             case OpCode.POWER:
                 self._exec_power()
-            case OpCode.SUBTRACT:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__sub__", left, right
-                ):
-                    return
-                self._apply_numeric("-", left, right, lambda a, b: a - b)
-            case OpCode.MULTIPLY:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__mul__", left, right
-                ):
-                    return
-                self._apply_numeric("*", left, right, lambda a, b: a * b)
             case OpCode.DIVIDE:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__div__", left, right
-                ):
-                    return
-                self._check_zero_divisor(right)
-                # True division — always returns float
-                if _both_numeric(left, right):
-                    result = float(left) / float(right)  # type: ignore[arg-type]
-                    self._stack.append(result)
-                else:
-                    self._type_error("/", left, right)
-            case OpCode.FLOOR_DIVIDE:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__floordiv__", left, right
-                ):
-                    return
-                self._check_zero_divisor(right)
-                self._apply_numeric("//", left, right, lambda a, b: a // b)
-            case OpCode.MODULO:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__mod__", left, right
-                ):
-                    return
-                self._check_zero_divisor(right)
-                self._apply_numeric("%", left, right, lambda a, b: a % b)
+                self._exec_divide()
             case OpCode.NEGATE:
                 self._exec_negate()
+            case OpCode.SUBTRACT | OpCode.MULTIPLY | OpCode.FLOOR_DIVIDE | OpCode.MODULO:
+                self._exec_binary_arith(instruction.opcode)
             case _:  # pragma: no cover
                 pass
+
+    def _exec_binary_arith(self, opcode: OpCode) -> None:
+        """Handle SUBTRACT, MULTIPLY, FLOOR_DIVIDE, MODULO via dispatch table."""
+        dunder, symbol, op, check_zero = _ARITH_OPS[opcode]
+        right, left = self._stack.pop(), self._stack.pop()
+        if isinstance(left, StructInstance) and self._dispatch_dunder_binary(dunder, left, right):
+            return
+        if check_zero:
+            self._check_zero_divisor(right)
+        self._apply_numeric(symbol, left, right, op)
+
+    def _exec_divide(self) -> None:
+        """Handle DIVIDE — true division that always returns a float, or __div__."""
+        right, left = self._stack.pop(), self._stack.pop()
+        if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+            "__div__", left, right
+        ):
+            return
+        self._check_zero_divisor(right)
+        if _both_numeric(left, right):
+            result = float(left) / float(right)  # type: ignore[arg-type]
+            self._stack.append(result)
+        else:
+            self._type_error("/", left, right)
 
     def _exec_add(self) -> None:
         """Handle ADD — support int+int, float+float, int+float, str+str, or __add__."""
@@ -530,53 +548,15 @@ class VirtualMachine:
             case _:  # pragma: no cover
                 pass
 
-    def _exec_logic(self, instruction: Instruction) -> None:  # noqa: C901, PLR0912
+    def _exec_logic(self, instruction: Instruction) -> None:
         """Handle NOT, comparisons, AND, and OR."""
         match instruction.opcode:
             case OpCode.NOT:
                 self._stack.append(not self._stack.pop())
-            case OpCode.EQUAL:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__eq__", left, right
-                ):
-                    return
-                self._stack.append(left == right)
-            case OpCode.NOT_EQUAL:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__ne__", left, right
-                ):
-                    return
-                self._stack.append(left != right)
-            case OpCode.LESS_THAN:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__lt__", left, right
-                ):
-                    return
-                self._apply_comparison("<", left, right, lambda a, b: a < b)
-            case OpCode.LESS_EQUAL:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__le__", left, right
-                ):
-                    return
-                self._apply_comparison("<=", left, right, lambda a, b: a <= b)
-            case OpCode.GREATER_THAN:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__gt__", left, right
-                ):
-                    return
-                self._apply_comparison(">", left, right, lambda a, b: a > b)
-            case OpCode.GREATER_EQUAL:
-                right, left = self._stack.pop(), self._stack.pop()
-                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
-                    "__ge__", left, right
-                ):
-                    return
-                self._apply_comparison(">=", left, right, lambda a, b: a >= b)
+            case OpCode.EQUAL | OpCode.NOT_EQUAL:
+                self._exec_equality(instruction.opcode)
+            case OpCode.LESS_THAN | OpCode.LESS_EQUAL | OpCode.GREATER_THAN | OpCode.GREATER_EQUAL:
+                self._exec_comparison(instruction.opcode)
             case OpCode.AND:
                 right, left = self._stack.pop(), self._stack.pop()
                 self._stack.append(left and right)
@@ -585,6 +565,22 @@ class VirtualMachine:
                 self._stack.append(left or right)
             case _:  # pragma: no cover
                 pass
+
+    def _exec_equality(self, opcode: OpCode) -> None:
+        """Handle EQUAL and NOT_EQUAL with dunder dispatch."""
+        dunder, fallback = _EQUALITY_OPS[opcode]
+        right, left = self._stack.pop(), self._stack.pop()
+        if isinstance(left, StructInstance) and self._dispatch_dunder_binary(dunder, left, right):
+            return
+        self._stack.append(fallback(left, right))
+
+    def _exec_comparison(self, opcode: OpCode) -> None:
+        """Handle ordering comparisons (LT, LE, GT, GE) via dispatch table."""
+        dunder, symbol, op = _COMPARISON_OPS[opcode]
+        right, left = self._stack.pop(), self._stack.pop()
+        if isinstance(left, StructInstance) and self._dispatch_dunder_binary(dunder, left, right):
+            return
+        self._apply_comparison(symbol, left, right, op)
 
     def _exec_control(self, instruction: Instruction, frame: Frame) -> None:
         """Handle JUMP, JUMP_IF_FALSE, and POP."""
@@ -597,6 +593,65 @@ class VirtualMachine:
                     frame.ip = target
             case OpCode.POP:
                 self._stack.pop()
+            case _:  # pragma: no cover
+                pass
+
+    def _exec_call_dispatch(self, instruction: Instruction) -> None:
+        """Route CALL, CALL_METHOD, and CALL_INSTANCE_METHOD to their handlers."""
+        match instruction.opcode:
+            case OpCode.CALL:
+                self._exec_call(instruction)
+            case OpCode.CALL_METHOD:
+                self._exec_call_method(instruction)
+            case OpCode.CALL_INSTANCE_METHOD:
+                self._exec_call_instance_method(instruction)
+            case _:  # pragma: no cover
+                pass
+
+    def _exec_misc(self, instruction: Instruction) -> None:
+        """Handle PRINT, RETURN, YIELD, CHECK_TYPE, and LOAD_ENUM_VARIANT."""
+        match instruction.opcode:
+            case OpCode.PRINT:
+                self._output.write(self._format_value(self._stack.pop()) + "\n")
+            case OpCode.RETURN:
+                self._exec_return()
+            case OpCode.YIELD:
+                self._exec_yield()
+            case OpCode.CHECK_TYPE:
+                self._exec_check_type(instruction)
+            case OpCode.LOAD_ENUM_VARIANT:
+                self._exec_load_enum_variant(instruction)
+            case _:  # pragma: no cover
+                pass
+
+    def _exec_exception(self, instruction: Instruction) -> None:
+        """Handle SETUP_TRY, POP_TRY, and THROW."""
+        match instruction.opcode:
+            case OpCode.SETUP_TRY:
+                target = _int_operand(instruction)
+                self._exception_handlers.append(
+                    _ExceptionHandler(
+                        handler_ip=target,
+                        stack_depth=len(self._stack),
+                        frame_depth=len(self._frames),
+                    )
+                )
+            case OpCode.POP_TRY:
+                self._exception_handlers.pop()
+            case OpCode.THROW:
+                raise _PebbleThrowError(self._stack.pop())
+            case _:  # pragma: no cover
+                pass
+
+    def _exec_iter_closure(self, instruction: Instruction, frame: Frame) -> None:
+        """Handle GET_ITER, FOR_ITER, and MAKE_CLOSURE."""
+        match instruction.opcode:
+            case OpCode.GET_ITER:
+                self._exec_get_iter()
+            case OpCode.FOR_ITER:
+                self._exec_for_iter(instruction, frame)
+            case OpCode.MAKE_CLOSURE:
+                self._exec_make_closure(instruction)
             case _:  # pragma: no cover
                 pass
 
@@ -646,7 +701,8 @@ class VirtualMachine:
         value = self._stack.pop()
         frame = self._frames[-1]
         target = frame.variables[name]
-        assert isinstance(target, list)  # noqa: S101
+        if not isinstance(target, list):
+            self._runtime_error(f"LIST_APPEND target '{name}' is not a list")
         target.append(value)
 
     def _exec_unpack_sequence(self, instruction: Instruction) -> None:
@@ -792,48 +848,21 @@ class VirtualMachine:
         "next": "_vm_builtin_next",
     }
 
-    def _exec_call(self, instruction: Instruction) -> None:  # noqa: C901, PLR0912
+    def _exec_call(self, instruction: Instruction) -> None:
         """Handle CALL — check builtins, VM builtins, closures, then user functions."""
         name = _str_operand(instruction)
 
-        # Built-in function dispatch (pure — no VM access needed)
         if name in BUILTINS:
-            arity, handler = BUILTINS[name]
-            builtin_args = [self._stack.pop() for _ in range(arity)]
-            builtin_args.reverse()
-            try:
-                self._stack.append(handler(builtin_args))
-            except PebbleRuntimeError as exc:
-                self._runtime_error(exc.message)
+            self._call_builtin(name)
             return
-
-        # VM-level builtin dispatch (needs VM access for callbacks)
         if name in self._VM_BUILTINS:
-            arity = BUILTIN_ARITIES[name]
-            assert isinstance(arity, int)  # noqa: S101
-            vm_args = [self._stack.pop() for _ in range(arity)]
-            vm_args.reverse()
-            getattr(self, self._VM_BUILTINS[name])(vm_args)
+            self._call_vm_builtin(name)
             return
-
-        # Struct construction dispatch
+        if name in self._stdlib_handlers:
+            self._call_stdlib(name)
+            return
         if name in self._structs:
-            fields = self._structs[name]
-            nfields = len(fields)
-            args_list = [self._stack.pop() for _ in range(nfields)]
-            args_list.reverse()
-            # Check field type annotations
-            if name in self._struct_field_types:
-                field_types = self._struct_field_types[name]
-                for field_name, arg_val in zip(fields, args_list, strict=True):
-                    if field_name in field_types:
-                        expected = field_types[field_name]
-                        self._check_field_type(arg_val, expected, field_name, name)
-            instance = StructInstance(
-                type_name=name,
-                fields=dict(zip(fields, args_list, strict=True)),
-            )
-            self._stack.append(instance)
+            self._call_struct_constructor(name)
             return
 
         # Closure dispatch — check if name resolves to a Closure in variables
@@ -845,6 +874,62 @@ class VirtualMachine:
                 return
 
         # Regular user function dispatch
+        self._call_user_function(name)
+
+    def _call_builtin(self, name: str) -> None:
+        """Dispatch a pure built-in function (no VM access needed)."""
+        arity, handler = BUILTINS[name]
+        builtin_args = [self._stack.pop() for _ in range(arity)]
+        builtin_args.reverse()
+        try:
+            self._stack.append(handler(builtin_args))
+        except PebbleRuntimeError as exc:
+            self._runtime_error(exc.message)
+
+    def _call_vm_builtin(self, name: str) -> None:
+        """Dispatch a VM-level builtin (needs VM access for callbacks)."""
+        arity = BUILTIN_ARITIES[name]
+        if not isinstance(arity, int):
+            self._runtime_error(f"VM builtin '{name}' has non-integer arity")
+        vm_args = [self._stack.pop() for _ in range(arity)]
+        vm_args.reverse()
+        getattr(self, self._VM_BUILTINS[name])(vm_args)
+
+    def _call_stdlib(self, name: str) -> None:
+        """Dispatch a stdlib function (importable modules like math, io)."""
+        stdlib_arity, stdlib_handler = self._stdlib_handlers[name]
+        if stdlib_handler is None:
+            self._dispatch_vm_stdlib(name, stdlib_arity)
+            return
+        pop_count = stdlib_arity if isinstance(stdlib_arity, int) else max(stdlib_arity)
+        raw = [self._stack.pop() for _ in range(pop_count)]
+        raw.reverse()
+        stdlib_args: list[Value] = [a for a in raw if a != METHOD_NONE]
+        try:
+            self._stack.append(stdlib_handler(stdlib_args))
+        except PebbleRuntimeError as exc:
+            self._runtime_error(exc.message)
+
+    def _call_struct_constructor(self, name: str) -> None:
+        """Dispatch a struct constructor call."""
+        fields = self._structs[name]
+        nfields = len(fields)
+        args_list = [self._stack.pop() for _ in range(nfields)]
+        args_list.reverse()
+        if name in self._struct_field_types:
+            field_types = self._struct_field_types[name]
+            for field_name, arg_val in zip(fields, args_list, strict=True):
+                if field_name in field_types:
+                    expected = field_types[field_name]
+                    self._check_field_type(arg_val, expected, field_name, name)
+        instance = StructInstance(
+            type_name=name,
+            fields=dict(zip(fields, args_list, strict=True)),
+        )
+        self._stack.append(instance)
+
+    def _call_user_function(self, name: str) -> None:
+        """Dispatch a regular user-defined function call."""
         fn_code = self._functions[name]
         args: dict[str, Value] = {}
         for param in reversed(fn_code.parameters):
@@ -1014,7 +1099,8 @@ class VirtualMachine:
         value = self._stack.pop()
         frame = self._frames.pop()
         gen = frame.generator
-        assert gen is not None  # noqa: S101
+        if gen is None:
+            self._runtime_error("YIELD executed outside of a generator")
         # Save frame state back to generator
         gen.ip = frame.ip
         gen.variables = dict(frame.variables)
@@ -1097,7 +1183,8 @@ class VirtualMachine:
         idx = _int_operand(instruction)
         frame = self._frames[-1]
         key = frame.code.constants[idx]
-        assert isinstance(key, str)  # noqa: S101
+        if not isinstance(key, str):
+            self._runtime_error("LOAD_ENUM_VARIANT constant must be a string")
         enum_name, variant_name = key.split(":", 1)
         self._stack.append(EnumVariant(enum_name=enum_name, variant_name=variant_name))
 
@@ -1167,13 +1254,13 @@ class VirtualMachine:
         if not self._exception_handlers:
             if isinstance(value, str):
                 self._runtime_error(value)
-            raise _PebbleThrow(value)
+            raise _PebbleThrowError(value)
 
         handler = self._exception_handlers[-1]
 
         # If the handler belongs to an outer _execute context, re-raise
         if handler.frame_depth <= self._min_depth and self._min_depth > 0:
-            raise _PebbleThrow(value)
+            raise _PebbleThrowError(value)
 
         self._exception_handlers.pop()
 
@@ -1239,6 +1326,29 @@ class VirtualMachine:
         for elem in list_val:
             acc = self._call_callable(fn_val, [acc, elem])
         self._stack.append(acc)
+
+    # -- Stdlib VM-dispatched functions ----------------------------------------
+
+    def _dispatch_vm_stdlib(self, name: str, arity: int | tuple[int, ...]) -> None:
+        """Dispatch a VM-dispatched stdlib function (handler is None)."""
+        actual_arity = arity if isinstance(arity, int) else max(arity)
+        raw_args = [self._stack.pop() for _ in range(actual_arity)]
+        raw_args.reverse()
+        # Filter out sentinel padding values
+        args: list[Value] = [a for a in raw_args if a != METHOD_NONE]
+        match name:
+            case "input":
+                self._stdlib_input(args)
+            case _:  # pragma: no cover
+                self._runtime_error(f"Unknown VM-stdlib function '{name}'")
+
+    def _stdlib_input(self, args: list[Value]) -> None:
+        """Implement input([prompt]) — read a line from the input stream."""
+        if args:
+            self._output.write(str(args[0]))
+            self._output.flush()
+        line = self._input_stream.readline()
+        self._stack.append(line.rstrip("\n"))
 
     # -- Typed operation helpers -----------------------------------------------
 

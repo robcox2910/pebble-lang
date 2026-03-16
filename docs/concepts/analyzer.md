@@ -171,12 +171,14 @@ fn greet() { print("hi") }
 
 ### Built-in Functions
 
-`print` and `range` are built-in -- they're already on the whiteboard when your
-program starts. You never need to declare them:
+Several functions are built-in -- they're already on the whiteboard when your
+program starts. You never need to declare them. The full list is in
+[Standard Library](stdlib.md), but the most common ones are:
 
 ```pebble
 print("hello")           # Works -- print is built in
-for i in range(10) { }   # Works -- range is built in (accepts 1, 2, or 3 arguments)
+for i in range(10) { }   # Works -- range is built in
+let n = len([1, 2, 3])   # Works -- len is built in
 ```
 
 ## Return Checks

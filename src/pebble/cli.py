@@ -17,15 +17,16 @@ from pebble.compiler import Compiler
 from pebble.errors import PebbleError, format_error
 from pebble.lexer import Lexer
 from pebble.parser import Parser
+from pebble.repl import repl
 from pebble.resolver import ModuleResolver
 from pebble.vm import VirtualMachine
+
+_MIN_FILE_ARGS = 2
 
 
 def main() -> None:
     """Entry point for the ``pebble`` command."""
-    if len(sys.argv) < 2:  # noqa: PLR2004
-        from pebble.repl import repl  # noqa: PLC0415
-
+    if len(sys.argv) < _MIN_FILE_ARGS:
         repl()
         return
 
@@ -33,10 +34,10 @@ def main() -> None:
     try:
         source = path.read_text()
     except FileNotFoundError:
-        print(f"Error: file not found: {path}", file=sys.stderr)  # noqa: T201
+        sys.stderr.write(f"Error: file not found: {path}\n")
         sys.exit(1)
     except OSError as exc:
-        print(f"Error: cannot read file: {exc}", file=sys.stderr)  # noqa: T201
+        sys.stderr.write(f"Error: cannot read file: {exc}\n")
         sys.exit(1)
     try:
         tokens = Lexer(source).tokenize()
@@ -48,6 +49,7 @@ def main() -> None:
         compiled = Compiler(
             cell_vars=analyzer.cell_vars,
             free_vars=analyzer.free_vars,
+            variable_arity_functions=resolver.variable_arity_functions,
         ).compile(analyzed)
         all_functions = {**resolver.merged_functions, **compiled.functions}
         all_structs = {**resolver.merged_structs, **compiled.structs}
@@ -59,18 +61,26 @@ def main() -> None:
             **resolver.merged_class_methods,
             **compiled.class_methods,
         }
+        all_enums = {**resolver.merged_enums, **compiled.enums}
+        all_class_parents = {**resolver.merged_class_parents, **compiled.class_parents}
         full_program = CompiledProgram(
             main=compiled.main,
             functions=all_functions,
             structs=all_structs,
             struct_field_types=all_struct_field_types,
             class_methods=all_class_methods,
+            enums=all_enums,
+            class_parents=all_class_parents,
         )
-        VirtualMachine().run(full_program)
+        VirtualMachine().run(
+            full_program,
+            stdlib_handlers=resolver.merged_stdlib_handlers,
+            stdlib_constants=resolver.merged_stdlib_constants,
+        )
     except PebbleError as exc:
         if exc.line > 0:
             formatted = format_error(source, line=exc.line, column=exc.column, message=exc.message)
-            print(formatted, file=sys.stderr)  # noqa: T201
+            sys.stderr.write(formatted + "\n")
         else:
-            print(f"Error: {exc}", file=sys.stderr)  # noqa: T201
+            sys.stderr.write(f"Error: {exc}\n")
         sys.exit(1)

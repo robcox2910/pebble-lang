@@ -77,8 +77,13 @@ them as variable names because they already mean something:
 | `CATCH` | `catch` | Handle an error from the try block |
 | `FINALLY` | `finally` | Code that always runs, error or not |
 | `THROW` | `throw` | Raise an error on purpose |
-| `IMPORT` | `import` | Bring definitions in from another file |
-| `FROM` | `from` | Choose which file to import from |
+| `IMPORT` | `import` | Bring definitions in from another file or module |
+| `FROM` | `from` | Choose which file or module to import from |
+| `ENUM` | `enum` | Define a fixed set of named choices |
+| `EXTENDS` | `extends` | Make a class inherit from another |
+| `SUPER` | `super` | Call a method on the parent class |
+| `YIELD` | `yield` | Produce a value from a generator |
+| `NULL` | `null` | The "nothing" value |
 
 ### Operators -- The Action Symbols
 

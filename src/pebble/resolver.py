@@ -8,7 +8,6 @@ detecting circular imports.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path  # noqa: TC003 — used at runtime
 from typing import TYPE_CHECKING
 
 from pebble.analyzer import SemanticAnalyzer
@@ -24,10 +23,15 @@ from pebble.compiler import Compiler
 from pebble.errors import PebbleImportError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
+from pebble.stdlib import STDLIB_MODULES, StdlibModule
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from pebble.ast_nodes import Program, Statement
+    from pebble.builtins import Value
     from pebble.bytecode import CodeObject
+    from pebble.stdlib import StdlibHandler
     from pebble.tokens import SourceLocation
 
 
@@ -84,6 +88,8 @@ class ModuleResolver:
         self._merged_class_parents: dict[str, str] = {}
         self._merged_class_fields: dict[str, list[str]] = {}
         self._merged_enums: dict[str, list[str]] = {}
+        self._merged_stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] = {}
+        self._merged_stdlib_constants: dict[str, Value] = {}
 
     # -- Public API -----------------------------------------------------------
 
@@ -127,6 +133,27 @@ class ModuleResolver:
         """Return all imported enum definitions for merging."""
         return dict(self._merged_enums)
 
+    @property
+    def merged_stdlib_handlers(
+        self,
+    ) -> dict[str, tuple[int | tuple[int, ...], StdlibHandler]]:
+        """Return all imported stdlib function handlers for VM dispatch."""
+        return dict(self._merged_stdlib_handlers)
+
+    @property
+    def merged_stdlib_constants(self) -> dict[str, Value]:
+        """Return all imported stdlib constants for VM globals injection."""
+        return dict(self._merged_stdlib_constants)
+
+    @property
+    def variable_arity_functions(self) -> dict[str, int]:
+        """Return variable-arity stdlib functions as ``{name: max_arity}``."""
+        result: dict[str, int] = {}
+        for name, (arity, _) in self._merged_stdlib_handlers.items():
+            if isinstance(arity, tuple):
+                result[name] = max(arity)
+        return result
+
     def resolve_imports(self, program: Program, analyzer: SemanticAnalyzer) -> None:
         """Walk *program*'s import statements, resolve each, and register names in *analyzer*."""
         for stmt in program.statements:
@@ -138,7 +165,11 @@ class ModuleResolver:
     # -- Internal -------------------------------------------------------------
 
     def _resolve_import(self, stmt: ImportStatement, analyzer: SemanticAnalyzer) -> None:
-        """Resolve an ``import "path.pbl"`` statement."""
+        """Resolve an ``import "path.pbl"`` or ``import "math"`` statement."""
+        stdlib = STDLIB_MODULES.get(stmt.path)
+        if stdlib is not None:
+            self._register_stdlib(stdlib, analyzer, stmt.location)
+            return
         resolved = self._compile_module(stmt.path, stmt.location)
         # Register all exported names in analyzer scope
         for name, arity in resolved.exported_functions.items():
@@ -162,6 +193,10 @@ class ModuleResolver:
 
     def _resolve_from_import(self, stmt: FromImportStatement, analyzer: SemanticAnalyzer) -> None:
         """Resolve a ``from "path.pbl" import name1, name2`` statement."""
+        stdlib = STDLIB_MODULES.get(stmt.path)
+        if stdlib is not None:
+            self._register_stdlib_selective(stdlib, stmt, analyzer)
+            return
         resolved = self._compile_module(stmt.path, stmt.location)
         for name in stmt.names:
             if name in resolved.exported_functions:
@@ -200,6 +235,39 @@ class ModuleResolver:
         self._merged_class_parents.update(resolved.class_parents)
         self._merged_class_fields.update(resolved.class_fields)
         self._merged_enums.update(resolved.enums)
+
+    def _register_stdlib(
+        self,
+        module: StdlibModule,
+        analyzer: SemanticAnalyzer,
+        location: SourceLocation,
+    ) -> None:
+        """Register all names from a stdlib module in *analyzer* and merge handlers."""
+        for name, (arity, handler) in module.functions.items():
+            analyzer.register_imported_function(name, arity, location)
+            self._merged_stdlib_handlers[name] = (arity, handler)
+        for name, value in module.constants.items():
+            analyzer.register_imported_constant(name, location)
+            self._merged_stdlib_constants[name] = value
+
+    def _register_stdlib_selective(
+        self,
+        module: StdlibModule,
+        stmt: FromImportStatement,
+        analyzer: SemanticAnalyzer,
+    ) -> None:
+        """Register only requested names from a stdlib module."""
+        for name in stmt.names:
+            if name in module.functions:
+                arity, handler = module.functions[name]
+                analyzer.register_imported_function(name, arity, stmt.location)
+                self._merged_stdlib_handlers[name] = (arity, handler)
+            elif name in module.constants:
+                analyzer.register_imported_constant(name, stmt.location)
+                self._merged_stdlib_constants[name] = module.constants[name]
+            else:
+                msg = f"Module '{stmt.path}' does not export '{name}'"
+                raise PebbleImportError(msg, line=stmt.location.line, column=stmt.location.column)
 
     def _resolve_path(self, import_path: str, location: SourceLocation) -> Path:
         """Resolve *import_path* relative to *base_dir*."""
