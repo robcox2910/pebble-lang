@@ -57,6 +57,7 @@ from pebble.ast_nodes import (
     StringInterpolation,
     StringLiteral,
     StructDef,
+    SuperMethodCall,
     ThrowStatement,
     TryCatch,
     UnaryOp,
@@ -133,19 +134,24 @@ class Compiler:
         cell_vars: dict[str, set[str]] | None = None,
         free_vars: dict[str, set[str]] | None = None,
         enums: dict[str, list[str]] | None = None,
+        class_parents: dict[str, str] | None = None,
+        structs: dict[str, list[str]] | None = None,
+        class_methods: dict[str, list[str]] | None = None,
+        functions: dict[str, CodeObject] | None = None,
     ) -> None:
         """Create a compiler with an empty main CodeObject."""
         self._main = CodeObject(name="<main>")
-        self._functions: dict[str, CodeObject] = {}
+        self._functions: dict[str, CodeObject] = dict(functions) if functions else {}
         self._current = self._main
         self._loop_var_counter = 0
         self._match_var_counter = 0
         self._comp_var_counter = 0
         self._loop_contexts: list[_LoopContext] = []
         self._try_depth: int = 0
-        self._structs: dict[str, list[str]] = {}
+        self._structs: dict[str, list[str]] = dict(structs) if structs else {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
-        self._class_methods: dict[str, list[str]] = {}
+        self._class_methods: dict[str, list[str]] = dict(class_methods) if class_methods else {}
+        self._class_parents: dict[str, str] = dict(class_parents) if class_parents else {}
         self._enums: dict[str, list[str]] = dict(enums) if enums else {}
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
@@ -172,6 +178,7 @@ class Compiler:
             struct_field_types=self._struct_field_types,
             class_methods=self._class_methods,
             enums=self._enums,
+            class_parents=self._class_parents,
         )
 
     # -- Emit helpers ---------------------------------------------------------
@@ -705,7 +712,7 @@ class Compiler:
 
     # -- Expression dispatch --------------------------------------------------
 
-    def _compile_expression(self, expr: Expression) -> None:  # noqa: PLR0912
+    def _compile_expression(self, expr: Expression) -> None:  # noqa: C901, PLR0912
         """Dispatch to the appropriate expression compiler."""
         match expr:
             case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
@@ -736,6 +743,8 @@ class Compiler:
                 self._compile_field_access(expr)
             case FunctionExpression():
                 self._compile_function_expression(expr)
+            case SuperMethodCall():
+                self._compile_super_method_call(expr)
 
     # -- Expression compilers -------------------------------------------------
 
@@ -921,11 +930,31 @@ class Compiler:
 
     def _compile_class_def(self, node: ClassDef) -> None:
         """Compile a class definition — store field metadata, compile methods."""
-        # Store field metadata (same as struct)
-        self._structs[node.name] = [f.name for f in node.fields]
-        annotated = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
-        if annotated:
-            self._struct_field_types[node.name] = annotated
+        own_fields = [f.name for f in node.fields]
+
+        if node.parent is not None:
+            # Merge parent fields (already computed by analyzer)
+            parent_fields = list(self._structs.get(node.parent, []))
+            all_fields = parent_fields + own_fields
+            self._structs[node.name] = all_fields
+
+            # Merge parent field type annotations
+            parent_types = dict(self._struct_field_types.get(node.parent, {}))
+            own_types = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
+            merged_types = {**parent_types, **own_types}
+            if merged_types:
+                self._struct_field_types[node.name] = merged_types
+
+            # Record parent relationship
+            self._class_parents[node.name] = node.parent
+        else:
+            self._structs[node.name] = own_fields
+            annotated = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
+            if annotated:
+                self._struct_field_types[node.name] = annotated
+
+        # Build set of child-defined method names
+        child_method_names = {m.name for m in node.methods}
 
         # Compile each method as a mangled function
         method_names: list[str] = []
@@ -939,11 +968,36 @@ class Compiler:
             )
             method_names.append(method.name)
 
+        # Inherit parent methods not overridden by child
+        if node.parent is not None:
+            parent_methods = self._class_methods.get(node.parent, [])
+            for mname in parent_methods:
+                if mname not in child_method_names:
+                    # Copy parent's CodeObject reference under child's mangled name
+                    parent_mangled = f"{node.parent}.{mname}"
+                    child_mangled = f"{node.name}.{mname}"
+                    if parent_mangled in self._functions:
+                        self._functions[child_mangled] = self._functions[parent_mangled]
+                    method_names.append(mname)
+
         self._class_methods[node.name] = method_names
 
     def _compile_enum_def(self, node: EnumDef) -> None:
         """Compile an enum definition — store metadata, emit no bytecode."""
         self._enums[node.name] = list(node.variants)
+
+    def _compile_super_method_call(self, node: SuperMethodCall) -> None:
+        """Compile ``super.method(args)`` as CALL to parent's mangled function."""
+        # Push self onto the stack
+        self._emit_load("self", location=node.location)
+        # Push each argument
+        for arg in node.arguments:
+            self._compile_expression(arg)
+        # Resolve parent class from current function name
+        class_name = self._current.name.split(".")[0]
+        parent_name = self._class_parents[class_name]
+        mangled = f"{parent_name}.{node.method}"
+        self._emit(OpCode.CALL, mangled, location=node.location)
 
     def _compile_field_access(self, node: FieldAccess) -> None:
         """Compile a field read: enum variant or struct field."""

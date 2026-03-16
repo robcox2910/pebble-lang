@@ -45,6 +45,8 @@ class TokenKind(StrEnum):
     STRUCT = "STRUCT"
     CLASS = "CLASS"
     ENUM = "ENUM"
+    EXTENDS = "EXTENDS"
+    SUPER = "SUPER"
     IMPORT = "IMPORT"
     FROM = "FROM"
     TRUE = "TRUE"
@@ -148,6 +150,8 @@ KEYWORDS: dict[str, TokenKind] = {
     "struct": TokenKind.STRUCT,
     "class": TokenKind.CLASS,
     "enum": TokenKind.ENUM,
+    "extends": TokenKind.EXTENDS,
+    "super": TokenKind.SUPER,
     "import": TokenKind.IMPORT,
     "from": TokenKind.FROM,
     "true": TokenKind.TRUE,

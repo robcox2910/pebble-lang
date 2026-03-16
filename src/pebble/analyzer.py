@@ -54,6 +54,7 @@ from pebble.ast_nodes import (
     StringInterpolation,
     StringLiteral,
     StructDef,
+    SuperMethodCall,
     ThrowStatement,
     TryCatch,
     UnaryOp,
@@ -212,6 +213,8 @@ class SemanticAnalyzer:
         self._cell_vars: dict[str, set[str]] = {}
         self._free_vars: dict[str, set[str]] = {}
         self._class_methods: dict[str, dict[str, int]] = {}
+        self._class_parents: dict[str, str] = {}
+        self._class_fields: dict[str, list[str]] = {}
         self._enums: dict[str, list[str]] = {}
 
     # -- Closure metadata -----------------------------------------------------
@@ -235,6 +238,16 @@ class SemanticAnalyzer:
     def enums(self) -> dict[str, list[str]]:
         """Map of enum name → list of variant names."""
         return self._enums
+
+    @property
+    def class_parents(self) -> dict[str, str]:
+        """Map of child class name → parent class name."""
+        return self._class_parents
+
+    @property
+    def class_fields(self) -> dict[str, list[str]]:
+        """Map of class name → full field list (including inherited)."""
+        return self._class_fields
 
     # -- Public API -----------------------------------------------------------
 
@@ -567,7 +580,7 @@ class SemanticAnalyzer:
         for expr in exprs:
             self._visit_expression(expr)
 
-    def _visit_expression(self, expr: Expression) -> None:  # noqa: PLR0912
+    def _visit_expression(self, expr: Expression) -> None:  # noqa: C901, PLR0912
         """Dispatch to the appropriate visitor based on expression type."""
         match expr:
             case Identifier():
@@ -597,6 +610,8 @@ class SemanticAnalyzer:
                 self._visit_field_access(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
+            case SuperMethodCall():
+                self._visit_super_method_call(expr)
             case (
                 IntegerLiteral()
                 | FloatLiteral()
@@ -672,19 +687,60 @@ class SemanticAnalyzer:
             if f.type_annotation is not None:
                 self._validate_type_name(f.type_annotation, node.location)
 
-    def _visit_class_def(self, node: ClassDef) -> None:
+    def _visit_class_def(self, node: ClassDef) -> None:  # noqa: C901, PLR0912
         """Visit a class definition — register constructor, validate methods."""
-        # Register constructor with arity = field count
-        self._scope.declare_function(node.name, len(node.fields), node.location)
-        self._scope.variables[node.name] = node.location
-
         # Validate field type annotations
         for f in node.fields:
             if f.type_annotation is not None:
                 self._validate_type_name(f.type_annotation, node.location)
 
+        # -- Inheritance validation --
+        all_fields: list[str] = []
+        inherited_methods: dict[str, int] = {}
+
+        if node.parent is not None:
+            # Self-extension check
+            if node.parent == node.name:
+                msg = "A class cannot extend itself"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+            # Parent must be a known class (not struct/enum/unknown)
+            if node.parent not in self._class_methods:
+                if node.parent in self._enums:
+                    msg = f"'{node.parent}' is an enum, not a class"
+                elif self._scope.resolve_function(node.parent) is not None:
+                    msg = f"'{node.parent}' is not a class"
+                else:
+                    msg = f"Unknown parent class '{node.parent}'"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+            # Collect all ancestor fields
+            parent_fields = self._get_all_fields(node.parent)
+            all_fields.extend(parent_fields)
+
+            # Check no child field duplicates a parent field
+            parent_field_set = set(parent_fields)
+            for f in node.fields:
+                if f.name in parent_field_set:
+                    msg = f"Duplicate field '{f.name}' (already inherited from '{node.parent}')"
+                    raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+            # Copy parent methods for inheritance
+            inherited_methods = dict(self._class_methods[node.parent])
+
+            # Record parent relationship
+            self._class_parents[node.name] = node.parent
+
+        # Build full field list
+        all_fields.extend(f.name for f in node.fields)
+        self._class_fields[node.name] = all_fields
+
+        # Register constructor with arity = total field count
+        self._scope.declare_function(node.name, len(all_fields), node.location)
+        self._scope.variables[node.name] = node.location
+
         # Pre-register method arities so methods can call each other
-        method_arities: dict[str, int] = {}
+        method_arities: dict[str, int] = dict(inherited_methods)
         for method in node.methods:
             # First param must be 'self'
             if not method.parameters or method.parameters[0].name != "self":
@@ -723,6 +779,44 @@ class SemanticAnalyzer:
         self._scope.declare_variable(node.name, node.location)
         self._enums[node.name] = list(node.variants)
 
+    def _get_all_fields(self, class_name: str) -> list[str]:
+        """Walk the parent chain to collect fields in ancestor-first order."""
+        if class_name in self._class_fields:
+            return list(self._class_fields[class_name])
+        return []
+
+    def _visit_super_method_call(self, node: SuperMethodCall) -> None:
+        """Visit a ``super.method(args)`` call — validate context and arity."""
+        # Must be inside a method (function name has form "ClassName.method")
+        fn_name = self._scope.owning_function
+        if fn_name is None or "." not in fn_name:
+            msg = "'super' can only be used inside a method"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+        class_name = fn_name.split(".")[0]
+
+        # Class must have a parent
+        if class_name not in self._class_parents:
+            msg = f"'super' used in class '{class_name}' which has no parent"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+        parent_name = self._class_parents[class_name]
+
+        # Parent must have the called method
+        if (
+            parent_name not in self._class_methods
+            or node.method not in self._class_methods[parent_name]
+        ):
+            msg = f"Parent class '{parent_name}' has no method '{node.method}'"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+        # Check arity (excluding self)
+        expected = self._class_methods[parent_name][node.method]
+        self._check_arity("Method", node.method, expected, len(node.arguments), node.location)
+
+        for arg in node.arguments:
+            self._visit_expression(arg)
+
     def _visit_field_access(self, node: FieldAccess) -> None:
         """Visit a field access — validate enum variants, or defer to runtime."""
         if isinstance(node.target, Identifier) and node.target.name in self._enums:
@@ -758,12 +852,16 @@ class SemanticAnalyzer:
         field_count: int,
         method_arities: dict[str, int],
         location: SourceLocation,
+        *,
+        fields: list[str] | None = None,
     ) -> None:
         """Register an imported class in the global scope."""
         self._scope.declare_function(name, field_count, location)
         self._scope.variables[name] = location
         # Register method arities so _visit_method_call can validate calls
         self._class_methods[name] = dict(method_arities)
+        if fields is not None:
+            self._class_fields[name] = list(fields)
 
     def register_imported_enum(
         self, name: str, variants: list[str], location: SourceLocation
@@ -771,6 +869,13 @@ class SemanticAnalyzer:
         """Register an imported enum in the global scope."""
         self._scope.declare_variable(name, location)
         self._enums[name] = list(variants)
+
+    def register_imported_class_parent(
+        self, name: str, parent: str, parent_fields: list[str]
+    ) -> None:
+        """Register an imported class's parent relationship."""
+        self._class_parents[name] = parent
+        self._class_fields[name] = list(parent_fields)
 
     def _validate_enum_pattern(self, pattern: EnumPattern) -> None:
         """Validate that an enum pattern references a known enum and variant."""

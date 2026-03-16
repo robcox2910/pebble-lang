@@ -24,6 +24,7 @@ def run_source(source: str) -> str:
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
         enums=analyzer.enums,
+        class_parents=analyzer.class_parents,
     ).compile(analyzed)
     buf = StringIO()
     VirtualMachine(output=buf).run(compiled)
@@ -42,6 +43,7 @@ def run_source_with_imports(source: str, *, base_dir: Path) -> str:
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
         enums=analyzer.enums,
+        class_parents=analyzer.class_parents,
     ).compile(analyzed)
     all_functions = {**resolver.merged_functions, **compiled.functions}
     all_structs = {**resolver.merged_structs, **compiled.structs}
@@ -54,6 +56,7 @@ def run_source_with_imports(source: str, *, base_dir: Path) -> str:
         **compiled.class_methods,
     }
     all_enums = {**resolver.merged_enums, **compiled.enums}
+    all_class_parents = {**resolver.merged_class_parents, **compiled.class_parents}
     full_program = CompiledProgram(
         main=compiled.main,
         functions=all_functions,
@@ -61,6 +64,7 @@ def run_source_with_imports(source: str, *, base_dir: Path) -> str:
         struct_field_types=all_struct_field_types,
         class_methods=all_class_methods,
         enums=all_enums,
+        class_parents=all_class_parents,
     )
     buf = StringIO()
     VirtualMachine(output=buf).run(full_program)

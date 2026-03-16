@@ -49,6 +49,8 @@ class ResolvedModule:
     class_methods: dict[str, list[str]]
     class_method_arities: dict[str, dict[str, int]]
     enums: dict[str, list[str]]
+    class_parents: dict[str, str]
+    class_fields: dict[str, list[str]]
     exported_functions: dict[str, int]
     exported_structs: dict[str, int]
     exported_classes: dict[str, int]
@@ -79,6 +81,8 @@ class ModuleResolver:
         self._merged_struct_field_types: dict[str, dict[str, str]] = {}
         self._merged_class_methods: dict[str, list[str]] = {}
         self._merged_class_method_arities: dict[str, dict[str, int]] = {}
+        self._merged_class_parents: dict[str, str] = {}
+        self._merged_class_fields: dict[str, list[str]] = {}
         self._merged_enums: dict[str, list[str]] = {}
 
     # -- Public API -----------------------------------------------------------
@@ -109,6 +113,16 @@ class ModuleResolver:
         return dict(self._merged_class_method_arities)
 
     @property
+    def merged_class_parents(self) -> dict[str, str]:
+        """Return all imported class parent relationships for merging."""
+        return dict(self._merged_class_parents)
+
+    @property
+    def merged_class_fields(self) -> dict[str, list[str]]:
+        """Return all imported class field lists for merging."""
+        return dict(self._merged_class_fields)
+
+    @property
     def merged_enums(self) -> dict[str, list[str]]:
         """Return all imported enum definitions for merging."""
         return dict(self._merged_enums)
@@ -133,7 +147,14 @@ class ModuleResolver:
             analyzer.register_imported_struct(name, field_count, stmt.location)
         for name, field_count in resolved.exported_classes.items():
             method_arities = resolved.class_method_arities.get(name, {})
-            analyzer.register_imported_class(name, field_count, method_arities, stmt.location)
+            fields = resolved.class_fields.get(name)
+            analyzer.register_imported_class(
+                name, field_count, method_arities, stmt.location, fields=fields
+            )
+            if name in resolved.class_parents:
+                analyzer.register_imported_class_parent(
+                    name, resolved.class_parents[name], fields or []
+                )
         for name, variants in resolved.exported_enums.items():
             analyzer.register_imported_enum(name, variants, stmt.location)
         # Merge all definitions (including transitive) for CompiledProgram
@@ -152,7 +173,14 @@ class ModuleResolver:
             elif name in resolved.exported_classes:
                 field_count = resolved.exported_classes[name]
                 method_arities = resolved.class_method_arities.get(name, {})
-                analyzer.register_imported_class(name, field_count, method_arities, stmt.location)
+                fields = resolved.class_fields.get(name)
+                analyzer.register_imported_class(
+                    name, field_count, method_arities, stmt.location, fields=fields
+                )
+                if name in resolved.class_parents:
+                    analyzer.register_imported_class_parent(
+                        name, resolved.class_parents[name], fields or []
+                    )
             elif name in resolved.exported_enums:
                 variants = resolved.exported_enums[name]
                 analyzer.register_imported_enum(name, variants, stmt.location)
@@ -169,6 +197,8 @@ class ModuleResolver:
         self._merged_struct_field_types.update(resolved.struct_field_types)
         self._merged_class_methods.update(resolved.class_methods)
         self._merged_class_method_arities.update(resolved.class_method_arities)
+        self._merged_class_parents.update(resolved.class_parents)
+        self._merged_class_fields.update(resolved.class_fields)
         self._merged_enums.update(resolved.enums)
 
     def _resolve_path(self, import_path: str, location: SourceLocation) -> Path:
@@ -219,6 +249,7 @@ class ModuleResolver:
                 cell_vars=sub_analyzer.cell_vars,
                 free_vars=sub_analyzer.free_vars,
                 enums=sub_analyzer.enums,
+                class_parents=sub_analyzer.class_parents,
             ).compile(analyzed)
 
             # Build merged function/struct dicts (transitive + own)
@@ -236,6 +267,14 @@ class ModuleResolver:
                 **sub_resolver.merged_class_method_arities,
                 **sub_analyzer.class_methods,
             }
+            all_class_parents = {
+                **sub_resolver.merged_class_parents,
+                **compiled.class_parents,
+            }
+            all_class_fields = {
+                **sub_resolver.merged_class_fields,
+                **sub_analyzer.class_fields,
+            }
             all_enums = {
                 **sub_resolver.merged_enums,
                 **compiled.enums,
@@ -248,6 +287,8 @@ class ModuleResolver:
                 class_methods=all_class_methods,
                 class_method_arities=all_class_method_arities,
                 enums=all_enums,
+                class_parents=all_class_parents,
+                class_fields=all_class_fields,
                 exported_functions=exported_functions,
                 exported_structs=exported_structs,
                 exported_classes=exported_classes,
