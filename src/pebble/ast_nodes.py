@@ -27,10 +27,11 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class Parameter:
-    """A named slot with optional type annotation."""
+    """A named slot with optional type annotation and default value."""
 
     name: str
     type_annotation: str | None = None
+    default: Expression | None = None
 
 
 # ---------------------------------------------------------------------------

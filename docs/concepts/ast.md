@@ -105,10 +105,12 @@ nodes:
 
 | Node | Example | What It Holds |
 |------|---------|---------------|
-| `Parameter` | `x: Int` | A name and an optional type annotation |
+| `Parameter` | `x: Int = 42` | A name, optional type annotation, and optional default value |
 
 `Parameter` is used for function parameters and struct fields. If no type
-annotation is given, `type_annotation` is `None`.
+annotation is given, `type_annotation` is `None`. If a default value is
+given (like `= 42`), it is stored in the `default` field; otherwise
+`default` is `None`.
 
 The **Program** node sits at the very top and holds the list of all top-level
 statements.

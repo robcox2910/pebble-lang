@@ -404,7 +404,27 @@ class SemanticAnalyzer:
 
     def _visit_function_body(self, node: FunctionDef | FunctionExpression) -> None:
         """Visit the shared scope/param/body logic for functions and function expressions."""
-        self._scope.declare_function(node.name, len(node.parameters), node.location)
+        # Validate default parameter ordering and literal-only restriction
+        seen_default = False
+        for param in node.parameters:
+            if param.default is not None:
+                seen_default = True
+                if not isinstance(
+                    param.default,
+                    IntegerLiteral | FloatLiteral | StringLiteral | BooleanLiteral,
+                ):
+                    msg = "Default parameter values must be literals"
+                    raise SemanticError(msg, line=node.location.line, column=node.location.column)
+            elif seen_default:
+                msg = f"Required parameter '{param.name}' cannot follow a parameter with a default"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+        required = sum(1 for p in node.parameters if p.default is None)
+        total = len(node.parameters)
+        arity: int | tuple[int, ...] = (
+            tuple(range(required, total + 1)) if required != total else total
+        )
+        self._scope.declare_function(node.name, arity, node.location)
         self._push_scope()
         self._scope.function_name = node.name
         for param in node.parameters:
