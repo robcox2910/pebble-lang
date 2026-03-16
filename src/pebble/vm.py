@@ -21,6 +21,7 @@ from pebble.builtins import (
     STRING_METHODS,
     Cell,
     Closure,
+    EnumVariant,
     StructInstance,
     Value,
     format_value,
@@ -119,6 +120,7 @@ class VirtualMachine:
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
         self._class_methods: dict[str, list[str]] = {}
+        self._enums: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
         self._current_instruction: Instruction | None = None
         self._exception_handlers: list[_ExceptionHandler] = []
@@ -132,6 +134,7 @@ class VirtualMachine:
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
         self._class_methods = dict(program.class_methods)
+        self._enums = dict(program.enums)
         self._frames = [Frame(code=program.main)]
         self._exception_handlers = []
         try:
@@ -152,6 +155,7 @@ class VirtualMachine:
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
         self._class_methods = dict(program.class_methods)
+        self._enums = dict(program.enums)
         self._frames = [Frame(code=program.main, variables=dict(variables))]
         self._exception_handlers = []
         try:
@@ -291,6 +295,8 @@ class VirtualMachine:
                 raise _PebbleThrow(self._stack.pop())
             case OpCode.CHECK_TYPE:
                 self._exec_check_type(instruction)
+            case OpCode.LOAD_ENUM_VARIANT:
+                self._exec_load_enum_variant(instruction)
             case _:  # pragma: no cover
                 pass
 
@@ -853,6 +859,17 @@ class VirtualMachine:
         return_value = self._stack.pop()
         self._frames.pop()
         self._stack.append(return_value)
+
+    # -- Enum support ---------------------------------------------------------
+
+    def _exec_load_enum_variant(self, instruction: Instruction) -> None:
+        """Handle LOAD_ENUM_VARIANT — construct an EnumVariant and push it."""
+        idx = _int_operand(instruction)
+        frame = self._frames[-1]
+        key = frame.code.constants[idx]
+        assert isinstance(key, str)  # noqa: S101
+        enum_name, variant_name = key.split(":", 1)
+        self._stack.append(EnumVariant(enum_name=enum_name, variant_name=variant_name))
 
     # -- Type checking --------------------------------------------------------
 

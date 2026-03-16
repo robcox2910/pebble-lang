@@ -100,6 +100,9 @@ class OpCode(StrEnum):
     GET_FIELD = "GET_FIELD"
     SET_FIELD = "SET_FIELD"
 
+    # -- Enums ----------------------------------------------------------------
+    LOAD_ENUM_VARIANT = "LOAD_ENUM_VARIANT"
+
     # -- Unpacking ------------------------------------------------------------
     UNPACK_SEQUENCE = "UNPACK_SEQUENCE"
 
@@ -207,3 +210,4 @@ class CompiledProgram:
     class_methods: dict[str, list[str]] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )
+    enums: dict[str, list[str]] = field(default_factory=lambda: {})  # noqa: PIE807

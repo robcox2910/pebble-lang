@@ -24,6 +24,8 @@ from pebble.ast_nodes import (
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
+    EnumDef,
+    EnumPattern,
     Expression,
     FieldAccess,
     FieldAssignment,
@@ -210,6 +212,7 @@ class SemanticAnalyzer:
         self._cell_vars: dict[str, set[str]] = {}
         self._free_vars: dict[str, set[str]] = {}
         self._class_methods: dict[str, dict[str, int]] = {}
+        self._enums: dict[str, list[str]] = {}
 
     # -- Closure metadata -----------------------------------------------------
 
@@ -227,6 +230,11 @@ class SemanticAnalyzer:
     def class_methods(self) -> dict[str, dict[str, int]]:
         """Map of class name → {method_name: user_arity (excluding self)}."""
         return self._class_methods
+
+    @property
+    def enums(self) -> dict[str, list[str]]:
+        """Map of enum name → list of variant names."""
+        return self._enums
 
     # -- Public API -----------------------------------------------------------
 
@@ -310,6 +318,8 @@ class SemanticAnalyzer:
                 self._visit_struct_def(stmt)
             case ClassDef():
                 self._visit_class_def(stmt)
+            case EnumDef():
+                self._visit_enum_def(stmt)
             case FieldAssignment():
                 self._visit_field_assignment(stmt)
             case ImportStatement() | FromImportStatement():
@@ -526,6 +536,9 @@ class SemanticAnalyzer:
             if isinstance(case.pattern, WildcardPattern | CapturePattern):
                 seen_catchall = True
 
+            if isinstance(case.pattern, EnumPattern):
+                self._validate_enum_pattern(case.pattern)
+
             self._push_scope()
             if isinstance(case.pattern, CapturePattern):
                 self._scope.declare_variable(case.pattern.name, case.pattern.location)
@@ -634,6 +647,10 @@ class SemanticAnalyzer:
         """Resolve a function call, checking existence and arity."""
         resolved = self._scope.resolve_function(node.name)
         if resolved is None:
+            # Enum names are not callable
+            if node.name in self._enums:
+                msg = f"'{node.name}' is an enum, not a function"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
             # Allow calling variables that may hold closures
             if self._scope.resolve_variable(node.name) is not None:
                 self._check_capture(node.name)
@@ -701,8 +718,19 @@ class SemanticAnalyzer:
             self._in_function = prev_in_function
             self._pop_scope()
 
+    def _visit_enum_def(self, node: EnumDef) -> None:
+        """Visit an enum definition — register name as variable, store variants."""
+        self._scope.declare_variable(node.name, node.location)
+        self._enums[node.name] = list(node.variants)
+
     def _visit_field_access(self, node: FieldAccess) -> None:
-        """Visit a field access — validate target, defer field check to runtime."""
+        """Visit a field access — validate enum variants, or defer to runtime."""
+        if isinstance(node.target, Identifier) and node.target.name in self._enums:
+            variants = self._enums[node.target.name]
+            if node.field not in variants:
+                msg = f"Enum '{node.target.name}' has no variant '{node.field}'"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+            return
         self._visit_expression(node.target)
 
     def _visit_field_assignment(self, node: FieldAssignment) -> None:
@@ -736,6 +764,23 @@ class SemanticAnalyzer:
         self._scope.variables[name] = location
         # Register method arities so _visit_method_call can validate calls
         self._class_methods[name] = dict(method_arities)
+
+    def register_imported_enum(
+        self, name: str, variants: list[str], location: SourceLocation
+    ) -> None:
+        """Register an imported enum in the global scope."""
+        self._scope.declare_variable(name, location)
+        self._enums[name] = list(variants)
+
+    def _validate_enum_pattern(self, pattern: EnumPattern) -> None:
+        """Validate that an enum pattern references a known enum and variant."""
+        if pattern.enum_name not in self._enums:
+            msg = f"Unknown enum '{pattern.enum_name}'"
+            raise SemanticError(msg, line=pattern.location.line, column=pattern.location.column)
+        variants = self._enums[pattern.enum_name]
+        if pattern.variant_name not in variants:
+            msg = f"Enum '{pattern.enum_name}' has no variant '{pattern.variant_name}'"
+            raise SemanticError(msg, line=pattern.location.line, column=pattern.location.column)
 
     def reset_import_barrier(self) -> None:
         """Reset the import-ordering flag (for REPL re-entry)."""

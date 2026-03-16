@@ -22,6 +22,8 @@ from pebble.ast_nodes import (
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
+    EnumDef,
+    EnumPattern,
     Expression,
     FieldAccess,
     FieldAssignment,
@@ -505,6 +507,17 @@ class Parser:
                 self._error("Cannot use '_' as capture name; use 'case _' for wildcard")
             return CapturePattern(name=name_token.value, location=token.location)
 
+        # Enum pattern: Identifier.Identifier
+        if token.kind == TokenKind.IDENTIFIER and self._peek_next_kind() == TokenKind.DOT:
+            self._advance()  # consume enum name
+            self._advance()  # consume '.'
+            variant_token = self._expect(TokenKind.IDENTIFIER, "Expected variant name after '.'")
+            return EnumPattern(
+                enum_name=token.value,
+                variant_name=variant_token.value,
+                location=token.location,
+            )
+
         # Negative literal: -<int|float>
         if token.kind == TokenKind.MINUS:
             return self._parse_negative_literal_pattern()
@@ -640,6 +653,44 @@ class Parser:
             fields=fields,
             methods=methods,
             location=class_token.location,
+        )
+
+    def _parse_enum_def(self) -> EnumDef:
+        """Parse an ``enum Name { Variant1, Variant2 }`` definition."""
+        enum_token = self._advance()  # consume 'enum'
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected enum name after 'enum'")
+        self._expect(TokenKind.LEFT_BRACE, "Expected '{' after enum name")
+        self._skip_newlines()
+
+        variants: list[str] = []
+        seen: set[str] = set()
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACE:
+            variant = self._expect(TokenKind.IDENTIFIER, "Expected variant name")
+            if variant.value in seen:
+                self._error(f"Duplicate variant '{variant.value}' in enum '{name_token.value}'")
+            variants.append(variant.value)
+            seen.add(variant.value)
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                self._skip_newlines()
+                if not self._at_end() and self._peek().kind == TokenKind.RIGHT_BRACE:
+                    break  # trailing comma
+                variant = self._expect(TokenKind.IDENTIFIER, "Expected variant name after ','")
+                if variant.value in seen:
+                    self._error(f"Duplicate variant '{variant.value}' in enum '{name_token.value}'")
+                variants.append(variant.value)
+                seen.add(variant.value)
+            self._skip_newlines()
+
+        if not variants:
+            self._error(f"Enum '{name_token.value}' must have at least one variant")
+
+        self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after enum variants")
+        self._consume_newline()
+        return EnumDef(
+            name=name_token.value,
+            variants=variants,
+            location=enum_token.location,
         )
 
     def _parse_import(self) -> ImportStatement:
@@ -1107,6 +1158,7 @@ class Parser:
         TokenKind.MATCH: _parse_match,
         TokenKind.STRUCT: _parse_struct_def,
         TokenKind.CLASS: _parse_class_def,
+        TokenKind.ENUM: _parse_enum_def,
         TokenKind.IMPORT: _parse_import,
         TokenKind.FROM: _parse_from_import,
     }

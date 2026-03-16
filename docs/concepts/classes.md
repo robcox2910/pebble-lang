@@ -159,15 +159,16 @@ print(g.greet("Hello"))   # prints: Hello, Alice!
 Fields can have type annotations too -- they work the same way as
 struct field annotations.
 
-## Structs vs Classes
+## Structs, Classes, and Enums
 
-Pebble has both `struct` and `class`. Here's when to use each:
+Pebble has three tools for custom types, each serving a different
+purpose:
 
-| Feature | Struct | Class |
-|---------|--------|-------|
-| Fields | Yes | Yes |
-| Methods | No | Yes |
-| Use when... | You just need to group data | Your data needs to *do things* |
+| Feature | Struct | Class | Enum |
+|---------|--------|-------|------|
+| Fields | Yes | Yes | No |
+| Methods | No | Yes | No |
+| Use when... | Group related data | Data that needs to *do things* | Fixed set of named options |
 
 Think of it this way:
 
@@ -177,10 +178,13 @@ Think of it this way:
 - A **class** is a **robot** -- it has data *and* it knows how to
   act on that data. Like a calculator that holds a number and can
   add, subtract, or multiply.
+- An **enum** is a **menu** -- a fixed list of choices, like an
+  ice-cream shop with Chocolate, Vanilla, and Strawberry.
 
 Both structs and classes create instances the same way (`Name(args)`),
 and both support field access (`inst.field`) and field mutation
-(`inst.field = value`).
+(`inst.field = value`). Enums use dot syntax instead: `Color.Red`.
+See [Enums](enums.md) for details.
 
 ## Error Cases
 

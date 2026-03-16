@@ -24,6 +24,8 @@ from pebble.ast_nodes import (
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
+    EnumDef,
+    EnumPattern,
     Expression,
     FieldAccess,
     FieldAssignment,
@@ -130,6 +132,7 @@ class Compiler:
         *,
         cell_vars: dict[str, set[str]] | None = None,
         free_vars: dict[str, set[str]] | None = None,
+        enums: dict[str, list[str]] | None = None,
     ) -> None:
         """Create a compiler with an empty main CodeObject."""
         self._main = CodeObject(name="<main>")
@@ -143,6 +146,7 @@ class Compiler:
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
         self._class_methods: dict[str, list[str]] = {}
+        self._enums: dict[str, list[str]] = dict(enums) if enums else {}
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
         self._function_defaults: dict[str, list[Expression | None]] = {}
@@ -167,6 +171,7 @@ class Compiler:
             structs=self._structs,
             struct_field_types=self._struct_field_types,
             class_methods=self._class_methods,
+            enums=self._enums,
         )
 
     # -- Emit helpers ---------------------------------------------------------
@@ -229,7 +234,7 @@ class Compiler:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _compile_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912
+    def _compile_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
         """Dispatch to the appropriate compilation method."""
         match stmt:
             case Assignment():
@@ -272,6 +277,8 @@ class Compiler:
                 self._compile_struct_def(stmt)
             case ClassDef():
                 self._compile_class_def(stmt)
+            case EnumDef():
+                self._compile_enum_def(stmt)
             case FieldAssignment():
                 self._compile_field_assignment(stmt)
             case ImportStatement() | FromImportStatement():
@@ -625,7 +632,7 @@ class Compiler:
         self._compile_expression(node.value)
         self._emit(OpCode.THROW, location=node.location)
 
-    def _compile_match(self, node: MatchStatement) -> None:
+    def _compile_match(self, node: MatchStatement) -> None:  # noqa: PLR0912
         """Compile ``match value { case pattern { body } ... }``."""
         loc = node.location
         match_var = f"$match_{self._match_var_counter}"
@@ -662,6 +669,18 @@ class Compiler:
                         self._emit_constant(alt.value, location=loc)
                         self._emit(OpCode.EQUAL, location=loc)
                         self._emit(OpCode.OR, location=loc)
+                    skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+                    for stmt in case.body:
+                        self._compile_statement(stmt)
+                    end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
+                    self._patch_jump(skip)
+
+                case EnumPattern():
+                    variant_key = f"{pattern.enum_name}:{pattern.variant_name}"
+                    idx = self._current.add_constant(variant_key)
+                    self._emit(OpCode.LOAD_NAME, match_var, location=loc)
+                    self._emit(OpCode.LOAD_ENUM_VARIANT, idx, location=loc)
+                    self._emit(OpCode.EQUAL, location=loc)
                     skip = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
                     for stmt in case.body:
                         self._compile_statement(stmt)
@@ -922,8 +941,17 @@ class Compiler:
 
         self._class_methods[node.name] = method_names
 
+    def _compile_enum_def(self, node: EnumDef) -> None:
+        """Compile an enum definition — store metadata, emit no bytecode."""
+        self._enums[node.name] = list(node.variants)
+
     def _compile_field_access(self, node: FieldAccess) -> None:
-        """Compile a field read: push target, then GET_FIELD."""
+        """Compile a field read: enum variant or struct field."""
+        if isinstance(node.target, Identifier) and node.target.name in self._enums:
+            variant_key = f"{node.target.name}:{node.field}"
+            idx = self._current.add_constant(variant_key)
+            self._emit(OpCode.LOAD_ENUM_VARIANT, idx, location=node.location)
+            return
         self._compile_expression(node.target)
         self._emit(OpCode.GET_FIELD, node.field, location=node.location)
 

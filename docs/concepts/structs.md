@@ -255,12 +255,19 @@ No special opcode needed -- the existing `CALL` opcode handles it.
 2. `LOAD_CONST 30` -- push the new value.
 3. `SET_FIELD "x"` -- pop both, update the field in place.
 
-## Structs vs Classes
+## Structs, Classes, and Enums
 
-Pebble also has **classes**, which are like structs that can do things.
-If your type only needs to hold data, use a struct. If it also needs
-methods (functions attached to the data), use a class. See the
-[Classes](classes.md) chapter for details.
+Pebble has three ways to define custom types:
+
+- **Struct** -- a container for related data fields (this chapter).
+- **Class** -- a struct that can also have methods.
+  See [Classes](classes.md).
+- **Enum** -- a fixed set of named values (not a data container).
+  See [Enums](enums.md).
+
+If you just need to group data, use a struct. If your data needs to
+*do things*, use a class. If you have a small, known set of options
+(like colours or directions), use an enum.
 
 ## Summary
 

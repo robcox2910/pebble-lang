@@ -361,6 +361,7 @@ of statement it is:
 | `match` | Match statement |
 | `struct` | Struct definition |
 | `class` | Class definition |
+| `enum` | Enum definition |
 | `import` | Import statement |
 | `from` | From-import statement |
 | `print` | Print statement |

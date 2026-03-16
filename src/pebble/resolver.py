@@ -12,7 +12,14 @@ from pathlib import Path  # noqa: TC003 — used at runtime
 from typing import TYPE_CHECKING
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.ast_nodes import ClassDef, FromImportStatement, FunctionDef, ImportStatement, StructDef
+from pebble.ast_nodes import (
+    ClassDef,
+    EnumDef,
+    FromImportStatement,
+    FunctionDef,
+    ImportStatement,
+    StructDef,
+)
 from pebble.compiler import Compiler
 from pebble.errors import PebbleImportError
 from pebble.lexer import Lexer
@@ -41,9 +48,11 @@ class ResolvedModule:
     struct_field_types: dict[str, dict[str, str]]
     class_methods: dict[str, list[str]]
     class_method_arities: dict[str, dict[str, int]]
+    enums: dict[str, list[str]]
     exported_functions: dict[str, int]
     exported_structs: dict[str, int]
     exported_classes: dict[str, int]
+    exported_enums: dict[str, list[str]]
 
 
 class ModuleResolver:
@@ -70,6 +79,7 @@ class ModuleResolver:
         self._merged_struct_field_types: dict[str, dict[str, str]] = {}
         self._merged_class_methods: dict[str, list[str]] = {}
         self._merged_class_method_arities: dict[str, dict[str, int]] = {}
+        self._merged_enums: dict[str, list[str]] = {}
 
     # -- Public API -----------------------------------------------------------
 
@@ -98,6 +108,11 @@ class ModuleResolver:
         """Return all imported class method arities for analyzer registration."""
         return dict(self._merged_class_method_arities)
 
+    @property
+    def merged_enums(self) -> dict[str, list[str]]:
+        """Return all imported enum definitions for merging."""
+        return dict(self._merged_enums)
+
     def resolve_imports(self, program: Program, analyzer: SemanticAnalyzer) -> None:
         """Walk *program*'s import statements, resolve each, and register names in *analyzer*."""
         for stmt in program.statements:
@@ -119,6 +134,8 @@ class ModuleResolver:
         for name, field_count in resolved.exported_classes.items():
             method_arities = resolved.class_method_arities.get(name, {})
             analyzer.register_imported_class(name, field_count, method_arities, stmt.location)
+        for name, variants in resolved.exported_enums.items():
+            analyzer.register_imported_enum(name, variants, stmt.location)
         # Merge all definitions (including transitive) for CompiledProgram
         self._merge_resolved(resolved)
 
@@ -136,6 +153,9 @@ class ModuleResolver:
                 field_count = resolved.exported_classes[name]
                 method_arities = resolved.class_method_arities.get(name, {})
                 analyzer.register_imported_class(name, field_count, method_arities, stmt.location)
+            elif name in resolved.exported_enums:
+                variants = resolved.exported_enums[name]
+                analyzer.register_imported_enum(name, variants, stmt.location)
             else:
                 msg = f"Module '{stmt.path}' does not export '{name}'"
                 raise PebbleImportError(msg, line=stmt.location.line, column=stmt.location.column)
@@ -149,6 +169,7 @@ class ModuleResolver:
         self._merged_struct_field_types.update(resolved.struct_field_types)
         self._merged_class_methods.update(resolved.class_methods)
         self._merged_class_method_arities.update(resolved.class_method_arities)
+        self._merged_enums.update(resolved.enums)
 
     def _resolve_path(self, import_path: str, location: SourceLocation) -> Path:
         """Resolve *import_path* relative to *base_dir*."""
@@ -181,6 +202,7 @@ class ModuleResolver:
             exported_functions = _extract_function_defs(program.statements)
             exported_structs = _extract_struct_defs(program.statements)
             exported_classes = _extract_class_defs(program.statements)
+            exported_enums = _extract_enum_defs(program.statements)
 
             # Recursively resolve nested imports in a fresh sub-resolver
             sub_resolver = ModuleResolver(
@@ -196,6 +218,7 @@ class ModuleResolver:
             compiled = Compiler(
                 cell_vars=sub_analyzer.cell_vars,
                 free_vars=sub_analyzer.free_vars,
+                enums=sub_analyzer.enums,
             ).compile(analyzed)
 
             # Build merged function/struct dicts (transitive + own)
@@ -213,6 +236,10 @@ class ModuleResolver:
                 **sub_resolver.merged_class_method_arities,
                 **sub_analyzer.class_methods,
             }
+            all_enums = {
+                **sub_resolver.merged_enums,
+                **compiled.enums,
+            }
 
             result = ResolvedModule(
                 functions=all_functions,
@@ -220,9 +247,11 @@ class ModuleResolver:
                 struct_field_types=all_struct_field_types,
                 class_methods=all_class_methods,
                 class_method_arities=all_class_method_arities,
+                enums=all_enums,
                 exported_functions=exported_functions,
                 exported_structs=exported_structs,
                 exported_classes=exported_classes,
+                exported_enums=exported_enums,
             )
             self._cache[path] = result
             return result
@@ -246,3 +275,8 @@ def _extract_struct_defs(stmts: list[Statement]) -> dict[str, int]:
 def _extract_class_defs(stmts: list[Statement]) -> dict[str, int]:
     """Extract top-level class names and field counts from a statement list."""
     return {stmt.name: len(stmt.fields) for stmt in stmts if isinstance(stmt, ClassDef)}
+
+
+def _extract_enum_defs(stmts: list[Statement]) -> dict[str, list[str]]:
+    """Extract top-level enum names and variant lists from a statement list."""
+    return {stmt.name: list(stmt.variants) for stmt in stmts if isinstance(stmt, EnumDef)}
