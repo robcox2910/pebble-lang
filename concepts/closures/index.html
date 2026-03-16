@@ -1315,11 +1315,12 @@ lets you create little "state machines" that remember things between calls:</p>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>print(counter())   # prints: 3
 </code></pre></div>
 <p>Each time you call <code>counter()</code>, the captured <code>count</code> variable goes up by one.</p>
-<p>The variable lives inside a special container called a <strong>Cell</strong>. Think of a
-Cell like a shared whiteboard on a wall — both the outer function and the
-closure can look at it and erase-and-rewrite the number on it. Because they
-share the same whiteboard (not separate copies), changes made by one are
-seen by the other.</p>
+<p>How does this work? The variable lives inside a special container called a
+<strong>Cell</strong> — think of it like a shared whiteboard on a wall. Instead of each
+function getting its own copy of <code>count</code>, they both look at the same
+whiteboard. When the closure erases the old number and writes a new one,
+the outer function would see the change too (and vice versa). That shared
+whiteboard is what makes the counter work.</p>
 <h2 id="independent-closures">Independent Closures</h2>
 <p>Every time you call the outer function, you get a brand-new closure with its
 own private copy of the captured variables:</p>

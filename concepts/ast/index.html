@@ -543,6 +543,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pattern-nodes-used-in-matchcase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Nodes (used in match/case)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#helper-nodes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1400,9 +1411,39 @@ nodes:</p>
 <td>A list of key-value pair expressions</td>
 </tr>
 <tr>
+<td><code>FloatLiteral</code></td>
+<td><code>3.14</code></td>
+<td>A decimal number value</td>
+</tr>
+<tr>
 <td><code>IndexAccess</code></td>
 <td><code>xs[0]</code></td>
 <td>A target and an index expression</td>
+</tr>
+<tr>
+<td><code>SliceAccess</code></td>
+<td><code>xs[1:3]</code></td>
+<td>A target with start, stop, and step</td>
+</tr>
+<tr>
+<td><code>MethodCall</code></td>
+<td><code>s.upper()</code></td>
+<td>An object, method name, and arguments</td>
+</tr>
+<tr>
+<td><code>FieldAccess</code></td>
+<td><code>p.x</code></td>
+<td>An object and field name</td>
+</tr>
+<tr>
+<td><code>FunctionExpression</code></td>
+<td><code>fn(x) { return x }</code></td>
+<td>An anonymous (inline) function</td>
+</tr>
+<tr>
+<td><code>ListComprehension</code></td>
+<td><code>[x * 2 for x in xs]</code></td>
+<td>Expression, variable, iterable, optional filter</td>
 </tr>
 </tbody>
 </table>
@@ -1492,9 +1533,76 @@ nodes:</p>
 <td>The name and list of fields</td>
 </tr>
 <tr>
+<td><code>ConstAssignment</code></td>
+<td><code>const PI = 3</code></td>
+<td>Like Assignment, but immutable</td>
+</tr>
+<tr>
+<td><code>UnpackAssignment</code></td>
+<td><code>let [a, b] = [1, 2]</code></td>
+<td>Destructure a list into variables</td>
+</tr>
+<tr>
+<td><code>UnpackConstAssignment</code></td>
+<td><code>const [a, b] = [1, 2]</code></td>
+<td>Destructure into immutable variables</td>
+</tr>
+<tr>
+<td><code>UnpackReassignment</code></td>
+<td><code>[a, b] = [3, 4]</code></td>
+<td>Destructure into existing variables</td>
+</tr>
+<tr>
+<td><code>FieldAssignment</code></td>
+<td><code>p.x = 10</code></td>
+<td>Set a field on a struct or class instance</td>
+</tr>
+<tr>
+<td><code>TryCatch</code></td>
+<td><code>try { } catch e { }</code></td>
+<td>Try body, catch variable, catch body, optional finally body</td>
+</tr>
+<tr>
+<td><code>ThrowStatement</code></td>
+<td><code>throw "oops"</code></td>
+<td>Raise an error with a value</td>
+</tr>
+<tr>
 <td><code>ClassDef</code></td>
 <td><code>class Dog { name, fn bark(self) { } }</code></td>
 <td>The name, fields, and methods</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pattern-nodes-used-in-matchcase">Pattern Nodes (used in match/case)</h3>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Example</th>
+<th>What It Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LiteralPattern</code></td>
+<td><code>case 42</code></td>
+<td>A literal value to compare against</td>
+</tr>
+<tr>
+<td><code>WildcardPattern</code></td>
+<td><code>case _</code></td>
+<td>Matches anything, discards the value</td>
+</tr>
+<tr>
+<td><code>CapturePattern</code></td>
+<td><code>case let x</code></td>
+<td>Matches anything, binds the value to a name</td>
+</tr>
+<tr>
+<td><code>OrPattern</code></td>
+<td><code>case 1 \| 2</code></td>
+<td>Matches if any sub-pattern matches</td>
 </tr>
 </tbody>
 </table>

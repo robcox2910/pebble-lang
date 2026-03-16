@@ -1526,8 +1526,10 @@ checkpoints:</p>
 </ol>
 <h2 id="mixing-typed-and-untyped">Mixing Typed and Untyped</h2>
 <p>Annotations are <strong>completely optional</strong>. You can add them to some things
-and not others -- this is called <strong>gradual typing</strong>. Unannotated code works
-exactly like it always has:</p>
+and not others -- this is called <strong>gradual typing</strong> (meaning you can
+<em>gradually</em> add types to your code, a little at a time, instead of having
+to type everything all at once). Unannotated code works exactly like it
+always has:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a># Fully typed
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn add(a: Int, b: Int) -&gt; Int {
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    return a + b

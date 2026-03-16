@@ -1339,8 +1339,10 @@ pieces that fit through the holes (pass the test) come out the other side.</p>
 </code></pre></div>
 <h2 id="reducefn-list-initial">reduce(fn, list, initial)</h2>
 <p>Combine all elements of a list into a single value by repeatedly applying a
-function. The function takes two arguments: an <strong>accumulator</strong> (the running
-total) and the current element.</p>
+function. The function takes two arguments: an <strong>accumulator</strong> (a running
+total that builds up the answer as you go through the list -- think of it like
+a snowball rolling downhill, getting bigger with each step) and the current
+element.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let sum = reduce(fn(acc, x) { return acc + x }, [1, 2, 3, 4], 0)
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(sum)   # prints: 10
 </code></pre></div>

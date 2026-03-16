@@ -1598,9 +1598,10 @@ no new opcodes needed! The trick is knowing <em>where</em> to jump.</p>
 <li>In a <code>for</code> loop, <code>continue</code> jumps to the <strong>increment</strong> section
   (so the loop variable still gets updated)</li>
 </ul>
-<p>The compiler uses <strong>backpatching</strong> for both. When it sees <code>break</code> or
-<code>continue</code>, it emits <code>JUMP 0</code> with a placeholder target. After the loop
-is fully compiled, it goes back and fills in the real target.</p>
+<p>The compiler uses <strong>backpatching</strong> for both (remember the "skip to step ?"
+trick from the <a href="#backpatching">Backpatching</a> section above). When it sees
+<code>break</code> or <code>continue</code>, it emits <code>JUMP 0</code> with a placeholder target. After
+the loop is fully compiled, it goes back and fills in the real target.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>WHILE with break/continue:
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>0  [condition]               ← continue jumps here

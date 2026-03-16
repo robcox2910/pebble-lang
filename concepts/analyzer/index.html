@@ -1638,6 +1638,18 @@ level is like trying to "send back" an answer when nobody asked you a question
 <td><code>let x = x</code></td>
 <td>Undeclared variable 'x' (x isn't declared yet when the value is evaluated)</td>
 </tr>
+<tr>
+<td><code>const x = 1</code> then <code>x = 2</code></td>
+<td>Cannot reassign constant 'x'</td>
+</tr>
+<tr>
+<td><code>break</code> (outside loop)</td>
+<td>Break statement outside loop</td>
+</tr>
+<tr>
+<td><code>continue</code> (outside loop)</td>
+<td>Continue statement outside loop</td>
+</tr>
 </tbody>
 </table>
 <h2 id="summary">Summary</h2>

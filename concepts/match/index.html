@@ -1470,7 +1470,7 @@ only work with literal values.</p>
 <p>Pebble requires every match to be <strong>exhaustive</strong> -- the last case must
 be a wildcard (<code>_</code>) or a capture (<code>let x</code>) that catches anything not
 handled above. This catches mistakes at compile time:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>// This is an ERROR -- what if x is 3?
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a># This is an ERROR -- what if x is 3?
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>match x {
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    case 1 { print(&quot;one&quot;) }
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    case 2 { print(&quot;two&quot;) }
