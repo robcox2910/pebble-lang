@@ -1427,8 +1427,9 @@ only pass one argument, so <code>greeting</code> uses its default. When you call
 <ul>
 <li>Required parameters must come <strong>before</strong> any with defaults. You can't write
   <code>fn f(a = 1, b)</code> -- Pebble won't know which slot <code>b</code> should fill.</li>
-<li>Defaults must be <strong>literal values</strong> (numbers, strings, or booleans). You
-  can't use a variable or an expression like <code>1 + 2</code> as a default.</li>
+<li>Defaults must be <strong>literal values</strong> (numbers, strings, booleans, or
+  <code>null</code>). You can't use a variable or an expression like <code>1 + 2</code> as a
+  default.</li>
 </ul>
 <h2 id="giving-back-a-result-return">Giving Back a Result: <code>return</code></h2>
 <p>The <code>return</code> keyword is like handing back the finished dish. It sends a value
@@ -1440,8 +1441,8 @@ out of the function:</p>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>let result = square(5)
 <a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>print(result)
 </code></pre></div>
-<p>A function can also <code>return</code> without a value (a bare return), which just
-means "stop here, I'm done":</p>
+<p>A function can also <code>return</code> without a value (a bare return), which gives
+back <code>null</code> -- meaning "nothing here, I'm done":</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn maybe_print(x) {
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    if x &lt; 0 {
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        return
