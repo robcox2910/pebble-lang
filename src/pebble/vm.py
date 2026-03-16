@@ -272,7 +272,7 @@ class VirtualMachine:
             ):
                 self._exec_bitwise(instruction)
             case OpCode.PRINT:
-                self._output.write(format_value(self._stack.pop()) + "\n")
+                self._output.write(self._format_value(self._stack.pop()) + "\n")
             case OpCode.CALL:
                 self._exec_call(instruction)
             case OpCode.CALL_METHOD:
@@ -337,7 +337,54 @@ class VirtualMachine:
             case _:  # pragma: no cover
                 pass
 
-    def _exec_arithmetic(self, instruction: Instruction) -> None:
+    # -- Dunder dispatch helpers ------------------------------------------------
+
+    def _dispatch_dunder_binary(self, dunder: str, left: StructInstance, right: Value) -> bool:
+        """Dispatch a binary dunder method on *left*, return True if found."""
+        mangled = f"{left.type_name}.{dunder}"
+        if mangled not in self._functions:
+            return False
+        fn_code = self._functions[mangled]
+        args: dict[str, Value] = {
+            fn_code.parameters[0]: left,
+            fn_code.parameters[1]: right,
+        }
+        new_frame = Frame(code=fn_code, variables=args)
+        self._init_cells(new_frame)
+        self._frames.append(new_frame)
+        return True
+
+    def _dispatch_dunder_unary(self, dunder: str, operand: StructInstance) -> bool:
+        """Dispatch a unary dunder method on *operand*, return True if found."""
+        mangled = f"{operand.type_name}.{dunder}"
+        if mangled not in self._functions:
+            return False
+        fn_code = self._functions[mangled]
+        args: dict[str, Value] = {fn_code.parameters[0]: operand}
+        new_frame = Frame(code=fn_code, variables=args)
+        self._init_cells(new_frame)
+        self._frames.append(new_frame)
+        return True
+
+    def _format_value(self, value: Value) -> str:
+        """Format *value* using __str__ if available, else fall back to builtins."""
+        if isinstance(value, StructInstance):
+            mangled = f"{value.type_name}.__str__"
+            if mangled in self._functions:
+                fn_code = self._functions[mangled]
+                params: dict[str, Value] = {fn_code.parameters[0]: value}
+                frame = Frame(code=fn_code, variables=params)
+                self._init_cells(frame)
+                depth = len(self._frames)
+                self._frames.append(frame)
+                self._execute(min_depth=depth)
+                result = self._stack.pop()
+                if not isinstance(result, str):
+                    self._runtime_error("__str__ must return a string")
+                return result
+        return format_value(value)
+
+    def _exec_arithmetic(self, instruction: Instruction) -> None:  # noqa: PLR0912
         """Handle ADD, SUBTRACT, MULTIPLY, POWER, DIVIDE, FLOOR_DIVIDE, MODULO, NEGATE."""
         match instruction.opcode:
             case OpCode.ADD:
@@ -346,12 +393,24 @@ class VirtualMachine:
                 self._exec_power()
             case OpCode.SUBTRACT:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__sub__", left, right
+                ):
+                    return
                 self._apply_numeric("-", left, right, lambda a, b: a - b)
             case OpCode.MULTIPLY:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__mul__", left, right
+                ):
+                    return
                 self._apply_numeric("*", left, right, lambda a, b: a * b)
             case OpCode.DIVIDE:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__div__", left, right
+                ):
+                    return
                 self._check_zero_divisor(right)
                 # True division — always returns float
                 if _both_numeric(left, right):
@@ -361,10 +420,18 @@ class VirtualMachine:
                     self._type_error("/", left, right)
             case OpCode.FLOOR_DIVIDE:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__floordiv__", left, right
+                ):
+                    return
                 self._check_zero_divisor(right)
                 self._apply_numeric("//", left, right, lambda a, b: a // b)
             case OpCode.MODULO:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__mod__", left, right
+                ):
+                    return
                 self._check_zero_divisor(right)
                 self._apply_numeric("%", left, right, lambda a, b: a % b)
             case OpCode.NEGATE:
@@ -373,8 +440,12 @@ class VirtualMachine:
                 pass
 
     def _exec_add(self) -> None:
-        """Handle ADD — support int+int, float+float, int+float, str+str."""
+        """Handle ADD — support int+int, float+float, int+float, str+str, or __add__."""
         right, left = self._stack.pop(), self._stack.pop()
+        if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+            "__add__", left, right
+        ):
+            return
         if isinstance(left, str) and isinstance(right, str):
             self._stack.append(left + right)
         elif _both_numeric(left, right):
@@ -383,8 +454,10 @@ class VirtualMachine:
             self._type_error("+", left, right)
 
     def _exec_negate(self) -> None:
-        """Handle NEGATE — valid on integers and floats."""
+        """Handle NEGATE — valid on integers, floats, or instances with __neg__."""
         operand = self._stack.pop()
+        if isinstance(operand, StructInstance) and self._dispatch_dunder_unary("__neg__", operand):
+            return
         if isinstance(operand, float) or (
             isinstance(operand, int) and not isinstance(operand, bool)
         ):
@@ -393,8 +466,12 @@ class VirtualMachine:
             self._runtime_error(f"Unsupported operand type for negation: {_display_type(operand)}")
 
     def _exec_power(self) -> None:
-        """Handle POWER — int**int→int unless negative exponent, mixed→float."""
+        """Handle POWER — int**int→int unless negative exponent, mixed→float, or __pow__."""
         right, left = self._stack.pop(), self._stack.pop()
+        if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+            "__pow__", left, right
+        ):
+            return
         if not _both_numeric(left, right):
             self._type_error("**", left, right)
         # Python's ** on int|float may return int, float, or complex.
@@ -444,28 +521,52 @@ class VirtualMachine:
             case _:  # pragma: no cover
                 pass
 
-    def _exec_logic(self, instruction: Instruction) -> None:
+    def _exec_logic(self, instruction: Instruction) -> None:  # noqa: C901, PLR0912
         """Handle NOT, comparisons, AND, and OR."""
         match instruction.opcode:
             case OpCode.NOT:
                 self._stack.append(not self._stack.pop())
             case OpCode.EQUAL:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__eq__", left, right
+                ):
+                    return
                 self._stack.append(left == right)
             case OpCode.NOT_EQUAL:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__ne__", left, right
+                ):
+                    return
                 self._stack.append(left != right)
             case OpCode.LESS_THAN:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__lt__", left, right
+                ):
+                    return
                 self._apply_comparison("<", left, right, lambda a, b: a < b)
             case OpCode.LESS_EQUAL:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__le__", left, right
+                ):
+                    return
                 self._apply_comparison("<=", left, right, lambda a, b: a <= b)
             case OpCode.GREATER_THAN:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__gt__", left, right
+                ):
+                    return
                 self._apply_comparison(">", left, right, lambda a, b: a > b)
             case OpCode.GREATER_EQUAL:
                 right, left = self._stack.pop(), self._stack.pop()
+                if isinstance(left, StructInstance) and self._dispatch_dunder_binary(
+                    "__ge__", left, right
+                ):
+                    return
                 self._apply_comparison(">=", left, right, lambda a, b: a >= b)
             case OpCode.AND:
                 right, left = self._stack.pop(), self._stack.pop()
@@ -519,7 +620,7 @@ class VirtualMachine:
     def _exec_build_string(self, instruction: Instruction) -> None:
         """Handle BUILD_STRING — pop *n* values, stringify and concatenate."""
         count = _int_operand(instruction)
-        parts = [format_value(self._stack.pop()) for _ in range(count)]
+        parts = [self._format_value(self._stack.pop()) for _ in range(count)]
         parts.reverse()
         self._stack.append("".join(parts))
 
@@ -675,6 +776,7 @@ class VirtualMachine:
 
     # Map of VM-level builtin names to handler methods.
     _VM_BUILTINS: ClassVar[dict[str, str]] = {
+        "str": "_vm_builtin_str",
         "map": "_vm_builtin_map",
         "filter": "_vm_builtin_filter",
         "reduce": "_vm_builtin_reduce",
@@ -977,6 +1079,10 @@ class VirtualMachine:
         return self._stack.pop()
 
     # -- VM-level builtins (need VM access for callbacks) ---------------------
+
+    def _vm_builtin_str(self, args: list[Value]) -> None:
+        """Implement str(value) with __str__ dispatch."""
+        self._stack.append(self._format_value(args[0]))
 
     def _vm_builtin_map(self, args: list[Value]) -> None:
         """Implement map(fn, list) -> list."""

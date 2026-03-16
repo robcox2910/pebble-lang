@@ -27,7 +27,7 @@ def _run_source(source: str) -> str:
 
 # -- Named constants ----------------------------------------------------------
 
-RUNTIME_BUILTIN_COUNT = 9
+RUNTIME_BUILTIN_COUNT = 8
 TOTAL_BUILTIN_COUNT = 14
 STRING_METHOD_COUNT = 12
 LIST_METHOD_COUNT = 5
