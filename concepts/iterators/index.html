@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/tuple-unpacking/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/iterators/">
       
       
-        <link rel="prev" href="../list-comprehensions/">
+        <link rel="prev" href="../operator-overloading/">
       
       
-        <link rel="next" href="../structs/">
+        <link rel="next" href="../enums/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Tuple Unpacking - Pebble</title>
+        <title>Iterators & Generators - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tuple-unpacking" class="md-skip">
+        <a href="#iterators-generators" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tuple Unpacking
+              Iterators & Generators
             
           </span>
         </div>
@@ -956,37 +956,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Tuple Unpacking
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../tuple-unpacking/" class="md-nav__link">
         
   
   
@@ -1002,175 +975,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-gift-box-with-multiple-items" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Gift Box with Multiple Items
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#returning-multiple-values" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Returning Multiple Values
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#unpacking-with-let" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unpacking with let
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#unpacking-with-const" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unpacking with const
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reassignment-unpacking" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reassignment Unpacking
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-cases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Cases
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#practical-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Practical Examples
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Practical Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#swap" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Swap
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#min-and-max" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Min and Max
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#divmod-quotient-and-remainder" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Divmod (quotient and remainder)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rules
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works-under-the-hood" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works Under the Hood
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1292,10 +1096,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../iterators/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Iterators & Generators
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1311,6 +1142,175 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-lazy-assembly-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Lazy Assembly Line
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#iterating-over-lists-and-strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Iterating Over Lists and Strings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generator-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generator Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-yield-keyword" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The yield Keyword
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advancing-with-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advancing with next()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#for-loops-with-generators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        For-Loops with Generators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list-comprehensions-with-any-iterable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Comprehensions with Any Iterable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How It Works Under the Hood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#range-special-fast-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Range (Special Fast Path)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lists-strings-and-generators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lists, Strings, and Generators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generator-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generator Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rules-and-restrictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules and Restrictions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-example-fibonacci-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Example: Fibonacci Generator
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1455,151 +1455,189 @@
   
 
 
-<h1 id="tuple-unpacking">Tuple Unpacking</h1>
-<h2 id="the-gift-box-with-multiple-items">The Gift Box with Multiple Items</h2>
-<p>Imagine getting a gift box that holds several items inside -- a toy car,
-a book, and a sticker. When you open the box, you take each item out
-and put it somewhere specific: the car goes on the shelf, the book on
-the desk, the sticker on your notebook.</p>
-<p><strong>Tuple unpacking</strong> works the same way. A function hands you a "box"
-(a list) with multiple values, and you unpack each value into its own
-variable in one go.</p>
-<h2 id="returning-multiple-values">Returning Multiple Values</h2>
-<p>A function can return more than one value by separating them with
-commas:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn swap(a, b) {
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    return b, a
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
-</code></pre></div>
-<p>Under the hood, <code>return b, a</code> is sugar for <code>return [b, a]</code> -- it
-creates a list and returns it. But the comma syntax reads more
-naturally.</p>
-<h2 id="unpacking-with-let">Unpacking with <code>let</code></h2>
-<p>Use <code>let</code> with multiple names on the left side to unpack a list into
-separate variables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let x, y = swap(1, 2)
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(x)   # prints: 2
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>print(y)   # prints: 1
-</code></pre></div>
-<p>You can unpack any list, not just function results:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let a, b, c = [10, 20, 30]
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(a)   # prints: 10
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>print(b)   # prints: 20
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>print(c)   # prints: 30
-</code></pre></div>
-<h2 id="unpacking-with-const">Unpacking with <code>const</code></h2>
-<p>Use <code>const</code> to unpack into variables that cannot be changed later:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>const lo, hi = [1, 100]
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a># lo and hi are now locked -- trying to reassign them is an error
-</code></pre></div>
-<h2 id="reassignment-unpacking">Reassignment Unpacking</h2>
-<p>If the variables already exist, you can unpack into them without
-<code>let</code> or <code>const</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>let a = 0
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>let b = 0
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>a, b = [3, 4]
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>print(a)   # prints: 3
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>print(b)   # prints: 4
-</code></pre></div>
-<p>This is especially useful for the <strong>swap idiom</strong> -- swapping two
-variables without a temporary:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let x = 1
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>let y = 2
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>x, y = [y, x]
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(x)   # prints: 2
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>print(y)   # prints: 1
-</code></pre></div>
-<h2 id="error-cases">Error Cases</h2>
-<p>Pebble checks at runtime that the list has exactly the right number of
-elements:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let a, b = [1, 2, 3]   # Error: Expected 2 values to unpack, got 3
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>let x, y, z = [1, 2]   # Error: Expected 3 values to unpack, got 2
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>let p, q = 42           # Error: Cannot unpack int, expected a list
-</code></pre></div>
-<h2 id="practical-examples">Practical Examples</h2>
-<h3 id="swap">Swap</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn swap(a, b) {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return b, a
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>let x, y = swap(1, 2)
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>print(x)   # prints: 2
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>print(y)   # prints: 1
-</code></pre></div>
-<h3 id="min-and-max">Min and Max</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn min_max(a, b) {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    if a &lt; b {
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        return a, b
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    }
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    return b, a
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>}
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>let lo, hi = min_max(7, 3)
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>print(lo)   # prints: 3
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>print(hi)   # prints: 7
-</code></pre></div>
-<h3 id="divmod-quotient-and-remainder">Divmod (quotient and remainder)</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn divmod(a, b) {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    return a // b, a % b
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>let q, r = divmod(17, 5)
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>print(q)   # prints: 3
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>print(r)   # prints: 2
-</code></pre></div>
-<h2 id="rules">Rules</h2>
-<ul>
-<li>The number of names on the left <strong>must</strong> match the number of
-  elements in the list on the right.</li>
-<li><code>return a, b, c</code> is sugar for <code>return [a, b, c]</code>.</li>
-<li><code>let</code> and <code>const</code> unpacking creates new variables.</li>
-<li>Reassignment unpacking (<code>x, y = ...</code>) requires the variables to
-  already exist and not be <code>const</code>.</li>
-<li>You can unpack any expression that produces a list -- a literal, a
-  function call, a list comprehension, or even an index into a list of
-  lists.</li>
-</ul>
-<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
-<p>When the compiler sees <code>let x, y = [1, 2]</code>, it emits:</p>
+<h1 id="iterators-generators">Iterators &amp; Generators</h1>
+<h2 id="the-lazy-assembly-line">The Lazy Assembly Line</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This page builds on <a href="../functions/">Functions</a> and
+<a href="../arrays/">Arrays</a>. If you haven't read those yet, start there
+first.</p>
+</div>
+<p>Imagine a factory with two kinds of assembly lines:</p>
 <ol>
-<li>Compile the right-hand side (the list <code>[1, 2]</code>).</li>
-<li><code>UNPACK_SEQUENCE 2</code> -- pop the list from the stack, check that it
-   has exactly 2 elements, then push each element onto the stack
-   (first element ends up on top).</li>
-<li><code>STORE_NAME "x"</code> -- pop the top value and store it as <code>x</code>.</li>
-<li><code>STORE_NAME "y"</code> -- pop the next value and store it as <code>y</code>.</li>
+<li><strong>Eager line</strong> -- builds every item at once, puts them all in a big
+   box, and hands you the box.</li>
+<li><strong>Lazy line</strong> -- builds one item at a time, hands it to you, then
+   pauses until you ask for the next one.</li>
 </ol>
-<p>The <code>UNPACK_SEQUENCE</code> instruction is the only new opcode. It validates
-the list length and pushes elements in the right order so that the
-first name gets the first element.</p>
-<h2 id="summary">Summary</h2>
-<table>
-<thead>
-<tr>
-<th>Syntax</th>
-<th>What it does</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>return a, b</code></td>
-<td>Return a list <code>[a, b]</code> (sugar)</td>
-</tr>
-<tr>
-<td><code>let x, y = expr</code></td>
-<td>Unpack into new variables</td>
-</tr>
-<tr>
-<td><code>const x, y = expr</code></td>
-<td>Unpack into new constants</td>
-</tr>
-<tr>
-<td><code>x, y = expr</code></td>
-<td>Unpack into existing variables</td>
-</tr>
-<tr>
-<td><code>UNPACK_SEQUENCE N</code></td>
-<td>VM instruction: validate list length, push N</td>
-</tr>
-</tbody>
-</table>
+<p>Arrays are like the eager line -- all the values exist in memory at
+once. <strong>Generators</strong> are like the lazy line -- they produce values one
+at a time, only when you ask. This is great when you have millions of
+values, or when the sequence might be infinite!</p>
+<h2 id="iterating-over-lists-and-strings">Iterating Over Lists and Strings</h2>
+<p>Before generators, Pebble's <code>for</code> loops only worked with <code>range()</code>.
+Now you can loop over <strong>any</strong> list or string directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>for x in [10, 20, 30] {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    print(x)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a># prints: 10, 20, 30
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>for ch in &quot;abc&quot; {
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    print(ch)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>}
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a># prints: a, b, c
+</code></pre></div>
+<p>The <code>for</code> loop asks the list or string for each item, one at a time,
+until there are no more.</p>
+<h2 id="generator-functions">Generator Functions</h2>
+<p>A <strong>generator function</strong> looks just like a regular function, but it
+uses <code>yield</code> instead of (or in addition to) <code>return</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>fn count_up(n) {
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    let i = 0
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    while i &lt; n {
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        yield i
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        i = i + 1
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    }
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
+</code></pre></div>
+<p>When you <strong>call</strong> a generator function, it doesn't run the code right
+away. Instead, it gives you back a <strong>generator object</strong> -- a paused
+assembly line, ready to produce values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let g = count_up(3)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(type(g))   # prints: generator
+</code></pre></div>
+<h2 id="the-yield-keyword">The yield Keyword</h2>
+<p><code>yield</code> is the magic word. When the generator reaches a <code>yield</code>:</p>
+<ol>
+<li>It <strong>pauses</strong> and remembers exactly where it stopped.</li>
+<li>It <strong>hands back</strong> the yielded value.</li>
+<li>Next time you ask, it <strong>resumes</strong> right where it left off.</li>
+</ol>
+<p>Think of it like a bookmark in a book -- you stop reading, mark your
+page, and pick up later from the same spot.</p>
+<h2 id="advancing-with-next">Advancing with next()</h2>
+<p>Use <code>next()</code> to get the next value from a generator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn gen() {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    yield 10
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    yield 20
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    yield 30
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>let g = gen()
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>print(next(g))   # 10 -- runs until first yield
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>print(next(g))   # 20 -- resumes after first yield
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>print(next(g))   # 30 -- resumes after second yield
+</code></pre></div>
+<p>After all the <code>yield</code> statements have been reached and the function
+ends, the generator is <strong>exhausted</strong>. Calling <code>next()</code> again is an
+error:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>next(g)   # Error! Generator is exhausted
+</code></pre></div>
+<h2 id="for-loops-with-generators">For-Loops with Generators</h2>
+<p>The most common way to use a generator is with a <code>for</code> loop. The loop
+calls <code>next()</code> automatically until the generator is exhausted:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>fn squares(n) {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    for i in range(n) {
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        yield i * i
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    }
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>}
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>for val in squares(5) {
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    print(val)
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>}
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a># prints: 0, 1, 4, 9, 16
+</code></pre></div>
+<h2 id="list-comprehensions-with-any-iterable">List Comprehensions with Any Iterable</h2>
+<p>List comprehensions work with lists, strings, and generators too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let doubled = [x * 2 for x in [1, 2, 3]]
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(doubled)   # [2, 4, 6]
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>let chars = [ch for ch in &quot;hi&quot;]
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>print(chars)     # [h, i]
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>fn gen() { yield 1; yield 2; yield 3 }
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>let tens = [x * 10 for x in gen()]
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>print(tens)      # [10, 20, 30]
+</code></pre></div>
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<p>When Pebble sees <code>for x in something</code>, it does different things
+depending on what <code>something</code> is:</p>
+<h3 id="range-special-fast-path">Range (Special Fast Path)</h3>
+<p>If the iterable is <code>range()</code>, the compiler uses the same efficient
+counted loop it always has -- no iterator objects needed.</p>
+<h3 id="lists-strings-and-generators">Lists, Strings, and Generators</h3>
+<p>For everything else, the compiler emits two new opcodes:</p>
+<ul>
+<li><strong>GET_ITER</strong> -- converts a list or string into a <code>SequenceIterator</code>
+  (an object that tracks the current position). Generators are already
+  iterators, so they pass through unchanged.</li>
+<li><strong>FOR_ITER</strong> -- asks the iterator for the next value. If there is
+  one, the loop body runs. If the iterator is exhausted, the loop
+  ends.</li>
+</ul>
+<pre class="mermaid"><code>flowchart TD
+    A[Evaluate iterable] --&gt; B[GET_ITER]
+    B --&gt; C{FOR_ITER}
+    C --&gt;|has value| D[Run loop body]
+    D --&gt; C
+    C --&gt;|exhausted| E[Exit loop]</code></pre>
+<h3 id="generator-lifecycle">Generator Lifecycle</h3>
+<p>When you call a generator function:</p>
+<ol>
+<li><strong>Creation</strong> -- Pebble builds a <code>GeneratorObject</code> that stores the
+   function's code, parameters, and an instruction pointer set to the
+   start. No code runs yet.</li>
+<li><strong>Advancement</strong> -- Each call to <code>next()</code> (or each loop iteration)
+   builds a temporary frame from the generator's saved state and runs
+   until <code>yield</code> or <code>return</code>.</li>
+<li><strong>Yield</strong> -- The VM saves the frame's state (instruction pointer,
+   variables) back into the <code>GeneratorObject</code> and pops the frame. The
+   yielded value is handed to the caller.</li>
+<li><strong>Exhaustion</strong> -- When the function reaches <code>return</code> (or falls off
+   the end), the generator is marked exhausted. No more values.</li>
+</ol>
+<pre class="mermaid"><code>stateDiagram-v2
+    [*] --&gt; Created: gen()
+    Created --&gt; Running: next() / for-iter
+    Running --&gt; Suspended: yield value
+    Suspended --&gt; Running: next() / for-iter
+    Running --&gt; Exhausted: return / end
+    Exhausted --&gt; [*]</code></pre>
+<h2 id="rules-and-restrictions">Rules and Restrictions</h2>
+<p>A few things to keep in mind:</p>
+<ul>
+<li><strong>yield only in functions</strong> -- You can't use <code>yield</code> at the top
+  level of a program. It must be inside a <code>fn</code>.</li>
+<li><strong>No yield in try/catch</strong> -- Suspending and resuming inside
+  exception handlers is tricky, so Pebble doesn't allow it (yet).</li>
+<li><strong>Generators are single-use</strong> -- Once exhausted, a generator can't
+  be restarted. Call the function again to get a fresh one.</li>
+<li><strong>No yield from</strong> -- Pebble doesn't support delegating to another
+  generator (yet).</li>
+</ul>
+<h2 id="practical-example-fibonacci-generator">Practical Example: Fibonacci Generator</h2>
+<p>Here's a generator that produces Fibonacci numbers forever (well, until
+you stop asking):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn fibonacci() {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    let a = 0
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    let b = 1
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    while true {
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        yield a
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        let temp = a + b
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        a = b
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        b = temp
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    }
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>}
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a># Print the first 10 Fibonacci numbers
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>let fib = fibonacci()
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>for i in range(10) {
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    print(next(fib))
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>}
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a># prints: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+</code></pre></div>
+<p>This is the beauty of generators -- the Fibonacci sequence is infinite,
+but we only compute as many values as we need!</p>
 
 
 

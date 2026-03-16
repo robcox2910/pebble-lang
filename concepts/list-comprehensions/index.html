@@ -1096,6 +1096,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#comprehensions-with-other-iterables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comprehensions with Other Iterables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#rules" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1284,6 +1295,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../iterators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Iterators & Generators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../enums/" class="md-nav__link">
         
   
@@ -1425,17 +1464,19 @@ each part before it reaches the machine -- parts that fail the check get
 tossed out.</p>
 <p>A list comprehension works the same way:</p>
 <ol>
-<li><strong>Conveyor belt</strong> -- <code>range()</code> feeds in the raw numbers.</li>
-<li><strong>Machine</strong> -- an expression transforms each number.</li>
-<li><strong>Inspector</strong> (optional) -- a condition decides which numbers get
+<li><strong>Conveyor belt</strong> -- something feeds in the raw values (a <code>range()</code>,
+   a list, a string, or even a <a href="../iterators/">generator</a>).</li>
+<li><strong>Machine</strong> -- an expression transforms each value.</li>
+<li><strong>Inspector</strong> (optional) -- a condition decides which values get
    through.</li>
 <li><strong>Box</strong> -- the result is a brand-new list.</li>
 </ol>
 <h2 id="basic-syntax">Basic Syntax</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[expression for variable in range(...)]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[expression for variable in iterable]
 </code></pre></div>
 <p>This reads almost like English: <em>"give me <code>expression</code> </em><em>for</em><em> each
-<code>variable</code> </em><em>in</em><em> <code>range(...)</code>"</em>.</p>
+<code>variable</code> </em><em>in</em><em> <code>iterable</code>"</em>. The iterable can be a <code>range()</code>, a
+list, a string, or a <a href="../iterators/">generator</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let nums = [x for x in range(5)]
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(nums)   # prints: [0, 1, 2, 3, 4]
 </code></pre></div>
@@ -1451,7 +1492,7 @@ tossed out.</p>
 <h2 id="adding-a-filter">Adding a Filter</h2>
 <p>Add <code>if condition</code> after the iterable to keep only values that pass the
 test:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>[expression for variable in range(...) if condition]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>[expression for variable in iterable if condition]
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let big = [x for x in range(10) if x &gt; 5]
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(big)   # prints: [6, 7, 8, 9]
@@ -1491,9 +1532,24 @@ two snippets do the same thing:</p>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(result)   # prints: [9, 16, 25]
 </code></pre></div>
 <p>The comprehension packs the same idea into a single line.</p>
+<h2 id="comprehensions-with-other-iterables">Comprehensions with Other Iterables</h2>
+<p>The examples above all use <code>range()</code>, but comprehensions work with any
+iterable -- lists, strings, and <a href="../iterators/">generators</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let doubled = [x * 2 for x in [1, 2, 3]]
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(doubled)   # prints: [2, 4, 6]
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>let chars = [ch for ch in &quot;hello&quot;]
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>print(chars)     # prints: [h, e, l, l, o]
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>let evens = [x for x in [1, 2, 3, 4, 5, 6] if x % 2 == 0]
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>print(evens)     # prints: [2, 4, 6]
+</code></pre></div>
+<p>See <a href="../iterators/">Iterators &amp; Generators</a> for more on generators and
+iteration.</p>
 <h2 id="rules">Rules</h2>
 <ul>
-<li>The iterable must be a <code>range()</code> call (1, 2, or 3 arguments).</li>
+<li>The iterable can be a <code>range()</code> call, a list, a string, or a
+  generator.</li>
 <li>The loop variable is <strong>scoped</strong> to the comprehension -- it does not
   leak into the surrounding code.</li>
 <li>The result is always a brand-new list.</li>
@@ -1535,7 +1591,7 @@ reuses the existing <code>for</code>-loop machinery.</p>
 <td>Transform each value</td>
 </tr>
 <tr>
-<td><code>for var in range()</code></td>
+<td><code>for var in iterable</code></td>
 <td><code>for x in range(5)</code></td>
 <td>Produce raw values</td>
 </tr>
