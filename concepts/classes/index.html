@@ -16,7 +16,7 @@
         <link rel="prev" href="../structs/">
       
       
-        <link rel="next" href="../modules/">
+        <link rel="next" href="../enums/">
       
       
         
@@ -1174,10 +1174,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structs-vs-classes" class="md-nav__link">
+  <a href="#structs-classes-and-enums" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structs vs Classes
+        Structs, Classes, and Enums
       
     </span>
   </a>
@@ -1321,6 +1321,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1556,14 +1584,16 @@ like regular functions:</p>
 </code></pre></div>
 <p>Fields can have type annotations too -- they work the same way as
 struct field annotations.</p>
-<h2 id="structs-vs-classes">Structs vs Classes</h2>
-<p>Pebble has both <code>struct</code> and <code>class</code>. Here's when to use each:</p>
+<h2 id="structs-classes-and-enums">Structs, Classes, and Enums</h2>
+<p>Pebble has three tools for custom types, each serving a different
+purpose:</p>
 <table>
 <thead>
 <tr>
 <th>Feature</th>
 <th>Struct</th>
 <th>Class</th>
+<th>Enum</th>
 </tr>
 </thead>
 <tbody>
@@ -1571,16 +1601,19 @@ struct field annotations.</p>
 <td>Fields</td>
 <td>Yes</td>
 <td>Yes</td>
+<td>No</td>
 </tr>
 <tr>
 <td>Methods</td>
 <td>No</td>
 <td>Yes</td>
+<td>No</td>
 </tr>
 <tr>
 <td>Use when...</td>
-<td>You just need to group data</td>
-<td>Your data needs to <em>do things</em></td>
+<td>Group related data</td>
+<td>Data that needs to <em>do things</em></td>
+<td>Fixed set of named options</td>
 </tr>
 </tbody>
 </table>
@@ -1592,10 +1625,13 @@ struct field annotations.</p>
 <li>A <strong>class</strong> is a <strong>robot</strong> -- it has data <em>and</em> it knows how to
   act on that data. Like a calculator that holds a number and can
   add, subtract, or multiply.</li>
+<li>An <strong>enum</strong> is a <strong>menu</strong> -- a fixed list of choices, like an
+  ice-cream shop with Chocolate, Vanilla, and Strawberry.</li>
 </ul>
 <p>Both structs and classes create instances the same way (<code>Name(args)</code>),
 and both support field access (<code>inst.field</code>) and field mutation
-(<code>inst.field = value</code>).</p>
+(<code>inst.field = value</code>). Enums use dot syntax instead: <code>Color.Red</code>.
+See <a href="../enums/">Enums</a> for details.</p>
 <h2 id="error-cases">Error Cases</h2>
 <p>Pebble catches class-related mistakes early:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a># Method missing self parameter

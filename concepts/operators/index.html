@@ -660,6 +660,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#chained-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chained Comparisons
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chained Comparisons">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inclusive-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inclusive Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mixing-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mixing Operators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longer-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Longer Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#logical-operators" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1279,6 +1340,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../modules/" class="md-nav__link">
         
   
@@ -1570,6 +1659,50 @@ something different:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(3 &lt; 3.5)    # prints: true   (int vs float works fine)
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(3.0 == 3)   # prints: true   (same value, different types)
 </code></pre></div>
+<h2 id="chained-comparisons">Chained Comparisons</h2>
+<p>Sometimes you want to check whether a number falls between two values --
+a <strong>range check</strong>. Instead of writing two comparisons joined with <code>and</code>,
+Pebble lets you chain them together:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let x = 5
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(1 &lt; x &lt; 10)    # prints: true   (x is between 1 and 10)
+</code></pre></div>
+<p>Under the hood, Pebble rewrites <code>1 &lt; x &lt; 10</code> as <code>(1 &lt; x) and (x &lt; 10)</code>.
+Both comparisons must be true for the whole expression to be true.</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>Think of it like a sentence: "1 is less than x, which is less than 10."
+If any link in the chain breaks, the whole thing is false:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let x = 0
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(1 &lt; x &lt; 10)    # prints: false   (1 &lt; 0 is false)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>let x = 15
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>print(1 &lt; x &lt; 10)    # prints: false   (15 &lt; 10 is false)
+</code></pre></div>
+<h3 id="inclusive-boundaries">Inclusive Boundaries</h3>
+<p>Use <code>&lt;=</code> to include the boundary values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let x = 1
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(1 &lt;= x &lt;= 10)   # prints: true   (x equals the lower bound)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>print(1 &lt; x &lt; 10)     # prints: false  (1 is not strictly less than 1)
+</code></pre></div>
+<h3 id="mixing-operators">Mixing Operators</h3>
+<p>You can mix any comparison operators in a chain:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let x = 5
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(1 &lt;= x &lt; 10)    # prints: true   (at least 1, but less than 10)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>print(10 &gt; x &gt; 1)     # prints: true   (descending range check)
+</code></pre></div>
+<h3 id="longer-chains">Longer Chains</h3>
+<p>Chains can have more than two comparisons. Each pair of neighbours is
+checked:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let a = 2
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>let b = 5
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>print(1 &lt; a &lt; b &lt; 10)   # prints: true   (1&lt;2 and 2&lt;5 and 5&lt;10)
+</code></pre></div>
+<p>This works with all six comparison operators: <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>,
+<code>==</code>, and <code>!=</code>.</p>
+<blockquote>
+<p><strong>Note:</strong> The middle values in a chain are evaluated twice at runtime.
+This is fine for variables and simple expressions, which is the typical
+use case.</p>
+</blockquote>
 <h2 id="logical-operators">Logical Operators</h2>
 <p>Logical operators combine <code>true</code> / <code>false</code> values. They're like the words
 "and", "or", and "not" in English:</p>
@@ -1666,25 +1799,25 @@ flip, combine, or shift those switches:</p>
 </table>
 <h3 id="how-bitwise-and-works-example">How Bitwise AND Works (Example)</h3>
 <p>Let's see <code>5 &amp; 3</code> step by step. First, write each number in binary:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>5 in binary:  1 0 1
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>3 in binary:  0 1 1
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>5 in binary:  1 0 1
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>3 in binary:  0 1 1
 </code></pre></div>
 <p>AND keeps a bit only if <strong>both</strong> numbers have it on:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>  1 0 1   (5)
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>&amp; 0 1 1   (3)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>-------
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  0 0 1   (1)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>  1 0 1   (5)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>&amp; 0 1 1   (3)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>-------
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>  0 0 1   (1)
 </code></pre></div>
 <p>So <code>5 &amp; 3 = 1</code>.</p>
 <h3 id="shifting">Shifting</h3>
 <p>Left shift (<code>&lt;&lt;</code>) slides all the bits to the left, filling empty spots with
 zeros. Each shift left <strong>doubles</strong> the number:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(1 &lt;&lt; 3)    # prints: 8    (1 → 2 → 4 → 8)
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(3 &lt;&lt; 1)    # prints: 6    (11 in binary → 110 = 6)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(1 &lt;&lt; 3)    # prints: 8    (1 → 2 → 4 → 8)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>print(3 &lt;&lt; 1)    # prints: 6    (11 in binary → 110 = 6)
 </code></pre></div>
 <p>Right shift (<code>&gt;&gt;</code>) does the opposite -- slides bits to the right. Each shift
 right <strong>halves</strong> the number (rounding down):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>print(16 &gt;&gt; 2)   # prints: 4    (16 → 8 → 4)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(16 &gt;&gt; 2)   # prints: 4    (16 → 8 → 4)
 </code></pre></div>
 <p>You cannot shift by a negative amount -- that gives an error.</p>
 <h2 id="operator-precedence">Operator Precedence</h2>
@@ -1777,31 +1910,31 @@ the "PEMDAS" rule you might know from maths class.</p>
 </tbody>
 </table>
 <h3 id="examples">Examples</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a># Multiplication before addition (level 10 &gt; level 9)
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(2 + 3 * 4)         # prints: 14     (not 20)
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a># Power before multiplication (level 11 &gt; level 10)
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>print(2 ** 3 * 2)         # prints: 16     (8 * 2, not 2 ** 6)
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a># Bitwise AND before bitwise OR (level 7 &gt; level 5)
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>print(1 | 2 &amp; 3)          # prints: 3      (1 | (2 &amp; 3) = 1 | 2)
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a># Shifts before bitwise AND (level 8 &gt; level 7)
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>print(1 &amp; 3 &lt;&lt; 1)         # prints: 0      (1 &amp; (3 &lt;&lt; 1) = 1 &amp; 6)
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a># Use parentheses when in doubt!
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>print((2 + 3) * 4)        # prints: 20
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a># Multiplication before addition (level 10 &gt; level 9)
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>print(2 + 3 * 4)         # prints: 14     (not 20)
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a># Power before multiplication (level 11 &gt; level 10)
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>print(2 ** 3 * 2)         # prints: 16     (8 * 2, not 2 ** 6)
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a># Bitwise AND before bitwise OR (level 7 &gt; level 5)
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>print(1 | 2 &amp; 3)          # prints: 3      (1 | (2 &amp; 3) = 1 | 2)
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a># Shifts before bitwise AND (level 8 &gt; level 7)
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>print(1 &amp; 3 &lt;&lt; 1)         # prints: 0      (1 &amp; (3 &lt;&lt; 1) = 1 &amp; 6)
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a># Use parentheses when in doubt!
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>print((2 + 3) * 4)        # prints: 20
 </code></pre></div>
 <h3 id="associativity">Associativity</h3>
 <p>When operators have the <strong>same</strong> precedence, <strong>associativity</strong> decides
 the order. Most operators are <strong>left-associative</strong> (group left to right):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a># Left-associative: 10 - 3 - 2  =  (10 - 3) - 2  =  5
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(10 - 3 - 2)   # prints: 5
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a># Left-associative: 10 - 3 - 2  =  (10 - 3) - 2  =  5
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>print(10 - 3 - 2)   # prints: 5
 </code></pre></div>
 <p>The <code>**</code> operator is the exception -- it's <strong>right-associative</strong> (group
 right to left):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a># Right-associative: 2 ** 2 ** 3  =  2 ** (2 ** 3)  =  256
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>print(2 ** 2 ** 3)   # prints: 256
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a># Right-associative: 2 ** 2 ** 3  =  2 ** (2 ** 3)  =  256
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(2 ** 2 ** 3)   # prints: 256
 </code></pre></div>
 <h2 id="summary">Summary</h2>
 <table>
@@ -1831,6 +1964,10 @@ right to left):</p>
 <tr>
 <td><code>&lt;&lt;</code> / <code>&gt;&gt;</code></td>
 <td>Sliding a row of switches left or right</td>
+</tr>
+<tr>
+<td>Chained comparisons</td>
+<td>Checking if a number is between two values</td>
 </tr>
 <tr>
 <td>Precedence</td>

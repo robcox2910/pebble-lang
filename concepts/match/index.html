@@ -1030,6 +1030,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#enum-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enum Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#or-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1256,6 +1267,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../modules/" class="md-nav__link">
         
   
@@ -1394,7 +1433,7 @@ it checks each <strong>case</strong> until it finds one that matches.</p>
    through.</li>
 </ol>
 <h2 id="pattern-types">Pattern Types</h2>
-<p>Pebble supports four kinds of patterns.</p>
+<p>Pebble supports five kinds of patterns.</p>
 <h3 id="literal-patterns">Literal Patterns</h3>
 <p>Match an exact value -- a number, string, boolean, or <code>null</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let day = &quot;Monday&quot;
@@ -1453,16 +1492,34 @@ can use it in the case body:</p>
 </code></pre></div>
 <p>The variable <code>s</code> only exists inside that case's braces -- it
 disappears once the case body finishes.</p>
+<h3 id="enum-patterns">Enum Patterns</h3>
+<p>Match an <a href="../enums/">enum</a> variant by writing the enum name, a dot, and the
+variant name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>enum Direction { Up, Down, Left, Right }
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>let d = Direction.Left
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>match d {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    case Direction.Up    { print(&quot;going up&quot;) }
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    case Direction.Down  { print(&quot;going down&quot;) }
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    case Direction.Left  { print(&quot;going left&quot;) }
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    case Direction.Right { print(&quot;going right&quot;) }
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    case _ { print(&quot;unknown&quot;) }
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>}
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a># prints: going left
+</code></pre></div>
+<p>Enums and match/case are a perfect pair -- each variant gets its own
+case, and the wildcard <code>_</code> catches anything you didn't list explicitly.</p>
 <h3 id="or-pattern">OR Pattern</h3>
 <p>Match any of several values at once, separated by <code>|</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>match day {
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    case &quot;Saturday&quot; | &quot;Sunday&quot; {
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        print(&quot;Weekend!&quot;)
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    }
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    case _ {
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        print(&quot;Weekday&quot;)
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    }
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>match day {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    case &quot;Saturday&quot; | &quot;Sunday&quot; {
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        print(&quot;Weekend!&quot;)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    }
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    case _ {
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        print(&quot;Weekday&quot;)
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    }
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>}
 </code></pre></div>
 <p>This is much cleaner than writing the same body twice. OR patterns
 only work with literal values.</p>
@@ -1470,82 +1527,82 @@ only work with literal values.</p>
 <p>Pebble requires every match to be <strong>exhaustive</strong> -- the last case must
 be a wildcard (<code>_</code>) or a capture (<code>let x</code>) that catches anything not
 handled above. This catches mistakes at compile time:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a># This is an ERROR -- what if x is 3?
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>match x {
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    case 1 { print(&quot;one&quot;) }
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    case 2 { print(&quot;two&quot;) }
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a># This is an ERROR -- what if x is 3?
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>match x {
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    case 1 { print(&quot;one&quot;) }
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    case 2 { print(&quot;two&quot;) }
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>}
 </code></pre></div>
 <p>The compiler will tell you:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Match must end with a wildcard or capture pattern for exhaustiveness
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Match must end with a wildcard or capture pattern for exhaustiveness
 </code></pre></div>
 <h2 id="match-vs-ifelse">Match vs If/Else</h2>
 <p>Pattern matching is like a cleaner version of long <code>if</code>/<code>else</code> chains.
 Compare:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>// With if/else
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>if x == 1 {
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    print(&quot;one&quot;)
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>} else if x == 2 or x == 3 {
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    print(&quot;two or three&quot;)
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>} else {
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    print(&quot;other&quot;)
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>}
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>// With match
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>match x {
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    case 1 {
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        print(&quot;one&quot;)
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    }
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    case 2 | 3 {
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>        print(&quot;two or three&quot;)
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    }
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    case _ {
-<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>        print(&quot;other&quot;)
-<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>    }
-<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>// With if/else
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>if x == 1 {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    print(&quot;one&quot;)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>} else if x == 2 or x == 3 {
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    print(&quot;two or three&quot;)
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>} else {
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    print(&quot;other&quot;)
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>}
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>// With match
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>match x {
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    case 1 {
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>        print(&quot;one&quot;)
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    }
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    case 2 | 3 {
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        print(&quot;two or three&quot;)
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    }
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    case _ {
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>        print(&quot;other&quot;)
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>    }
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>}
 </code></pre></div>
 <p>Match is especially nice when you have many values to check -- each
 case reads clearly, and the exhaustiveness check makes sure you haven't
 forgotten anything.</p>
 <h2 id="practical-examples">Practical Examples</h2>
 <h3 id="classifying-numbers">Classifying Numbers</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn classify(n) {
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    match n {
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        case 0 {
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>            return &quot;zero&quot;
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        }
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        case 1 {
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>            return &quot;one&quot;
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        }
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        case let x {
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>            return &quot;other&quot;
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>        }
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    }
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>}
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>print(classify(0))
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>print(classify(1))
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>print(classify(42))
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn classify(n) {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    match n {
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        case 0 {
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>            return &quot;zero&quot;
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        }
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        case 1 {
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>            return &quot;one&quot;
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        }
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>        case let x {
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>            return &quot;other&quot;
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>        }
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    }
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>}
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>print(classify(0))
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>print(classify(1))
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>print(classify(42))
 </code></pre></div>
 <p>Output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>zero
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>one
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>other
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>zero
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>one
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>other
 </code></pre></div>
 <h3 id="match-inside-a-loop">Match Inside a Loop</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>for i in range(4) {
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    match i {
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        case 0 { print(&quot;start&quot;) }
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        case 1 | 2 { print(&quot;middle&quot;) }
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        case _ { print(&quot;end&quot;) }
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    }
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>for i in range(4) {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    match i {
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        case 0 { print(&quot;start&quot;) }
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        case 1 | 2 { print(&quot;middle&quot;) }
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        case _ { print(&quot;end&quot;) }
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    }
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>}
 </code></pre></div>
 <p>Output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>start
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>middle
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>middle
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>end
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>start
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>middle
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>middle
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>end
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>The compiler turns a <code>match</code> statement into a chain of equality tests
@@ -1598,6 +1655,12 @@ instructions -- if any alternative matches, the case body runs.</p>
 <td>Literal</td>
 <td><code>case 42</code></td>
 <td>Exact value</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Enum</td>
+<td><code>case Color.Red</code></td>
+<td>Specific enum variant</td>
 <td>No</td>
 </tr>
 <tr>

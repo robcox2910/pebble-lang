@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/list-comprehensions/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/enums/">
       
       
-        <link rel="prev" href="../match/">
+        <link rel="prev" href="../classes/">
       
       
-        <link rel="next" href="../tuple-unpacking/">
+        <link rel="next" href="../modules/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>List Comprehensions - Pebble</title>
+        <title>Enums - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#list-comprehensions" class="md-skip">
+        <a href="#enums" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              List Comprehensions
+              Enums
             
           </span>
         </div>
@@ -928,37 +928,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    List Comprehensions
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../list-comprehensions/" class="md-nav__link">
         
   
   
@@ -974,164 +947,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-assembly-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Assembly Line
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#basic-syntax" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Basic Syntax
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#transforming-values" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Transforming Values
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#adding-a-filter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Adding a Filter
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#practical-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Practical Examples
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Practical Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#even-numbers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Even numbers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#countdown" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Countdown
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#using-range-with-two-or-three-arguments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using range with two or three arguments
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comprehension-vs-for-loop" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comprehension vs. For Loop
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rules
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works-under-the-hood" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works Under the Hood
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1225,10 +1040,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../enums/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1244,6 +1086,225 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-menu-of-fixed-choices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Menu of Fixed Choices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-an-enum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining an Enum
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Variants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#printing-and-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Printing and Type
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-enum-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparing Enum Values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#matchcase-with-enums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Match/Case with Enums
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enums-as-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enums as Values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#you-cant-call-an-enum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        You Can't Call an Enum
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#traffic-light" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traffic Light
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#game-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game State
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How It Works Under the Hood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-an-enum_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining an Enum
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-a-variant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accessing a Variant
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Equality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matchcase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Match/Case
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1360,138 +1421,190 @@
   
 
 
-<h1 id="list-comprehensions">List Comprehensions</h1>
-<h2 id="the-assembly-line">The Assembly Line</h2>
-<p>Imagine a factory assembly line. Raw parts come in on a conveyor belt,
-each part gets transformed by a machine, and the finished items drop into
-a box at the end. Some factories also have an <strong>inspector</strong> who checks
-each part before it reaches the machine -- parts that fail the check get
-tossed out.</p>
-<p>A list comprehension works the same way:</p>
-<ol>
-<li><strong>Conveyor belt</strong> -- <code>range()</code> feeds in the raw numbers.</li>
-<li><strong>Machine</strong> -- an expression transforms each number.</li>
-<li><strong>Inspector</strong> (optional) -- a condition decides which numbers get
-   through.</li>
-<li><strong>Box</strong> -- the result is a brand-new list.</li>
-</ol>
-<h2 id="basic-syntax">Basic Syntax</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[expression for variable in range(...)]
+<h1 id="enums">Enums</h1>
+<h2 id="a-menu-of-fixed-choices">A Menu of Fixed Choices</h2>
+<p>Imagine you walk into an ice-cream shop. The menu says: Chocolate,
+Vanilla, or Strawberry. You can't order "Purple" -- the shop only
+has the three flavors on the menu.</p>
+<p>An <strong>enum</strong> (short for "enumeration") works the same way. It defines a
+<strong>fixed list of named values</strong> -- and nothing else. If you try to use a
+name that isn't on the list, Pebble catches the mistake before the
+program ever runs.</p>
+<p>Enums are perfect for things that have a small, known set of
+possibilities: compass directions, traffic-light colors, days of the
+week, game states, and so on.</p>
+<h2 id="defining-an-enum">Defining an Enum</h2>
+<p>Use the <code>enum</code> keyword followed by a name and a list of <strong>variants</strong>
+inside curly braces:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>enum Color { Red, Green, Blue }
 </code></pre></div>
-<p>This reads almost like English: <em>"give me <code>expression</code> </em><em>for</em><em> each
-<code>variable</code> </em><em>in</em><em> <code>range(...)</code>"</em>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let nums = [x for x in range(5)]
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(nums)   # prints: [0, 1, 2, 3, 4]
+<p>This says: "I'm defining a new type called <code>Color</code> that has exactly
+three possible values: <code>Red</code>, <code>Green</code>, and <code>Blue</code>."</p>
+<p>Like structs and classes, the name should start with a capital letter
+-- that tells readers at a glance that it's a type, not a variable.</p>
+<h2 id="using-variants">Using Variants</h2>
+<p>To get one of the values, write the enum name, a dot, and the variant
+name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let c = Color.Red
 </code></pre></div>
-<p>Here the "machine" just passes each value through unchanged.</p>
-<h2 id="transforming-values">Transforming Values</h2>
-<p>Put any expression before <code>for</code> to transform each value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let doubled = [x * 2 for x in range(5)]
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(doubled)   # prints: [0, 2, 4, 6, 8]
+<p>You can't use a variant that doesn't exist:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let c = Color.Yellow   # Error: Enum &#39;Color&#39; has no variant &#39;Yellow&#39;
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let squares = [x * x for x in range(6)]
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(squares)   # prints: [0, 1, 4, 9, 16, 25]
+<h2 id="printing-and-type">Printing and Type</h2>
+<p>Printing an enum variant shows both the enum name and the variant name,
+connected by a dot:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>print(Color.Red)         # prints: Color.Red
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(type(Color.Red))   # prints: Color
 </code></pre></div>
-<h2 id="adding-a-filter">Adding a Filter</h2>
-<p>Add <code>if condition</code> after the iterable to keep only values that pass the
-test:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>[expression for variable in range(...) if condition]
+<p>The <code>type()</code> function returns the enum's name as a string -- just like
+<code>type()</code> returns <code>"Point"</code> for a struct instance.</p>
+<h2 id="comparing-enum-values">Comparing Enum Values</h2>
+<p>Two enum variants are <strong>equal</strong> if they have the same enum name <em>and</em>
+the same variant name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>let c = Color.Red
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>print(c == Color.Red)     # prints: true
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>print(c == Color.Green)   # prints: false
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>print(c != Color.Green)   # prints: true
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let big = [x for x in range(10) if x &gt; 5]
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(big)   # prints: [6, 7, 8, 9]
+<p>You can use <code>==</code> and <code>!=</code> in <code>if</code> conditions too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>if c == Color.Red {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    print(&quot;it&#39;s red!&quot;)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>}
 </code></pre></div>
-<p>Combine transformation <strong>and</strong> filtering:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let big_squares = [x * x for x in range(6) if x &gt; 2]
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(big_squares)   # prints: [9, 16, 25]
+<h2 id="matchcase-with-enums">Match/Case with Enums</h2>
+<p>Enums shine brightest with <code>match/case</code>. Instead of writing a chain of
+<code>if/else if/else</code>, you list each variant as a case:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>enum Direction { Up, Down, Left, Right }
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>let d = Direction.Left
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>match d {
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    case Direction.Up    { print(&quot;going up&quot;) }
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    case Direction.Down  { print(&quot;going down&quot;) }
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    case Direction.Left  { print(&quot;going left&quot;) }
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    case Direction.Right { print(&quot;going right&quot;) }
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    case _ { print(&quot;unknown&quot;) }
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>}
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a># prints: going left
 </code></pre></div>
+<p>The <code>case _</code> wildcard at the end is required -- Pebble needs to know
+that every possible value is handled.</p>
+<h2 id="enums-as-values">Enums as Values</h2>
+<p>Enum variants are first-class values. You can store them in variables,
+pass them to functions, put them in lists and dicts, and use them in
+string interpolation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>enum Color { Red, Green, Blue }
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a># In a list
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>let palette = [Color.Red, Color.Green, Color.Blue]
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>print(palette[0])   # prints: Color.Red
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a># In a dict
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>let favorites = {&quot;sky&quot;: Color.Blue, &quot;grass&quot;: Color.Green}
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>print(favorites[&quot;sky&quot;])   # prints: Color.Blue
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a># In string interpolation
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>let c = Color.Red
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>print(&quot;my color is {c}&quot;)   # prints: my color is Color.Red
+</code></pre></div>
+<h2 id="you-cant-call-an-enum">You Can't Call an Enum</h2>
+<p>Enums are <strong>not</strong> constructors -- they don't take arguments. Writing
+<code>Color()</code> is an error:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Color()   # Error: &#39;Color&#39; is an enum, not a function
+</code></pre></div>
+<p>To get a value, always use dot syntax: <code>Color.Red</code>.</p>
 <h2 id="practical-examples">Practical Examples</h2>
-<h3 id="even-numbers">Even numbers</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let evens = [x for x in range(10) if x % 2 == 0]
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(evens)   # prints: [0, 2, 4, 6, 8]
+<h3 id="traffic-light">Traffic Light</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>enum Light { Red, Yellow, Green }
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>fn describe(light) {
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    match light {
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        case Light.Red    { return &quot;stop&quot; }
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        case Light.Yellow { return &quot;caution&quot; }
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        case Light.Green  { return &quot;go&quot; }
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        case _ { return &quot;unknown&quot; }
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    }
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>}
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>print(describe(Light.Red))      # prints: stop
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>print(describe(Light.Green))    # prints: go
 </code></pre></div>
-<h3 id="countdown">Countdown</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let countdown = [10 - i for i in range(5)]
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(countdown)   # prints: [10, 9, 8, 7, 6]
+<h3 id="game-state">Game State</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>enum State { Menu, Playing, Paused, GameOver }
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>let current = State.Menu
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>print(current)   # prints: State.Menu
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>current = State.Playing
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>print(current)   # prints: State.Playing
 </code></pre></div>
-<h3 id="using-range-with-two-or-three-arguments">Using range with two or three arguments</h3>
-<p>All three <code>range()</code> forms work inside comprehensions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print([x for x in range(2, 5)])       # prints: [2, 3, 4]
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print([x for x in range(0, 10, 3)])   # prints: [0, 3, 6, 9]
-</code></pre></div>
-<h2 id="comprehension-vs-for-loop">Comprehension vs. For Loop</h2>
-<p>A list comprehension is a short way to write a common pattern. These
-two snippets do the same thing:</p>
-<p><strong>For loop:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let result = []
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>for x in range(5) {
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    if x &gt; 2 {
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        result.push(x * x)
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    }
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>}
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>print(result)   # prints: [9, 16, 25]
-</code></pre></div>
-<p><strong>Comprehension:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let result = [x * x for x in range(5) if x &gt; 2]
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>print(result)   # prints: [9, 16, 25]
-</code></pre></div>
-<p>The comprehension packs the same idea into a single line.</p>
-<h2 id="rules">Rules</h2>
-<ul>
-<li>The iterable must be a <code>range()</code> call (1, 2, or 3 arguments).</li>
-<li>The loop variable is <strong>scoped</strong> to the comprehension -- it does not
-  leak into the surrounding code.</li>
-<li>The result is always a brand-new list.</li>
-<li>You can use comprehensions anywhere an expression is allowed --
-  inside <code>print()</code>, as a function argument, assigned to a variable, etc.</li>
-</ul>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
-<p>When the <strong>compiler</strong> sees <code>[x * 2 for x in range(5)]</code>, it emits
-roughly this sequence:</p>
+<h3 id="defining-an-enum_1">Defining an Enum</h3>
+<p>Like structs, <code>enum Color { Red, Green, Blue }</code> emits <strong>no bytecode</strong>.
+The compiler stores metadata -- the enum name and its variant list --
+and passes it along to the VM.</p>
+<h3 id="accessing-a-variant">Accessing a Variant</h3>
+<p><code>Color.Red</code> compiles to a single instruction:</p>
 <ol>
-<li><code>BUILD_LIST 0</code> -- create an empty list.</li>
-<li>Store the list in a hidden variable (like <code>$comp_0</code>).</li>
-<li>Set up the loop (same way <code>for</code> loops work).</li>
-<li>For each iteration:<ul>
-<li>If there's a filter, check the condition. Skip this iteration
-  if it's false.</li>
-<li>Evaluate the mapping expression.</li>
-<li><code>LIST_APPEND "$comp_0"</code> -- pop the value and append it to the
-  hidden list.</li>
-</ul>
-</li>
-<li>After the loop, load <code>$comp_0</code> back onto the stack.</li>
+<li><code>LOAD_ENUM_VARIANT</code> -- constructs an <code>EnumVariant</code> value with the
+   enum name <code>"Color"</code> and variant name <code>"Red"</code>, and pushes it onto
+   the stack.</li>
 </ol>
-<p>The <code>LIST_APPEND</code> instruction is the only new opcode. Everything else
-reuses the existing <code>for</code>-loop machinery.</p>
+<p>Because the compiler knows <code>Color</code> is an enum (not a struct or
+variable), it intercepts <code>Color.Red</code> at compile time and emits
+<code>LOAD_ENUM_VARIANT</code> instead of the usual <code>LOAD_NAME</code> + <code>GET_FIELD</code>
+pair.</p>
+<h3 id="equality">Equality</h3>
+<p><code>EnumVariant</code> is a frozen dataclass, so Python gives it <code>==</code> and
+<code>hash</code> for free. Two variants are equal when both the enum name and
+variant name match -- the VM's regular <code>EQUAL</code> opcode handles this
+automatically.</p>
+<h3 id="matchcase">Match/Case</h3>
+<p>In a match pattern like <code>case Color.Red</code>, the compiler emits:</p>
+<ol>
+<li><code>LOAD_NAME "$match_0"</code> -- push the value being matched.</li>
+<li><code>LOAD_ENUM_VARIANT</code> -- push <code>Color.Red</code>.</li>
+<li><code>EQUAL</code> -- compare them.</li>
+<li><code>JUMP_IF_FALSE</code> -- skip to the next case if they don't match.</li>
+</ol>
+<p>This is the same strategy used for literal patterns, just with enum
+variants instead of numbers or strings.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
 <tr>
-<th>Part</th>
-<th>Example</th>
+<th>Syntax</th>
 <th>What it does</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Mapping expression</td>
-<td><code>x * 2</code></td>
-<td>Transform each value</td>
+<td><code>enum Name { A, B, C }</code></td>
+<td>Define a new enum with three variants</td>
 </tr>
 <tr>
-<td><code>for var in range()</code></td>
-<td><code>for x in range(5)</code></td>
-<td>Produce raw values</td>
+<td><code>Name.A</code></td>
+<td>Access variant <code>A</code> of enum <code>Name</code></td>
 </tr>
 <tr>
-<td><code>if condition</code></td>
-<td><code>if x &gt; 2</code></td>
-<td>Keep only matching values</td>
+<td><code>print(Name.A)</code></td>
+<td>Prints <code>Name.A</code></td>
 </tr>
 <tr>
-<td>Result</td>
-<td><code>[...]</code></td>
-<td>A new list of transformed items</td>
+<td><code>type(Name.A)</code></td>
+<td>Returns <code>"Name"</code> (the enum's name)</td>
+</tr>
+<tr>
+<td><code>a == b</code></td>
+<td>True if same enum and same variant</td>
+</tr>
+<tr>
+<td><code>case Name.A { ... }</code></td>
+<td>Match an enum variant in match/case</td>
+</tr>
+<tr>
+<td><code>LOAD_ENUM_VARIANT</code></td>
+<td>VM instruction: push an enum variant value</td>
 </tr>
 </tbody>
 </table>

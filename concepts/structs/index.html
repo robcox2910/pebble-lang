@@ -1268,10 +1268,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structs-vs-classes" class="md-nav__link">
+  <a href="#structs-classes-and-enums" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structs vs Classes
+        Structs, Classes, and Enums
       
     </span>
   </a>
@@ -1313,6 +1313,34 @@
     
   
     Classes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
   
 
     
@@ -1614,11 +1642,18 @@ If the name matches, it:</p>
 <li><code>LOAD_CONST 30</code> -- push the new value.</li>
 <li><code>SET_FIELD "x"</code> -- pop both, update the field in place.</li>
 </ol>
-<h2 id="structs-vs-classes">Structs vs Classes</h2>
-<p>Pebble also has <strong>classes</strong>, which are like structs that can do things.
-If your type only needs to hold data, use a struct. If it also needs
-methods (functions attached to the data), use a class. See the
-<a href="../classes/">Classes</a> chapter for details.</p>
+<h2 id="structs-classes-and-enums">Structs, Classes, and Enums</h2>
+<p>Pebble has three ways to define custom types:</p>
+<ul>
+<li><strong>Struct</strong> -- a container for related data fields (this chapter).</li>
+<li><strong>Class</strong> -- a struct that can also have methods.
+  See <a href="../classes/">Classes</a>.</li>
+<li><strong>Enum</strong> -- a fixed set of named values (not a data container).
+  See <a href="../enums/">Enums</a>.</li>
+</ul>
+<p>If you just need to group data, use a struct. If your data needs to
+<em>do things</em>, use a class. If you have a small, known set of options
+(like colours or directions), use an enum.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
