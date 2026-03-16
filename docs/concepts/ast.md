@@ -80,7 +80,7 @@ nodes:
 | `BreakStatement` | `break` | Exit the nearest loop |
 | `ContinueStatement` | `continue` | Skip to the next loop iteration |
 | `MatchStatement` | `match x { case 1 { } }` | Value, list of cases with patterns and bodies |
-| `ImportStatement` | `import "math.pbl"` | The path to the module file |
+| `ImportStatement` | `import "helpers.pbl"` | The module path (a file or built-in module name) |
 | `FromImportStatement` | `from "utils.pbl" import add` | The path and the names to import |
 | `StructDef` | `struct Point { x, y }` | The name and list of fields |
 | `ConstAssignment` | `const PI = 3` | Like Assignment, but immutable |

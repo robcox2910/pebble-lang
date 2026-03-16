@@ -14,6 +14,7 @@ OPCODE_COUNT = 56
 FIRST_INDEX = 0
 SECOND_INDEX = 1
 THIRD_INDEX = 2
+TWO_CONSTANTS = 2
 
 
 # -- OpCode ------------------------------------------------------------------
@@ -91,17 +92,17 @@ class TestCodeObject:
         """``0`` (int) and ``False`` (bool) are stored as separate entries."""
         code = CodeObject(name="test")
         int_idx = code.add_constant(0)
-        bool_idx = code.add_constant(False)  # noqa: FBT003
+        bool_idx = code.add_constant(False)
         assert int_idx != bool_idx
-        assert len(code.constants) == 2  # noqa: PLR2004
+        assert len(code.constants) == TWO_CONSTANTS
 
     def test_add_constant_distinguishes_one_and_true(self) -> None:
         """``1`` (int) and ``True`` (bool) are stored as separate entries."""
         code = CodeObject(name="test")
         int_idx = code.add_constant(1)
-        bool_idx = code.add_constant(True)  # noqa: FBT003
+        bool_idx = code.add_constant(True)
         assert int_idx != bool_idx
-        assert len(code.constants) == 2  # noqa: PLR2004
+        assert len(code.constants) == TWO_CONSTANTS
 
     def test_starts_with_empty_instructions(self) -> None:
         """A fresh CodeObject has no instructions."""

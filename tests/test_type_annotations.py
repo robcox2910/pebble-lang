@@ -7,7 +7,7 @@ compiler, VM runtime, integration, resolver, and REPL.
 from __future__ import annotations
 
 from io import StringIO
-from pathlib import Path  # noqa: TC003 — used at runtime by tmp_path fixtures
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -30,6 +30,9 @@ from pebble.repl import Repl
 from pebble.resolver import ModuleResolver
 from pebble.tokens import SourceLocation, TokenKind
 from pebble.vm import VirtualMachine
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # -- Named constants ----------------------------------------------------------
 

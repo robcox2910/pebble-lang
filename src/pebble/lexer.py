@@ -4,7 +4,12 @@ The lexer reads source text character by character and produces a list of
 :class:`~pebble.tokens.Token` objects ready for the parser.
 """
 
-from typing import ClassVar
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, ClassVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from pebble.errors import LexerError
 from pebble.tokens import KEYWORDS, SourceLocation, Token, TokenKind
@@ -57,6 +62,15 @@ class Lexer:
         self._line = 1
         self._column = 1
         self._tokens: list[Token] = []
+        self._compound_dispatch: dict[str, Callable[[], None]] = {
+            "-": self._scan_minus,
+            "*": self._scan_star,
+            "/": self._scan_slash,
+            "=": self._scan_equal,
+            "!": self._scan_bang,
+            "<": self._scan_less,
+            ">": self._scan_greater,
+        }
 
     # -- Public API -----------------------------------------------------------
 
@@ -78,7 +92,7 @@ class Lexer:
 
     # -- Scanning dispatch ----------------------------------------------------
 
-    def _scan_token(self) -> None:  # noqa: PLR0912
+    def _scan_token(self) -> None:
         """Scan the next token from the current position."""
         ch = self._peek()
 
@@ -96,20 +110,8 @@ class Lexer:
             self._scan_identifier_or_keyword()
         elif ch in _SINGLE_CHARS:
             self._scan_single_char()
-        elif ch == "-":
-            self._scan_minus()
-        elif ch == "*":
-            self._scan_star()
-        elif ch == "/":
-            self._scan_slash()
-        elif ch == "=":
-            self._scan_equal()
-        elif ch == "!":
-            self._scan_bang()
-        elif ch == "<":
-            self._scan_less()
-        elif ch == ">":
-            self._scan_greater()
+        elif scanner := self._compound_dispatch.get(ch):
+            scanner()
         else:
             msg = f"Unexpected character '{ch}'"
             raise LexerError(msg, line=self._line, column=self._column)

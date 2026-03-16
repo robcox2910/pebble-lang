@@ -156,33 +156,21 @@ class CodeObject:
     """
 
     name: str
-    instructions: list[Instruction] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
-    constants: list[int | float | str | bool | None] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
-    parameters: list[str] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
-    cell_variables: list[str] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
-    free_variables: list[str] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
-    param_types: list[str | None] = field(
-        default_factory=lambda: [],  # noqa: PIE807
-    )
+    instructions: list[Instruction] = field(default_factory=lambda: [])
+    constants: list[int | float | str | bool | None] = field(default_factory=lambda: [])
+    parameters: list[str] = field(default_factory=lambda: [])
+    cell_variables: list[str] = field(default_factory=lambda: [])
+    free_variables: list[str] = field(default_factory=lambda: [])
+    param_types: list[str | None] = field(default_factory=lambda: [])
     return_type: str | None = None
     is_generator: bool = False
 
     _constant_index: dict[tuple[type, int | float | str | bool | None], int] = field(
-        default_factory=lambda: {},  # noqa: PIE807
+        default_factory=lambda: {},
         repr=False,
     )
 
-    def add_constant(self, value: int | float | str | bool | None) -> int:  # noqa: FBT001
+    def add_constant(self, value: int | float | str | bool | None) -> int:
         """Add *value* to the constant pool and return its index.
 
         Duplicate entries (same value *and* type) are reused.  A cache
@@ -209,12 +197,8 @@ class CompiledProgram:
 
     main: CodeObject
     functions: dict[str, CodeObject]
-    structs: dict[str, list[str]] = field(default_factory=lambda: {})  # noqa: PIE807
-    struct_field_types: dict[str, dict[str, str]] = field(
-        default_factory=lambda: {},  # noqa: PIE807
-    )
-    class_methods: dict[str, list[str]] = field(
-        default_factory=lambda: {},  # noqa: PIE807
-    )
-    enums: dict[str, list[str]] = field(default_factory=lambda: {})  # noqa: PIE807
-    class_parents: dict[str, str] = field(default_factory=lambda: {})  # noqa: PIE807
+    structs: dict[str, list[str]] = field(default_factory=lambda: {})
+    struct_field_types: dict[str, dict[str, str]] = field(default_factory=lambda: {})
+    class_methods: dict[str, list[str]] = field(default_factory=lambda: {})
+    enums: dict[str, list[str]] = field(default_factory=lambda: {})
+    class_parents: dict[str, str] = field(default_factory=lambda: {})

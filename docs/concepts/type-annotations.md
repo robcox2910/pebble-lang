@@ -28,7 +28,7 @@ Two big reasons:
 
 ## The Basic Types
 
-Pebble has nine built-in type names you can use in annotations:
+Pebble has eight built-in type names you can use in annotations:
 
 | Annotation | What it means                  | Example value    |
 |------------|-------------------------------|------------------|

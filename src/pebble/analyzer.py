@@ -129,15 +129,9 @@ class Scope:
 
     """
 
-    variables: dict[str, SourceLocation] = field(
-        default_factory=lambda: {},  # noqa: PIE807
-    )
-    functions: dict[str, tuple[Arity, SourceLocation]] = field(
-        default_factory=lambda: {},  # noqa: PIE807
-    )
-    constants: set[str] = field(
-        default_factory=lambda: set(),  # noqa: PLW0108
-    )
+    variables: dict[str, SourceLocation] = field(default_factory=lambda: {})
+    functions: dict[str, tuple[Arity, SourceLocation]] = field(default_factory=lambda: {})
+    constants: set[str] = field(default_factory=lambda: set())
     parent: Scope | None = None
     function_name: str | None = None
 
@@ -291,7 +285,9 @@ class SemanticAnalyzer:
 
     def _pop_scope(self) -> None:
         """Return to the enclosing scope."""
-        assert self._scope.parent is not None  # noqa: S101
+        if self._scope.parent is None:
+            msg = "Cannot pop the global scope"
+            raise RuntimeError(msg)
         self._scope = self._scope.parent
 
     def _validate_type_name(self, name: str, location: SourceLocation) -> None:
@@ -305,9 +301,53 @@ class SemanticAnalyzer:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _visit_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
+    def _visit_statement(self, stmt: Statement) -> None:
         """Dispatch to the appropriate visitor based on statement type."""
-        # -- Import ordering enforcement --
+        self._enforce_import_ordering(stmt)
+
+        match stmt:
+            case (
+                Assignment()
+                | UnpackAssignment()
+                | ConstAssignment()
+                | UnpackConstAssignment()
+                | Reassignment()
+                | UnpackReassignment()
+            ):
+                self._visit_variable_statement(stmt)
+            case IfStatement() | WhileLoop() | ForLoop() | MatchStatement():
+                self._visit_control_flow_statement(stmt)
+            case (
+                FunctionDef()
+                | ReturnStatement()
+                | YieldStatement()
+                | StructDef()
+                | ClassDef()
+                | EnumDef()
+            ):
+                self._visit_definition_statement(stmt)
+            case PrintStatement():
+                self._visit_expression(stmt.expression)
+            case IndexAssignment():
+                self._visit_index_assignment(stmt)
+            case FieldAssignment():
+                self._visit_field_assignment(stmt)
+            case BreakStatement():
+                self._visit_break(stmt)
+            case ContinueStatement():
+                self._visit_continue(stmt)
+            case TryCatch():
+                self._visit_try(stmt)
+            case ThrowStatement():
+                self._visit_throw(stmt)
+            case ImportStatement() | FromImportStatement():
+                pass  # Names registered by resolver before analyze()
+            case _:
+                # Expression statements (e.g. bare function calls)
+                self._visit_expression(stmt)  # type: ignore[arg-type]
+
+    def _enforce_import_ordering(self, stmt: Statement) -> None:
+        """Ensure all imports appear before non-import statements."""
         if isinstance(stmt, ImportStatement | FromImportStatement):
             if self._past_imports:
                 loc = stmt.location
@@ -316,6 +356,16 @@ class SemanticAnalyzer:
         else:
             self._past_imports = True
 
+    def _visit_variable_statement(
+        self,
+        stmt: Assignment
+        | UnpackAssignment
+        | ConstAssignment
+        | UnpackConstAssignment
+        | Reassignment
+        | UnpackReassignment,
+    ) -> None:
+        """Dispatch variable declaration, constant, and reassignment statements."""
         match stmt:
             case Assignment():
                 self._visit_assignment(stmt)
@@ -329,45 +379,38 @@ class SemanticAnalyzer:
                 self._visit_reassignment(stmt)
             case UnpackReassignment():
                 self._visit_unpack_reassignment(stmt)
-            case PrintStatement():
-                self._visit_expression(stmt.expression)
+
+    def _visit_control_flow_statement(
+        self, stmt: IfStatement | WhileLoop | ForLoop | MatchStatement
+    ) -> None:
+        """Dispatch control flow statements (if, while, for, match)."""
+        match stmt:
             case IfStatement():
                 self._visit_if(stmt)
             case WhileLoop():
                 self._visit_while(stmt)
             case ForLoop():
                 self._visit_for(stmt)
+            case MatchStatement():
+                self._visit_match(stmt)
+
+    def _visit_definition_statement(
+        self, stmt: FunctionDef | ReturnStatement | YieldStatement | StructDef | ClassDef | EnumDef
+    ) -> None:
+        """Dispatch function, struct, class, and enum definition statements."""
+        match stmt:
             case FunctionDef():
                 self._visit_function_def(stmt)
             case ReturnStatement():
                 self._visit_return(stmt)
             case YieldStatement():
                 self._visit_yield(stmt)
-            case IndexAssignment():
-                self._visit_index_assignment(stmt)
-            case BreakStatement():
-                self._visit_break(stmt)
-            case ContinueStatement():
-                self._visit_continue(stmt)
-            case TryCatch():
-                self._visit_try(stmt)
-            case ThrowStatement():
-                self._visit_throw(stmt)
-            case MatchStatement():
-                self._visit_match(stmt)
             case StructDef():
                 self._visit_struct_def(stmt)
             case ClassDef():
                 self._visit_class_def(stmt)
             case EnumDef():
                 self._visit_enum_def(stmt)
-            case FieldAssignment():
-                self._visit_field_assignment(stmt)
-            case ImportStatement() | FromImportStatement():
-                pass  # Names registered by resolver before analyze()
-            case _:
-                # Expression statements (e.g. bare function calls)
-                self._visit_expression(stmt)  # type: ignore[arg-type]
 
     # -- Statement visitors ---------------------------------------------------
 
@@ -621,38 +664,29 @@ class SemanticAnalyzer:
         for expr in exprs:
             self._visit_expression(expr)
 
-    def _visit_expression(self, expr: Expression) -> None:  # noqa: C901, PLR0912
+    def _visit_expression(self, expr: Expression) -> None:
         """Dispatch to the appropriate visitor based on expression type."""
         match expr:
             case Identifier():
                 self._visit_identifier(expr)
             case BinaryOp():
-                self._visit_expression(expr.left)
-                self._visit_expression(expr.right)
+                self._visit_binary_op(expr)
             case UnaryOp():
                 self._visit_expression(expr.operand)
             case FunctionCall():
                 self._visit_function_call(expr)
-            case StringInterpolation():
-                self._visit_expressions(expr.parts)
-            case ArrayLiteral():
-                self._visit_expressions(expr.elements)
+            case StringInterpolation() | ArrayLiteral():
+                self._visit_collection_expression(expr)
             case ListComprehension():
                 self._visit_list_comprehension(expr)
             case DictLiteral():
-                for key, value in expr.entries:
-                    self._visit_expression(key)
-                    self._visit_expression(value)
+                self._visit_dict_literal(expr)
             case IndexAccess() | SliceAccess():
                 self._visit_index_or_slice(expr)
-            case MethodCall():
-                self._visit_method_call(expr)
-            case FieldAccess():
-                self._visit_field_access(expr)
+            case MethodCall() | FieldAccess() | SuperMethodCall():
+                self._visit_member_access_expression(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
-            case SuperMethodCall():
-                self._visit_super_method_call(expr)
             case (
                 IntegerLiteral()
                 | FloatLiteral()
@@ -661,6 +695,37 @@ class SemanticAnalyzer:
                 | NullLiteral()
             ):
                 pass  # Literals need no semantic checks
+
+    def _visit_binary_op(self, node: BinaryOp) -> None:
+        """Visit a binary operation — check both operands."""
+        self._visit_expression(node.left)
+        self._visit_expression(node.right)
+
+    def _visit_collection_expression(self, expr: StringInterpolation | ArrayLiteral) -> None:
+        """Visit a string interpolation or array literal — check all parts/elements."""
+        match expr:
+            case StringInterpolation():
+                self._visit_expressions(expr.parts)
+            case ArrayLiteral():
+                self._visit_expressions(expr.elements)
+
+    def _visit_dict_literal(self, node: DictLiteral) -> None:
+        """Visit a dict literal — check all key-value pairs."""
+        for key, value in node.entries:
+            self._visit_expression(key)
+            self._visit_expression(value)
+
+    def _visit_member_access_expression(
+        self, expr: MethodCall | FieldAccess | SuperMethodCall
+    ) -> None:
+        """Dispatch member access expressions (method call, field access, super call)."""
+        match expr:
+            case MethodCall():
+                self._visit_method_call(expr)
+            case FieldAccess():
+                self._visit_field_access(expr)
+            case SuperMethodCall():
+                self._visit_super_method_call(expr)
 
     # -- Closure helpers ------------------------------------------------------
 
@@ -728,88 +793,104 @@ class SemanticAnalyzer:
             if f.type_annotation is not None:
                 self._validate_type_name(f.type_annotation, node.location)
 
-    def _visit_class_def(self, node: ClassDef) -> None:  # noqa: C901, PLR0912, PLR0915
+    def _visit_class_def(self, node: ClassDef) -> None:
         """Visit a class definition — register constructor, validate methods."""
-        # Validate field type annotations
         for f in node.fields:
             if f.type_annotation is not None:
                 self._validate_type_name(f.type_annotation, node.location)
 
-        # -- Inheritance validation --
-        all_fields: list[str] = []
-        inherited_methods: dict[str, int] = {}
+        all_fields, inherited_methods = self._validate_class_inheritance(node)
 
-        if node.parent is not None:
-            # Self-extension check
-            if node.parent == node.name:
-                msg = "A class cannot extend itself"
-                raise SemanticError(msg, line=node.location.line, column=node.location.column)
-
-            # Parent must be a known class (not struct/enum/unknown)
-            if node.parent not in self._class_methods:
-                if node.parent in self._enums:
-                    msg = f"'{node.parent}' is an enum, not a class"
-                elif self._scope.resolve_function(node.parent) is not None:
-                    msg = f"'{node.parent}' is not a class"
-                else:
-                    msg = f"Unknown parent class '{node.parent}'"
-                raise SemanticError(msg, line=node.location.line, column=node.location.column)
-
-            # Collect all ancestor fields
-            parent_fields = self._get_all_fields(node.parent)
-            all_fields.extend(parent_fields)
-
-            # Check no child field duplicates a parent field
-            parent_field_set = set(parent_fields)
-            for f in node.fields:
-                if f.name in parent_field_set:
-                    msg = f"Duplicate field '{f.name}' (already inherited from '{node.parent}')"
-                    raise SemanticError(msg, line=node.location.line, column=node.location.column)
-
-            # Copy parent methods for inheritance
-            inherited_methods = dict(self._class_methods[node.parent])
-
-            # Record parent relationship
-            self._class_parents[node.name] = node.parent
-
-        # Build full field list
         all_fields.extend(f.name for f in node.fields)
         self._class_fields[node.name] = all_fields
 
-        # Register constructor with arity = total field count
         self._scope.declare_function(node.name, len(all_fields), node.location)
         self._scope.variables[node.name] = node.location
 
-        # Pre-register method arities so methods can call each other
-        method_arities: dict[str, int] = dict(inherited_methods)
-        for method in node.methods:
-            # First param must be 'self'
-            if not method.parameters or method.parameters[0].name != "self":
-                msg = f"Method '{method.name}' must have 'self' as first parameter"
-                raise SemanticError(msg, line=method.location.line, column=method.location.column)
-
-            # Reject builtin method name collisions
-            if method.name in METHOD_ARITIES:
-                msg = f"Method name '{method.name}' is reserved for builtin methods"
-                raise SemanticError(msg, line=method.location.line, column=method.location.column)
-
-            # Validate dunder method arities
-            if method.name in _DUNDER_ARITIES:
-                expected = _DUNDER_ARITIES[method.name]
-                actual = len(method.parameters)
-                if actual != expected:
-                    s = "" if expected == 1 else "s"
-                    msg = f"Dunder method '{method.name}' requires {expected} parameter{s}, got {actual}"
-                    raise SemanticError(
-                        msg, line=method.location.line, column=method.location.column
-                    )
-
-            method_arities[method.name] = len(method.parameters) - 1
-
-        # Register before visiting bodies so inter-method calls resolve
+        method_arities = self._register_class_methods(node, inherited_methods)
         self._class_methods[node.name] = method_arities
 
-        # Now validate method bodies
+        self._visit_class_method_bodies(node)
+
+    def _validate_class_inheritance(self, node: ClassDef) -> tuple[list[str], dict[str, int]]:
+        """Validate the parent class and collect inherited fields and methods.
+
+        Return a ``(field_list, method_dict)`` pair.  The field list contains
+        ancestor fields in declaration order; the method dict maps inherited
+        method names to their user-visible arities (excluding ``self``).
+        """
+        all_fields: list[str] = []
+        inherited_methods: dict[str, int] = {}
+
+        if node.parent is None:
+            return all_fields, inherited_methods
+
+        if node.parent == node.name:
+            msg = "A class cannot extend itself"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+        if node.parent not in self._class_methods:
+            self._raise_bad_parent_error(node.parent, node.location)
+
+        parent_fields = self._get_all_fields(node.parent)
+        all_fields.extend(parent_fields)
+
+        parent_field_set = set(parent_fields)
+        for f in node.fields:
+            if f.name in parent_field_set:
+                msg = f"Duplicate field '{f.name}' (already inherited from '{node.parent}')"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+        inherited_methods = dict(self._class_methods[node.parent])
+        self._class_parents[node.name] = node.parent
+        return all_fields, inherited_methods
+
+    def _raise_bad_parent_error(self, parent: str, location: SourceLocation) -> None:
+        """Raise an appropriate error when a parent class reference is invalid."""
+        if parent in self._enums:
+            msg = f"'{parent}' is an enum, not a class"
+        elif self._scope.resolve_function(parent) is not None:
+            msg = f"'{parent}' is not a class"
+        else:
+            msg = f"Unknown parent class '{parent}'"
+        raise SemanticError(msg, line=location.line, column=location.column)
+
+    def _register_class_methods(
+        self, node: ClassDef, inherited_methods: dict[str, int]
+    ) -> dict[str, int]:
+        """Validate and pre-register method arities for *node*.
+
+        Return the full method-arity dict (inherited + own) so that
+        inter-method calls resolve during body analysis.
+        """
+        method_arities: dict[str, int] = dict(inherited_methods)
+        for method in node.methods:
+            self._validate_method_signature(method)
+            method_arities[method.name] = len(method.parameters) - 1
+        return method_arities
+
+    def _validate_method_signature(self, method: FunctionDef) -> None:
+        """Check that *method* has ``self`` first, no builtin name clash, and valid dunder arity."""
+        if not method.parameters or method.parameters[0].name != "self":
+            msg = f"Method '{method.name}' must have 'self' as first parameter"
+            raise SemanticError(msg, line=method.location.line, column=method.location.column)
+
+        if method.name in METHOD_ARITIES:
+            msg = f"Method name '{method.name}' is reserved for builtin methods"
+            raise SemanticError(msg, line=method.location.line, column=method.location.column)
+
+        if method.name in _DUNDER_ARITIES:
+            expected = _DUNDER_ARITIES[method.name]
+            actual = len(method.parameters)
+            if actual != expected:
+                s = "" if expected == 1 else "s"
+                msg = (
+                    f"Dunder method '{method.name}' requires {expected} parameter{s}, got {actual}"
+                )
+                raise SemanticError(msg, line=method.location.line, column=method.location.column)
+
+    def _visit_class_method_bodies(self, node: ClassDef) -> None:
+        """Visit each method body in *node*, validating parameters and statements."""
         for method in node.methods:
             self._push_scope()
             self._scope.function_name = f"{node.name}.{method.name}"
@@ -886,10 +967,16 @@ class SemanticAnalyzer:
 
     # -- Import registration (called by resolver before analyze()) ----------
 
-    def register_imported_function(self, name: str, arity: int, location: SourceLocation) -> None:
+    def register_imported_function(
+        self, name: str, arity: int | tuple[int, ...], location: SourceLocation
+    ) -> None:
         """Register an imported function in the global scope."""
         self._scope.declare_function(name, arity, location)
         self._scope.variables[name] = location
+
+    def register_imported_constant(self, name: str, location: SourceLocation) -> None:
+        """Register an imported constant (stdlib value) in the global scope."""
+        self._scope.declare_variable(name, location)
 
     def register_imported_struct(
         self, name: str, field_count: int, location: SourceLocation

@@ -20,6 +20,10 @@ from tests.conftest import (  # pyright: ignore[reportMissingImports]
     run_source,  # pyright: ignore[reportUnknownVariableType]
 )
 
+# -- Named constants ----------------------------------------------------------
+
+EXPECTED_VARIANT_OPCODE_COUNT = 2
+
 # ---------------------------------------------------------------------------
 # Lexer tests
 # ---------------------------------------------------------------------------
@@ -218,7 +222,7 @@ match c {
         opcodes = [i.opcode for i in compiled.main.instructions]
         # Two LOAD_ENUM_VARIANT: one for `Color.Red` in let, one in match case
         variant_count = opcodes.count(OpCode.LOAD_ENUM_VARIANT)
-        assert variant_count == 2  # noqa: PLR2004
+        assert variant_count == EXPECTED_VARIANT_OPCODE_COUNT
 
 
 # ---------------------------------------------------------------------------

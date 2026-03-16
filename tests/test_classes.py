@@ -14,6 +14,7 @@ from pebble.compiler import Compiler
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
+from pebble.repl import Repl
 from pebble.tokens import SourceLocation, TokenKind
 from tests.conftest import (  # pyright: ignore[reportMissingImports]
     run_source,  # pyright: ignore[reportUnknownVariableType]
@@ -790,8 +791,6 @@ class TestClassREPL:
 
     def test_class_persists_across_evals(self) -> None:
         """A class defined in one REPL eval is available in the next."""
-        from pebble.repl import Repl  # noqa: PLC0415
-
         buf = StringIO()
         r = Repl(output=buf)
         r.eval_line("""class Dog {

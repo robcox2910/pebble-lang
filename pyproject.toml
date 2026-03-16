@@ -112,6 +112,10 @@ ignore = [
     "D213",   # Incompatible with D212 (multi-line-summary-first-line)
     "ISC001", # Conflicts with ruff format (single-line implicit concat)
     "TRY003", # Conflicts with EM (long exception messages in raise)
+    "PIE807", # Conflicts with pyright strict (lambda factories preserve type info)
+    "PLW0108", # Conflicts with pyright strict (lambda factories preserve type info)
+    "FBT001", # Union-typed value params (int|float|str|bool|None) are not boolean flags
+    "FBT003", # Passing bool literals to union-typed params is not a boolean trap
 ]
 
 [tool.ruff.lint.mccabe]

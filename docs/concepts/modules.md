@@ -29,20 +29,20 @@ Modules solve all three problems. Write it once, import it anywhere.
 Use `import` followed by a path in quotes:
 
 ```pebble
-import "math.pbl"
+import "helpers.pbl"
 
 print(add(1, 2))   # 3
 ```
 
-This brings in *every* function and struct that `math.pbl` defines.
-It's the easiest way to grab a whole toolbox at once.
+This brings in *every* function, struct, and class that `helpers.pbl`
+defines. It's the easiest way to grab a whole toolbox at once.
 
 ## Importing Specific Names
 
 If you only need a few tools, use `from ... import`:
 
 ```pebble
-from "math.pbl" import add, multiply
+from "helpers.pbl" import add, multiply
 
 print(add(2, multiply(3, 4)))   # 14
 ```
@@ -57,6 +57,7 @@ Only **definitions** travel between files:
 - `fn` function definitions
 - `struct` struct definitions
 - `class` class definitions
+- `enum` enum definitions
 
 Executable statements like `print(...)`, `let x = ...`, or loops
 do **not** run when you import a module. The module's code is read
@@ -128,6 +129,34 @@ print(top())   # 111
 Pebble handles the chain for you and never compiles the same module
 twice.
 
+## Built-in Modules
+
+Not every module is a `.pbl` file. Pebble comes with two **built-in
+modules** that are always available to import — no file needed:
+
+- **`"math"`** — numeric functions like `sqrt`, `abs`, `floor`, and
+  constants like `pi` and `e`
+- **`"io"`** — the `input()` function for reading from the keyboard
+
+```pebble
+import "math"
+print(sqrt(16))   # 4.0
+print(pi)         # 3.141592653589793
+```
+
+```pebble
+from "io" import input
+let name = input("Name? ")
+print("Hi, " + name)
+```
+
+These use exactly the same `import` / `from ... import` syntax as
+file modules. The resolver checks for built-in module names first;
+if there's no match, it looks for a `.pbl` file.
+
+See [Standard Library](stdlib.md) for the full list of built-in
+module functions and constants.
+
 ## Import Rules
 
 1. **Imports must come first.** All `import` and `from ... import`
@@ -169,17 +198,17 @@ import "math.pbl"
 
 ## Practical Examples
 
-### Math Library
+### Helper Library
 
 ```pebble
-# math.pbl
+# helpers.pbl
 fn add(a, b) { return a + b }
 fn sub(a, b) { return a - b }
 fn mul(a, b) { return a * b }
 ```
 
 ```pebble
-from "math.pbl" import add, mul
+from "helpers.pbl" import add, mul
 print(add(2, mul(3, 4)))   # 14
 ```
 
@@ -238,10 +267,12 @@ difference.
 
 | Syntax | What it does |
 | --- | --- |
-| `import "path.pbl"` | Bring in all functions and structs from a module |
+| `import "path.pbl"` | Bring in all functions, structs, classes, and enums from a file module |
 | `from "path.pbl" import name` | Bring in specific names only |
+| `import "math"` / `import "io"` | Import a built-in stdlib module |
 | `fn` / `struct` in a module | Automatically available to importers |
 | `print(...)` in a module | Does NOT execute during import |
 | Relative paths | Resolved from the importing file's directory |
+| Built-in module names | Checked before file lookup (`"math"`, `"io"`) |
 | Circular imports | Detected and reported as an error |
 | Caching | Each module is compiled at most once |

@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from pebble.builtins import Value
     from pebble.bytecode import CodeObject
+    from pebble.stdlib import StdlibHandler
 
 _PROMPT = "pebble> "
 _CONTINUATION = "... "
@@ -58,6 +59,9 @@ class Repl:
         self._class_methods: dict[str, list[str]] = {}
         self._class_parents: dict[str, str] = {}
         self._enums: dict[str, list[str]] = {}
+        self._stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] = {}
+        self._stdlib_constants: dict[str, Value] = {}
+        self._variable_arity_functions: dict[str, int] = {}
         self._output: TextIO = output or sys.stdout
 
     def eval_line(self, source: str) -> None:
@@ -78,6 +82,11 @@ class Repl:
 
         analyzed = self._analyzer.analyze(program)
 
+        # Merge variable-arity functions for compiler padding
+        all_var_arity = {
+            **self._variable_arity_functions,
+            **resolver.variable_arity_functions,
+        }
         compiled = Compiler(
             cell_vars=self._analyzer.cell_vars,
             free_vars=self._analyzer.free_vars,
@@ -86,6 +95,7 @@ class Repl:
             structs=self._structs,
             class_methods=self._class_methods,
             functions=self._functions,
+            variable_arity_functions=all_var_arity,
         ).compile(analyzed)
 
         # Merge new functions and structs with previously-defined ones
@@ -113,8 +123,17 @@ class Repl:
             class_parents=all_class_parents,
         )
 
+        # Merge stdlib handlers from this eval round
+        all_stdlib_handlers = self._stdlib_handlers | resolver.merged_stdlib_handlers
+        all_stdlib_constants = self._stdlib_constants | resolver.merged_stdlib_constants
+
         vm = VirtualMachine(output=self._output)
-        new_vars = vm.run_repl(full_program, self._variables)
+        new_vars = vm.run_repl(
+            full_program,
+            self._variables,
+            stdlib_handlers=all_stdlib_handlers,
+            stdlib_constants=all_stdlib_constants,
+        )
 
         # Success — persist state
         self._variables = new_vars
@@ -130,6 +149,9 @@ class Repl:
         self._class_parents.update(compiled.class_parents)
         self._enums.update(resolver.merged_enums)
         self._enums.update(compiled.enums)
+        self._stdlib_handlers.update(resolver.merged_stdlib_handlers)
+        self._stdlib_constants.update(resolver.merged_stdlib_constants)
+        self._variable_arity_functions.update(resolver.variable_arity_functions)
 
 
 # -- Input handling -----------------------------------------------------------
@@ -181,4 +203,4 @@ def repl(output: TextIO | None = None) -> None:
         try:
             r.eval_line(source)
         except PebbleError as exc:
-            print(f"Error: {exc.message}", file=sys.stderr)  # noqa: T201
+            sys.stderr.write(f"Error: {exc.message}\n")
