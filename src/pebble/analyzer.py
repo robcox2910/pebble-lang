@@ -63,6 +63,7 @@ from pebble.ast_nodes import (
     UnpackReassignment,
     WhileLoop,
     WildcardPattern,
+    YieldStatement,
 )
 from pebble.builtins import BUILTIN_ARITIES, METHOD_ARITIES, Arity
 from pebble.errors import SemanticError
@@ -233,6 +234,7 @@ class SemanticAnalyzer:
             self._scope.functions[name] = (arity, _BUILTIN_LOCATION)
         self._in_function = False
         self._loop_depth = 0
+        self._try_depth = 0
         self._past_imports = False
         self._cell_vars: dict[str, set[str]] = {}
         self._free_vars: dict[str, set[str]] = {}
@@ -339,6 +341,8 @@ class SemanticAnalyzer:
                 self._visit_function_def(stmt)
             case ReturnStatement():
                 self._visit_return(stmt)
+            case YieldStatement():
+                self._visit_yield(stmt)
             case IndexAssignment():
                 self._visit_index_assignment(stmt)
             case BreakStatement():
@@ -528,6 +532,17 @@ class SemanticAnalyzer:
         if node.value is not None:
             self._visit_expression(node.value)
 
+    def _visit_yield(self, node: YieldStatement) -> None:
+        """Visit a ``yield`` statement — must be inside a function, not in try block."""
+        if not self._in_function:
+            msg = "Yield statement outside function"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        if self._try_depth > 0:
+            msg = "Yield inside try block is not supported"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        if node.value is not None:
+            self._visit_expression(node.value)
+
     def _visit_break(self, node: BreakStatement) -> None:
         """Visit a ``break`` statement — must be inside a loop."""
         if self._loop_depth == 0:
@@ -542,7 +557,9 @@ class SemanticAnalyzer:
 
     def _visit_try(self, node: TryCatch) -> None:
         """Visit a ``try/catch/finally`` block — scope catch variable."""
+        self._try_depth += 1
         self._visit_block(node.body)
+        self._try_depth -= 1
         self._push_scope()
         if node.catch_variable is not None:
             self._scope.declare_variable(node.catch_variable, node.location)

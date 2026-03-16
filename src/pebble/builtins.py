@@ -47,6 +47,8 @@ type Value = (
     | Closure
     | StructInstance
     | EnumVariant
+    | SequenceIterator
+    | GeneratorObject
 )
 
 
@@ -95,10 +97,44 @@ class StructInstance:
     fields: dict[str, Value]
 
 
+@dataclass
+class SequenceIterator:
+    """Iterator over a list or string, advancing one element at a time.
+
+    Attributes:
+        items: The list or string being iterated.
+        index: Current position in the sequence.
+
+    """
+
+    items: list[Value] | str
+    index: int = 0
+
+
+@dataclass
+class GeneratorObject:
+    """Suspended generator coroutine created from a function containing ``yield``.
+
+    Attributes:
+        code: The compiled function body.
+        ip: Instruction pointer for resumption.
+        variables: Snapshot of local variables at the yield point.
+        cells: Snapshot of closure cells at the yield point.
+        exhausted: Whether the generator has returned.
+
+    """
+
+    code: CodeObject
+    ip: int
+    variables: dict[str, Value]
+    cells: dict[str, Cell]
+    exhausted: bool = False
+
+
 # -- Value formatting ----------------------------------------------------------
 
 
-def format_value(value: Value) -> str:  # noqa: PLR0911
+def format_value(value: Value) -> str:  # noqa: PLR0911, PLR0912
     """Format *value* for Pebble-native output."""
     match value:
         case None:
@@ -124,6 +160,10 @@ def format_value(value: Value) -> str:  # noqa: PLR0911
             return f"{value.type_name}({fields})"
         case Closure():
             return f"<fn {value.code.name}>"
+        case GeneratorObject():
+            return f"<generator {value.code.name}>"
+        case SequenceIterator():
+            return "<iterator>"
         case _:  # pragma: no cover
             return str(value)
 
@@ -191,6 +231,10 @@ def _builtin_type(args: list[Value]) -> Value:  # noqa: PLR0911
             return arg.type_name
         case Closure():
             return "fn"
+        case GeneratorObject():
+            return "generator"
+        case SequenceIterator():
+            return "iterator"
 
 
 def _builtin_len(args: list[Value]) -> Value:
@@ -284,6 +328,7 @@ BUILTIN_ARITIES: dict[str, Arity] = {
     "map": _MAP_ARITY,
     "filter": _FILTER_ARITY,
     "reduce": _REDUCE_ARITY,
+    "next": 1,
 }
 """Map of ALL builtin names (runtime + compile-time) to arity."""
 

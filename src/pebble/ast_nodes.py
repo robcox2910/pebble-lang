@@ -340,6 +340,14 @@ class ReturnStatement:
 
 
 @dataclass(frozen=True)
+class YieldStatement:
+    """A ``yield`` statement, optionally with a value."""
+
+    value: Expression | None
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class BreakStatement:
     """A ``break`` statement to exit a loop."""
 
@@ -541,6 +549,7 @@ Statement = (
     | ForLoop
     | FunctionDef
     | ReturnStatement
+    | YieldStatement
     | IndexAssignment
     | BreakStatement
     | ContinueStatement

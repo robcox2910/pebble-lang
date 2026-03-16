@@ -69,6 +69,7 @@ nav:
       - Classes: concepts/classes.md
       - Inheritance: concepts/inheritance.md
       - Operator Overloading: concepts/operator-overloading.md
+      - Iterators & Generators: concepts/iterators.md
       - Enums: concepts/enums.md
       - Modules: concepts/modules.md
       - Type Annotations: concepts/type-annotations.md

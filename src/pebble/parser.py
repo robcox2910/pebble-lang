@@ -66,6 +66,7 @@ from pebble.ast_nodes import (
     UnpackReassignment,
     WhileLoop,
     WildcardPattern,
+    YieldStatement,
 )
 from pebble.errors import ParseError
 from pebble.tokens import Token, TokenKind
@@ -418,6 +419,22 @@ class Parser:
 
         self._consume_newline()
         return ReturnStatement(value=value, location=return_token.location)
+
+    def _parse_yield(self) -> YieldStatement:
+        """Parse ``yield [expr]`` — mirrors return but without multi-value sugar."""
+        yield_token = self._advance()  # consume 'yield'
+
+        # Bare yield: next token is newline, closing brace, or end of file
+        if (
+            self._at_end()
+            or self._peek().kind == TokenKind.NEWLINE
+            or self._peek().kind == TokenKind.RIGHT_BRACE
+        ):
+            return YieldStatement(value=None, location=yield_token.location)
+
+        value = self.parse_expression()
+        self._consume_newline()
+        return YieldStatement(value=value, location=yield_token.location)
 
     def _parse_parameter(self) -> Parameter:
         """Parse ``name[: Type][= default]`` — a parameter with optional type and default."""
@@ -1183,6 +1200,7 @@ class Parser:
         TokenKind.FOR: _parse_for,
         TokenKind.FN: _parse_function_def,
         TokenKind.RETURN: _parse_return,
+        TokenKind.YIELD: _parse_yield,
         TokenKind.BREAK: _parse_break,
         TokenKind.CONTINUE: _parse_continue,
         TokenKind.TRY: _parse_try,

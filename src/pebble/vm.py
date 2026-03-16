@@ -22,6 +22,8 @@ from pebble.builtins import (
     Cell,
     Closure,
     EnumVariant,
+    GeneratorObject,
+    SequenceIterator,
     StructInstance,
     Value,
     format_value,
@@ -102,6 +104,7 @@ class Frame:
     cells: dict[str, Cell] = field(
         default_factory=lambda: {},  # noqa: PIE807
     )
+    generator: GeneratorObject | None = None
 
 
 class VirtualMachine:
@@ -281,6 +284,12 @@ class VirtualMachine:
                 self._exec_call_instance_method(instruction)
             case OpCode.RETURN:
                 self._exec_return()
+            case OpCode.YIELD:
+                self._exec_yield()
+            case OpCode.GET_ITER:
+                self._exec_get_iter()
+            case OpCode.FOR_ITER:
+                self._exec_for_iter(instruction, frame)
             case OpCode.MAKE_CLOSURE:
                 self._exec_make_closure(instruction)
             case OpCode.SETUP_TRY:
@@ -780,9 +789,10 @@ class VirtualMachine:
         "map": "_vm_builtin_map",
         "filter": "_vm_builtin_filter",
         "reduce": "_vm_builtin_reduce",
+        "next": "_vm_builtin_next",
     }
 
-    def _exec_call(self, instruction: Instruction) -> None:  # noqa: PLR0912
+    def _exec_call(self, instruction: Instruction) -> None:  # noqa: C901, PLR0912
         """Handle CALL — check builtins, VM builtins, closures, then user functions."""
         name = _str_operand(instruction)
 
@@ -844,6 +854,20 @@ class VirtualMachine:
             for param_name, param_type in zip(fn_code.parameters, fn_code.param_types, strict=True):
                 if param_type is not None:
                     self._check_param_type(args[param_name], param_type, param_name)
+        # Generator functions: create GeneratorObject, don't execute yet
+        if fn_code.is_generator:
+            cells: dict[str, Cell] = {}
+            for cell_var in fn_code.cell_variables:
+                if cell_var in args:
+                    cells[cell_var] = Cell(args.pop(cell_var))
+            gen = GeneratorObject(
+                code=fn_code,
+                ip=0,
+                variables=args,
+                cells=cells,
+            )
+            self._stack.append(gen)
+            return
         new_frame = Frame(code=fn_code, variables=args)
         self._init_cells(new_frame)
         self._frames.append(new_frame)
@@ -948,6 +972,19 @@ class VirtualMachine:
                     self._check_param_type(args[param_name], param_type, param_name)
         # Map free variable names to their Cell objects
         cells: dict[str, Cell] = dict(zip(fn_code.free_variables, closure.cells, strict=True))
+        # Generator closures: create GeneratorObject, don't execute yet
+        if fn_code.is_generator:
+            for cell_var in fn_code.cell_variables:
+                if cell_var in args:
+                    cells[cell_var] = Cell(args.pop(cell_var))
+            gen = GeneratorObject(
+                code=fn_code,
+                ip=0,
+                variables=args,
+                cells=cells,
+            )
+            self._stack.append(gen)
+            return
         new_frame = Frame(code=fn_code, variables=args, cells=cells)
         self._init_cells(new_frame)
         self._frames.append(new_frame)
@@ -960,10 +997,98 @@ class VirtualMachine:
                 frame.cells[cell_var] = Cell(frame.variables.pop(cell_var))
 
     def _exec_return(self) -> None:
-        """Handle RETURN — pop frame, push return value."""
+        """Handle RETURN — pop frame, push return value.
+
+        If the frame belongs to a generator, mark it exhausted.
+        """
         return_value = self._stack.pop()
-        self._frames.pop()
+        frame = self._frames.pop()
+        if frame.generator is not None:
+            frame.generator.exhausted = True
         self._stack.append(return_value)
+
+    # -- Generator support ----------------------------------------------------
+
+    def _exec_yield(self) -> None:
+        """Handle YIELD — save frame state to generator, pop frame, push value."""
+        value = self._stack.pop()
+        frame = self._frames.pop()
+        gen = frame.generator
+        assert gen is not None  # noqa: S101
+        # Save frame state back to generator
+        gen.ip = frame.ip
+        gen.variables = dict(frame.variables)
+        gen.cells = dict(frame.cells)
+        self._stack.append(value)
+
+    def _advance_generator(self, gen: GeneratorObject) -> Value:
+        """Resume a generator, run until YIELD or RETURN, return the yielded value.
+
+        If the generator hits RETURN (exhaustion), mark it and raise an error
+        when called from next(). When called from FOR_ITER, the caller checks
+        ``gen.exhausted`` to decide whether to jump or push.
+        """
+        if gen.exhausted:
+            self._runtime_error("Generator is exhausted")
+        frame = Frame(
+            code=gen.code,
+            ip=gen.ip,
+            variables=dict(gen.variables),
+            cells=dict(gen.cells),
+        )
+        frame.generator = gen
+        depth = len(self._frames)
+        self._frames.append(frame)
+        self._execute(min_depth=depth)
+        return self._stack.pop()
+
+    def _vm_builtin_next(self, args: list[Value]) -> None:
+        """Implement next(generator) — advance generator and push result."""
+        arg = args[0]
+        if not isinstance(arg, GeneratorObject):
+            self._runtime_error("next() requires a generator")
+        result = self._advance_generator(arg)
+        if arg.exhausted:
+            self._runtime_error("Generator is exhausted")
+        self._stack.append(result)
+
+    # -- Iteration support ----------------------------------------------------
+
+    def _exec_get_iter(self) -> None:
+        """Handle GET_ITER — convert TOS to an iterator."""
+        value = self._stack.pop()
+        if isinstance(value, list):
+            self._stack.append(SequenceIterator(items=list(value)))
+        elif isinstance(value, str):
+            self._stack.append(SequenceIterator(items=value))
+        elif isinstance(value, GeneratorObject):
+            self._stack.append(value)
+        else:
+            type_name = type(value).__name__
+            self._runtime_error(f"Cannot iterate over {type_name}")
+
+    def _exec_for_iter(self, instruction: Instruction, frame: Frame) -> None:
+        """Handle FOR_ITER — advance iterator; push value or jump if exhausted."""
+        target = _int_operand(instruction)
+        iterator = self._stack.pop()
+        if isinstance(iterator, SequenceIterator):
+            length = len(iterator.items)
+            if iterator.index < length:
+                self._stack.append(iterator.items[iterator.index])
+                iterator.index += 1
+            else:
+                frame.ip = target
+        elif isinstance(iterator, GeneratorObject):
+            if iterator.exhausted:
+                frame.ip = target
+            else:
+                result = self._advance_generator(iterator)
+                if iterator.exhausted:
+                    frame.ip = target
+                else:
+                    self._stack.append(result)
+        else:
+            self._runtime_error("FOR_ITER requires an iterator")
 
     # -- Enum support ---------------------------------------------------------
 
