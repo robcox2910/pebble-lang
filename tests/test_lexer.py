@@ -80,6 +80,41 @@ class TestLexerStrings:
         """Verify a string spanning multiple lines preserves the newline."""
         assert _kind_value_pairs('"line1\nline2"') == [(TokenKind.STRING, "line1\nline2")]
 
+    def test_escape_newline(self) -> None:
+        r"""Verify ``\n`` in a string produces a real newline character."""
+        assert _kind_value_pairs(r'"hello\nworld"') == [(TokenKind.STRING, "hello\nworld")]
+
+    def test_escape_tab(self) -> None:
+        r"""Verify ``\t`` in a string produces a real tab character."""
+        assert _kind_value_pairs(r'"a\tb"') == [(TokenKind.STRING, "a\tb")]
+
+    def test_escape_backslash(self) -> None:
+        r"""Verify ``\\`` in a string produces a single backslash."""
+        assert _kind_value_pairs(r'"a\\b"') == [(TokenKind.STRING, "a\\b")]
+
+    def test_escape_quote(self) -> None:
+        r"""Verify ``\"`` in a string produces a literal double quote."""
+        assert _kind_value_pairs(r'"say \"hi\""') == [(TokenKind.STRING, 'say "hi"')]
+
+    def test_escape_null(self) -> None:
+        r"""Verify ``\0`` in a string produces a null character."""
+        assert _kind_value_pairs(r'"a\0b"') == [(TokenKind.STRING, "a\0b")]
+
+    def test_unknown_escape_raises(self) -> None:
+        r"""Verify an unknown escape like ``\z`` raises LexerError."""
+        with pytest.raises(LexerError, match=r"Unknown escape sequence"):
+            Lexer(r'"hello\z"').tokenize()
+
+    def test_escape_in_interpolation(self) -> None:
+        r"""Verify escapes work correctly in interpolated strings."""
+        tokens = Lexer(r'"hello\t{name}\n"').tokenize()
+        non_eof = [(t.kind, t.value) for t in tokens if t.kind != TokenKind.EOF]
+        assert non_eof == [
+            (TokenKind.STRING_START, "hello\t"),
+            (TokenKind.IDENTIFIER, "name"),
+            (TokenKind.STRING_END, "\n"),
+        ]
+
     def test_unterminated_string_raises(self) -> None:
         """Verify an unterminated string raises LexerError."""
         with pytest.raises(LexerError, match="Unterminated string"):

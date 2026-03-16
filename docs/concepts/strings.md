@@ -18,6 +18,54 @@ strip off your extra spaces!"*
 
 ---
 
+## Escape Sequences
+
+Sometimes you need characters that you can't just type into a string —
+like a newline (to start a new line) or a tab (to indent). Escape
+sequences are **secret codes** that start with a backslash (`\`). The
+backslash tells Pebble: *"the next character is special — don't treat
+it as a normal letter."*
+
+```pebble
+print("line one\nline two")
+# prints:
+# line one
+# line two
+```
+
+Here are all the escape sequences Pebble supports:
+
+| Escape | What it produces           | Example output       |
+| ------ | -------------------------- | -------------------- |
+| `\n`   | Newline (start a new line) | `"a\nb"` → two lines |
+| `\t`   | Tab (horizontal indent)    | `"a\tb"` → `a    b`  |
+| `\\`   | A literal backslash        | `"a\\b"` → `a\b`     |
+| `\"`   | A literal double quote     | `"say \"hi\""` → `say "hi"` |
+| `\{`   | A literal brace (no interpolation) | `"\{x}"` → `{x}` |
+| `\0`   | Null character             | (rarely used)        |
+
+The `\{` escape is handy when you want a `{` in your string without
+triggering [string interpolation](string-interpolation.md). See the
+interpolation docs for more on that.
+
+If you use an unknown escape like `\z`, Pebble will give you an error
+right away — this catches typos early:
+
+```pebble
+print("hello\z")   # Error: Unknown escape sequence: \z
+```
+
+Escapes work inside interpolated strings too:
+
+```pebble
+let name = "Alice"
+print("hello\t{name}\n")
+# prints:  hello	Alice
+# (followed by a blank line)
+```
+
+---
+
 ## Changing Case
 
 ### upper()
