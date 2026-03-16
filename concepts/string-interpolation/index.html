@@ -1309,6 +1309,10 @@ number, a calculation, even a function call:</p>
 put a backslash before it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>print(&quot;use \{braces}&quot;)   # prints: use {braces}
 </code></pre></div>
+<p>The <code>\{</code> is one of several <strong>escape sequences</strong> Pebble supports. See the
+<a href="../strings/#escape-sequences">escape sequences section</a> in the strings
+docs for the full list — including <code>\n</code> (newline), <code>\t</code> (tab), <code>\\</code>
+(literal backslash), and more.</p>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>When the <strong>lexer</strong> sees <code>{</code> inside a string, it splits the string into
 segments:</p>

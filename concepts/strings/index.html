@@ -795,6 +795,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#escape-sequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Escape Sequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#changing-case" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1515,23 +1526,90 @@ strip off your extra spaces!"</em></p>
 Strings and <a href="../arrays/">arrays</a> both use the <code>value.method()</code> pattern.</p>
 </div>
 <hr />
+<h2 id="escape-sequences">Escape Sequences</h2>
+<p>Sometimes you need characters that you can't just type into a string —
+like a newline (to start a new line) or a tab (to indent). Escape
+sequences are <strong>secret codes</strong> that start with a backslash (<code>\</code>). The
+backslash tells Pebble: <em>"the next character is special — don't treat
+it as a normal letter."</em></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>print(&quot;line one\nline two&quot;)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a># prints:
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a># line one
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a># line two
+</code></pre></div>
+<p>Here are all the escape sequences Pebble supports:</p>
+<table>
+<thead>
+<tr>
+<th>Escape</th>
+<th>What it produces</th>
+<th>Example output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\n</code></td>
+<td>Newline (start a new line)</td>
+<td><code>"a\nb"</code> → two lines</td>
+</tr>
+<tr>
+<td><code>\t</code></td>
+<td>Tab (horizontal indent)</td>
+<td><code>"a\tb"</code> → <code>a    b</code></td>
+</tr>
+<tr>
+<td><code>\\</code></td>
+<td>A literal backslash</td>
+<td><code>"a\\b"</code> → <code>a\b</code></td>
+</tr>
+<tr>
+<td><code>\"</code></td>
+<td>A literal double quote</td>
+<td><code>"say \"hi\""</code> → <code>say "hi"</code></td>
+</tr>
+<tr>
+<td><code>\{</code></td>
+<td>A literal brace (no interpolation)</td>
+<td><code>"\{x}"</code> → <code>{x}</code></td>
+</tr>
+<tr>
+<td><code>\0</code></td>
+<td>Null character</td>
+<td>(rarely used)</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>\{</code> escape is handy when you want a <code>{</code> in your string without
+triggering <a href="../string-interpolation/">string interpolation</a>. See the
+interpolation docs for more on that.</p>
+<p>If you use an unknown escape like <code>\z</code>, Pebble will give you an error
+right away — this catches typos early:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(&quot;hello\z&quot;)   # Error: Unknown escape sequence: \z
+</code></pre></div>
+<p>Escapes work inside interpolated strings too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let name = &quot;Alice&quot;
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(&quot;hello\t{name}\n&quot;)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a># prints:  hello    Alice
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a># (followed by a blank line)
+</code></pre></div>
+<hr />
 <h2 id="changing-case">Changing Case</h2>
 <h3 id="upper">upper()</h3>
 <p>Convert every letter to UPPERCASE:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>print(&quot;hello&quot;.upper())   # prints: HELLO
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(&quot;hello&quot;.upper())   # prints: HELLO
 </code></pre></div>
 <h3 id="lower">lower()</h3>
 <p>Convert every letter to lowercase:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>print(&quot;HELLO&quot;.lower())   # prints: hello
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(&quot;HELLO&quot;.lower())   # prints: hello
 </code></pre></div>
 <p>You can <strong>chain</strong> methods — the result of one feeds into the next:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>print(&quot;  HELLO  &quot;.strip().lower())   # prints: hello
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>print(&quot;  HELLO  &quot;.strip().lower())   # prints: hello
 </code></pre></div>
 <hr />
 <h2 id="trimming-whitespace">Trimming Whitespace</h2>
 <h3 id="strip">strip()</h3>
 <p>Remove spaces (and tabs, newlines) from both ends:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(&quot;   hi   &quot;.strip())   # prints: hi
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>print(&quot;   hi   &quot;.strip())   # prints: hi
 </code></pre></div>
 <p>The characters <em>inside</em> the string are untouched — only the edges get trimmed.</p>
 <hr />
@@ -1539,83 +1617,83 @@ Strings and <a href="../arrays/">arrays</a> both use the <code>value.method()</c
 <h3 id="split">split()</h3>
 <p>Break a string into a list of pieces. With no argument it splits on
 whitespace:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let words = &quot;one two three&quot;.split()
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(words)   # prints: [one, two, three]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let words = &quot;one two three&quot;.split()
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(words)   # prints: [one, two, three]
 </code></pre></div>
 <p>Pass a separator to split on something specific:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let parts = &quot;a,b,c&quot;.split(&quot;,&quot;)
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(parts)   # prints: [a, b, c]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let parts = &quot;a,b,c&quot;.split(&quot;,&quot;)
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(parts)   # prints: [a, b, c]
 </code></pre></div>
 <h3 id="join">join()</h3>
 <p>The opposite of <code>split</code> — glue a list of strings together using the target
 string as the separator:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let words = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(&quot;, &quot;.join(words))   # prints: red, green, blue
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let words = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(&quot;, &quot;.join(words))   # prints: red, green, blue
 </code></pre></div>
 <p>Split and join are <strong>inverses</strong> — splitting then joining with the same
 separator gives you the original string back:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let s = &quot;a-b-c&quot;
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let parts = s.split(&quot;-&quot;)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>print(&quot;-&quot;.join(parts))   # prints: a-b-c
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let s = &quot;a-b-c&quot;
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>let parts = s.split(&quot;-&quot;)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>print(&quot;-&quot;.join(parts))   # prints: a-b-c
 </code></pre></div>
 <hr />
 <h2 id="searching">Searching</h2>
 <h3 id="contains">contains()</h3>
 <p>Check if a substring exists anywhere inside the string:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(&quot;hello world&quot;.contains(&quot;world&quot;))   # prints: true
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(&quot;hello world&quot;.contains(&quot;xyz&quot;))     # prints: false
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(&quot;hello world&quot;.contains(&quot;world&quot;))   # prints: true
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(&quot;hello world&quot;.contains(&quot;xyz&quot;))     # prints: false
 </code></pre></div>
 <h3 id="starts_with">starts_with()</h3>
 <p>Check if the string begins with a prefix:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>print(&quot;hello&quot;.starts_with(&quot;hel&quot;))   # prints: true
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>print(&quot;hello&quot;.starts_with(&quot;hel&quot;))   # prints: true
 </code></pre></div>
 <h3 id="ends_with">ends_with()</h3>
 <p>Check if the string ends with a suffix:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>print(&quot;hello&quot;.ends_with(&quot;llo&quot;))   # prints: true
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(&quot;hello&quot;.ends_with(&quot;llo&quot;))   # prints: true
 </code></pre></div>
 <h3 id="find">find()</h3>
 <p>Return the index where a substring first appears, or <code>-1</code> if it's not found:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(&quot;banana&quot;.find(&quot;nan&quot;))   # prints: 2
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(&quot;banana&quot;.find(&quot;xyz&quot;))   # prints: -1
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(&quot;banana&quot;.find(&quot;nan&quot;))   # prints: 2
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(&quot;banana&quot;.find(&quot;xyz&quot;))   # prints: -1
 </code></pre></div>
 <h3 id="count">count()</h3>
 <p>Count how many times a substring appears (non-overlapping):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>print(&quot;banana&quot;.count(&quot;a&quot;))   # prints: 3
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>print(&quot;hello&quot;.count(&quot;ll&quot;))   # prints: 1
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>print(&quot;banana&quot;.count(&quot;a&quot;))   # prints: 3
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>print(&quot;hello&quot;.count(&quot;ll&quot;))   # prints: 1
 </code></pre></div>
 <hr />
 <h2 id="replacing">Replacing</h2>
 <h3 id="replace">replace()</h3>
 <p>Replace every occurrence of one substring with another:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>print(&quot;aabbcc&quot;.replace(&quot;b&quot;, &quot;x&quot;))   # prints: aaxxcc
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>print(&quot;aabbcc&quot;.replace(&quot;b&quot;, &quot;x&quot;))   # prints: aaxxcc
 </code></pre></div>
 <p>If the old substring isn't found, the original string is returned unchanged.</p>
 <hr />
 <h2 id="repeating">Repeating</h2>
 <h3 id="repeat">repeat()</h3>
 <p>Repeat the string a given number of times:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(&quot;ha&quot;.repeat(3))   # prints: hahaha
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(&quot;=&quot;.repeat(10))   # prints: ==========
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>print(&quot;ha&quot;.repeat(3))   # prints: hahaha
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(&quot;=&quot;.repeat(10))   # prints: ==========
 </code></pre></div>
 <p>Passing <code>0</code> gives an empty string. Negative numbers are an error.</p>
 <hr />
 <h2 id="using-methods-with-other-features">Using Methods with Other Features</h2>
 <h3 id="in-string-interpolation">In string interpolation</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>let name = &quot;alice&quot;
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>print(&quot;Hello, {name.upper()}!&quot;)   # prints: Hello, ALICE!
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let name = &quot;alice&quot;
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>print(&quot;Hello, {name.upper()}!&quot;)   # prints: Hello, ALICE!
 </code></pre></div>
 <h3 id="in-conditions">In conditions</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>let filename = &quot;photo.png&quot;
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>if filename.ends_with(&quot;.png&quot;) {
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    print(&quot;It is an image&quot;)
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let filename = &quot;photo.png&quot;
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>if filename.ends_with(&quot;.png&quot;) {
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    print(&quot;It is an image&quot;)
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>}
 </code></pre></div>
 <h3 id="in-loops">In loops</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let csv = &quot;10,20,30&quot;
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>let parts = csv.split(&quot;,&quot;)
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>for i in range(len(parts)) {
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    print(parts[i])
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>let csv = &quot;10,20,30&quot;
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>let parts = csv.split(&quot;,&quot;)
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>for i in range(len(parts)) {
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    print(parts[i])
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>}
 </code></pre></div>
 <hr />
 <h2 id="quick-reference">Quick Reference</h2>
