@@ -1618,13 +1618,15 @@ nodes:</p>
 <tbody>
 <tr>
 <td><code>Parameter</code></td>
-<td><code>x: Int</code></td>
-<td>A name and an optional type annotation</td>
+<td><code>x: Int = 42</code></td>
+<td>A name, optional type annotation, and optional default value</td>
 </tr>
 </tbody>
 </table>
 <p><code>Parameter</code> is used for function parameters and struct fields. If no type
-annotation is given, <code>type_annotation</code> is <code>None</code>.</p>
+annotation is given, <code>type_annotation</code> is <code>None</code>. If a default value is
+given (like <code>= 42</code>), it is stored in the <code>default</code> field; otherwise
+<code>default</code> is <code>None</code>.</p>
 <p>The <strong>Program</strong> node sits at the very top and holds the list of all top-level
 statements.</p>
 <h2 id="expressions-vs-statements">Expressions vs Statements</h2>

@@ -674,6 +674,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Calling a Function">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1381,36 +1398,68 @@ recipe. They fill the parameter slots: <code>a</code> gets <code>3</code>, <code
 <p>That second line shows <strong>nested calls</strong> -- a function call inside another
 function call, like a recipe that says "first make the sauce (another recipe),
 then add it to the dish."</p>
+<h3 id="default-parameters">Default Parameters</h3>
+<p>Sometimes a recipe has a go-to ingredient that you use <em>most</em> of the time.
+Instead of writing it out every single call, you can put a <strong>default value</strong>
+right on the recipe card. Think of it as pre-filling an ingredient slot with
+your usual choice -- you can still swap it out, but if you don't, the default
+kicks in.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn greet(name, greeting = &quot;Hello&quot;) {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    print(&quot;{greeting} {name}&quot;)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>}
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>greet(&quot;Alice&quot;)          # prints: Hello Alice
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>greet(&quot;Alice&quot;, &quot;Hi&quot;)    # prints: Hi Alice
+</code></pre></div>
+<p><code>greeting</code> has a default of <code>"Hello"</code>. When you call <code>greet("Alice")</code>, you
+only pass one argument, so <code>greeting</code> uses its default. When you call
+<code>greet("Alice", "Hi")</code>, the <code>"Hi"</code> you provided overrides the default.</p>
+<p>You can have several defaults:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn make_point(x, y = 0, z = 0) {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return [x, y, z]
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>print(make_point(5))         # prints: [5, 0, 0]
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>print(make_point(5, 10))     # prints: [5, 10, 0]
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>print(make_point(5, 10, 15)) # prints: [5, 10, 15]
+</code></pre></div>
+<p><strong>Rules to remember:</strong></p>
+<ul>
+<li>Required parameters must come <strong>before</strong> any with defaults. You can't write
+  <code>fn f(a = 1, b)</code> -- Pebble won't know which slot <code>b</code> should fill.</li>
+<li>Defaults must be <strong>literal values</strong> (numbers, strings, or booleans). You
+  can't use a variable or an expression like <code>1 + 2</code> as a default.</li>
+</ul>
 <h2 id="giving-back-a-result-return">Giving Back a Result: <code>return</code></h2>
 <p>The <code>return</code> keyword is like handing back the finished dish. It sends a value
 out of the function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn square(x) {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    return x * x
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>}
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>let result = square(5)
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>print(result)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn square(x) {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    return x * x
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>let result = square(5)
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>print(result)
 </code></pre></div>
 <p>A function can also <code>return</code> without a value (a bare return), which just
 means "stop here, I'm done":</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn maybe_print(x) {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    if x &lt; 0 {
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        return
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    }
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    print(x)
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn maybe_print(x) {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    if x &lt; 0 {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        return
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    }
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    print(x)
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>}
 </code></pre></div>
 <h2 id="returning-multiple-values">Returning Multiple Values</h2>
 <p>Sometimes a function needs to hand back more than one result -- like a
 recipe that produces both a main dish and a side dish. Pebble lets you
 return multiple values by separating them with commas:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn swap(a, b) {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    return b, a
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>let x, y = swap(1, 2)
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>print(x)   # prints: 2
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>print(y)   # prints: 1
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn swap(a, b) {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    return b, a
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>}
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>let x, y = swap(1, 2)
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>print(x)   # prints: 2
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>print(y)   # prints: 1
 </code></pre></div>
 <p>Under the hood, <code>return b, a</code> creates a list <code>[b, a]</code> and returns it.
 On the other side, <code>let x, y = ...</code> unpacks the list so each value
@@ -1422,11 +1471,11 @@ idiom.</p>
 <p>In Pebble, functions are <strong>first-class values</strong> -- just like numbers and
 strings. That means you can store a function in a variable, put it in a list,
 or pass it as an argument to another function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>let f = double
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>print(f(5))          # prints: 10
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>print(type(double))  # prints: fn
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn double(x) { return x * 2 }
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>let f = double
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(f(5))          # prints: 10
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>print(type(double))  # prints: fn
 </code></pre></div>
 <p>Think of it this way: the recipe card itself is a thing you can pick up, hand
 to someone, or put in a drawer. You can use it later, or give it to a
@@ -1434,26 +1483,26 @@ different chef.</p>
 <h3 id="anonymous-functions">Anonymous Functions</h3>
 <p>Sometimes you need a tiny recipe that you'll only use once. Instead of giving
 it a name, you can write it inline:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let triple = fn(x) { return x * 3 }
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(triple(4))   # prints: 12
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let triple = fn(x) { return x * 3 }
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(triple(4))   # prints: 12
 </code></pre></div>
 <p>This creates a function without the usual <code>fn name(...)</code> form -- just
 <code>fn(params) { body }</code> directly in an expression. It's especially useful with
 <a href="../higher-order/">higher-order functions</a> like <code>map</code>, <code>filter</code>, and <code>reduce</code>.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>Here's a program that uses functions with other features:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn greet(name) {
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    print(name)
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>}
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>fn count_up(n) {
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    for i in range(n) {
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>        print(i)
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    }
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>}
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>greet(&quot;Alice&quot;)
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>count_up(3)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>fn greet(name) {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    print(name)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>}
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>fn count_up(n) {
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    for i in range(n) {
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>        print(i)
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    }
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>}
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>greet(&quot;Alice&quot;)
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>count_up(3)
 </code></pre></div>
 <p>Functions can contain loops, conditions, and other statements -- you can
 nest them however you like to build up complex behaviour from simple pieces.</p>
@@ -1483,6 +1532,14 @@ nest them however you like to build up complex behaviour from simple pieces.</p>
 <td><code>fn greet { }</code></td>
 <td>Expected '(' after function name</td>
 </tr>
+<tr>
+<td><code>fn f(a = 1, b) { }</code></td>
+<td>Required parameter cannot follow a parameter with a default</td>
+</tr>
+<tr>
+<td><code>fn f(a = 1 + 2) { }</code></td>
+<td>Default parameter values must be literals</td>
+</tr>
 </tbody>
 </table>
 <h2 id="summary">Summary</h2>
@@ -1501,6 +1558,10 @@ nest them however you like to build up complex behaviour from simple pieces.</p>
 <tr>
 <td>Parameter</td>
 <td>An ingredient slot on the recipe</td>
+</tr>
+<tr>
+<td>Default parameter</td>
+<td>A pre-filled ingredient slot</td>
 </tr>
 <tr>
 <td>Argument</td>
