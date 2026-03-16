@@ -4,6 +4,8 @@ The lexer reads source text character by character and produces a list of
 :class:`~pebble.tokens.Token` objects ready for the parser.
 """
 
+from typing import ClassVar
+
 from pebble.errors import LexerError
 from pebble.tokens import KEYWORDS, SourceLocation, Token, TokenKind
 
@@ -38,6 +40,15 @@ class Lexer:
 
         tokens = Lexer("let x = 42").tokenize()
     """
+
+    _ESCAPE_MAP: ClassVar[dict[str, str]] = {
+        "n": "\n",
+        "t": "\t",
+        "\\": "\\",
+        '"': '"',
+        "{": "{",
+        "0": "\0",
+    }
 
     def __init__(self, source: str) -> None:
         """Create a lexer for the given source text."""
@@ -143,13 +154,8 @@ class Lexer:
 
         while not self._at_end() and self._peek() != '"':
             if self._peek() == "\\" and self._pos + 1 < len(self._source):
-                next_ch = self._source[self._pos + 1]
-                if next_ch == "{":
-                    # Escaped brace — literal character
-                    self._advance()  # skip backslash
-                    value_chars.append("{")
-                    self._advance()  # skip '{'
-                    continue
+                self._process_escape(value_chars)
+                continue
             if self._peek() == "{":
                 has_interpolation = True
                 break
@@ -229,12 +235,8 @@ class Lexer:
 
         while not self._at_end() and self._peek() != '"':
             if self._peek() == "\\" and self._pos + 1 < len(self._source):
-                next_ch = self._source[self._pos + 1]
-                if next_ch == "{":
-                    self._advance()  # skip backslash
-                    value_chars.append("{")
-                    self._advance()  # skip '{'
-                    continue
+                self._process_escape(value_chars)
+                continue
             if self._peek() == "{":
                 # Another interpolation segment — emit STRING_MIDDLE
                 self._tokens.append(
@@ -493,6 +495,18 @@ class Lexer:
                     location=SourceLocation(line=self._line, column=start_col),
                 )
             )
+
+    # -- Escape handling ------------------------------------------------------
+
+    def _process_escape(self, value_chars: list[str]) -> None:
+        """Process a backslash escape sequence, appending to *value_chars*."""
+        self._advance()  # skip backslash
+        next_ch = self._peek()
+        if next_ch not in self._ESCAPE_MAP:
+            msg = f"Unknown escape sequence: \\{next_ch}"
+            raise LexerError(msg, line=self._line, column=self._column - 1)
+        value_chars.append(self._ESCAPE_MAP[next_ch])
+        self._advance()  # skip escape character
 
     # -- Comment handling -----------------------------------------------------
 

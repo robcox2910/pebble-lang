@@ -54,6 +54,11 @@ put a backslash before it:
 print("use \{braces}")   # prints: use {braces}
 ```
 
+The `\{` is one of several **escape sequences** Pebble supports. See the
+[escape sequences section](strings.md#escape-sequences) in the strings
+docs for the full list — including `\n` (newline), `\t` (tab), `\\`
+(literal backslash), and more.
+
 ## How It Works Under the Hood
 
 When the **lexer** sees `{` inside a string, it splits the string into

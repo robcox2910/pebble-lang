@@ -437,3 +437,31 @@ fn shout(s) {
 }
 print(shout("hello"))"""
         assert _run_source(source) == "HELLO\n"
+
+
+# -- Escape sequences ---------------------------------------------------------
+
+
+class TestEscapeSequences:
+    """Verify escape sequences produce correct output at runtime."""
+
+    def test_escape_newline_prints(self) -> None:
+        r"""``print("a\nb")`` outputs two lines."""
+        assert _run_source(r'print("a\nb")') == "a\nb\n"
+
+    def test_escape_tab_prints(self) -> None:
+        r"""``print("a\tb")`` outputs a tab between a and b."""
+        assert _run_source(r'print("a\tb")') == "a\tb\n"
+
+    def test_escape_backslash_prints(self) -> None:
+        r"""``print("a\\b")`` outputs a single backslash."""
+        assert _run_source(r'print("a\\b")') == "a\\b\n"
+
+    def test_escape_quote_prints(self) -> None:
+        r"""``print("say \"hi\"")`` outputs ``say "hi"``."""
+        assert _run_source(r'print("say \"hi\"")') == 'say "hi"\n'
+
+    def test_escape_in_interpolated_string(self) -> None:
+        r"""Escapes work correctly alongside interpolation."""
+        source = 'let x = 1\nprint("x:\\t{x}\\n")'
+        assert _run_source(source) == "x:\t1\n\n"
