@@ -57,6 +57,7 @@ from pebble.ast_nodes import (
     StringInterpolation,
     StringLiteral,
     StructDef,
+    SuperMethodCall,
     ThrowStatement,
     TryCatch,
     UnaryOp,
@@ -609,9 +610,19 @@ class Parser:
         )
 
     def _parse_class_def(self) -> ClassDef:
-        """Parse a ``class Name { fields, fn method(self) { ... } }`` definition."""
+        """Parse a ``class Name [extends Parent] { fields, fn method(self) { ... } }`` definition."""
         class_token = self._advance()  # consume 'class'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected class name after 'class'")
+
+        # Optional extends clause
+        parent: str | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.EXTENDS:
+            self._advance()  # consume 'extends'
+            parent_token = self._expect(
+                TokenKind.IDENTIFIER, "Expected parent class name after 'extends'"
+            )
+            parent = parent_token.value
+
         self._expect(TokenKind.LEFT_BRACE, "Expected '{' after class name")
         self._skip_newlines()
 
@@ -653,6 +664,7 @@ class Parser:
             fields=fields,
             methods=methods,
             location=class_token.location,
+            parent=parent,
         )
 
     def _parse_enum_def(self) -> EnumDef:
@@ -1013,6 +1025,25 @@ class Parser:
             return_type=return_type,
         )
 
+    def _parse_super(self) -> SuperMethodCall:
+        """Parse ``super.method(args)`` — call a parent class method."""
+        super_token = self._advance()  # consume 'super'
+        self._expect(TokenKind.DOT, "Expected '.' after 'super'")
+        method_token = self._expect(TokenKind.IDENTIFIER, "Expected method name after 'super.'")
+        self._expect(TokenKind.LEFT_PAREN, "Expected '(' after method name")
+        arguments: list[Expression] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
+            arguments.append(self._parse_precedence(min_precedence=0))
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                arguments.append(self._parse_precedence(min_precedence=0))
+        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after arguments")
+        return SuperMethodCall(
+            method=method_token.value,
+            arguments=arguments,
+            location=super_token.location,
+        )
+
     def _parse_index_access(self, target: Expression) -> Expression:
         """Parse a postfix index or slice access: ``target[index]`` or ``target[start:stop]``."""
         bracket_token = self._advance()  # consume '['
@@ -1139,6 +1170,7 @@ class Parser:
         TokenKind.LEFT_BRACKET: _parse_array,
         TokenKind.LEFT_BRACE: _parse_dict,
         TokenKind.FN: _parse_fn_expression,
+        TokenKind.SUPER: _parse_super,
     }
 
     # -- Statement dispatch table ---------------------------------------------

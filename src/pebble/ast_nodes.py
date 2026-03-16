@@ -203,6 +203,15 @@ class FunctionExpression:
     return_type: str | None = None
 
 
+@dataclass(frozen=True)
+class SuperMethodCall:
+    """A ``super.method(args)`` call to the parent class's method."""
+
+    method: str
+    arguments: list[Expression]
+    location: SourceLocation
+
+
 # ---------------------------------------------------------------------------
 # Statement nodes
 # ---------------------------------------------------------------------------
@@ -447,6 +456,7 @@ class ClassDef:
     fields: list[Parameter]
     methods: list[FunctionDef]
     location: SourceLocation
+    parent: str | None = None
 
 
 @dataclass(frozen=True)
@@ -515,6 +525,7 @@ Expression = (
     | MethodCall
     | FieldAccess
     | FunctionExpression
+    | SuperMethodCall
 )
 
 Statement = (

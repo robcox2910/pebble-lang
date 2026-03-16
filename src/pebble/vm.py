@@ -120,6 +120,7 @@ class VirtualMachine:
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
         self._class_methods: dict[str, list[str]] = {}
+        self._class_parents: dict[str, str] = {}
         self._enums: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
         self._current_instruction: Instruction | None = None
@@ -134,6 +135,7 @@ class VirtualMachine:
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
         self._class_methods = dict(program.class_methods)
+        self._class_parents = dict(program.class_parents)
         self._enums = dict(program.enums)
         self._frames = [Frame(code=program.main)]
         self._exception_handlers = []
@@ -155,6 +157,7 @@ class VirtualMachine:
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
         self._class_methods = dict(program.class_methods)
+        self._class_parents = dict(program.class_parents)
         self._enums = dict(program.enums)
         self._frames = [Frame(code=program.main, variables=dict(variables))]
         self._exception_handlers = []

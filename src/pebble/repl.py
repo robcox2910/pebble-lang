@@ -56,6 +56,7 @@ class Repl:
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
         self._class_methods: dict[str, list[str]] = {}
+        self._class_parents: dict[str, str] = {}
         self._enums: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
 
@@ -81,6 +82,10 @@ class Repl:
             cell_vars=self._analyzer.cell_vars,
             free_vars=self._analyzer.free_vars,
             enums=self._enums,
+            class_parents=self._class_parents,
+            structs=self._structs,
+            class_methods=self._class_methods,
+            functions=self._functions,
         ).compile(analyzed)
 
         # Merge new functions and structs with previously-defined ones
@@ -95,6 +100,9 @@ class Repl:
             self._class_methods | resolver.merged_class_methods | compiled.class_methods
         )
         all_enums = self._enums | resolver.merged_enums | compiled.enums
+        all_class_parents = (
+            self._class_parents | resolver.merged_class_parents | compiled.class_parents
+        )
         full_program = CompiledProgram(
             main=compiled.main,
             functions=all_functions,
@@ -102,6 +110,7 @@ class Repl:
             struct_field_types=all_struct_field_types,
             class_methods=all_class_methods,
             enums=all_enums,
+            class_parents=all_class_parents,
         )
 
         vm = VirtualMachine(output=self._output)
@@ -117,6 +126,8 @@ class Repl:
         self._struct_field_types.update(compiled.struct_field_types)
         self._class_methods.update(resolver.merged_class_methods)
         self._class_methods.update(compiled.class_methods)
+        self._class_parents.update(resolver.merged_class_parents)
+        self._class_parents.update(compiled.class_parents)
         self._enums.update(resolver.merged_enums)
         self._enums.update(compiled.enums)
 

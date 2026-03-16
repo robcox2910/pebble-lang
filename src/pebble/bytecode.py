@@ -211,3 +211,4 @@ class CompiledProgram:
         default_factory=lambda: {},  # noqa: PIE807
     )
     enums: dict[str, list[str]] = field(default_factory=lambda: {})  # noqa: PIE807
+    class_parents: dict[str, str] = field(default_factory=lambda: {})  # noqa: PIE807

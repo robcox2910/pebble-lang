@@ -371,6 +371,13 @@ User-defined class methods can have any number of parameters, so
 Pebble uses a separate `CALL_INSTANCE_METHOD` opcode with a simpler
 design. This keeps both paths clean and avoids mixing concerns.
 
+## What's Next?
+
+Now that you know how classes work, the next step is
+[Inheritance](inheritance.md) -- where a class can **build on top of**
+another class, inheriting its fields and methods. It's like creating a
+"Dog" that automatically gets everything an "Animal" already has.
+
 ## Summary
 
 | Syntax | What it does |
