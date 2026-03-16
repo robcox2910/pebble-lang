@@ -399,7 +399,16 @@ class OrPattern:
     location: SourceLocation
 
 
-Pattern = LiteralPattern | WildcardPattern | CapturePattern | OrPattern
+@dataclass(frozen=True)
+class EnumPattern:
+    """A pattern that matches an enum variant like ``Color.Red``."""
+
+    enum_name: str
+    variant_name: str
+    location: SourceLocation
+
+
+Pattern = LiteralPattern | WildcardPattern | CapturePattern | OrPattern | EnumPattern
 
 
 @dataclass(frozen=True)
@@ -437,6 +446,15 @@ class ClassDef:
     name: str
     fields: list[Parameter]
     methods: list[FunctionDef]
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
+class EnumDef:
+    """An ``enum Color { Red, Green, Blue }`` definition."""
+
+    name: str
+    variants: list[str]
     location: SourceLocation
 
 
@@ -520,6 +538,7 @@ Statement = (
     | MatchStatement
     | StructDef
     | ClassDef
+    | EnumDef
     | FieldAssignment
     | ImportStatement
     | FromImportStatement

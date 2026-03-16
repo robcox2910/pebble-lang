@@ -39,7 +39,7 @@ Here's what happens:
 
 ## Pattern Types
 
-Pebble supports four kinds of patterns.
+Pebble supports five kinds of patterns.
 
 ### Literal Patterns
 
@@ -114,6 +114,29 @@ match score {
 
 The variable `s` only exists inside that case's braces -- it
 disappears once the case body finishes.
+
+### Enum Patterns
+
+Match an [enum](enums.md) variant by writing the enum name, a dot, and the
+variant name:
+
+```pebble
+enum Direction { Up, Down, Left, Right }
+
+let d = Direction.Left
+
+match d {
+    case Direction.Up    { print("going up") }
+    case Direction.Down  { print("going down") }
+    case Direction.Left  { print("going left") }
+    case Direction.Right { print("going right") }
+    case _ { print("unknown") }
+}
+# prints: going left
+```
+
+Enums and match/case are a perfect pair -- each variant gets its own
+case, and the wildcard `_` catches anything you didn't list explicitly.
 
 ### OR Pattern
 
@@ -261,6 +284,7 @@ instructions -- if any alternative matches, the case body runs.
 | Pattern | Syntax | Matches | Saves value? |
 |---------|--------|---------|-------------|
 | Literal | `case 42` | Exact value | No |
+| Enum | `case Color.Red` | Specific enum variant | No |
 | Wildcard | `case _` | Anything | No |
 | Capture | `case let x` | Anything | Yes -- into `x` |
 | OR | `case 1 \| 2 \| 3` | Any of those | No |

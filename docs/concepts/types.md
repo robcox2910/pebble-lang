@@ -1,10 +1,10 @@
 # Types
 
-Every value in Pebble is one of **nine types**. Think of a type as a label
+Every value in Pebble is one of **ten types**. Think of a type as a label
 that tells you what *kind* of thing a value is -- just like how you'd sort
 items in a toolbox into screwdrivers, hammers, and wrenches.
 
-## The Nine Types
+## The Ten Types
 
 | Type     | What it is                      | Examples                  |
 |----------|---------------------------------|---------------------------|
@@ -17,6 +17,7 @@ items in a toolbox into screwdrivers, hammers, and wrenches.
 | `dict`   | A collection of key-value pairs | `{"name": "Alice"}`      |
 | `fn`     | A function                      | `fn(x) { return x * 2 }` |
 | *struct* | A custom data type you define   | `Point(10, 20)`          |
+| *enum*   | A fixed set of named values     | `Color.Red`              |
 
 ## Checking a Type: `type()`
 
@@ -39,6 +40,13 @@ For structs, `type()` returns the struct's name:
 struct Point { x, y }
 let p = Point(10, 20)
 print(type(p))         # prints: Point
+```
+
+For enums, `type()` returns the enum's name:
+
+```pebble
+enum Color { Red, Green, Blue }
+print(type(Color.Red))  # prints: Color
 ```
 
 You can use it in conditions:
@@ -66,6 +74,7 @@ map:
 | `dict`   | index `d["key"]`             | --                          | [Dictionaries](dicts.md)       |
 | `fn`     | call `f()`                   | --                          | [Functions](functions.md)      |
 | *struct* | `.field`, `==`               | --                          | [Structs](structs.md), [Classes](classes.md) |
+| *enum*   | `.Variant`, `==`, `!=`       | --                          | [Enums](enums.md)            |
 
 ## Null
 

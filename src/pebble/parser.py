@@ -22,6 +22,8 @@ from pebble.ast_nodes import (
     ConstAssignment,
     ContinueStatement,
     DictLiteral,
+    EnumDef,
+    EnumPattern,
     Expression,
     FieldAccess,
     FieldAssignment,
@@ -127,6 +129,17 @@ _OPERATOR_TEXT: dict[TokenKind, str] = {
     TokenKind.LESS_LESS: "<<",
     TokenKind.GREATER_GREATER: ">>",
 }
+
+_COMPARISON_OPS: frozenset[TokenKind] = frozenset(
+    {
+        TokenKind.LESS,
+        TokenKind.LESS_EQUAL,
+        TokenKind.GREATER,
+        TokenKind.GREATER_EQUAL,
+        TokenKind.EQUAL_EQUAL,
+        TokenKind.BANG_EQUAL,
+    }
+)
 
 
 class Parser:
@@ -494,6 +507,17 @@ class Parser:
                 self._error("Cannot use '_' as capture name; use 'case _' for wildcard")
             return CapturePattern(name=name_token.value, location=token.location)
 
+        # Enum pattern: Identifier.Identifier
+        if token.kind == TokenKind.IDENTIFIER and self._peek_next_kind() == TokenKind.DOT:
+            self._advance()  # consume enum name
+            self._advance()  # consume '.'
+            variant_token = self._expect(TokenKind.IDENTIFIER, "Expected variant name after '.'")
+            return EnumPattern(
+                enum_name=token.value,
+                variant_name=variant_token.value,
+                location=token.location,
+            )
+
         # Negative literal: -<int|float>
         if token.kind == TokenKind.MINUS:
             return self._parse_negative_literal_pattern()
@@ -631,6 +655,44 @@ class Parser:
             location=class_token.location,
         )
 
+    def _parse_enum_def(self) -> EnumDef:
+        """Parse an ``enum Name { Variant1, Variant2 }`` definition."""
+        enum_token = self._advance()  # consume 'enum'
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected enum name after 'enum'")
+        self._expect(TokenKind.LEFT_BRACE, "Expected '{' after enum name")
+        self._skip_newlines()
+
+        variants: list[str] = []
+        seen: set[str] = set()
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_BRACE:
+            variant = self._expect(TokenKind.IDENTIFIER, "Expected variant name")
+            if variant.value in seen:
+                self._error(f"Duplicate variant '{variant.value}' in enum '{name_token.value}'")
+            variants.append(variant.value)
+            seen.add(variant.value)
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                self._skip_newlines()
+                if not self._at_end() and self._peek().kind == TokenKind.RIGHT_BRACE:
+                    break  # trailing comma
+                variant = self._expect(TokenKind.IDENTIFIER, "Expected variant name after ','")
+                if variant.value in seen:
+                    self._error(f"Duplicate variant '{variant.value}' in enum '{name_token.value}'")
+                variants.append(variant.value)
+                seen.add(variant.value)
+            self._skip_newlines()
+
+        if not variants:
+            self._error(f"Enum '{name_token.value}' must have at least one variant")
+
+        self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after enum variants")
+        self._consume_newline()
+        return EnumDef(
+            name=name_token.value,
+            variants=variants,
+            location=enum_token.location,
+        )
+
     def _parse_import(self) -> ImportStatement:
         """Parse ``import "path.pbl"``."""
         import_token = self._advance()  # consume 'import'
@@ -743,6 +805,32 @@ class Parser:
                 right=right,
                 location=op_token.location,
             )
+
+            # Desugar chained comparisons: 1 < x < 10 → (1 < x) and (x < 10)
+            if op_token.kind in _COMPARISON_OPS:
+                shared = right
+                while (
+                    not self._at_end()
+                    and self._peek().kind in _COMPARISON_OPS
+                    and _INFIX_PRECEDENCE[self._peek().kind] >= min_precedence
+                ):
+                    chain_op = self._advance()
+                    chain_text = _OPERATOR_TEXT[chain_op.kind]
+                    chain_min = _INFIX_PRECEDENCE[chain_op.kind] + 1
+                    chain_right = self._parse_precedence(min_precedence=chain_min)
+                    chain_cmp = BinaryOp(
+                        left=shared,
+                        operator=chain_text,
+                        right=chain_right,
+                        location=chain_op.location,
+                    )
+                    left = BinaryOp(
+                        left=left,
+                        operator="and",
+                        right=chain_cmp,
+                        location=chain_op.location,
+                    )
+                    shared = chain_right
 
         return left
 
@@ -1070,6 +1158,7 @@ class Parser:
         TokenKind.MATCH: _parse_match,
         TokenKind.STRUCT: _parse_struct_def,
         TokenKind.CLASS: _parse_class_def,
+        TokenKind.ENUM: _parse_enum_def,
         TokenKind.IMPORT: _parse_import,
         TokenKind.FROM: _parse_from_import,
     }

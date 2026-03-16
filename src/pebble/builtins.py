@@ -21,8 +21,32 @@ from pebble.errors import PebbleRuntimeError
 if TYPE_CHECKING:
     from pebble.bytecode import CodeObject
 
+
+@dataclass(frozen=True)
+class EnumVariant:
+    """Runtime representation of an enum variant like ``Color.Red``.
+
+    Attributes:
+        enum_name: The name of the enum (e.g. ``"Color"``).
+        variant_name: The name of the variant (e.g. ``"Red"``).
+
+    """
+
+    enum_name: str
+    variant_name: str
+
+
 type Value = (
-    int | float | str | bool | None | list[Value] | dict[str, Value] | Closure | StructInstance
+    int
+    | float
+    | str
+    | bool
+    | None
+    | list[Value]
+    | dict[str, Value]
+    | Closure
+    | StructInstance
+    | EnumVariant
 )
 
 
@@ -93,6 +117,8 @@ def format_value(value: Value) -> str:  # noqa: PLR0911
         case list():
             items = ", ".join(format_value(v) for v in value)
             return f"[{items}]"
+        case EnumVariant():
+            return f"{value.enum_name}.{value.variant_name}"
         case StructInstance():
             fields = ", ".join(f"{k}={format_value(v)}" for k, v in value.fields.items())
             return f"{value.type_name}({fields})"
@@ -164,6 +190,8 @@ def _builtin_type(args: list[Value]) -> Value:  # noqa: PLR0911
             return "dict"
         case list():
             return "list"
+        case EnumVariant():
+            return arg.enum_name
         case StructInstance():
             return arg.type_name
         case Closure():

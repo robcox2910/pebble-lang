@@ -41,7 +41,8 @@ Pebble has nine built-in type names you can use in annotations:
 | `Dict`     | Key-value pairs               | `{"a": 1}`       |
 | `Fn`       | A function or closure         | `fn(x) { x * 2 }` |
 
-You can also use any struct name you've defined (like `Point` or `Circle`).
+You can also use any custom type name you've defined -- struct, class, or
+enum (like `Point`, `Circle`, or `Color`).
 
 !!! note
     The annotation names use capital letters (`Int`, `String`) while the

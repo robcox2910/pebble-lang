@@ -56,6 +56,7 @@ class Repl:
         self._structs: dict[str, list[str]] = {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
         self._class_methods: dict[str, list[str]] = {}
+        self._enums: dict[str, list[str]] = {}
         self._output: TextIO = output or sys.stdout
 
     def eval_line(self, source: str) -> None:
@@ -79,6 +80,7 @@ class Repl:
         compiled = Compiler(
             cell_vars=self._analyzer.cell_vars,
             free_vars=self._analyzer.free_vars,
+            enums=self._enums,
         ).compile(analyzed)
 
         # Merge new functions and structs with previously-defined ones
@@ -92,12 +94,14 @@ class Repl:
         all_class_methods = (
             self._class_methods | resolver.merged_class_methods | compiled.class_methods
         )
+        all_enums = self._enums | resolver.merged_enums | compiled.enums
         full_program = CompiledProgram(
             main=compiled.main,
             functions=all_functions,
             structs=all_structs,
             struct_field_types=all_struct_field_types,
             class_methods=all_class_methods,
+            enums=all_enums,
         )
 
         vm = VirtualMachine(output=self._output)
@@ -113,6 +117,8 @@ class Repl:
         self._struct_field_types.update(compiled.struct_field_types)
         self._class_methods.update(resolver.merged_class_methods)
         self._class_methods.update(compiled.class_methods)
+        self._enums.update(resolver.merged_enums)
+        self._enums.update(compiled.enums)
 
 
 # -- Input handling -----------------------------------------------------------
