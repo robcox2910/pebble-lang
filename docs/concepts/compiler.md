@@ -111,8 +111,8 @@ sheet, runs it, and then comes back to where it left off.
   were before"
 
 If a function doesn't have an explicit `return`, the compiler
-automatically adds `return 0` at the end — every function must hand back
-*something*.
+automatically adds `return null` at the end — every function must hand back
+*something*, even if it's nothing.
 
 ## Compilation Patterns
 

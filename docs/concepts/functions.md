@@ -115,8 +115,9 @@ print(make_point(5, 10, 15)) # prints: [5, 10, 15]
 
 - Required parameters must come **before** any with defaults. You can't write
   `fn f(a = 1, b)` -- Pebble won't know which slot `b` should fill.
-- Defaults must be **literal values** (numbers, strings, or booleans). You
-  can't use a variable or an expression like `1 + 2` as a default.
+- Defaults must be **literal values** (numbers, strings, booleans, or
+  `null`). You can't use a variable or an expression like `1 + 2` as a
+  default.
 
 ## Giving Back a Result: `return`
 
@@ -132,8 +133,8 @@ let result = square(5)
 print(result)
 ```
 
-A function can also `return` without a value (a bare return), which just
-means "stop here, I'm done":
+A function can also `return` without a value (a bare return), which gives
+back `null` -- meaning "nothing here, I'm done":
 
 ```pebble
 fn maybe_print(x) {

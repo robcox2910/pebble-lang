@@ -28,7 +28,7 @@ Two big reasons:
 
 ## The Basic Types
 
-Pebble has seven built-in type names you can use in annotations:
+Pebble has nine built-in type names you can use in annotations:
 
 | Annotation | What it means                  | Example value    |
 |------------|-------------------------------|------------------|
@@ -36,6 +36,7 @@ Pebble has seven built-in type names you can use in annotations:
 | `Float`    | A number with a decimal point | `3.14`, `1.0`    |
 | `String`   | A piece of text               | `"hello"`        |
 | `Bool`     | True or false                 | `true`, `false`  |
+| `Null`     | Nothing / no value            | `null`           |
 | `List`     | An ordered collection         | `[1, 2, 3]`      |
 | `Dict`     | Key-value pairs               | `{"a": 1}`       |
 | `Fn`       | A function or closure         | `fn(x) { x * 2 }` |

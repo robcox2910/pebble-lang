@@ -42,6 +42,7 @@ from pebble.ast_nodes import (
     ListComprehension,
     MatchStatement,
     MethodCall,
+    NullLiteral,
     PrintStatement,
     Program,
     Reassignment,
@@ -74,6 +75,7 @@ _BUILTIN_TYPES = frozenset(
         "Float",
         "String",
         "Bool",
+        "Null",
         "List",
         "Dict",
         "Fn",
@@ -411,7 +413,7 @@ class SemanticAnalyzer:
                 seen_default = True
                 if not isinstance(
                     param.default,
-                    IntegerLiteral | FloatLiteral | StringLiteral | BooleanLiteral,
+                    IntegerLiteral | FloatLiteral | StringLiteral | BooleanLiteral | NullLiteral,
                 ):
                     msg = "Default parameter values must be literals"
                     raise SemanticError(msg, line=node.location.line, column=node.location.column)
@@ -582,7 +584,13 @@ class SemanticAnalyzer:
                 self._visit_field_access(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
-            case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
+            case (
+                IntegerLiteral()
+                | FloatLiteral()
+                | StringLiteral()
+                | BooleanLiteral()
+                | NullLiteral()
+            ):
                 pass  # Literals need no semantic checks
 
     # -- Closure helpers ------------------------------------------------------

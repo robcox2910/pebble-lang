@@ -41,6 +41,7 @@ _TYPE_MAP: dict[str, type] = {
     "Float": float,
     "String": str,
     "Bool": bool,
+    "Null": type(None),
     "List": list,
     "Dict": dict,
     "Fn": Closure,
@@ -51,6 +52,7 @@ _TYPE_DISPLAY: dict[str, str] = {
     "float": "Float",
     "str": "String",
     "bool": "Bool",
+    "NoneType": "Null",
     "list": "List",
     "dict": "Dict",
 }
@@ -379,8 +381,7 @@ class VirtualMachine:
         ):
             self._stack.append(-operand)
         else:
-            type_name = type(operand).__name__
-            self._runtime_error(f"Unsupported operand type for negation: {type_name}")
+            self._runtime_error(f"Unsupported operand type for negation: {_display_type(operand)}")
 
     def _exec_power(self) -> None:
         """Handle POWER — int**int→int unless negative exponent, mixed→float."""
@@ -397,8 +398,9 @@ class VirtualMachine:
             case OpCode.BIT_NOT:
                 operand = self._stack.pop()
                 if not _is_plain_int(operand):
-                    type_name = type(operand).__name__
-                    self._runtime_error(f"Unsupported operand type for bitwise NOT: {type_name}")
+                    self._runtime_error(
+                        f"Unsupported operand type for bitwise NOT: {_display_type(operand)}"
+                    )
                 self._stack.append(~operand)  # type: ignore[operator]
             case _:
                 right, left = self._stack.pop(), self._stack.pop()
@@ -857,6 +859,8 @@ class VirtualMachine:
     @staticmethod
     def _value_type_display(value: Value) -> str:
         """Return the annotation-style type name of *value*."""
+        if value is None:
+            return "Null"
         if isinstance(value, StructInstance):
             return value.type_name
         if isinstance(value, Closure):
@@ -872,6 +876,8 @@ class VirtualMachine:
                 return type(value) is int
             case "Bool":
                 return isinstance(value, bool)
+            case "Null":
+                return value is None
             case _ if type_name in _TYPE_MAP:
                 return isinstance(value, _TYPE_MAP[type_name])
             case _:
@@ -994,8 +1000,8 @@ class VirtualMachine:
 
     def _type_error(self, symbol: str, left: Value, right: Value) -> Never:
         """Raise a PebbleRuntimeError for an unsupported operand pair."""
-        left_type = type(left).__name__
-        right_type = type(right).__name__
+        left_type = _display_type(left)
+        right_type = _display_type(right)
         self._runtime_error(f"Unsupported operand types for {symbol}: {left_type} and {right_type}")
 
     def _apply_numeric(
@@ -1026,6 +1032,13 @@ class VirtualMachine:
 
 
 # -- Module-level helpers (no self needed) ------------------------------------
+
+
+def _display_type(value: Value) -> str:
+    """Return a Pebble-friendly type name for *value*."""
+    if value is None:
+        return "null"
+    return type(value).__name__
 
 
 def _both_numeric(left: Value, right: Value) -> bool:

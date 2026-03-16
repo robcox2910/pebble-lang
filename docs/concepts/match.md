@@ -43,7 +43,7 @@ Pebble supports four kinds of patterns.
 
 ### Literal Patterns
 
-Match an exact value -- a number, string, or boolean:
+Match an exact value -- a number, string, boolean, or `null`:
 
 ```pebble
 let day = "Monday"

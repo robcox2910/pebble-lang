@@ -151,7 +151,7 @@ class CodeObject:
     instructions: list[Instruction] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
-    constants: list[int | float | str | bool] = field(
+    constants: list[int | float | str | bool | None] = field(
         default_factory=lambda: [],  # noqa: PIE807
     )
     parameters: list[str] = field(
@@ -168,12 +168,12 @@ class CodeObject:
     )
     return_type: str | None = None
 
-    _constant_index: dict[tuple[type, int | float | str | bool], int] = field(
+    _constant_index: dict[tuple[type, int | float | str | bool | None], int] = field(
         default_factory=lambda: {},  # noqa: PIE807
         repr=False,
     )
 
-    def add_constant(self, value: int | float | str | bool) -> int:  # noqa: FBT001
+    def add_constant(self, value: int | float | str | bool | None) -> int:  # noqa: FBT001
         """Add *value* to the constant pool and return its index.
 
         Duplicate entries (same value *and* type) are reused.  A cache

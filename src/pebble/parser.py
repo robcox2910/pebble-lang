@@ -42,6 +42,7 @@ from pebble.ast_nodes import (
     MatchCase,
     MatchStatement,
     MethodCall,
+    NullLiteral,
     OrPattern,
     Parameter,
     Pattern,
@@ -511,7 +512,7 @@ class Parser:
         return first
 
     def _parse_single_literal_pattern(self) -> LiteralPattern:
-        """Parse a single literal pattern value (int, float, string, bool)."""
+        """Parse a single literal pattern value (int, float, string, bool, null)."""
         if self._at_end():
             self._error("Expected pattern")
 
@@ -520,23 +521,23 @@ class Parser:
         if token.kind == TokenKind.MINUS:
             return self._parse_negative_literal_pattern()
 
-        if token.kind == TokenKind.INTEGER:
-            self._advance()
-            return LiteralPattern(value=int(token.value), location=token.location)
+        value: int | float | str | bool | None
+        match token.kind:
+            case TokenKind.INTEGER:
+                value = int(token.value)
+            case TokenKind.FLOAT:
+                value = float(token.value)
+            case TokenKind.STRING:
+                value = token.value
+            case TokenKind.TRUE | TokenKind.FALSE:
+                value = token.kind == TokenKind.TRUE
+            case TokenKind.NULL:
+                value = None
+            case _:
+                return self._error("Expected pattern (literal, '_', or 'let name')")
 
-        if token.kind == TokenKind.FLOAT:
-            self._advance()
-            return LiteralPattern(value=float(token.value), location=token.location)
-
-        if token.kind == TokenKind.STRING:
-            self._advance()
-            return LiteralPattern(value=token.value, location=token.location)
-
-        if token.kind in (TokenKind.TRUE, TokenKind.FALSE):
-            self._advance()
-            return LiteralPattern(value=token.kind == TokenKind.TRUE, location=token.location)
-
-        return self._error("Expected pattern (literal, '_', or 'let name')")
+        self._advance()
+        return LiteralPattern(value=value, location=token.location)
 
     def _parse_negative_literal_pattern(self) -> LiteralPattern:
         """Parse a negative literal pattern: ``-<int>`` or ``-<float>``."""
@@ -780,6 +781,11 @@ class Parser:
         """Parse a boolean literal (true/false)."""
         token = self._advance()
         return BooleanLiteral(value=token.kind == TokenKind.TRUE, location=token.location)
+
+    def _parse_null(self) -> NullLiteral:
+        """Parse the ``null`` literal."""
+        token = self._advance()
+        return NullLiteral(location=token.location)
 
     def _parse_identifier(self) -> Identifier | FunctionCall:
         """Parse an identifier, or a function call if followed by ``(``."""
@@ -1036,6 +1042,7 @@ class Parser:
         TokenKind.STRING_START: _parse_string_interpolation,
         TokenKind.TRUE: _parse_boolean,
         TokenKind.FALSE: _parse_boolean,
+        TokenKind.NULL: _parse_null,
         TokenKind.IDENTIFIER: _parse_identifier,
         TokenKind.MINUS: _parse_negate,
         TokenKind.NOT: _parse_not,

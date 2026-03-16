@@ -1,10 +1,10 @@
 # Types
 
-Every value in Pebble is one of **eight types**. Think of a type as a label
+Every value in Pebble is one of **nine types**. Think of a type as a label
 that tells you what *kind* of thing a value is -- just like how you'd sort
 items in a toolbox into screwdrivers, hammers, and wrenches.
 
-## The Eight Types
+## The Nine Types
 
 | Type     | What it is                      | Examples                  |
 |----------|---------------------------------|---------------------------|
@@ -12,6 +12,7 @@ items in a toolbox into screwdrivers, hammers, and wrenches.
 | `float`  | A number with a decimal point   | `3.14`, `0.5`, `1.0`      |
 | `str`    | A piece of text                 | `"hello"`, `""`           |
 | `bool`   | True or false                   | `true`, `false`           |
+| `null`   | Nothing / no value              | `null`                    |
 | `list`   | An ordered collection           | `[1, 2, 3]`, `[]`        |
 | `dict`   | A collection of key-value pairs | `{"name": "Alice"}`      |
 | `fn`     | A function                      | `fn(x) { return x * 2 }` |
@@ -27,6 +28,7 @@ print(type(42))        # prints: int
 print(type(3.14))      # prints: float
 print(type("hello"))   # prints: str
 print(type(true))      # prints: bool
+print(type(null))      # prints: null
 print(type([1, 2]))    # prints: list
 print(type({}))        # prints: dict
 ```
@@ -59,10 +61,68 @@ map:
 | `float`  | `+ - * / // % **`, comparisons | --                       | [Operators](operators.md)      |
 | `str`    | `+` (join)                   | `upper()`, `split()`, etc.  | [String Methods](strings.md)   |
 | `bool`   | `and`, `or`, `not`           | --                          | [Statements](statements.md)    |
+| `null`   | `==`, `!=`, `not`            | --                          | (this page)                    |
 | `list`   | `+` (concatenate)            | `push()`, `pop()`, etc.     | [Arrays](arrays.md)            |
 | `dict`   | index `d["key"]`             | --                          | [Dictionaries](dicts.md)       |
 | `fn`     | call `f()`                   | --                          | [Functions](functions.md)      |
 | *struct* | `.field`, `==`               | --                          | [Structs](structs.md), [Classes](classes.md) |
+
+## Null
+
+The `null` type represents **nothing** -- the absence of a value. Think of
+it like an empty box: it's not that the box contains zero or an empty
+string, it's that there's genuinely nothing inside.
+
+```pebble
+let x = null
+print(x)          # prints: null
+print(type(null))  # prints: null
+```
+
+### When does null appear?
+
+- **Explicitly**: you write `null` in your code.
+- **Implicit return**: a function that doesn't `return` a value gives back
+  `null` automatically.
+- **Bare return**: writing `return` without a value gives back `null`.
+- **Void methods**: list methods like `push()`, `reverse()`, and `sort()`
+  return `null` because they modify the list in place.
+
+```pebble
+fn greet() { print("hi") }
+print(greet())   # prints: hi  then  null
+```
+
+### Null is falsy
+
+In conditions, `null` behaves like `false` -- it means "no":
+
+```pebble
+if null { print("yes") } else { print("no") }   # prints: no
+print(not null)                                   # prints: true
+```
+
+### Null is not zero
+
+`null` is different from `0`, `false`, and `""`. It means "nothing at
+all", not "zero" or "empty":
+
+```pebble
+print(null == 0)      # prints: false
+print(null == false)   # prints: false
+print(null == "")      # prints: false
+print(null == null)    # prints: true
+```
+
+### What null can't do
+
+You can't do maths or comparisons (other than `==` / `!=`) with null --
+it's not a number:
+
+```pebble
+null + 1    # Error: Unsupported operand types for +
+null < 1    # Error: Unsupported operand types for <
+```
 
 ## Integers vs Floats
 
@@ -150,6 +210,7 @@ doesn't match:
 
 ```pebble
 let x: Int = 5
+let y: Null = null
 fn add(a: Int, b: Int) -> Int { return a + b }
 struct Point { x: Float, y: Float }
 ```
@@ -163,6 +224,7 @@ Annotations are completely optional -- see
 |---------|---------|
 | Type | A label on a toolbox drawer (structs get their own custom label) |
 | `type()` | Reading the label to see what's inside |
+| `null` | An empty box -- not zero, not empty string, just *nothing* |
 | `int` vs `float` | "3 apples" vs "3.5 apples" |
 | Mixed arithmetic | Pouring a small glass into a big one -- the result is always big (float) |
 | `/` vs `//` | Sharing pizza: `/` tells you the exact amount, `//` tells you whole slices only |

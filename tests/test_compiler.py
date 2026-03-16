@@ -57,7 +57,7 @@ def _instructions(source: str) -> list[Instruction]:
     return _strip_locations(_compile(source).main.instructions)
 
 
-def _constants(source: str) -> list[int | float | str | bool]:
+def _constants(source: str) -> list[int | float | str | bool | None]:
     """Return the main constant pool for *source*."""
     return _compile(source).main.constants
 
@@ -534,10 +534,10 @@ class TestCompileFunctionDef:
         """A function without explicit return gets LOAD_CONST <idx>, RETURN."""
         result = _compile("fn greet() { print(1) }")
         fn = result.functions["greet"]
-        # Constant pool: [1, 0] — print(1) adds 1 at index 0, implicit return adds 0 at index 1
+        # Constant pool: [1, None] — print(1) adds 1 at index 0, implicit return adds None at index 1
         implicit_load = fn.instructions[-TWO]
         assert implicit_load.opcode is OpCode.LOAD_CONST
-        assert fn.constants[implicit_load.operand] == 0  # type: ignore[index]
+        assert fn.constants[implicit_load.operand] is None  # type: ignore[index]
         assert fn.instructions[-ONE] == Instruction(OpCode.RETURN)
 
 
@@ -576,14 +576,14 @@ class TestCompileReturn:
         assert fn.constants == [42]
 
     def test_bare_return(self) -> None:
-        """``return`` without a value returns 0."""
+        """``return`` without a value returns null."""
         result = _compile("fn f() { return }")
         fn = result.functions["f"]
         assert _strip_locations(fn.instructions) == [
             Instruction(OpCode.LOAD_CONST, ZERO),
             Instruction(OpCode.RETURN),
         ]
-        assert fn.constants == [0]
+        assert fn.constants == [None]
 
 
 class TestCompileFunctionCall:

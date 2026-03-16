@@ -269,11 +269,11 @@ error.
 
 | Method          | Args | Returns | Description                 |
 | --------------- | ---- | ------- | --------------------------- |
-| `push(value)`   | 1    | 0       | Append to end               |
+| `push(value)`   | 1    | `null`  | Append to end               |
 | `pop()`         | 0    | value   | Remove and return last      |
 | `contains(val)` | 1    | bool    | Is `val` in the list?       |
-| `reverse()`     | 0    | 0       | Reverse in place            |
-| `sort()`        | 0    | 0       | Sort in place               |
+| `reverse()`     | 0    | `null`  | Reverse in place            |
+| `sort()`        | 0    | `null`  | Sort in place               |
 
 ## Changing an Element
 
