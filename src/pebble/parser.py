@@ -128,6 +128,17 @@ _OPERATOR_TEXT: dict[TokenKind, str] = {
     TokenKind.GREATER_GREATER: ">>",
 }
 
+_COMPARISON_OPS: frozenset[TokenKind] = frozenset(
+    {
+        TokenKind.LESS,
+        TokenKind.LESS_EQUAL,
+        TokenKind.GREATER,
+        TokenKind.GREATER_EQUAL,
+        TokenKind.EQUAL_EQUAL,
+        TokenKind.BANG_EQUAL,
+    }
+)
+
 
 class Parser:
     r"""Recursive-descent parser that builds an AST from a token list.
@@ -743,6 +754,32 @@ class Parser:
                 right=right,
                 location=op_token.location,
             )
+
+            # Desugar chained comparisons: 1 < x < 10 → (1 < x) and (x < 10)
+            if op_token.kind in _COMPARISON_OPS:
+                shared = right
+                while (
+                    not self._at_end()
+                    and self._peek().kind in _COMPARISON_OPS
+                    and _INFIX_PRECEDENCE[self._peek().kind] >= min_precedence
+                ):
+                    chain_op = self._advance()
+                    chain_text = _OPERATOR_TEXT[chain_op.kind]
+                    chain_min = _INFIX_PRECEDENCE[chain_op.kind] + 1
+                    chain_right = self._parse_precedence(min_precedence=chain_min)
+                    chain_cmp = BinaryOp(
+                        left=shared,
+                        operator=chain_text,
+                        right=chain_right,
+                        location=chain_op.location,
+                    )
+                    left = BinaryOp(
+                        left=left,
+                        operator="and",
+                        right=chain_cmp,
+                        location=chain_op.location,
+                    )
+                    shared = chain_right
 
         return left
 

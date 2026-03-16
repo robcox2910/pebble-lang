@@ -110,6 +110,71 @@ print(3 < 3.5)    # prints: true   (int vs float works fine)
 print(3.0 == 3)   # prints: true   (same value, different types)
 ```
 
+## Chained Comparisons
+
+Sometimes you want to check whether a number falls between two values --
+a **range check**. Instead of writing two comparisons joined with `and`,
+Pebble lets you chain them together:
+
+```pebble
+let x = 5
+print(1 < x < 10)    # prints: true   (x is between 1 and 10)
+```
+
+Under the hood, Pebble rewrites `1 < x < 10` as `(1 < x) and (x < 10)`.
+Both comparisons must be true for the whole expression to be true.
+
+### How It Works
+
+Think of it like a sentence: "1 is less than x, which is less than 10."
+If any link in the chain breaks, the whole thing is false:
+
+```pebble
+let x = 0
+print(1 < x < 10)    # prints: false   (1 < 0 is false)
+
+let x = 15
+print(1 < x < 10)    # prints: false   (15 < 10 is false)
+```
+
+### Inclusive Boundaries
+
+Use `<=` to include the boundary values:
+
+```pebble
+let x = 1
+print(1 <= x <= 10)   # prints: true   (x equals the lower bound)
+print(1 < x < 10)     # prints: false  (1 is not strictly less than 1)
+```
+
+### Mixing Operators
+
+You can mix any comparison operators in a chain:
+
+```pebble
+let x = 5
+print(1 <= x < 10)    # prints: true   (at least 1, but less than 10)
+print(10 > x > 1)     # prints: true   (descending range check)
+```
+
+### Longer Chains
+
+Chains can have more than two comparisons. Each pair of neighbours is
+checked:
+
+```pebble
+let a = 2
+let b = 5
+print(1 < a < b < 10)   # prints: true   (1<2 and 2<5 and 5<10)
+```
+
+This works with all six comparison operators: `<`, `<=`, `>`, `>=`,
+`==`, and `!=`.
+
+> **Note:** The middle values in a chain are evaluated twice at runtime.
+> This is fine for variables and simple expressions, which is the typical
+> use case.
+
 ## Logical Operators
 
 Logical operators combine `true` / `false` values. They're like the words
@@ -247,5 +312,6 @@ print(2 ** 2 ** 3)   # prints: 256
 | `**` | "Times itself" repeated multiplication |
 | Bitwise ops | Flipping individual light switches |
 | `<<` / `>>` | Sliding a row of switches left or right |
+| Chained comparisons | Checking if a number is between two values |
 | Precedence | The order-of-operations rule from maths |
 | Parentheses | "Do this part first!" |

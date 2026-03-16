@@ -462,15 +462,25 @@ class TestParserExpressionEdgeCases:
         with pytest.raises(ParseError):
             _parse_expr("(1 +)")
 
-    def test_chained_comparisons_left_associative(self) -> None:
-        """Verify '1 < 2 < 3' groups as '(1 < 2) < 3'."""
+    def test_chained_comparisons_desugared(self) -> None:
+        """Verify '1 < 2 < 3' desugars to '(1 < 2) and (2 < 3)'."""
         node = _parse_expr("1 < 2 < 3")
         assert isinstance(node, BinaryOp)
-        assert node.operator == "<"
+        assert node.operator == "and"
+        # left arm: 1 < 2
         assert isinstance(node.left, BinaryOp)
         assert node.left.operator == "<"
-        assert isinstance(node.right, IntegerLiteral)
-        assert node.right.value == THREE
+        assert isinstance(node.left.left, IntegerLiteral)
+        assert node.left.left.value == ONE
+        assert isinstance(node.left.right, IntegerLiteral)
+        assert node.left.right.value == TWO
+        # right arm: 2 < 3
+        assert isinstance(node.right, BinaryOp)
+        assert node.right.operator == "<"
+        assert isinstance(node.right.left, IntegerLiteral)
+        assert node.right.left.value == TWO
+        assert isinstance(node.right.right, IntegerLiteral)
+        assert node.right.right.value == THREE
 
 
 # -- Function calls -----------------------------------------------------------
