@@ -154,6 +154,11 @@ add(1, 2, 3)  # Error: Function 'add' expects 2 arguments, got 3
 add(1, 2)     # Fine!
 ```
 
+When a function has [default parameters](functions.md#default-parameters), the
+analyzer accepts a *range* of argument counts -- from the number of required
+parameters up to the total. For example, `fn f(a, b = 10)` accepts 1 or 2
+arguments.
+
 ### Define Before You Call
 
 Pebble reads your program from top to bottom. You must define a function

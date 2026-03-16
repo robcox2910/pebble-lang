@@ -78,6 +78,46 @@ That second line shows **nested calls** -- a function call inside another
 function call, like a recipe that says "first make the sauce (another recipe),
 then add it to the dish."
 
+### Default Parameters
+
+Sometimes a recipe has a go-to ingredient that you use *most* of the time.
+Instead of writing it out every single call, you can put a **default value**
+right on the recipe card. Think of it as pre-filling an ingredient slot with
+your usual choice -- you can still swap it out, but if you don't, the default
+kicks in.
+
+```pebble
+fn greet(name, greeting = "Hello") {
+    print("{greeting} {name}")
+}
+
+greet("Alice")          # prints: Hello Alice
+greet("Alice", "Hi")    # prints: Hi Alice
+```
+
+`greeting` has a default of `"Hello"`. When you call `greet("Alice")`, you
+only pass one argument, so `greeting` uses its default. When you call
+`greet("Alice", "Hi")`, the `"Hi"` you provided overrides the default.
+
+You can have several defaults:
+
+```pebble
+fn make_point(x, y = 0, z = 0) {
+    return [x, y, z]
+}
+
+print(make_point(5))         # prints: [5, 0, 0]
+print(make_point(5, 10))     # prints: [5, 10, 0]
+print(make_point(5, 10, 15)) # prints: [5, 10, 15]
+```
+
+**Rules to remember:**
+
+- Required parameters must come **before** any with defaults. You can't write
+  `fn f(a = 1, b)` -- Pebble won't know which slot `b` should fill.
+- Defaults must be **literal values** (numbers, strings, or booleans). You
+  can't use a variable or an expression like `1 + 2` as a default.
+
 ## Giving Back a Result: `return`
 
 The `return` keyword is like handing back the finished dish. It sends a value
@@ -192,6 +232,8 @@ The parser catches several mistakes:
 | `foo(1,)` | Unexpected token ')' |
 | `fn () { }` | Expected function name after 'fn' |
 | `fn greet { }` | Expected '(' after function name |
+| `fn f(a = 1, b) { }` | Required parameter cannot follow a parameter with a default |
+| `fn f(a = 1 + 2) { }` | Default parameter values must be literals |
 
 ## Summary
 
@@ -199,6 +241,7 @@ The parser catches several mistakes:
 |---------|---------|
 | Function | A recipe card |
 | Parameter | An ingredient slot on the recipe |
+| Default parameter | A pre-filled ingredient slot |
 | Argument | The actual ingredient you hand over |
 | `return` | Handing back the finished dish |
 | Function call `()` | Using a recipe |

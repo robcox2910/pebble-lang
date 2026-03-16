@@ -144,6 +144,7 @@ class Compiler:
         self._class_methods: dict[str, list[str]] = {}
         self._cell_vars = cell_vars or {}
         self._free_vars = free_vars or {}
+        self._function_defaults: dict[str, list[Expression | None]] = {}
 
     def _is_cell_var(self, name: str) -> bool:
         """Return True if *name* is a cell or free variable of the current function."""
@@ -506,6 +507,7 @@ class Compiler:
         fn_code.return_type = return_type
         fn_code.cell_variables = sorted(self._cell_vars.get(name, set()))
         fn_code.free_variables = sorted(self._free_vars.get(name, set()))
+        self._function_defaults[name] = [p.default for p in node_params]
 
         previous = self._current
         previous_loop_counter = self._loop_var_counter
@@ -727,9 +729,16 @@ class Compiler:
         self._emit(_UNARY_OPS[node.operator], location=node.location)
 
     def _compile_call(self, node: FunctionCall) -> None:
-        """Compile a function call: push arguments, then CALL."""
+        """Compile a function call: push arguments, fill defaults, then CALL."""
         for arg in node.arguments:
             self._compile_expression(arg)
+        defaults = self._function_defaults.get(node.name)
+        if defaults:
+            nargs = len(node.arguments)
+            for i in range(nargs, len(defaults)):
+                default_expr = defaults[i]
+                assert default_expr is not None  # noqa: S101
+                self._compile_expression(default_expr)
         self._emit(OpCode.CALL, node.name, location=node.location)
 
     def _compile_method_call(self, node: MethodCall) -> None:

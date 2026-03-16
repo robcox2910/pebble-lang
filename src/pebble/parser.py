@@ -405,14 +405,18 @@ class Parser:
         return ReturnStatement(value=value, location=return_token.location)
 
     def _parse_parameter(self) -> Parameter:
-        """Parse ``name[: Type]`` — a parameter with optional type annotation."""
+        """Parse ``name[: Type][= default]`` — a parameter with optional type and default."""
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
         type_annotation: str | None = None
         if not self._at_end() and self._peek().kind == TokenKind.COLON:
             self._advance()  # consume ':'
             type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name after ':'")
             type_annotation = type_token.value
-        return Parameter(name=name_token.value, type_annotation=type_annotation)
+        default: Expression | None = None
+        if not self._at_end() and self._peek().kind == TokenKind.EQUAL:
+            self._advance()  # consume '='
+            default = self._parse_precedence(min_precedence=0)
+        return Parameter(name=name_token.value, type_annotation=type_annotation, default=default)
 
     def _parse_return_type(self) -> str | None:
         """Parse optional ``-> Type`` return type annotation."""
