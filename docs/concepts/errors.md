@@ -20,6 +20,7 @@ Pebble has a family of error types, one for each stage of the compiler:
 | **ParseError** | Arranging tokens into a tree | Missing closing `)` |
 | **SemanticError** | Checking the tree for logic mistakes | Using a variable that doesn't exist |
 | **PebbleRuntimeError** | Running the bytecode | Dividing by zero |
+| **PebbleImportError** | Loading a module | File not found, circular import |
 
 All of them are part of the same family (they inherit from `PebbleError`), so
 the compiler can catch *any* Pebble error when it needs to.

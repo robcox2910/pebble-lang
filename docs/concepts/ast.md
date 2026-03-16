@@ -56,7 +56,13 @@ nodes:
 | `StringInterpolation` | `"hi {name}"` | Text parts mixed with expressions |
 | `ArrayLiteral` | `[1, 2, 3]` | A list of element expressions |
 | `DictLiteral` | `{"a": 1}` | A list of key-value pair expressions |
+| `FloatLiteral` | `3.14` | A decimal number value |
 | `IndexAccess` | `xs[0]` | A target and an index expression |
+| `SliceAccess` | `xs[1:3]` | A target with start, stop, and step |
+| `MethodCall` | `s.upper()` | An object, method name, and arguments |
+| `FieldAccess` | `p.x` | An object and field name |
+| `FunctionExpression` | `fn(x) { return x }` | An anonymous (inline) function |
+| `ListComprehension` | `[x * 2 for x in xs]` | Expression, variable, iterable, optional filter |
 
 ### Statement Nodes (do something)
 
@@ -77,7 +83,23 @@ nodes:
 | `ImportStatement` | `import "math.pbl"` | The path to the module file |
 | `FromImportStatement` | `from "utils.pbl" import add` | The path and the names to import |
 | `StructDef` | `struct Point { x, y }` | The name and list of fields |
+| `ConstAssignment` | `const PI = 3` | Like Assignment, but immutable |
+| `UnpackAssignment` | `let [a, b] = [1, 2]` | Destructure a list into variables |
+| `UnpackConstAssignment` | `const [a, b] = [1, 2]` | Destructure into immutable variables |
+| `UnpackReassignment` | `[a, b] = [3, 4]` | Destructure into existing variables |
+| `FieldAssignment` | `p.x = 10` | Set a field on a struct or class instance |
+| `TryCatch` | `try { } catch e { }` | Try body, catch variable, catch body, optional finally body |
+| `ThrowStatement` | `throw "oops"` | Raise an error with a value |
 | `ClassDef` | `class Dog { name, fn bark(self) { } }` | The name, fields, and methods |
+
+### Pattern Nodes (used in match/case)
+
+| Node | Example | What It Holds |
+|------|---------|---------------|
+| `LiteralPattern` | `case 42` | A literal value to compare against |
+| `WildcardPattern` | `case _` | Matches anything, discards the value |
+| `CapturePattern` | `case let x` | Matches anything, binds the value to a name |
+| `OrPattern` | `case 1 \| 2` | Matches if any sub-pattern matches |
 
 ### Helper Nodes
 

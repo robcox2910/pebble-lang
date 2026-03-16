@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pebble.errors import PebbleRuntimeError, SemanticError
+from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.repl import Repl, read_input
 
 # -- Named constants ----------------------------------------------------------
@@ -157,7 +157,7 @@ class TestReplErrorRecovery:
         buf = StringIO()
         r = Repl(output=buf)
         r.eval_line("let x = 10")
-        with pytest.raises(Exception):  # noqa: B017, PT011
+        with pytest.raises(ParseError):
             r.eval_line("let = oops")
         r.eval_line("print(x)")
         assert buf.getvalue() == "10\n"

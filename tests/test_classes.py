@@ -11,6 +11,7 @@ from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import ClassDef, FunctionDef, Parameter, Statement
 from pebble.bytecode import CodeObject, CompiledProgram, OpCode
 from pebble.compiler import Compiler
+from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import SourceLocation, TokenKind
@@ -234,7 +235,7 @@ class TestClassParser:
 
     def test_duplicate_field_error(self) -> None:
         """Duplicate field names in a class raise ParseError."""
-        with pytest.raises(Exception, match="Duplicate field"):
+        with pytest.raises(ParseError, match="Duplicate field"):
             _parse("class Bad { x, x }")
 
     def test_duplicate_method_error(self) -> None:
@@ -243,7 +244,7 @@ class TestClassParser:
             fn foo(self) { }
             fn foo(self) { }
         }"""
-        with pytest.raises(Exception, match="Duplicate method"):
+        with pytest.raises(ParseError, match="Duplicate method"):
             _parse(source)
 
     def test_method_params_parsed(self) -> None:
@@ -299,42 +300,42 @@ class TestClassAnalyzer:
         _analyze(source)  # should not raise
 
     def test_wrong_constructor_arity_error(self) -> None:
-        """Calling the constructor with wrong arity raises an error."""
+        """Calling the constructor with wrong arity raises SemanticError."""
         source = """class Dog {
             name, age
         }
         let d = Dog("Rex")"""
-        with pytest.raises(Exception, match="expects 2 argument"):
+        with pytest.raises(SemanticError, match="expects 2 argument"):
             _analyze(source)
 
     def test_method_missing_self_error(self) -> None:
-        """A method without self as first param raises an error."""
+        """A method without self as first param raises SemanticError."""
         source = """class Bad {
             fn foo() {
                 return 0
             }
         }"""
-        with pytest.raises(Exception, match="self"):
+        with pytest.raises(SemanticError, match="self"):
             _analyze(source)
 
     def test_method_body_validated(self) -> None:
-        """Undeclared variables in method body raise an error."""
+        """Undeclared variables in method body raise SemanticError."""
         source = """class Bad {
             fn foo(self) {
                 print(unknown)
             }
         }"""
-        with pytest.raises(Exception, match="Undeclared variable 'unknown'"):
+        with pytest.raises(SemanticError, match="Undeclared variable 'unknown'"):
             _analyze(source)
 
     def test_method_type_annotations_validated(self) -> None:
-        """Invalid type annotations on method params raise an error."""
+        """Invalid type annotations on method params raise SemanticError."""
         source = """class Bad {
             fn foo(self, x: Nonexistent) {
                 return x
             }
         }"""
-        with pytest.raises(Exception, match="Unknown type 'Nonexistent'"):
+        with pytest.raises(SemanticError, match="Unknown type 'Nonexistent'"):
             _analyze(source)
 
     def test_class_method_call_passes(self) -> None:
@@ -350,7 +351,7 @@ class TestClassAnalyzer:
         _analyze(source)  # should not raise
 
     def test_unknown_method_still_errors(self) -> None:
-        """Calling a truly unknown method still raises an error."""
+        """Calling a truly unknown method still raises SemanticError."""
         source = """class Dog {
             name,
             fn bark(self) {
@@ -359,17 +360,17 @@ class TestClassAnalyzer:
         }
         let d = Dog("Rex")
         d.nonexistent()"""
-        with pytest.raises(Exception, match="Unknown method"):
+        with pytest.raises(SemanticError, match="Unknown method"):
             _analyze(source)
 
     def test_builtin_method_name_collision_error(self) -> None:
-        """A class method name that collides with a builtin method raises an error."""
+        """A class method name that collides with a builtin method raises SemanticError."""
         source = """class Bad {
             fn push(self) {
                 return 0
             }
         }"""
-        with pytest.raises(Exception, match="reserved"):
+        with pytest.raises(SemanticError, match="reserved"):
             _analyze(source)
 
     def test_class_as_type_annotation(self) -> None:
@@ -549,11 +550,11 @@ class TestClassVM:
         }
         let d = Dog("Rex")
         d.bark()"""
-        with pytest.raises(Exception, match="Type error"):
+        with pytest.raises(PebbleRuntimeError, match="Type error"):
             _run_source(source)
 
     def test_method_on_non_struct_errors(self) -> None:
-        """Calling an instance method on a non-struct value raises an error."""
+        """Calling an instance method on a non-struct value raises PebbleRuntimeError."""
         source = """class Dog {
             name,
             fn bark(self) {
@@ -562,11 +563,11 @@ class TestClassVM:
         }
         let x = 42
         x.bark()"""
-        with pytest.raises(Exception, match="not a struct"):
+        with pytest.raises(PebbleRuntimeError, match="not a struct"):
             _run_source(source)
 
     def test_nonexistent_method_errors(self) -> None:
-        """Calling a method not defined on the struct's class raises an error."""
+        """Calling a method not defined on the struct's class raises PebbleRuntimeError."""
         source = """class Dog {
             name,
             fn bark(self) {
@@ -581,7 +582,7 @@ class TestClassVM:
         }
         let d = Dog("Rex")
         d.meow()"""
-        with pytest.raises(Exception, match="has no method"):
+        with pytest.raises(PebbleRuntimeError, match="has no method"):
             _run_source(source)
 
     def test_field_access_works(self) -> None:
@@ -664,7 +665,7 @@ class TestClassVM:
         }
         let c = Calc(10)
         c.add("oops")"""
-        with pytest.raises(Exception, match="Type error"):
+        with pytest.raises(PebbleRuntimeError, match="Type error"):
             _run_source(source)
 
 

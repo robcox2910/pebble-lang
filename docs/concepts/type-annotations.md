@@ -147,8 +147,10 @@ checkpoints:
 ## Mixing Typed and Untyped
 
 Annotations are **completely optional**. You can add them to some things
-and not others -- this is called **gradual typing**. Unannotated code works
-exactly like it always has:
+and not others -- this is called **gradual typing** (meaning you can
+*gradually* add types to your code, a little at a time, instead of having
+to type everything all at once). Unannotated code works exactly like it
+always has:
 
 ```pebble
 # Fully typed

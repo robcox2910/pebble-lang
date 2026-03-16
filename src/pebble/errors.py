@@ -77,9 +77,10 @@ def format_error(source: str, *, line: int, column: int, message: str) -> str:
         return message
     source_line = source_lines[line - 1]
 
-    caret = " " * (max(column, 1) - 1) + "^"
+    prefix = f"{line} | "
+    caret = " " * (len(prefix) + max(column, 1) - 1) + "^"
 
-    return f"{line} | {source_line}\n{caret}\n{message}"
+    return f"{prefix}{source_line}\n{caret}\n{message}"
 
 
 # ---------------------------------------------------------------------------

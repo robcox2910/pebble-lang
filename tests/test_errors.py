@@ -127,14 +127,16 @@ class TestFormatError:
         assert "bad char" in result
 
     def test_caret_position(self) -> None:
-        """Verify the caret is at the exact column position."""
+        """Verify the caret accounts for the line-number prefix."""
         source = "let x = @"
         result = format_error(source, line=FIRST_LINE, column=NINTH_COLUMN, message="bad")
         lines = result.split("\n")
         # Find the caret line
         caret_line = next(ln for ln in lines if "^" in ln)
         caret_col = caret_line.index("^")
-        expected_col = NINTH_COLUMN - 1  # 0-based index
+        # Prefix is "1 | " (4 chars), then column 9 → 0-based offset 8
+        prefix_len = len(f"{FIRST_LINE} | ")
+        expected_col = prefix_len + NINTH_COLUMN - 1
         assert caret_col == expected_col
 
     def test_multiline_source_points_to_correct_line(self) -> None:
@@ -158,12 +160,13 @@ class TestFormatError:
         assert "eof" in result
 
     def test_column_one_caret(self) -> None:
-        """Verify caret at column 1 has no leading spaces."""
+        """Verify caret at column 1 aligns under the first character."""
         source = "x"
         result = format_error(source, line=FIRST_LINE, column=FIRST_COLUMN, message="bad")
         lines = result.split("\n")
         caret_line = next(ln for ln in lines if "^" in ln)
-        assert caret_line.startswith("^")
+        prefix_len = len(f"{FIRST_LINE} | ")
+        assert caret_line.index("^") == prefix_len
 
 
 class TestErrorCollector:

@@ -13,6 +13,9 @@ Error handling is how your program does option 2. Instead of crashing when
 something unexpected happens, you *catch* the problem and decide what to do
 about it.
 
+> **See also:** [Error Messages](errors.md) explains the different error types
+> that Pebble can produce and how error messages are formatted.
+
 ## Try / Catch
 
 Pebble uses `try` and `catch` blocks to handle errors:

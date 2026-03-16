@@ -1,16 +1,21 @@
 """Tests for the ``const`` keyword — immutable variable declarations."""
 
-from io import StringIO
-
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import BinaryOp, ConstAssignment, IntegerLiteral, Program, Statement
-from pebble.compiler import Compiler
 from pebble.errors import ParseError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Helpers ------------------------------------------------------------------
 
@@ -30,20 +35,6 @@ def _analyze(source: str) -> Program:
     """Lex, parse, and analyze *source*."""
     program = _parse(source)
     return SemanticAnalyzer().analyze(program)
-
-
-def _run(source: str) -> str:
-    """Lex, parse, analyze, compile, and run *source*; return captured output."""
-    program = _parse(source)
-    analyzer = SemanticAnalyzer()
-    analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # -- Named constants ----------------------------------------------------------

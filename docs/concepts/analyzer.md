@@ -226,6 +226,9 @@ fn process(n) {              # New scope: n is a parameter
 | `fn f(a) {}` then `f(1, 2)` | Function 'f' expects 1 argument, got 2 |
 | `return 42` (top level) | Return statement outside function |
 | `let x = x` | Undeclared variable 'x' (x isn't declared yet when the value is evaluated) |
+| `const x = 1` then `x = 2` | Cannot reassign constant 'x' |
+| `break` (outside loop) | Break statement outside loop |
+| `continue` (outside loop) | Continue statement outside loop |
 
 ## Summary
 

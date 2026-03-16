@@ -62,7 +62,7 @@ map:
 | `list`   | `+` (concatenate)            | `push()`, `pop()`, etc.     | [Arrays](arrays.md)            |
 | `dict`   | index `d["key"]`             | --                          | [Dictionaries](dicts.md)       |
 | `fn`     | call `f()`                   | --                          | [Functions](functions.md)      |
-| *struct* | `.field`, `==`               | --                          | [Structs](structs.md)          |
+| *struct* | `.field`, `==`               | --                          | [Structs](structs.md), [Classes](classes.md) |
 
 ## Integers vs Floats
 

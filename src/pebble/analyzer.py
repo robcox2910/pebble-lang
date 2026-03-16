@@ -402,8 +402,8 @@ class SemanticAnalyzer:
             self._visit_expression(node.condition)
         self._pop_scope()
 
-    def _visit_function_def(self, node: FunctionDef) -> None:
-        """Visit a function definition — declare in current scope, parameters in new scope."""
+    def _visit_function_body(self, node: FunctionDef | FunctionExpression) -> None:
+        """Visit the shared scope/param/body logic for functions and function expressions."""
         self._scope.declare_function(node.name, len(node.parameters), node.location)
         self._push_scope()
         self._scope.function_name = node.name
@@ -420,27 +420,16 @@ class SemanticAnalyzer:
         self._in_function = prev_in_function
         self._pop_scope()
 
+    def _visit_function_def(self, node: FunctionDef) -> None:
+        """Visit a function definition — declare in current scope, parameters in new scope."""
+        self._visit_function_body(node)
         # All functions are first-class values — declare the function name
         # as a variable so it can be stored, returned, and passed as an argument.
         self._scope.variables[node.name] = node.location
 
     def _visit_function_expression(self, node: FunctionExpression) -> None:
         """Visit an anonymous function expression — same as function def."""
-        self._scope.declare_function(node.name, len(node.parameters), node.location)
-        self._push_scope()
-        self._scope.function_name = node.name
-        for param in node.parameters:
-            self._scope.declare_variable(param.name, node.location)
-            if param.type_annotation is not None:
-                self._validate_type_name(param.type_annotation, node.location)
-        if node.return_type is not None:
-            self._validate_type_name(node.return_type, node.location)
-        prev_in_function = self._in_function
-        self._in_function = True
-        for stmt in node.body:
-            self._visit_statement(stmt)
-        self._in_function = prev_in_function
-        self._pop_scope()
+        self._visit_function_body(node)
 
     def _visit_index_assignment(self, node: IndexAssignment) -> None:
         """Visit an index assignment — check target, index, and value."""
@@ -591,6 +580,21 @@ class SemanticAnalyzer:
 
     # -- Expression visitors --------------------------------------------------
 
+    @staticmethod
+    def _check_arity(
+        kind: str, name: str, expected: Arity, actual: int, location: SourceLocation
+    ) -> None:
+        """Raise :class:`SemanticError` if *actual* doesn't match *expected* arity."""
+        if isinstance(expected, tuple):
+            if actual not in expected:
+                options = ", ".join(str(a) for a in expected)
+                msg = f"{kind} '{name}' expects {options} arguments, got {actual}"
+                raise SemanticError(msg, line=location.line, column=location.column)
+        elif actual != expected:
+            s = "" if expected == 1 else "s"
+            msg = f"{kind} '{name}' expects {expected} argument{s}, got {actual}"
+            raise SemanticError(msg, line=location.line, column=location.column)
+
     def _visit_identifier(self, node: Identifier) -> None:
         """Resolve a variable reference, raising if undeclared."""
         if self._scope.resolve_variable(node.name) is None:
@@ -611,16 +615,7 @@ class SemanticAnalyzer:
             msg = f"Undeclared function '{node.name}'"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         expected, _ = resolved
-        actual = len(node.arguments)
-        if isinstance(expected, tuple):
-            if actual not in expected:
-                options = ", ".join(str(a) for a in expected)
-                msg = f"Function '{node.name}' expects {options} arguments, got {actual}"
-                raise SemanticError(msg, line=node.location.line, column=node.location.column)
-        elif actual != expected:
-            s = "" if expected == 1 else "s"
-            msg = f"Function '{node.name}' expects {expected} argument{s}, got {actual}"
-            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        self._check_arity("Function", node.name, expected, len(node.arguments), node.location)
         for arg in node.arguments:
             self._visit_expression(arg)
 
@@ -705,14 +700,14 @@ class SemanticAnalyzer:
         self,
         name: str,
         field_count: int,
-        method_names: list[str],
+        method_arities: dict[str, int],
         location: SourceLocation,
     ) -> None:
         """Register an imported class in the global scope."""
         self._scope.declare_function(name, field_count, location)
         self._scope.variables[name] = location
-        # Register method names so _visit_method_call allows them
-        self._class_methods[name] = dict.fromkeys(method_names, 0)
+        # Register method arities so _visit_method_call can validate calls
+        self._class_methods[name] = dict(method_arities)
 
     def reset_import_barrier(self) -> None:
         """Reset the import-ordering flag (for REPL re-entry)."""
@@ -724,24 +719,30 @@ class SemanticAnalyzer:
 
         # Builtin method path
         if node.method in METHOD_ARITIES:
-            expected = METHOD_ARITIES[node.method]
-            actual = len(node.arguments)
-            if isinstance(expected, tuple):
-                if actual not in expected:
-                    options = ", ".join(str(a) for a in expected)
-                    msg = f"Method '{node.method}' expects {options} arguments, got {actual}"
-                    raise SemanticError(msg, line=node.location.line, column=node.location.column)
-            elif actual != expected:
-                s = "" if expected == 1 else "s"
-                msg = f"Method '{node.method}' expects {expected} argument{s}, got {actual}"
-                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+            self._check_arity(
+                "Method",
+                node.method,
+                METHOD_ARITIES[node.method],
+                len(node.arguments),
+                node.location,
+            )
             for arg in node.arguments:
                 self._visit_expression(arg)
             return
 
-        # Class instance method path — check if ANY class defines this method
+        # Class instance method path — check if ANY class defines this method.
+        # We intentionally allow any class method on any instance because the
+        # target's concrete type is unknown at static-analysis time; the VM
+        # performs the real type check at runtime.
         for methods in self._class_methods.values():
             if node.method in methods:
+                self._check_arity(
+                    "Method",
+                    node.method,
+                    methods[node.method],
+                    len(node.arguments),
+                    node.location,
+                )
                 for arg in node.arguments:
                     self._visit_expression(arg)
                 return

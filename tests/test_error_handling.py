@@ -1,7 +1,5 @@
 """Tests for error handling: try/catch/finally and throw."""
 
-from io import StringIO
-
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
@@ -16,7 +14,15 @@ from pebble.compiler import Compiler
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
@@ -49,21 +55,6 @@ def _compile(source: str) -> list[OpCode]:
         free_vars=analyzer.free_vars,
     ).compile(program)
     return [instr.opcode for instr in compiled.main.instructions]
-
-
-def _run(source: str) -> str:
-    """Lex + parse + analyze + compile + run, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    output = StringIO()
-    VirtualMachine(output=output).run(compiled)
-    return output.getvalue()
 
 
 # ---------------------------------------------------------------------------

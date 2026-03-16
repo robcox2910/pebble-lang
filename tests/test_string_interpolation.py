@@ -4,8 +4,6 @@ Cover lexer tokenization, parser AST construction, analyzer validation,
 compiler bytecode generation, and VM execution of interpolated strings.
 """
 
-from io import StringIO
-
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
@@ -16,7 +14,15 @@ from pebble.errors import LexerError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run_source(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
@@ -40,17 +46,6 @@ def _kind_value_pairs(source: str) -> list[tuple[TokenKind, str]]:
     """Return (kind, value) pairs for *source* (excluding EOF)."""
     tokens = Lexer(source).tokenize()
     return [(t.kind, t.value) for t in tokens if t.kind != TokenKind.EOF]
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, returning captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzed = SemanticAnalyzer().analyze(program)
-    compiled = Compiler().compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 def _parse_expr(source: str) -> Expression:

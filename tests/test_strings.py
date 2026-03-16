@@ -4,8 +4,6 @@ Cover lexer DOT token, parser MethodCall node, analyzer validation,
 compiler CALL_METHOD bytecode, and VM execution of string methods.
 """
 
-from io import StringIO
-
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
@@ -17,7 +15,15 @@ from pebble.errors import PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run_source(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
@@ -33,20 +39,6 @@ def _kinds(source: str) -> list[TokenKind]:
     """Return just the token kinds for *source* (excluding EOF)."""
     tokens = Lexer(source).tokenize()
     return [t.kind for t in tokens if t.kind != TokenKind.EOF]
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, returning captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(cell_vars=analyzer.cell_vars, free_vars=analyzer.free_vars).compile(
-        analyzed
-    )
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 def _parse_expr(source: str) -> Expression:

@@ -94,6 +94,8 @@ def format_value(value: Value) -> str:  # noqa: PLR0911
             return f"{value.type_name}({fields})"
         case Closure():
             return f"<fn {value.code.name}>"
+        case _:  # pragma: no cover
+            return str(value)
 
 
 # -- Builtin handlers ---------------------------------------------------------
@@ -258,6 +260,9 @@ BUILTIN_ARITIES: dict[str, Arity] = {
 METHOD_NONE = "$METHOD_NONE"
 """Sentinel value used to pad variable-arity method calls."""
 
+SLICE_NONE = "$SLICE_NONE"
+"""Sentinel value representing an omitted slice component."""
+
 
 # -- Method arities (for analyzer validation) ---------------------------------
 
@@ -288,6 +293,15 @@ METHOD_ARITIES: dict[str, Arity] = {
 
 type MethodHandler = Callable[[Value, list[Value]], Value]
 """Handle a method call: take (target, filtered_args), return result."""
+
+
+def _require_str_arg(arg: Value, method_name: str) -> str:
+    """Validate that *arg* is a string, raising if not."""
+    if not isinstance(arg, str):
+        type_name = type(arg).__name__
+        msg = f"{method_name}() argument must be a string, got {type_name}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return arg
 
 
 # -- String method handlers ----------------------------------------------------
@@ -342,55 +356,35 @@ def _method_replace(target: Value, args: list[Value]) -> Value:
 def _method_str_contains(target: Value, args: list[Value]) -> Value:
     """Check if a string contains a substring."""
     assert isinstance(target, str)  # noqa: S101
-    sub = args[0]
-    if not isinstance(sub, str):
-        type_name = type(sub).__name__
-        msg = f"contains() argument must be a string, got {type_name}"
-        raise PebbleRuntimeError(msg, line=0, column=0)
+    sub = _require_str_arg(args[0], "contains")
     return sub in target
 
 
 def _method_starts_with(target: Value, args: list[Value]) -> Value:
     """Check if a string starts with a prefix."""
     assert isinstance(target, str)  # noqa: S101
-    prefix = args[0]
-    if not isinstance(prefix, str):
-        type_name = type(prefix).__name__
-        msg = f"starts_with() argument must be a string, got {type_name}"
-        raise PebbleRuntimeError(msg, line=0, column=0)
+    prefix = _require_str_arg(args[0], "starts_with")
     return target.startswith(prefix)
 
 
 def _method_ends_with(target: Value, args: list[Value]) -> Value:
     """Check if a string ends with a suffix."""
     assert isinstance(target, str)  # noqa: S101
-    suffix = args[0]
-    if not isinstance(suffix, str):
-        type_name = type(suffix).__name__
-        msg = f"ends_with() argument must be a string, got {type_name}"
-        raise PebbleRuntimeError(msg, line=0, column=0)
+    suffix = _require_str_arg(args[0], "ends_with")
     return target.endswith(suffix)
 
 
 def _method_find(target: Value, args: list[Value]) -> Value:
     """Find the index of a substring, or -1 if not found."""
     assert isinstance(target, str)  # noqa: S101
-    sub = args[0]
-    if not isinstance(sub, str):
-        type_name = type(sub).__name__
-        msg = f"find() argument must be a string, got {type_name}"
-        raise PebbleRuntimeError(msg, line=0, column=0)
+    sub = _require_str_arg(args[0], "find")
     return target.find(sub)
 
 
 def _method_count(target: Value, args: list[Value]) -> Value:
     """Count non-overlapping occurrences of a substring."""
     assert isinstance(target, str)  # noqa: S101
-    sub = args[0]
-    if not isinstance(sub, str):
-        type_name = type(sub).__name__
-        msg = f"count() argument must be a string, got {type_name}"
-        raise PebbleRuntimeError(msg, line=0, column=0)
+    sub = _require_str_arg(args[0], "count")
     return target.count(sub)
 
 
@@ -426,6 +420,10 @@ def _method_repeat(target: Value, args: list[Value]) -> Value:
     return target * n
 
 
+_VOID: Value = 0
+"""Return value for list-mutating methods (push, reverse, sort)."""
+
+
 # -- List method handlers ------------------------------------------------------
 
 
@@ -433,7 +431,7 @@ def _method_list_push(target: Value, args: list[Value]) -> Value:
     """Append a value to the list. Return 0."""
     assert isinstance(target, list)  # noqa: S101
     target.append(args[0])
-    return 0
+    return _VOID
 
 
 def _method_list_pop(target: Value, _args: list[Value]) -> Value:
@@ -452,14 +450,14 @@ def _method_list_contains(target: Value, args: list[Value]) -> Value:
 
 
 def _method_list_reverse(target: Value, _args: list[Value]) -> Value:
-    """Reverse the list in place. Return 0."""
+    """Reverse the list in place."""
     assert isinstance(target, list)  # noqa: S101
     target.reverse()
-    return 0
+    return _VOID
 
 
 def _method_list_sort(target: Value, _args: list[Value]) -> Value:
-    """Sort the list in place. Return 0."""
+    """Sort the list in place."""
     assert isinstance(target, list)  # noqa: S101
     # Check for mixed types — only allow homogeneous int or string lists
     if target:
@@ -469,7 +467,7 @@ def _method_list_sort(target: Value, _args: list[Value]) -> Value:
                 msg = "sort() requires all elements to be the same type"
                 raise PebbleRuntimeError(msg, line=0, column=0)
     target.sort()  # type: ignore[type-var]
-    return 0
+    return _VOID
 
 
 # -- Method registries ---------------------------------------------------------

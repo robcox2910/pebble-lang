@@ -8,13 +8,18 @@ from io import StringIO
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
-from pebble.compiler import Compiler
 from pebble.errors import PebbleRuntimeError
-from pebble.lexer import Lexer
-from pebble.parser import Parser
 from pebble.vm import Frame, VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run_source(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
@@ -31,19 +36,6 @@ def _run(program: CompiledProgram, *, output: StringIO | None = None) -> str:
     vm = VirtualMachine(output=buf)
     vm.run(program)
     return buf.getvalue()
-
-
-def _compile(source: str) -> CompiledProgram:
-    """Lex, parse, analyze, and compile *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzed = SemanticAnalyzer().analyze(program)
-    return Compiler().compile(analyzed)
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, returning captured output."""
-    return _run(_compile(source))
 
 
 def _program(

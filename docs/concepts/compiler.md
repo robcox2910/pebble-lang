@@ -258,9 +258,10 @@ no new opcodes needed! The trick is knowing *where* to jump.
 - In a `for` loop, `continue` jumps to the **increment** section
   (so the loop variable still gets updated)
 
-The compiler uses **backpatching** for both. When it sees `break` or
-`continue`, it emits `JUMP 0` with a placeholder target. After the loop
-is fully compiled, it goes back and fills in the real target.
+The compiler uses **backpatching** for both (remember the "skip to step ?"
+trick from the [Backpatching](#backpatching) section above). When it sees
+`break` or `continue`, it emits `JUMP 0` with a placeholder target. After
+the loop is fully compiled, it goes back and fills in the real target.
 
 ```
 WHILE with break/continue:

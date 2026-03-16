@@ -4,11 +4,8 @@ Cover the builtins module, analyzer registration, and VM execution of
 str(), int(), type(), push(), and pop().
 """
 
-from io import StringIO
-
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.builtins import (
     BUILTIN_ARITIES,
     BUILTINS,
@@ -17,11 +14,16 @@ from pebble.builtins import (
     STRING_METHODS,
     format_value,
 )
-from pebble.compiler import Compiler
 from pebble.errors import PebbleRuntimeError, SemanticError
-from pebble.lexer import Lexer
-from pebble.parser import Parser
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run_source(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
@@ -32,20 +34,6 @@ LIST_METHOD_COUNT = 5
 METHOD_ARITY_COUNT = 16
 
 
-# -- Helpers ------------------------------------------------------------------
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, returning captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzed = SemanticAnalyzer().analyze(program)
-    compiled = Compiler().compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
-
-
 # -- Cycle 1: Builtins module + str() ----------------------------------------
 
 
@@ -53,11 +41,11 @@ class TestBuiltinsModule:
     """Verify the builtins registry structure."""
 
     def test_runtime_builtin_count(self) -> None:
-        """There are 8 runtime builtins."""
+        """There are 9 runtime builtins."""
         assert len(BUILTINS) == RUNTIME_BUILTIN_COUNT
 
     def test_total_builtin_arities(self) -> None:
-        """BUILTIN_ARITIES includes all 10 builtins."""
+        """BUILTIN_ARITIES includes all 14 builtins."""
         assert len(BUILTIN_ARITIES) == TOTAL_BUILTIN_COUNT
 
     def test_all_runtime_builtins_in_arities(self) -> None:

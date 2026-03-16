@@ -5,39 +5,26 @@ and that map, filter, and reduce correctly invoke user-provided callbacks
 via the VM's nested execution support.
 """
 
-from io import StringIO
-
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.builtins import BUILTIN_ARITIES
-from pebble.compiler import Compiler
 from pebble.errors import PebbleRuntimeError, SemanticError
-from pebble.lexer import Lexer
-from pebble.parser import Parser
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run_source(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
 TOTAL_BUILTIN_COUNT = 14
-
-
-# -- Helpers ------------------------------------------------------------------
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, returning captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
+MAP_ARITY = 2
+FILTER_ARITY = 2
+REDUCE_ARITY = 3
 
 
 # -- Cycle 1: First-class functions -------------------------------------------
@@ -119,7 +106,7 @@ print(result)"""
 
     def test_map_arity_in_registry(self) -> None:
         """Verify map() is registered with arity 2."""
-        assert BUILTIN_ARITIES["map"] == 2  # noqa: PLR2004
+        assert BUILTIN_ARITIES["map"] == MAP_ARITY
 
 
 # -- Cycle 3: filter() -------------------------------------------------------
@@ -169,7 +156,7 @@ print(result)"""
 
     def test_filter_arity_in_registry(self) -> None:
         """Verify filter() is registered with arity 2."""
-        assert BUILTIN_ARITIES["filter"] == 2  # noqa: PLR2004
+        assert BUILTIN_ARITIES["filter"] == FILTER_ARITY
 
 
 # -- Cycle 4: reduce() -------------------------------------------------------
@@ -219,7 +206,7 @@ print(result)"""
 
     def test_reduce_arity_in_registry(self) -> None:
         """Verify reduce() is registered with arity 3."""
-        assert BUILTIN_ARITIES["reduce"] == 3  # noqa: PLR2004
+        assert BUILTIN_ARITIES["reduce"] == REDUCE_ARITY
 
 
 # -- Cycle 5: Integration ----------------------------------------------------
@@ -283,7 +270,7 @@ print(result)"""
             _run_source("reduce(fn(a, b) { return a + b }, [1])")
 
     def test_builtin_arities_count(self) -> None:
-        """BUILTIN_ARITIES includes all 13 builtins after adding map/filter/reduce."""
+        """BUILTIN_ARITIES includes all 14 builtins after adding map/filter/reduce."""
         assert len(BUILTIN_ARITIES) == TOTAL_BUILTIN_COUNT
 
     def test_existing_closures_still_work(self) -> None:

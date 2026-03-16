@@ -7,14 +7,6 @@ from tests.conftest import (  # pyright: ignore[reportMissingImports]
     run_source,  # pyright: ignore[reportUnknownVariableType]
 )
 
-# -- Named constants ----------------------------------------------------------
-
-POWER_RESULT = 8
-RIGHT_ASSOC_RESULT = 256
-NEGATIVE_EXPONENT_RESULT = 0.5
-FLOAT_POWER_RESULT = 2.0
-
-
 # -- Exponentiation -----------------------------------------------------------
 
 

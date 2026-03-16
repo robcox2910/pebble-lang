@@ -258,7 +258,7 @@ class Account {
     }
 
     fn summary(self) -> String {
-        return self.owner + ": $" + string(self.balance)
+        return self.owner + ": $" + str(self.balance)
     }
 }
 

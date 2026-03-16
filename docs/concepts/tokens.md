@@ -72,6 +72,11 @@ them as variable names because they already mean something:
 | `CASE` | `case` | Define one arm of a match block |
 | `STRUCT` | `struct` | Define a data-only type with fields |
 | `CLASS` | `class` | Define a type with fields and methods |
+| `CONST` | `const` | Declare an immutable variable |
+| `TRY` | `try` | Start an error-handling block |
+| `CATCH` | `catch` | Handle an error from the try block |
+| `FINALLY` | `finally` | Code that always runs, error or not |
+| `THROW` | `throw` | Raise an error on purpose |
 | `IMPORT` | `import` | Bring definitions in from another file |
 | `FROM` | `from` | Choose which file to import from |
 
@@ -124,6 +129,7 @@ These are the brackets, braces, and commas that organise your code:
 | `COLON` | `:` | Separate key from value (or annotate a type) |
 | `EQUAL` | `=` | Assign a value |
 | `ARROW` | `->` | Separate parameters from return type |
+| `DOT` | `.` | Access a field or method on a value |
 
 ### Special Tokens
 
