@@ -10,20 +10,22 @@ tossed out.
 
 A list comprehension works the same way:
 
-1. **Conveyor belt** -- `range()` feeds in the raw numbers.
-2. **Machine** -- an expression transforms each number.
-3. **Inspector** (optional) -- a condition decides which numbers get
+1. **Conveyor belt** -- something feeds in the raw values (a `range()`,
+   a list, a string, or even a [generator](iterators.md)).
+2. **Machine** -- an expression transforms each value.
+3. **Inspector** (optional) -- a condition decides which values get
    through.
 4. **Box** -- the result is a brand-new list.
 
 ## Basic Syntax
 
 ```pebble
-[expression for variable in range(...)]
+[expression for variable in iterable]
 ```
 
 This reads almost like English: *"give me `expression` **for** each
-`variable` **in** `range(...)`"*.
+`variable` **in** `iterable`"*. The iterable can be a `range()`, a
+list, a string, or a [generator](iterators.md).
 
 ```pebble
 let nums = [x for x in range(5)]
@@ -52,7 +54,7 @@ Add `if condition` after the iterable to keep only values that pass the
 test:
 
 ```pebble
-[expression for variable in range(...) if condition]
+[expression for variable in iterable if condition]
 ```
 
 ```pebble
@@ -118,9 +120,29 @@ print(result)   # prints: [9, 16, 25]
 
 The comprehension packs the same idea into a single line.
 
+## Comprehensions with Other Iterables
+
+The examples above all use `range()`, but comprehensions work with any
+iterable -- lists, strings, and [generators](iterators.md):
+
+```pebble
+let doubled = [x * 2 for x in [1, 2, 3]]
+print(doubled)   # prints: [2, 4, 6]
+
+let chars = [ch for ch in "hello"]
+print(chars)     # prints: [h, e, l, l, o]
+
+let evens = [x for x in [1, 2, 3, 4, 5, 6] if x % 2 == 0]
+print(evens)     # prints: [2, 4, 6]
+```
+
+See [Iterators & Generators](iterators.md) for more on generators and
+iteration.
+
 ## Rules
 
-- The iterable must be a `range()` call (1, 2, or 3 arguments).
+- The iterable can be a `range()` call, a list, a string, or a
+  generator.
 - The loop variable is **scoped** to the comprehension -- it does not
   leak into the surrounding code.
 - The result is always a brand-new list.
@@ -148,9 +170,9 @@ reuses the existing `for`-loop machinery.
 
 ## Summary
 
-| Part                | Example              | What it does                    |
-| ------------------- | -------------------- | ------------------------------- |
-| Mapping expression  | `x * 2`              | Transform each value            |
-| `for var in range()` | `for x in range(5)` | Produce raw values              |
-| `if condition`      | `if x > 2`           | Keep only matching values       |
-| Result              | `[...]`              | A new list of transformed items |
+| Part                  | Example              | What it does                    |
+| --------------------- | -------------------- | ------------------------------- |
+| Mapping expression    | `x * 2`              | Transform each value            |
+| `for var in iterable` | `for x in range(5)`  | Produce raw values              |
+| `if condition`        | `if x > 2`           | Keep only matching values       |
+| Result                | `[...]`              | A new list of transformed items |

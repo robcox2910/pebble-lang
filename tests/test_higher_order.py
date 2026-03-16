@@ -21,7 +21,7 @@ def _run_source(source: str) -> str:
 
 # -- Named constants ----------------------------------------------------------
 
-TOTAL_BUILTIN_COUNT = 14
+TOTAL_BUILTIN_COUNT = 15
 MAP_ARITY = 2
 FILTER_ARITY = 2
 REDUCE_ARITY = 3

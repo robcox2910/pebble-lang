@@ -66,6 +66,7 @@ from pebble.ast_nodes import (
     UnpackReassignment,
     WhileLoop,
     WildcardPattern,
+    YieldStatement,
 )
 from pebble.builtins import METHOD_ARITIES, METHOD_NONE, SLICE_NONE
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
@@ -146,6 +147,7 @@ class Compiler:
         self._loop_var_counter = 0
         self._match_var_counter = 0
         self._comp_var_counter = 0
+        self._iter_var_counter = 0
         self._loop_contexts: list[_LoopContext] = []
         self._try_depth: int = 0
         self._structs: dict[str, list[str]] = dict(structs) if structs else {}
@@ -268,6 +270,8 @@ class Compiler:
                 self._compile_function_def(stmt)
             case ReturnStatement():
                 self._compile_return(stmt)
+            case YieldStatement():
+                self._compile_yield(stmt)
             case IndexAssignment():
                 self._compile_index_assignment(stmt)
             case BreakStatement():
@@ -373,25 +377,22 @@ class Compiler:
             self._patch_jump(patch)
 
     def _compile_for(self, node: ForLoop) -> None:
-        """Compile ``for var in range(...) { body }`` as a counted while loop.
+        """Compile ``for var in iterable { body }`` — range or general iteration."""
+        match node.iterable:
+            case FunctionCall(name="range"):
+                self._compile_for_range(node)
+            case _:
+                self._compile_for_iter(node)
 
-        Support three forms:
-        - ``range(stop)`` — count from 0 to stop-1, step 1
-        - ``range(start, stop)`` — count from start to stop-1, step 1
-        - ``range(start, stop, step)`` — count with arbitrary step
-        """
+    def _compile_for_range(self, node: ForLoop) -> None:
+        """Compile ``for var in range(...) { body }`` as a counted while loop."""
         counter = self._loop_var_counter
         limit_name = f"$for_limit_{counter}"
         self._loop_var_counter += 1
         loc = node.location
 
-        match node.iterable:
-            case FunctionCall(name="range"):
-                args = node.iterable.arguments
-            case _:  # pragma: no cover
-                args = []
-                self._compile_expression(node.iterable)
-
+        assert isinstance(node.iterable, FunctionCall)  # noqa: S101
+        args = node.iterable.arguments
         nargs = len(args)
 
         # -- Init: set limit, step (if 3-arg), and loop variable --------------
@@ -423,6 +424,40 @@ class Compiler:
         self._emit(OpCode.JUMP, loop_start, location=loc)
 
         # break + normal exit → here (after loop)
+        self._patch_jump(exit_jump)
+        for patch in ctx.break_patches:
+            self._patch_jump(patch)
+
+    def _compile_for_iter(self, node: ForLoop) -> None:
+        """Compile ``for var in iterable { body }`` using GET_ITER/FOR_ITER."""
+        loc = node.location
+        iter_name = f"$iter_{self._iter_var_counter}"
+        self._iter_var_counter += 1
+
+        # Evaluate iterable, convert to iterator, store
+        self._compile_expression(node.iterable)
+        self._emit(OpCode.GET_ITER, location=loc)
+        self._emit_store(iter_name, location=loc)
+
+        # Loop start: load iterator, FOR_ITER
+        loop_start = self._current_index()
+        self._emit_load(iter_name, location=loc)
+        exit_jump = self._emit(OpCode.FOR_ITER, 0, location=loc)
+        self._emit_store(node.variable, location=loc)
+
+        # Body
+        self._loop_contexts.append(_LoopContext(try_depth_at_entry=self._try_depth))
+        for stmt in node.body:
+            self._compile_statement(stmt)
+        ctx = self._loop_contexts.pop()
+
+        # continue → loop start
+        for patch in ctx.continue_patches:
+            self._patch_jump_to(patch, loop_start)
+
+        self._emit(OpCode.JUMP, loop_start, location=loc)
+
+        # Exit target
         self._patch_jump(exit_jump)
         for patch in ctx.break_patches:
             self._patch_jump(patch)
@@ -520,6 +555,7 @@ class Compiler:
         fn_code.parameters = [p.name for p in node_params]
         fn_code.param_types = [p.type_annotation for p in node_params]
         fn_code.return_type = return_type
+        fn_code.is_generator = self._contains_yield(body)
         fn_code.cell_variables = sorted(self._cell_vars.get(name, set()))
         fn_code.free_variables = sorted(self._free_vars.get(name, set()))
         self._function_defaults[name] = [p.default for p in node_params]
@@ -528,12 +564,14 @@ class Compiler:
         previous_loop_counter = self._loop_var_counter
         previous_match_counter = self._match_var_counter
         previous_comp_counter = self._comp_var_counter
+        previous_iter_counter = self._iter_var_counter
         previous_loop_contexts = self._loop_contexts
         previous_try_depth = self._try_depth
         self._current = fn_code
         self._loop_var_counter = 0
         self._match_var_counter = 0
         self._comp_var_counter = 0
+        self._iter_var_counter = 0
         self._loop_contexts = []
         self._try_depth = 0
 
@@ -551,6 +589,7 @@ class Compiler:
         self._loop_var_counter = previous_loop_counter
         self._match_var_counter = previous_match_counter
         self._comp_var_counter = previous_comp_counter
+        self._iter_var_counter = previous_iter_counter
         self._loop_contexts = previous_loop_contexts
         self._try_depth = previous_try_depth
         return fn_code
@@ -579,6 +618,41 @@ class Compiler:
         for _ in range(self._try_depth):
             self._emit(OpCode.POP_TRY, location=node.location)
         self._emit(OpCode.RETURN, location=node.location)
+
+    def _compile_yield(self, node: YieldStatement) -> None:
+        """Compile ``yield [expr]`` — push value and emit YIELD."""
+        if node.value is not None:
+            self._compile_expression(node.value)
+        else:
+            self._emit_constant(None, location=node.location)
+        self._emit(OpCode.YIELD, location=node.location)
+
+    @staticmethod
+    def _contains_yield(stmts: list[Statement]) -> bool:  # noqa: PLR0911, PLR0912
+        """Return True if *stmts* contain a YieldStatement (non-recursing into fn/class)."""
+        for stmt in stmts:
+            if isinstance(stmt, YieldStatement):
+                return True
+            if isinstance(stmt, IfStatement):
+                if Compiler._contains_yield(stmt.body):
+                    return True
+                if stmt.else_body is not None and Compiler._contains_yield(stmt.else_body):
+                    return True
+            elif isinstance(stmt, WhileLoop | ForLoop):
+                if Compiler._contains_yield(stmt.body):
+                    return True
+            elif isinstance(stmt, TryCatch):
+                if Compiler._contains_yield(stmt.body):
+                    return True
+                if Compiler._contains_yield(stmt.catch_body):
+                    return True
+                if stmt.finally_body is not None and Compiler._contains_yield(stmt.finally_body):
+                    return True
+            elif isinstance(stmt, MatchStatement):
+                for case in stmt.cases:
+                    if Compiler._contains_yield(case.body):
+                        return True
+        return False
 
     def _compile_break(self, node: BreakStatement) -> None:
         """Compile ``break`` — emit POP_TRY for handlers inside the loop, then JUMP."""
@@ -805,12 +879,15 @@ class Compiler:
         self._emit(OpCode.BUILD_LIST, len(node.elements), location=node.location)
 
     def _compile_list_comprehension(self, node: ListComprehension) -> None:
-        """Compile ``[mapping for var in range(...)]`` with optional filter.
+        """Compile ``[mapping for var in iterable]`` — range or general iteration."""
+        match node.iterable:
+            case FunctionCall(name="range"):
+                self._compile_list_comprehension_range(node)
+            case _:
+                self._compile_list_comprehension_iter(node)
 
-        Emit an empty list, iterate using the same init/condition logic as
-        ``for`` loops, append each mapped value via LIST_APPEND, and leave
-        the result list on the stack.
-        """
+    def _compile_list_comprehension_range(self, node: ListComprehension) -> None:
+        """Compile ``[mapping for var in range(...)]`` with optional filter."""
         loc = node.location
         comp_name = f"$comp_{self._comp_var_counter}"
         self._comp_var_counter += 1
@@ -824,14 +901,8 @@ class Compiler:
         self._emit(OpCode.BUILD_LIST, 0, location=loc)
         self._emit_store(comp_name, location=loc)
 
-        # Extract range() arguments
-        match node.iterable:
-            case FunctionCall(name="range"):
-                args = node.iterable.arguments
-            case _:  # pragma: no cover
-                args = []
-                self._compile_expression(node.iterable)
-
+        assert isinstance(node.iterable, FunctionCall)  # noqa: S101
+        args = node.iterable.arguments
         nargs = len(args)
 
         # Init: set limit, step (if 3-arg), and loop variable
@@ -870,6 +941,51 @@ class Compiler:
         self._patch_jump(exit_jump)
 
         # Leave the result list on the stack
+        self._emit_load(comp_name, location=loc)
+
+    def _compile_list_comprehension_iter(self, node: ListComprehension) -> None:
+        """Compile ``[mapping for var in iterable]`` using GET_ITER/FOR_ITER."""
+        loc = node.location
+        comp_name = f"$comp_{self._comp_var_counter}"
+        self._comp_var_counter += 1
+
+        iter_name = f"$iter_{self._iter_var_counter}"
+        self._iter_var_counter += 1
+
+        # Build empty result list
+        self._emit(OpCode.BUILD_LIST, 0, location=loc)
+        self._emit_store(comp_name, location=loc)
+
+        # Evaluate iterable, convert to iterator, store
+        self._compile_expression(node.iterable)
+        self._emit(OpCode.GET_ITER, location=loc)
+        self._emit_store(iter_name, location=loc)
+
+        # Loop
+        loop_start = self._current_index()
+        self._emit_load(iter_name, location=loc)
+        exit_jump = self._emit(OpCode.FOR_ITER, 0, location=loc)
+        self._emit_store(node.variable, location=loc)
+
+        # Optional filter
+        skip_jump: int | None = None
+        if node.condition is not None:
+            self._compile_expression(node.condition)
+            skip_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+
+        # Compile mapping expression and append
+        self._compile_expression(node.mapping)
+        self._emit(OpCode.LIST_APPEND, comp_name, location=loc)
+
+        if skip_jump is not None:
+            self._patch_jump(skip_jump)
+
+        self._emit(OpCode.JUMP, loop_start, location=loc)
+
+        # Exit
+        self._patch_jump(exit_jump)
+
+        # Leave result on stack
         self._emit_load(comp_name, location=loc)
 
     def _compile_dict_literal(self, node: DictLiteral) -> None:

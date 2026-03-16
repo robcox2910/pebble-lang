@@ -85,6 +85,11 @@ class OpCode(StrEnum):
     LOAD_CELL = "LOAD_CELL"
     STORE_CELL = "STORE_CELL"
 
+    # -- Generators / iteration -----------------------------------------------
+    YIELD = "YIELD"
+    GET_ITER = "GET_ITER"
+    FOR_ITER = "FOR_ITER"
+
     # -- Strings --------------------------------------------------------------
     BUILD_STRING = "BUILD_STRING"
 
@@ -170,6 +175,7 @@ class CodeObject:
         default_factory=lambda: [],  # noqa: PIE807
     )
     return_type: str | None = None
+    is_generator: bool = False
 
     _constant_index: dict[tuple[type, int | float | str | bool | None], int] = field(
         default_factory=lambda: {},  # noqa: PIE807
