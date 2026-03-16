@@ -5,23 +5,31 @@ that Cell/Closure types work correctly, and that the full pipeline supports
 first-class functions returned from and passed to other functions.
 """
 
-from io import StringIO
-
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
 from pebble.builtins import Cell, Closure, format_value
-from pebble.bytecode import CodeObject, OpCode
+from pebble.bytecode import CodeObject, CompiledProgram, OpCode
 from pebble.compiler import Compiler
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run_source(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
+ONE = 1
 LINE_1 = 1
 LINE_2 = 2
 LINE_3 = 3
+CELL_COUNT = 2
 VALUE_10 = 10
 VALUE_42 = 42
 VALUE_99 = 99
@@ -39,7 +47,7 @@ def _analyze(source: str) -> SemanticAnalyzer:
     return analyzer
 
 
-def _compile_program(source: str):
+def _compile_program(source: str) -> CompiledProgram:
     """Return the CompiledProgram for *source*."""
     tokens = Lexer(source).tokenize()
     program = Parser(tokens).parse()
@@ -49,14 +57,6 @@ def _compile_program(source: str):
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
     ).compile(analyzed)
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, returning captured output."""
-    compiled = _compile_program(source)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # -- Cycle 1: Cell + Closure data structures ----------------------------------
@@ -93,7 +93,7 @@ class TestClosure:
         cells = [Cell(1), Cell(2)]
         closure = Closure(code=code, cells=cells)
         assert closure.code is code
-        assert len(closure.cells) == 2  # noqa: PLR2004
+        assert len(closure.cells) == CELL_COUNT
 
     def test_closure_is_frozen(self) -> None:
         """Closure instances are immutable."""
@@ -236,7 +236,7 @@ fn outer() {
         compiled = _compile_program(source)
         outer_code = compiled.functions["outer"]
         store_cell = [i for i in outer_code.instructions if i.opcode is OpCode.STORE_CELL]
-        assert len(store_cell) >= LINE_1
+        assert len(store_cell) >= ONE
         assert store_cell[0].operand == "x"
 
     def test_free_var_uses_load_cell(self) -> None:
@@ -250,7 +250,7 @@ fn outer() {
         compiled = _compile_program(source)
         inner_code = compiled.functions["inner"]
         load_cell = [i for i in inner_code.instructions if i.opcode is OpCode.LOAD_CELL]
-        assert len(load_cell) >= LINE_1
+        assert len(load_cell) >= ONE
         assert load_cell[0].operand == "x"
 
     def test_make_closure_emitted(self) -> None:
@@ -264,7 +264,7 @@ fn outer() {
         compiled = _compile_program(source)
         outer_code = compiled.functions["outer"]
         make_closure = [i for i in outer_code.instructions if i.opcode is OpCode.MAKE_CLOSURE]
-        assert len(make_closure) == LINE_1
+        assert len(make_closure) == ONE
         assert make_closure[0].operand == "inner"
 
     def test_code_object_has_free_variables(self) -> None:

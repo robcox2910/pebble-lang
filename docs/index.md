@@ -35,7 +35,7 @@ graph LR
     A[Source Code] --> B[Lexer]
     B --> C[Parser]
     C --> D[Analyzer]
-    D --> E[Code Generator]
+    D --> E[Compiler]
     E --> F[Virtual Machine]
 ```
 
@@ -45,7 +45,7 @@ graph LR
    relate to each other (like diagramming a sentence)
 3. **Analyzer** -- Checks the tree for mistakes (like a teacher proofreading
    your essay)
-4. **Code Generator** -- Translates the tree into simple numbered instructions
+4. **Compiler** -- Translates the tree into simple numbered instructions
    called *bytecode* (like writing a recipe as step-by-step directions)
 5. **Virtual Machine** -- Follows the instructions one by one and produces the
    result (like a cook following a recipe)

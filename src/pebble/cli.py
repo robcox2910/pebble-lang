@@ -30,7 +30,14 @@ def main() -> None:
         return
 
     path = Path(sys.argv[1])
-    source = path.read_text()
+    try:
+        source = path.read_text()
+    except FileNotFoundError:
+        print(f"Error: file not found: {path}", file=sys.stderr)  # noqa: T201
+        sys.exit(1)
+    except OSError as exc:
+        print(f"Error: cannot read file: {exc}", file=sys.stderr)  # noqa: T201
+        sys.exit(1)
     try:
         tokens = Lexer(source).tokenize()
         program = Parser(tokens).parse()

@@ -87,8 +87,10 @@ print(filter(fn(x) { return x > 100 }, [1, 2, 3]))   # prints: []
 ## reduce(fn, list, initial)
 
 Combine all elements of a list into a single value by repeatedly applying a
-function. The function takes two arguments: an **accumulator** (the running
-total) and the current element.
+function. The function takes two arguments: an **accumulator** (a running
+total that builds up the answer as you go through the list -- think of it like
+a snowball rolling downhill, getting bigger with each step) and the current
+element.
 
 ```pebble
 let sum = reduce(fn(acc, x) { return acc + x }, [1, 2, 3, 4], 0)

@@ -30,6 +30,7 @@ from pebble.tokens import SourceLocation
 FIRST_LINE = 1
 SECOND_LINE = 2
 FIRST_COLUMN = 1
+TWO = 2
 FIFTH_COLUMN = 5
 ANSWER = 42
 OTHER_VALUE = 7
@@ -345,7 +346,7 @@ class TestProgram:
         )
         stmt2 = PrintStatement(expression=Identifier(name="x", location=_loc()), location=_loc())
         node = Program(statements=[stmt1, stmt2])
-        assert len(node.statements) == SECOND_LINE
+        assert len(node.statements) == TWO
         assert node.statements[0] is stmt1
         assert node.statements[1] is stmt2
 

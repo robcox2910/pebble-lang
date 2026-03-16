@@ -48,11 +48,12 @@ print(counter())   # prints: 3
 
 Each time you call `counter()`, the captured `count` variable goes up by one.
 
-The variable lives inside a special container called a **Cell**. Think of a
-Cell like a shared whiteboard on a wall — both the outer function and the
-closure can look at it and erase-and-rewrite the number on it. Because they
-share the same whiteboard (not separate copies), changes made by one are
-seen by the other.
+How does this work? The variable lives inside a special container called a
+**Cell** — think of it like a shared whiteboard on a wall. Instead of each
+function getting its own copy of `count`, they both look at the same
+whiteboard. When the closure erases the old number and writes a new one,
+the outer function would see the change too (and vice versa). That shared
+whiteboard is what makes the counter work.
 
 ## Independent Closures
 

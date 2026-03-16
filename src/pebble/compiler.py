@@ -44,6 +44,7 @@ from pebble.ast_nodes import (
     MatchStatement,
     MethodCall,
     OrPattern,
+    Parameter,
     PrintStatement,
     Program,
     Reassignment,
@@ -62,7 +63,7 @@ from pebble.ast_nodes import (
     WhileLoop,
     WildcardPattern,
 )
-from pebble.builtins import METHOD_ARITIES, METHOD_NONE
+from pebble.builtins import METHOD_ARITIES, METHOD_NONE, SLICE_NONE
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 
 if TYPE_CHECKING:
@@ -289,10 +290,7 @@ class Compiler:
 
     def _compile_const_assignment(self, node: ConstAssignment) -> None:
         """Compile ``const name[: Type] = value`` — identical to ``let`` at bytecode level."""
-        self._compile_expression(node.value)
-        if node.type_annotation is not None:
-            self._emit(OpCode.CHECK_TYPE, node.type_annotation, location=node.location)
-        self._emit_store(node.name, location=node.location)
+        self._compile_assignment(node)  # type: ignore[arg-type]
 
     def _compile_reassignment(self, node: Reassignment) -> None:
         """Compile ``name = value``."""
@@ -308,17 +306,11 @@ class Compiler:
 
     def _compile_unpack_const_assignment(self, node: UnpackConstAssignment) -> None:
         """Compile ``const x, y = value`` — identical to unpack let at bytecode level."""
-        self._compile_expression(node.value)
-        self._emit(OpCode.UNPACK_SEQUENCE, len(node.names), location=node.location)
-        for name in node.names:
-            self._emit_store(name, location=node.location)
+        self._compile_unpack_assignment(node)  # type: ignore[arg-type]
 
     def _compile_unpack_reassignment(self, node: UnpackReassignment) -> None:
-        """Compile ``x, y = value`` — emit value, UNPACK_SEQUENCE, then STORE each name."""
-        self._compile_expression(node.value)
-        self._emit(OpCode.UNPACK_SEQUENCE, len(node.names), location=node.location)
-        for name in node.names:
-            self._emit_store(name, location=node.location)
+        """Compile ``x, y = value`` — identical to unpack let at bytecode level."""
+        self._compile_unpack_assignment(node)  # type: ignore[arg-type]
 
     def _compile_print(self, node: PrintStatement) -> None:
         """Compile ``print(expr)``."""
@@ -467,8 +459,18 @@ class Compiler:
             self._emit(OpCode.LESS_THAN, location=loc)
             return self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
-        # Dynamic condition: if step > 0 then i < limit else i > limit
+        # Runtime check: step must not be zero
         step_name = f"$for_step_{counter}"
+        self._emit_load(step_name, location=loc)
+        self._emit_constant(0, location=loc)
+        self._emit(OpCode.EQUAL, location=loc)
+        no_error_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
+        # Emit a constant error message string and THROW
+        self._emit_constant("range() step cannot be zero", location=loc)
+        self._emit(OpCode.THROW, location=loc)
+        self._patch_jump(no_error_jump)
+
+        # Dynamic condition: if step > 0 then i < limit else i > limit
         self._emit_load(step_name, location=loc)
         self._emit_constant(0, location=loc)
         self._emit(OpCode.GREATER_THAN, location=loc)
@@ -486,14 +488,25 @@ class Compiler:
         self._patch_jump(done_jump)
         return self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
-    def _compile_function_def(self, node: FunctionDef) -> None:
-        """Compile a function definition into a separate CodeObject."""
-        fn_code = CodeObject(name=node.name)
-        fn_code.parameters = [p.name for p in node.parameters]
-        fn_code.param_types = [p.type_annotation for p in node.parameters]
-        fn_code.return_type = node.return_type
-        fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
-        fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
+    def _compile_function_body(
+        self,
+        name: str,
+        node_params: list[Parameter],
+        body: list[Statement],
+        return_type: str | None,
+    ) -> CodeObject:
+        """Compile a function body into a separate CodeObject.
+
+        Save and restore all compiler state so the caller's context is
+        unaffected.  Return the new :class:`CodeObject`.
+        """
+        fn_code = CodeObject(name=name)
+        fn_code.parameters = [p.name for p in node_params]
+        fn_code.param_types = [p.type_annotation for p in node_params]
+        fn_code.return_type = return_type
+        fn_code.cell_variables = sorted(self._cell_vars.get(name, set()))
+        fn_code.free_variables = sorted(self._free_vars.get(name, set()))
+
         previous = self._current
         previous_loop_counter = self._loop_var_counter
         previous_match_counter = self._match_var_counter
@@ -507,24 +520,32 @@ class Compiler:
         self._loop_contexts = []
         self._try_depth = 0
 
-        for stmt in node.body:
+        for stmt in body:
             self._compile_statement(stmt)
 
-        # Implicit return 0 if no explicit return at the end
         if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
             self._emit_constant(0)
-            if node.return_type is not None:
-                self._emit(OpCode.CHECK_TYPE, node.return_type)
+            if return_type is not None:
+                self._emit(OpCode.CHECK_TYPE, return_type)
             self._emit(OpCode.RETURN)
 
-        self._functions[node.name] = fn_code
+        self._functions[name] = fn_code
         self._current = previous
         self._loop_var_counter = previous_loop_counter
         self._match_var_counter = previous_match_counter
         self._comp_var_counter = previous_comp_counter
         self._loop_contexts = previous_loop_contexts
         self._try_depth = previous_try_depth
+        return fn_code
 
+    def _compile_function_def(self, node: FunctionDef) -> None:
+        """Compile a function definition into a separate CodeObject."""
+        fn_code = self._compile_function_body(
+            node.name,
+            node.parameters,
+            node.body,
+            node.return_type,
+        )
         # If the function captures variables, it's a closure — emit MAKE_CLOSURE
         if fn_code.free_variables:
             self._emit(OpCode.MAKE_CLOSURE, node.name, location=node.location)
@@ -839,47 +860,17 @@ class Compiler:
             if component is not None:
                 self._compile_expression(component)
             else:
-                self._emit_constant("$SLICE_NONE", location=node.location)
+                self._emit_constant(SLICE_NONE, location=node.location)
         self._emit(OpCode.SLICE_GET, location=node.location)
 
     def _compile_function_expression(self, node: FunctionExpression) -> None:
         """Compile an anonymous function expression into a closure on the stack."""
-        fn_code = CodeObject(name=node.name)
-        fn_code.parameters = [p.name for p in node.parameters]
-        fn_code.param_types = [p.type_annotation for p in node.parameters]
-        fn_code.return_type = node.return_type
-        fn_code.cell_variables = sorted(self._cell_vars.get(node.name, set()))
-        fn_code.free_variables = sorted(self._free_vars.get(node.name, set()))
-        previous = self._current
-        previous_loop_counter = self._loop_var_counter
-        previous_match_counter = self._match_var_counter
-        previous_comp_counter = self._comp_var_counter
-        previous_loop_contexts = self._loop_contexts
-        previous_try_depth = self._try_depth
-        self._current = fn_code
-        self._loop_var_counter = 0
-        self._match_var_counter = 0
-        self._comp_var_counter = 0
-        self._loop_contexts = []
-        self._try_depth = 0
-
-        for stmt in node.body:
-            self._compile_statement(stmt)
-
-        if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
-            self._emit_constant(0)
-            if node.return_type is not None:
-                self._emit(OpCode.CHECK_TYPE, node.return_type)
-            self._emit(OpCode.RETURN)
-
-        self._functions[node.name] = fn_code
-        self._current = previous
-        self._loop_var_counter = previous_loop_counter
-        self._match_var_counter = previous_match_counter
-        self._comp_var_counter = previous_comp_counter
-        self._loop_contexts = previous_loop_contexts
-        self._try_depth = previous_try_depth
-
+        self._compile_function_body(
+            node.name,
+            node.parameters,
+            node.body,
+            node.return_type,
+        )
         # Always emit MAKE_CLOSURE — leaves a Closure value on the stack
         self._emit(OpCode.MAKE_CLOSURE, node.name, location=node.location)
 
@@ -909,47 +900,12 @@ class Compiler:
         method_names: list[str] = []
         for method in node.methods:
             mangled_name = f"{node.name}.{method.name}"
-            fn_code = CodeObject(name=mangled_name)
-            fn_code.parameters = [p.name for p in method.parameters]
-            fn_code.param_types = [p.type_annotation for p in method.parameters]
-            fn_code.return_type = method.return_type
-            fn_code.cell_variables = sorted(self._cell_vars.get(mangled_name, set()))
-            fn_code.free_variables = sorted(self._free_vars.get(mangled_name, set()))
-
-            # Save compiler state
-            previous = self._current
-            previous_loop_counter = self._loop_var_counter
-            previous_match_counter = self._match_var_counter
-            previous_comp_counter = self._comp_var_counter
-            previous_loop_contexts = self._loop_contexts
-            previous_try_depth = self._try_depth
-            self._current = fn_code
-            self._loop_var_counter = 0
-            self._match_var_counter = 0
-            self._comp_var_counter = 0
-            self._loop_contexts = []
-            self._try_depth = 0
-
-            for stmt in method.body:
-                self._compile_statement(stmt)
-
-            # Implicit return 0 if no explicit return
-            if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
-                self._emit_constant(0)
-                if method.return_type is not None:
-                    self._emit(OpCode.CHECK_TYPE, method.return_type)
-                self._emit(OpCode.RETURN)
-
-            self._functions[mangled_name] = fn_code
-
-            # Restore compiler state
-            self._current = previous
-            self._loop_var_counter = previous_loop_counter
-            self._match_var_counter = previous_match_counter
-            self._comp_var_counter = previous_comp_counter
-            self._loop_contexts = previous_loop_contexts
-            self._try_depth = previous_try_depth
-
+            self._compile_function_body(
+                mangled_name,
+                method.parameters,
+                method.body,
+                method.return_type,
+            )
             method_names.append(method.name)
 
         self._class_methods[node.name] = method_names

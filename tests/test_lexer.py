@@ -26,6 +26,7 @@ FIRST_LINE = 1
 SECOND_LINE = 2
 THIRD_LINE = 3
 FIRST_COLUMN = 1
+ONE = 1
 SECOND_COLUMN = 2
 THIRD_COLUMN = 3
 FOURTH_COLUMN = 4
@@ -306,7 +307,7 @@ class TestLexerWhitespaceAndNewlines:
     def test_empty_source(self) -> None:
         """Verify empty source produces only EOF."""
         tokens = Lexer("").tokenize()
-        assert len(tokens) == FIRST_LINE
+        assert len(tokens) == ONE
         assert tokens[0].kind == TokenKind.EOF
 
 
@@ -428,7 +429,7 @@ class TestLexerEof:
     def test_empty_source_has_eof(self) -> None:
         """Verify empty source produces exactly one EOF token."""
         tokens = Lexer("").tokenize()
-        assert len(tokens) == FIRST_LINE
+        assert len(tokens) == ONE
         assert tokens[0].kind == TokenKind.EOF
 
 

@@ -141,6 +141,7 @@ class Parser:
         """Create a parser for the given token list."""
         self._tokens = tokens
         self._pos = 0
+        self._anon_counter = 0
 
     # -- Public API -----------------------------------------------------------
 
@@ -180,10 +181,16 @@ class Parser:
         # Fall through to expression statement
         return self._parse_expression_statement()
 
-    def _parse_let(self) -> Assignment | UnpackAssignment:
-        """Parse ``let name[: Type] = expr`` or ``let x, y = expr`` declaration."""
-        let_token = self._advance()  # consume 'let'
-        name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'let'")
+    def _parse_declaration(
+        self, keyword: str
+    ) -> Assignment | UnpackAssignment | ConstAssignment | UnpackConstAssignment:
+        """Parse ``let`` or ``const`` declarations (shared logic).
+
+        Handles both single-name and multi-target unpack forms, with optional
+        type annotation on the single-name form.
+        """
+        kw_token = self._advance()  # consume keyword
+        name_token = self._expect(TokenKind.IDENTIFIER, f"Expected variable name after '{keyword}'")
 
         # Optional type annotation
         type_annotation: str | None = None
@@ -200,7 +207,7 @@ class Parser:
         ):
             self._error("Type annotations not supported in unpacking declarations")
 
-        # Multi-target unpack: let x, y = expr
+        # Multi-target unpack: let/const x, y = expr
         if not self._at_end() and self._peek().kind == TokenKind.COMMA:
             names = [name_token.value]
             while not self._at_end() and self._peek().kind == TokenKind.COMMA:
@@ -210,64 +217,39 @@ class Parser:
             self._expect(TokenKind.EQUAL, "Expected '=' after variable names")
             value = self.parse_expression()
             self._consume_newline()
-            return UnpackAssignment(names=names, value=value, location=let_token.location)
+            if keyword == "const":
+                return UnpackConstAssignment(names=names, value=value, location=kw_token.location)
+            return UnpackAssignment(names=names, value=value, location=kw_token.location)
 
         self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
         value = self.parse_expression()
         self._consume_newline()
+        if keyword == "const":
+            return ConstAssignment(
+                name=name_token.value,
+                value=value,
+                location=kw_token.location,
+                type_annotation=type_annotation,
+            )
         return Assignment(
             name=name_token.value,
             value=value,
-            location=let_token.location,
+            location=kw_token.location,
             type_annotation=type_annotation,
         )
+
+    def _parse_let(self) -> Assignment | UnpackAssignment:
+        """Parse ``let name[: Type] = expr`` or ``let x, y = expr`` declaration."""
+        return self._parse_declaration("let")  # type: ignore[return-value]
 
     def _parse_const(self) -> ConstAssignment | UnpackConstAssignment:
         """Parse ``const name[: Type] = expr`` or ``const x, y = expr`` declaration."""
-        const_token = self._advance()  # consume 'const'
-        name_token = self._expect(TokenKind.IDENTIFIER, "Expected variable name after 'const'")
-
-        # Optional type annotation
-        type_annotation: str | None = None
-        if not self._at_end() and self._peek().kind == TokenKind.COLON:
-            self._advance()  # consume ':'
-            type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name after ':'")
-            type_annotation = type_token.value
-
-        # Type annotation + comma → error (no annotations on unpack)
-        if (
-            type_annotation is not None
-            and not self._at_end()
-            and self._peek().kind == TokenKind.COMMA
-        ):
-            self._error("Type annotations not supported in unpacking declarations")
-
-        # Multi-target unpack: const x, y = expr
-        if not self._at_end() and self._peek().kind == TokenKind.COMMA:
-            names = [name_token.value]
-            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
-                self._advance()  # consume ','
-                next_name = self._expect(TokenKind.IDENTIFIER, "Expected variable name after ','")
-                names.append(next_name.value)
-            self._expect(TokenKind.EQUAL, "Expected '=' after variable names")
-            value = self.parse_expression()
-            self._consume_newline()
-            return UnpackConstAssignment(names=names, value=value, location=const_token.location)
-
-        self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
-        value = self.parse_expression()
-        self._consume_newline()
-        return ConstAssignment(
-            name=name_token.value,
-            value=value,
-            location=const_token.location,
-            type_annotation=type_annotation,
-        )
+        return self._parse_declaration("const")  # type: ignore[return-value]
 
     def _parse_reassignment(self) -> Reassignment:
         """Parse a ``name = expr`` reassignment."""
         name_token = self._advance()  # consume identifier
-        self._advance()  # consume '='
+        self._expect(TokenKind.EQUAL, "Expected '=' after variable name")
         value = self.parse_expression()
         self._consume_newline()
         return Reassignment(name=name_token.value, value=value, location=name_token.location)
@@ -908,8 +890,6 @@ class Parser:
         self._expect(TokenKind.RIGHT_BRACE, "Expected '}' after dict entries")
         return DictLiteral(entries=entries, location=brace_token.location)
 
-    _anon_counter: int = 0
-
     def _parse_fn_expression(self) -> FunctionExpression:
         """Parse an anonymous function expression: ``fn(params) [-> Type] { body }``."""
         fn_token = self._advance()  # consume 'fn'
@@ -925,8 +905,8 @@ class Parser:
         self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
         return_type = self._parse_return_type()
         body = self._parse_block()
-        name = f"$anon_{Parser._anon_counter}"
-        Parser._anon_counter += 1
+        name = f"$anon_{self._anon_counter}"
+        self._anon_counter += 1
         return FunctionExpression(
             name=name,
             parameters=parameters,

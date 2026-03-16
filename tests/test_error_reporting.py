@@ -4,18 +4,24 @@ Verify that runtime errors carry correct source locations from the AST
 through the compiler and VM.
 """
 
-from io import StringIO
-
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.bytecode import Instruction, OpCode
+from pebble.bytecode import CompiledProgram, Instruction, OpCode
 from pebble.compiler import Compiler
 from pebble.errors import PebbleRuntimeError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import SourceLocation
-from pebble.vm import VirtualMachine
+from tests.conftest import (  # pyright: ignore[reportMissingImports]
+    run_source,  # pyright: ignore[reportUnknownVariableType]
+)
+
+
+def _run_source(source: str) -> str:
+    """Compile and run *source*, return captured output."""
+    return run_source(source)  # type: ignore[no-any-return]
+
 
 # -- Named constants ----------------------------------------------------------
 
@@ -28,7 +34,7 @@ COLUMN_5 = 5
 # -- Helpers ------------------------------------------------------------------
 
 
-def _compile_program(source: str):
+def _compile_program(source: str) -> CompiledProgram:
     """Return the CompiledProgram for *source*."""
     tokens = Lexer(source).tokenize()
     program = Parser(tokens).parse()
@@ -38,14 +44,6 @@ def _compile_program(source: str):
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
     ).compile(analyzed)
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, returning captured output."""
-    compiled = _compile_program(source)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # -- Cycle 1: Instruction location field --------------------------------------

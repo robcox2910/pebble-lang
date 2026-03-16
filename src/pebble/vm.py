@@ -17,6 +17,7 @@ from pebble.builtins import (
     BUILTINS,
     LIST_METHODS,
     METHOD_NONE,
+    SLICE_NONE,
     STRING_METHODS,
     Cell,
     Closure,
@@ -262,7 +263,7 @@ class VirtualMachine:
             ):
                 self._exec_bitwise(instruction)
             case OpCode.PRINT:
-                self._output.write(self._format_value(self._stack.pop()) + "\n")
+                self._output.write(format_value(self._stack.pop()) + "\n")
             case OpCode.CALL:
                 self._exec_call(instruction)
             case OpCode.CALL_METHOD:
@@ -507,7 +508,7 @@ class VirtualMachine:
     def _exec_build_string(self, instruction: Instruction) -> None:
         """Handle BUILD_STRING — pop *n* values, stringify and concatenate."""
         count = _int_operand(instruction)
-        parts = [self._format_value(self._stack.pop()) for _ in range(count)]
+        parts = [format_value(self._stack.pop()) for _ in range(count)]
         parts.reverse()
         self._stack.append("".join(parts))
 
@@ -556,6 +557,17 @@ class VirtualMachine:
             result[key] = value
         self._stack.append(result)
 
+    def _validate_list_index(self, target: list[Value], index: Value) -> int:
+        """Validate *index* for a list *target* and return the normalised index."""
+        if not isinstance(index, int) or isinstance(index, bool):
+            type_name = type(index).__name__
+            self._runtime_error(f"List index must be an integer, got {type_name}")
+        if index < -len(target) or index >= len(target):
+            self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
+        if index < 0:
+            return index + len(target)
+        return index
+
     def _exec_index_get(self) -> None:
         """Handle INDEX_GET — pop index and target, push target[index]."""
         index = self._stack.pop()
@@ -571,14 +583,8 @@ class VirtualMachine:
         if not isinstance(target, list):
             type_name = type(target).__name__
             self._runtime_error(f"Cannot index into {type_name}")
-        if not isinstance(index, int) or isinstance(index, bool):
-            type_name = type(index).__name__
-            self._runtime_error(f"List index must be an integer, got {type_name}")
-        if index < -len(target) or index >= len(target):
-            self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
-        if index < 0:
-            index += len(target)
-        self._stack.append(target[index])
+        idx = self._validate_list_index(target, index)
+        self._stack.append(target[idx])
 
     def _exec_index_set(self) -> None:
         """Handle INDEX_SET — pop value, index, target; mutate target[index]."""
@@ -594,16 +600,8 @@ class VirtualMachine:
         if not isinstance(target, list):
             type_name = type(target).__name__
             self._runtime_error(f"Cannot index into {type_name}")
-        if not isinstance(index, int) or isinstance(index, bool):
-            type_name = type(index).__name__
-            self._runtime_error(f"List index must be an integer, got {type_name}")
-        if index < -len(target) or index >= len(target):
-            self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
-        if index < 0:
-            index += len(target)
-        target[index] = value
-
-    _SLICE_SENTINEL: ClassVar[str] = "$SLICE_NONE"
+        idx = self._validate_list_index(target, index)
+        target[idx] = value
 
     def _exec_slice_get(self) -> None:
         """Handle SLICE_GET — pop step, stop, start, target; push sliced result."""
@@ -613,9 +611,9 @@ class VirtualMachine:
         target = self._stack.pop()
 
         # Replace sentinel strings with None
-        start = None if raw_start == self._SLICE_SENTINEL else raw_start
-        stop = None if raw_stop == self._SLICE_SENTINEL else raw_stop
-        step = None if raw_step == self._SLICE_SENTINEL else raw_step
+        start = None if raw_start == SLICE_NONE else raw_start
+        stop = None if raw_stop == SLICE_NONE else raw_stop
+        step = None if raw_step == SLICE_NONE else raw_step
 
         # Validate target type
         if not isinstance(target, list | str):
@@ -701,10 +699,6 @@ class VirtualMachine:
             nfields = len(fields)
             args_list = [self._stack.pop() for _ in range(nfields)]
             args_list.reverse()
-            if len(args_list) != nfields:
-                self._runtime_error(
-                    f"Struct '{name}' expects {nfields} arguments, got {len(args_list)}"
-                )
             # Check field type annotations
             if name in self._struct_field_types:
                 field_types = self._struct_field_types[name]
@@ -870,21 +864,24 @@ class VirtualMachine:
         name = type(value).__name__
         return _TYPE_DISPLAY.get(name, name)
 
+    @staticmethod
+    def _matches_type(value: Value, type_name: str) -> bool:
+        """Return True if *value* conforms to *type_name*."""
+        match type_name:
+            case "Int":
+                return type(value) is int
+            case "Bool":
+                return isinstance(value, bool)
+            case _ if type_name in _TYPE_MAP:
+                return isinstance(value, _TYPE_MAP[type_name])
+            case _:
+                return isinstance(value, StructInstance) and value.type_name == type_name
+
     def _check_type(self, value: Value, type_name: str) -> None:
         """Validate *value* matches *type_name*, raising on mismatch."""
-        if type_name == "Int":
-            if type(value) is int:
-                return
-        elif type_name == "Bool":
-            if isinstance(value, bool):
-                return
-        elif type_name in _TYPE_MAP:
-            if isinstance(value, _TYPE_MAP[type_name]):
-                return
-        elif isinstance(value, StructInstance) and value.type_name == type_name:
-            return
-        actual = self._value_type_display(value)
-        self._runtime_error(f"Type error: expected {type_name}, got {actual}")
+        if not self._matches_type(value, type_name):
+            actual = self._value_type_display(value)
+            self._runtime_error(f"Type error: expected {type_name}, got {actual}")
 
     def _exec_check_type(self, instruction: Instruction) -> None:
         """Handle CHECK_TYPE — peek TOS and validate type."""
@@ -894,16 +891,7 @@ class VirtualMachine:
 
     def _check_param_type(self, value: Value, type_name: str, param_name: str) -> None:
         """Validate a function parameter value matches its type annotation."""
-        match type_name:
-            case "Int":
-                ok = type(value) is int
-            case "Bool":
-                ok = isinstance(value, bool)
-            case _ if type_name in _TYPE_MAP:
-                ok = isinstance(value, _TYPE_MAP[type_name])
-            case _:
-                ok = isinstance(value, StructInstance) and value.type_name == type_name
-        if not ok:
+        if not self._matches_type(value, type_name):
             actual = self._value_type_display(value)
             self._runtime_error(
                 f"Type error: parameter '{param_name}' expected {type_name}, got {actual}"
@@ -913,16 +901,7 @@ class VirtualMachine:
         self, value: Value, type_name: str, field_name: str, struct_name: str
     ) -> None:
         """Validate a struct field value matches its type annotation."""
-        match type_name:
-            case "Int":
-                ok = type(value) is int
-            case "Bool":
-                ok = isinstance(value, bool)
-            case _ if type_name in _TYPE_MAP:
-                ok = isinstance(value, _TYPE_MAP[type_name])
-            case _:
-                ok = isinstance(value, StructInstance) and value.type_name == type_name
-        if not ok:
+        if not self._matches_type(value, type_name):
             actual = self._value_type_display(value)
             self._runtime_error(
                 f"Type error: field '{field_name}' of '{struct_name}' expected {type_name}, got {actual}"
@@ -1044,13 +1023,6 @@ class VirtualMachine:
             self._stack.append(op(left, right))  # type: ignore[arg-type]
         else:
             self._type_error(symbol, left, right)
-
-    # -- Formatting -----------------------------------------------------------
-
-    @staticmethod
-    def _format_value(value: Value) -> str:
-        """Format *value* for Pebble-native output."""
-        return format_value(value)
 
 
 # -- Module-level helpers (no self needed) ------------------------------------

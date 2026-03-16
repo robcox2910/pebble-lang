@@ -140,7 +140,7 @@ be a wildcard (`_`) or a capture (`let x`) that catches anything not
 handled above. This catches mistakes at compile time:
 
 ```pebble
-// This is an ERROR -- what if x is 3?
+# This is an ERROR -- what if x is 3?
 match x {
     case 1 { print("one") }
     case 2 { print("two") }
