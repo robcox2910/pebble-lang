@@ -851,6 +851,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#part-1-built-in-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 1: Built-in Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#printvalue" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1044,6 +1055,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nextgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        next(generator)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#putting-it-all-together" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1055,10 +1077,121 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+  <a href="#how-built-ins-work-under-the-hood" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How It Works Under the Hood
+        How Built-ins Work Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-2-importable-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 2: Importable Modules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 2: Importable Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-math-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The math Module
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The math Module">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constants
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-io-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The io Module
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#selective-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selective Imports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-importable-modules-work-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Importable Modules Work Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
       
     </span>
   </a>
@@ -1522,9 +1655,18 @@
 
 
 <h1 id="standard-library">Standard Library</h1>
-<p>Pebble comes with a small set of <strong>built-in functions</strong> you can call from
-anywhere in your program. You don't need to import anything — they're always
-available.</p>
+<p>Pebble's standard library has two layers:</p>
+<ol>
+<li><strong>Built-in functions</strong> — always available, no import needed (<code>print</code>,
+   <code>len</code>, <code>type</code>, etc.)</li>
+<li><strong>Importable modules</strong> — extra tools you bring in with <code>import "math"</code>
+   or <code>import "io"</code></li>
+</ol>
+<p>This page covers both.</p>
+<hr />
+<h2 id="part-1-built-in-functions">Part 1: Built-in Functions</h2>
+<p>These functions are always available. You don't need to import anything —
+they're ready to use the moment your program starts.</p>
 <h2 id="printvalue">print(value)</h2>
 <p>Display a value on screen. Every Pebble type is automatically converted to
 text:</p>
@@ -1571,7 +1713,8 @@ call it:</p>
 body never runs — there's nothing to count through.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>range()</code> can only be used inside a <code>for</code> loop. The compiler translates
+<p><code>range()</code> can only be used inside a <code>for</code> loop or a
+<a href="../list-comprehensions/">list comprehension</a>. The compiler translates
 <code>for i in range(...)</code> into a counting while-loop behind the scenes.</p>
 </div>
 <h2 id="strvalue">str(value)</h2>
@@ -1618,8 +1761,8 @@ not sure what type you have):</p>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>print(type({}))        # prints: dict
 </code></pre></div>
 <p>The result is always a string like <code>"int"</code>, <code>"float"</code>, <code>"str"</code>, <code>"bool"</code>,
-<code>"list"</code>, <code>"dict"</code>, or <code>"fn"</code>. For <a href="../structs/">structs</a>, it returns the
-struct's name:</p>
+<code>"null"</code>, <code>"list"</code>, <code>"dict"</code>, or <code>"fn"</code>. For <a href="../structs/">structs</a>, it
+returns the struct's name:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>struct Point { x, y }
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>let p = Point(10, 20)
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>print(type(p))         # prints: Point
@@ -1703,26 +1846,41 @@ value:</p>
 <a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>print(reduce(add, [1, 2, 3], 0))   # prints: 6
 </code></pre></div>
 <p>See <a href="../higher-order/">Higher-Order Functions</a> for more details.</p>
+<h2 id="nextgenerator">next(generator)</h2>
+<p>Get the next value from a generator (a function that uses <code>yield</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>fn* count_up() {
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    yield 1
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    yield 2
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>    yield 3
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>}
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>let g = count_up()
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>print(next(g))   # prints: 1
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>print(next(g))   # prints: 2
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>print(next(g))   # prints: 3
+</code></pre></div>
+<p>If the generator has no more values, Pebble stops with an error.</p>
+<p>See <a href="../iterators/">Iterators &amp; Generators</a> for more details.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>You can combine these to do useful things. Here's a program that builds a
 list dynamically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>let numbers = []
-<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>for i in range(5) {
-<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    push(numbers, i * i)
-<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>}
-<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>let numbers = []
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>for i in range(5) {
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    push(numbers, i * i)
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>}
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>print(numbers)   # prints: [0, 1, 4, 9, 16]
 </code></pre></div>
 <p>And here's a simple stack (last-in, first-out):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>let stack = []
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>push(stack, &quot;first&quot;)
-<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>push(stack, &quot;second&quot;)
-<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>push(stack, &quot;third&quot;)
-<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>
-<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>let top = pop(stack)
-<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
-<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>let stack = []
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>push(stack, &quot;first&quot;)
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>push(stack, &quot;second&quot;)
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>push(stack, &quot;third&quot;)
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>let top = pop(stack)
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
 </code></pre></div>
-<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<h2 id="how-built-ins-work-under-the-hood">How Built-ins Work Under the Hood</h2>
 <p>Every built-in function lives in a Python module called <code>builtins.py</code>. It
 holds a dictionary mapping each function's name to two things:</p>
 <ol>
@@ -1738,6 +1896,217 @@ looks for a user-defined function instead.</p>
 already on the menu — the chef knows how to make them without a recipe card.
 Your own functions are custom orders that need their own recipe (a
 <code>CodeObject</code>).</p>
+<hr />
+<h2 id="part-2-importable-modules">Part 2: Importable Modules</h2>
+<p>Some functions aren't needed in every program. Instead of making them
+always available, Pebble puts them in <strong>modules</strong> you can import when you
+need them. Think of these as specialist toolboxes — you only grab the
+maths toolbox when you're doing calculations.</p>
+<p>Unlike <a href="../modules/">file modules</a> (which are <code>.pbl</code> files you write
+yourself), these are <strong>built-in</strong> modules that come with Pebble. You
+import them the same way, but you don't need any <code>.pbl</code> file on disk.</p>
+<h3 id="the-math-module">The <code>math</code> Module</h3>
+<p>Import it with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>import &quot;math&quot;
+</code></pre></div>
+<p>Or grab just the functions you need:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>from &quot;math&quot; import sqrt, pi
+</code></pre></div>
+<h4 id="constants">Constants</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pi</code></td>
+<td>3.141592653589793</td>
+<td>The ratio of a circle's circumference to its diameter</td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>2.718281828459045</td>
+<td>The base of the natural logarithm</td>
+</tr>
+</tbody>
+</table>
+<p>Constants are just values — use them without parentheses:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>import &quot;math&quot;
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>print(pi)   # prints: 3.141592653589793
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>print(e)    # prints: 2.718281828459045
+</code></pre></div>
+<h4 id="functions">Functions</h4>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>abs(x)</code></td>
+<td>Absolute value (distance from zero)</td>
+</tr>
+<tr>
+<td><code>min(a, b)</code></td>
+<td>The smaller of two values</td>
+</tr>
+<tr>
+<td><code>max(a, b)</code></td>
+<td>The larger of two values</td>
+</tr>
+<tr>
+<td><code>floor(x)</code></td>
+<td>Round down to the nearest whole number</td>
+</tr>
+<tr>
+<td><code>ceil(x)</code></td>
+<td>Round up to the nearest whole number</td>
+</tr>
+<tr>
+<td><code>round(x)</code></td>
+<td>Round to the nearest whole number</td>
+</tr>
+<tr>
+<td><code>sqrt(x)</code></td>
+<td>Square root</td>
+</tr>
+<tr>
+<td><code>pow(x, y)</code></td>
+<td>Raise <code>x</code> to the power <code>y</code></td>
+</tr>
+<tr>
+<td><code>sin(x)</code></td>
+<td>Sine (input in radians)</td>
+</tr>
+<tr>
+<td><code>cos(x)</code></td>
+<td>Cosine (input in radians)</td>
+</tr>
+<tr>
+<td><code>log(x)</code></td>
+<td>Natural logarithm (base <em>e</em>)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>import &quot;math&quot;
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>print(abs(-7))       # prints: 7
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>print(min(3, 8))     # prints: 3
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>print(max(3, 8))     # prints: 8
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>print(floor(3.9))    # prints: 3
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>print(ceil(3.1))     # prints: 4
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a>print(round(3.5))    # prints: 4
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a>print(sqrt(16))      # prints: 4.0
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>print(pow(2, 10))    # prints: 1024
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><code>abs</code>, <code>min</code>, and <code>max</code> work with both integers and floats.</p>
+</div>
+<h3 id="the-io-module">The <code>io</code> Module</h3>
+<p>The <code>io</code> module gives you one function — <code>input()</code> — for reading text
+from the user's keyboard.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>import &quot;io&quot;
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>let name = input(&quot;What is your name? &quot;)
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>print(&quot;Hello, &quot; + name)
+</code></pre></div>
+<p>Running this program shows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>What is your name? Alice
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>Hello, Alice
+</code></pre></div>
+<p>You can also call <code>input()</code> with no argument:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>import &quot;io&quot;
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>let line = input()
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>print(&quot;You typed: &quot; + line)
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>input()</code> always returns a <strong>string</strong>. If you need a number, wrap it
+with <code>int()</code> or <code>float()</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>import &quot;io&quot;
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>let age = int(input(&quot;How old are you? &quot;))
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>print(age + 1)
+</code></pre></div>
+</div>
+<h3 id="selective-imports">Selective Imports</h3>
+<p>Just like with file modules, you can import only the names you need:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>from &quot;math&quot; import sqrt, pi
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>let radius = 5
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>let area = pi * radius * radius
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>print(area)         # prints: 78.53981633974483
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>print(sqrt(area))   # prints: 8.862269254527579
+</code></pre></div>
+<p>Names you didn't import are not available:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>from &quot;math&quot; import sqrt
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>print(cos(0))   # Error: &#39;cos&#39; is not defined
+</code></pre></div>
+<h3 id="error-cases">Error Cases</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a># Unknown module (no .pbl file either)
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>import &quot;graphics&quot;
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a># Error: Module &#39;graphics&#39; not found
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a># Unknown name in a known module
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>from &quot;math&quot; import tangent
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a># Error: Module &#39;math&#39; does not export &#39;tangent&#39;
+<a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a>
+<a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a># Wrong argument count
+<a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a>import &quot;math&quot;
+<a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a>sqrt(1, 2)
+<a id="__codelineno-39-12" name="__codelineno-39-12" href="#__codelineno-39-12"></a># Error: Function &#39;sqrt&#39; expects 1 argument but got 2
+</code></pre></div>
+<h3 id="how-importable-modules-work-under-the-hood">How Importable Modules Work Under the Hood</h3>
+<p>The resolver — the same component that handles <code>import "file.pbl"</code> —
+checks whether the import path matches a known <strong>stdlib module name</strong>
+before looking for a <code>.pbl</code> file on disk.</p>
+<pre class="mermaid"><code>flowchart TD
+    A["import \"math\""] --&gt; B{Stdlib module?}
+    B -- Yes --&gt; C[Register functions &amp; constants in analyzer]
+    B -- No --&gt; D{.pbl file exists?}
+    D -- Yes --&gt; E[Resolve as file module]
+    D -- No --&gt; F["Error: module not found"]
+    C --&gt; G[Pass handlers to VM]
+    G --&gt; H[VM dispatches calls to Python handlers]</code></pre>
+<p>Each stdlib function is a small Python function inside <code>stdlib.py</code>.
+When the VM encounters a call to <code>sqrt</code>, it looks in its stdlib handler
+table, pops the argument off the stack, calls the Python function, and
+pushes the result back. Constants like <code>pi</code> are simply injected into
+the VM's global variables at startup — no function call needed.</p>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Examples</th>
+<th>Import needed?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Built-in functions</td>
+<td><code>print</code>, <code>len</code>, <code>type</code>, <code>range</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>math</code> module</td>
+<td><code>sqrt</code>, <code>pi</code>, <code>abs</code>, <code>floor</code></td>
+<td><code>import "math"</code></td>
+</tr>
+<tr>
+<td><code>io</code> module</td>
+<td><code>input</code></td>
+<td><code>import "io"</code></td>
+</tr>
+</tbody>
+</table>
 
 
 

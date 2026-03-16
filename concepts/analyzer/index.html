@@ -1682,10 +1682,12 @@ arguments.</p>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn greet() { print(&quot;hi&quot;) }
 </code></pre></div>
 <h3 id="built-in-functions">Built-in Functions</h3>
-<p><code>print</code> and <code>range</code> are built-in -- they're already on the whiteboard when your
-program starts. You never need to declare them:</p>
+<p>Several functions are built-in -- they're already on the whiteboard when your
+program starts. You never need to declare them. The full list is in
+<a href="../stdlib/">Standard Library</a>, but the most common ones are:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(&quot;hello&quot;)           # Works -- print is built in
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>for i in range(10) { }   # Works -- range is built in (accepts 1, 2, or 3 arguments)
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>for i in range(10) { }   # Works -- range is built in
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>let n = len([1, 2, 3])   # Works -- len is built in
 </code></pre></div>
 <h2 id="return-checks">Return Checks</h2>
 <p>A <code>return</code> statement can only appear inside a function. Using it at the top
