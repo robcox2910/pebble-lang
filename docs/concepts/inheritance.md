@@ -349,11 +349,11 @@ pointers without caring where they came from.
 
 ## What's Next?
 
-You've now seen all three ways to create custom types in Pebble:
-[Structs](structs.md) for grouping data, [Classes](classes.md) for
-data that can *do things*, and Inheritance for building specialized
-classes on top of existing ones. Next up is [Enums](enums.md) -- a
-fixed menu of named choices.
+You've now seen how child classes build on parent classes. Inheritance
+also works with **operator overloading** -- a child class inherits
+the parent's dunder methods (like `__add__` and `__str__`) and can
+override them or call `super.__add__()`. See
+[Operator Overloading](operator-overloading.md) for the full story.
 
 ## Summary
 

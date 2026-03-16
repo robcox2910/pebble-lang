@@ -68,6 +68,30 @@ from pebble.builtins import BUILTIN_ARITIES, METHOD_ARITIES, Arity
 from pebble.errors import SemanticError
 from pebble.tokens import SourceLocation
 
+# -- Dunder method arities ---------------------------------------------------
+
+_DUNDER_ARITIES: dict[str, int] = {
+    # Binary operators (self + other)
+    "__add__": 2,
+    "__sub__": 2,
+    "__mul__": 2,
+    "__div__": 2,
+    "__floordiv__": 2,
+    "__mod__": 2,
+    "__pow__": 2,
+    # Comparison operators (self, other)
+    "__eq__": 2,
+    "__ne__": 2,
+    "__lt__": 2,
+    "__le__": 2,
+    "__gt__": 2,
+    "__ge__": 2,
+    # Unary operators (self only)
+    "__neg__": 1,
+    # String representation (self only)
+    "__str__": 1,
+}
+
 # -- Built-in declarations ---------------------------------------------------
 
 _BUILTIN_LOCATION = SourceLocation(line=0, column=0)
@@ -687,7 +711,7 @@ class SemanticAnalyzer:
             if f.type_annotation is not None:
                 self._validate_type_name(f.type_annotation, node.location)
 
-    def _visit_class_def(self, node: ClassDef) -> None:  # noqa: C901, PLR0912
+    def _visit_class_def(self, node: ClassDef) -> None:  # noqa: C901, PLR0912, PLR0915
         """Visit a class definition — register constructor, validate methods."""
         # Validate field type annotations
         for f in node.fields:
@@ -751,6 +775,17 @@ class SemanticAnalyzer:
             if method.name in METHOD_ARITIES:
                 msg = f"Method name '{method.name}' is reserved for builtin methods"
                 raise SemanticError(msg, line=method.location.line, column=method.location.column)
+
+            # Validate dunder method arities
+            if method.name in _DUNDER_ARITIES:
+                expected = _DUNDER_ARITIES[method.name]
+                actual = len(method.parameters)
+                if actual != expected:
+                    s = "" if expected == 1 else "s"
+                    msg = f"Dunder method '{method.name}' requires {expected} parameter{s}, got {actual}"
+                    raise SemanticError(
+                        msg, line=method.location.line, column=method.location.column
+                    )
 
             method_arities[method.name] = len(method.parameters) - 1
 

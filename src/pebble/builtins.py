@@ -131,11 +131,6 @@ def format_value(value: Value) -> str:  # noqa: PLR0911
 # -- Builtin handlers ---------------------------------------------------------
 
 
-def _builtin_str(args: list[Value]) -> Value:
-    """Convert any value to its string representation."""
-    return format_value(args[0])
-
-
 def _builtin_int(args: list[Value]) -> Value:
     """Convert a string, float, or integer to an integer."""
     arg = args[0]
@@ -257,7 +252,6 @@ def _builtin_values(args: list[Value]) -> Value:
 type BuiltinHandler = Callable[[list[Value]], Value]
 
 BUILTINS: dict[str, tuple[int, BuiltinHandler]] = {
-    "str": (1, _builtin_str),
     "int": (1, _builtin_int),
     "float": (1, _builtin_float),
     "type": (1, _builtin_type),
@@ -280,8 +274,11 @@ _REDUCE_ARITY = 3
 type Arity = int | tuple[int, ...]
 """Arity of a built-in function: a single count or a tuple of accepted counts."""
 
+_STR_ARITY = 1
+
 BUILTIN_ARITIES: dict[str, Arity] = {
     **{name: arity for name, (arity, _) in BUILTINS.items()},
+    "str": _STR_ARITY,
     "print": _PRINT_ARITY,
     "range": _RANGE_ARITIES,
     "map": _MAP_ARITY,

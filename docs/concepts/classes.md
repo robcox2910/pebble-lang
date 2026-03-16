@@ -168,6 +168,7 @@ purpose:
 |---------|--------|-------|------|
 | Fields | Yes | Yes | No |
 | Methods | No | Yes | No |
+| Operator overloading | No | Yes | No |
 | Use when... | Group related data | Data that needs to *do things* | Fixed set of named options |
 
 Think of it this way:
