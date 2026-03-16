@@ -16,7 +16,7 @@
         <link rel="prev" href="../classes/">
       
       
-        <link rel="next" href="../enums/">
+        <link rel="next" href="../operator-overloading/">
       
       
         
@@ -1278,6 +1278,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../operator-overloading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator Overloading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../enums/" class="md-nav__link">
         
   
@@ -1713,11 +1741,11 @@ VM doesn't need to know about inheritance at all. Here's the flow:</p>
 <p>This design keeps things simple -- the VM just follows function
 pointers without caring where they came from.</p>
 <h2 id="whats-next">What's Next?</h2>
-<p>You've now seen all three ways to create custom types in Pebble:
-<a href="../structs/">Structs</a> for grouping data, <a href="../classes/">Classes</a> for
-data that can <em>do things</em>, and Inheritance for building specialized
-classes on top of existing ones. Next up is <a href="../enums/">Enums</a> -- a
-fixed menu of named choices.</p>
+<p>You've now seen how child classes build on parent classes. Inheritance
+also works with <strong>operator overloading</strong> -- a child class inherits
+the parent's dunder methods (like <code>__add__</code> and <code>__str__</code>) and can
+override them or call <code>super.__add__()</code>. See
+<a href="../operator-overloading/">Operator Overloading</a> for the full story.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
