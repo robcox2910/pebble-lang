@@ -21,7 +21,9 @@ from pebble.errors import PebbleRuntimeError
 if TYPE_CHECKING:
     from pebble.bytecode import CodeObject
 
-type Value = int | float | str | bool | list[Value] | dict[str, Value] | Closure | StructInstance
+type Value = (
+    int | float | str | bool | None | list[Value] | dict[str, Value] | Closure | StructInstance
+)
 
 
 # -- Closure types ------------------------------------------------------------
@@ -75,6 +77,8 @@ class StructInstance:
 def format_value(value: Value) -> str:  # noqa: PLR0911
     """Format *value* for Pebble-native output."""
     match value:
+        case None:
+            return "null"
         case bool():
             return "true" if value else "false"
         case float():
@@ -146,6 +150,8 @@ def _builtin_type(args: list[Value]) -> Value:  # noqa: PLR0911
     """Return the type name of a value as a string."""
     arg = args[0]
     match arg:
+        case None:
+            return "null"
         case bool():
             return "bool"
         case float():
@@ -420,7 +426,7 @@ def _method_repeat(target: Value, args: list[Value]) -> Value:
     return target * n
 
 
-_VOID: Value = 0
+_VOID: Value = None
 """Return value for list-mutating methods (push, reverse, sort)."""
 
 
@@ -428,7 +434,7 @@ _VOID: Value = 0
 
 
 def _method_list_push(target: Value, args: list[Value]) -> Value:
-    """Append a value to the list. Return 0."""
+    """Append a value to the list. Return null."""
     assert isinstance(target, list)  # noqa: S101
     target.append(args[0])
     return _VOID

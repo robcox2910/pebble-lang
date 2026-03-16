@@ -40,7 +40,7 @@ def _run(program: CompiledProgram, *, output: StringIO | None = None) -> str:
 
 def _program(
     instructions: list[Instruction],
-    constants: list[int | float | str | bool] | None = None,
+    constants: list[int | float | str | bool | None] | None = None,
 ) -> CompiledProgram:
     """Build a minimal CompiledProgram from raw instructions."""
     main = CodeObject(name="<main>")
@@ -608,11 +608,11 @@ print(add(1, 2))"""
         assert _run_source(source) == "3\n"
 
     def test_function_no_return(self) -> None:
-        """A function with no explicit return returns 0."""
+        """A function with no explicit return returns null."""
         source = """\
 fn greet() { print(42) }
 print(greet())"""
-        assert _run_source(source) == "42\n0\n"
+        assert _run_source(source) == "42\nnull\n"
 
     def test_function_calling_function(self) -> None:
         """One function calls another."""

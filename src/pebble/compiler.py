@@ -43,6 +43,7 @@ from pebble.ast_nodes import (
     LiteralPattern,
     MatchStatement,
     MethodCall,
+    NullLiteral,
     OrPattern,
     Parameter,
     PrintStatement,
@@ -183,7 +184,7 @@ class Compiler:
 
     def _emit_constant(
         self,
-        value: int | float | str | bool,  # noqa: FBT001
+        value: int | float | str | bool | None,  # noqa: FBT001
         *,
         location: SourceLocation | None = None,
     ) -> None:
@@ -526,7 +527,7 @@ class Compiler:
             self._compile_statement(stmt)
 
         if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
-            self._emit_constant(0)
+            self._emit_constant(None)
             if return_type is not None:
                 self._emit(OpCode.CHECK_TYPE, return_type)
             self._emit(OpCode.RETURN)
@@ -558,7 +559,7 @@ class Compiler:
         if node.value is not None:
             self._compile_expression(node.value)
         else:
-            self._emit_constant(0, location=node.location)
+            self._emit_constant(None, location=node.location)
         if self._current.return_type is not None:
             self._emit(OpCode.CHECK_TYPE, self._current.return_type, location=node.location)
         for _ in range(self._try_depth):
@@ -690,6 +691,8 @@ class Compiler:
         match expr:
             case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
                 self._emit_constant(expr.value, location=expr.location)
+            case NullLiteral():
+                self._emit_constant(None, location=expr.location)
             case Identifier():
                 self._emit_load(expr.name, location=expr.location)
             case BinaryOp():

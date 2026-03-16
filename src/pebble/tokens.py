@@ -48,6 +48,7 @@ class TokenKind(StrEnum):
     FROM = "FROM"
     TRUE = "TRUE"
     FALSE = "FALSE"
+    NULL = "NULL"
 
     # -- Operators ------------------------------------------------------------
     PLUS = "PLUS"
@@ -149,6 +150,7 @@ KEYWORDS: dict[str, TokenKind] = {
     "from": TokenKind.FROM,
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
+    "null": TokenKind.NULL,
     "and": TokenKind.AND,
     "or": TokenKind.OR,
     "not": TokenKind.NOT,

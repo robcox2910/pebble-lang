@@ -64,6 +64,13 @@ class BooleanLiteral:
 
 
 @dataclass(frozen=True)
+class NullLiteral:
+    """The null literal ``null``."""
+
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class FloatLiteral:
     """A floating-point literal like ``3.14``."""
 
@@ -365,7 +372,7 @@ class ThrowStatement:
 class LiteralPattern:
     """A pattern that matches an exact literal value."""
 
-    value: int | float | str | bool
+    value: int | float | str | bool | None
     location: SourceLocation
 
 
@@ -476,6 +483,7 @@ Expression = (
     | FloatLiteral
     | StringLiteral
     | BooleanLiteral
+    | NullLiteral
     | Identifier
     | UnaryOp
     | BinaryOp
