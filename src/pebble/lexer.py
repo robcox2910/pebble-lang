@@ -4,12 +4,8 @@ The lexer reads source text character by character and produces a list of
 :class:`~pebble.tokens.Token` objects ready for the parser.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, ClassVar
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
+from collections.abc import Callable
+from typing import ClassVar
 
 from pebble.errors import LexerError
 from pebble.tokens import KEYWORDS, SourceLocation, Token, TokenKind

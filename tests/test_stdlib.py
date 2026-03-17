@@ -5,8 +5,6 @@ str(), int(), type(), push(), pop(), and the importable stdlib modules
 (``import "math"``, ``import "io"``).
 """
 
-from __future__ import annotations
-
 import math
 from io import StringIO
 from pathlib import Path

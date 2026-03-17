@@ -13,6 +13,7 @@ from pebble.ast_nodes import (
     FunctionDef,
     IntegerLiteral,
     StringLiteral,
+    TypeAnnotation,
 )
 from pebble.bytecode import Instruction, OpCode
 from pebble.compiler import Compiler
@@ -98,7 +99,7 @@ class TestParserDefaults:
     def test_parse_default_with_type(self) -> None:
         """Parse ``fn f(a, b: Int = 42)`` — type annotation + default."""
         fn = _parse("fn f(a, b: Int = 42) { return a + b }")
-        assert fn.parameters[1].type_annotation == "Int"
+        assert fn.parameters[1].type_annotation == TypeAnnotation(name="Int")
         assert isinstance(fn.parameters[1].default, IntegerLiteral)
         forty_two = 42
         assert fn.parameters[1].default.value == forty_two

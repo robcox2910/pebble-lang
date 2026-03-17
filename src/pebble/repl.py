@@ -12,27 +12,20 @@ Usage::
 
 """
 
-from __future__ import annotations
-
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TextIO
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.bytecode import CompiledProgram
+from pebble.builtins import Value
+from pebble.bytecode import CodeObject, CompiledProgram
 from pebble.compiler import Compiler
 from pebble.errors import PebbleError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
+from pebble.stdlib import StdlibHandler
 from pebble.vm import VirtualMachine
-
-if TYPE_CHECKING:
-    from typing import TextIO
-
-    from pebble.builtins import Value
-    from pebble.bytecode import CodeObject
-    from pebble.stdlib import StdlibHandler
 
 _PROMPT = "pebble> "
 _CONTINUATION = "... "

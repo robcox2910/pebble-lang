@@ -4,10 +4,8 @@ Cover the full pipeline — tokens, AST, lexer, parser, analyzer, bytecode,
 compiler, VM runtime, integration, resolver, and REPL.
 """
 
-from __future__ import annotations
-
 from io import StringIO
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pytest
 
@@ -20,6 +18,7 @@ from pebble.ast_nodes import (
     IntegerLiteral,
     Parameter,
     StructDef,
+    TypeAnnotation,
 )
 from pebble.bytecode import CodeObject, CompiledProgram, OpCode
 from pebble.compiler import Compiler
@@ -30,9 +29,6 @@ from pebble.repl import Repl
 from pebble.resolver import ModuleResolver
 from pebble.tokens import SourceLocation, TokenKind
 from pebble.vm import VirtualMachine
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 # -- Named constants ----------------------------------------------------------
 
@@ -153,9 +149,9 @@ class TestParameterNode:
 
     def test_parameter_with_annotation(self) -> None:
         """Create a Parameter with a type annotation."""
-        param = Parameter(name="x", type_annotation="Int")
+        param = Parameter(name="x", type_annotation=TypeAnnotation(name="Int"))
         assert param.name == "x"
-        assert param.type_annotation == "Int"
+        assert param.type_annotation == TypeAnnotation(name="Int")
 
     def test_parameter_without_annotation(self) -> None:
         """Type annotation defaults to None."""
@@ -172,13 +168,13 @@ class TestModifiedASTNodes:
         loc = SourceLocation(line=1, column=1)
         node = FunctionDef(
             name="add",
-            parameters=[Parameter(name="a", type_annotation="Int")],
+            parameters=[Parameter(name="a", type_annotation=TypeAnnotation(name="Int"))],
             body=[],
-            return_type="Int",
+            return_type=TypeAnnotation(name="Int"),
             location=loc,
         )
-        assert node.parameters[FIRST_INDEX].type_annotation == "Int"
-        assert node.return_type == "Int"
+        assert node.parameters[FIRST_INDEX].type_annotation == TypeAnnotation(name="Int")
+        assert node.return_type == TypeAnnotation(name="Int")
 
     def test_assignment_with_type_annotation(self) -> None:
         """Assignment node stores type annotation."""
@@ -186,10 +182,10 @@ class TestModifiedASTNodes:
         node = Assignment(
             name="x",
             value=IntegerLiteral(value=5, location=loc),
-            type_annotation="Int",
+            type_annotation=TypeAnnotation(name="Int"),
             location=loc,
         )
-        assert node.type_annotation == "Int"
+        assert node.type_annotation == TypeAnnotation(name="Int")
 
     def test_struct_def_with_typed_fields(self) -> None:
         """StructDef fields use Parameter with type annotations."""
@@ -197,14 +193,14 @@ class TestModifiedASTNodes:
         node = StructDef(
             name="Point",
             fields=[
-                Parameter(name="x", type_annotation="Float"),
-                Parameter(name="y", type_annotation="Float"),
+                Parameter(name="x", type_annotation=TypeAnnotation(name="Float")),
+                Parameter(name="y", type_annotation=TypeAnnotation(name="Float")),
             ],
             body=[],
             location=loc,
         )
-        assert node.fields[FIRST_INDEX].type_annotation == "Float"
-        assert node.fields[SECOND_INDEX].type_annotation == "Float"
+        assert node.fields[FIRST_INDEX].type_annotation == TypeAnnotation(name="Float")
+        assert node.fields[SECOND_INDEX].type_annotation == TypeAnnotation(name="Float")
 
     def test_gradual_typing_no_annotations(self) -> None:
         """Nodes work without any type annotations (gradual typing)."""
@@ -253,7 +249,7 @@ class TestParseParamAnnotations:
         stmts = _parse("fn f(x: Int) { return x }")
         fn = stmts[FIRST_INDEX]
         assert isinstance(fn, FunctionDef)
-        assert fn.parameters == [Parameter(name="x", type_annotation="Int")]
+        assert fn.parameters == [Parameter(name="x", type_annotation=TypeAnnotation(name="Int"))]
 
     def test_multiple_typed_params(self) -> None:
         """``fn f(a: Int, b: String)`` produces correct parameters."""
@@ -261,8 +257,8 @@ class TestParseParamAnnotations:
         fn = stmts[FIRST_INDEX]
         assert isinstance(fn, FunctionDef)
         assert fn.parameters == [
-            Parameter(name="a", type_annotation="Int"),
-            Parameter(name="b", type_annotation="String"),
+            Parameter(name="a", type_annotation=TypeAnnotation(name="Int")),
+            Parameter(name="b", type_annotation=TypeAnnotation(name="String")),
         ]
 
     def test_mixed_typed_and_untyped(self) -> None:
@@ -271,7 +267,7 @@ class TestParseParamAnnotations:
         fn = stmts[FIRST_INDEX]
         assert isinstance(fn, FunctionDef)
         assert fn.parameters == [
-            Parameter(name="a", type_annotation="Int"),
+            Parameter(name="a", type_annotation=TypeAnnotation(name="Int")),
             Parameter(name="b"),
         ]
 
@@ -291,7 +287,7 @@ class TestParseReturnTypes:
         stmts = _parse("fn f() -> Int { return 0 }")
         fn = stmts[FIRST_INDEX]
         assert isinstance(fn, FunctionDef)
-        assert fn.return_type == "Int"
+        assert fn.return_type == TypeAnnotation(name="Int")
 
     def test_without_return_type(self) -> None:
         """No ``->`` means return_type is None."""
@@ -306,10 +302,10 @@ class TestParseReturnTypes:
         fn = stmts[FIRST_INDEX]
         assert isinstance(fn, FunctionDef)
         assert fn.parameters == [
-            Parameter(name="a", type_annotation="Int"),
-            Parameter(name="b", type_annotation="Int"),
+            Parameter(name="a", type_annotation=TypeAnnotation(name="Int")),
+            Parameter(name="b", type_annotation=TypeAnnotation(name="Int")),
         ]
-        assert fn.return_type == "Int"
+        assert fn.return_type == TypeAnnotation(name="Int")
 
 
 class TestParseVariableAnnotations:
@@ -320,7 +316,7 @@ class TestParseVariableAnnotations:
         stmts = _parse("let x: Int = 5")
         node = stmts[FIRST_INDEX]
         assert isinstance(node, Assignment)
-        assert node.type_annotation == "Int"
+        assert node.type_annotation == TypeAnnotation(name="Int")
 
     def test_let_without_type(self) -> None:
         """``let x = 5`` has type_annotation = None."""
@@ -334,7 +330,7 @@ class TestParseVariableAnnotations:
         stmts = _parse("const pi: Float = 3.14")
         node = stmts[FIRST_INDEX]
         assert isinstance(node, ConstAssignment)
-        assert node.type_annotation == "Float"
+        assert node.type_annotation == TypeAnnotation(name="Float")
 
     def test_const_without_type(self) -> None:
         """``const pi = 3.14`` has type_annotation = None."""
@@ -358,8 +354,8 @@ class TestParseStructAnnotations:
         struct = stmts[FIRST_INDEX]
         assert isinstance(struct, StructDef)
         assert struct.fields == [
-            Parameter(name="x", type_annotation="Float"),
-            Parameter(name="y", type_annotation="Float"),
+            Parameter(name="x", type_annotation=TypeAnnotation(name="Float")),
+            Parameter(name="y", type_annotation=TypeAnnotation(name="Float")),
         ]
 
     def test_mixed_fields(self) -> None:
@@ -368,7 +364,7 @@ class TestParseStructAnnotations:
         struct = stmts[FIRST_INDEX]
         assert isinstance(struct, StructDef)
         assert struct.fields == [
-            Parameter(name="x", type_annotation="Int"),
+            Parameter(name="x", type_annotation=TypeAnnotation(name="Int")),
             Parameter(name="y"),
         ]
 
@@ -393,8 +389,10 @@ class TestParseFunctionExpressions:
         assert isinstance(assign, Assignment)
         assert isinstance(assign.value, FunctionExpression)
         fn_expr = assign.value
-        assert fn_expr.parameters == [Parameter(name="x", type_annotation="Int")]
-        assert fn_expr.return_type == "Int"
+        assert fn_expr.parameters == [
+            Parameter(name="x", type_annotation=TypeAnnotation(name="Int"))
+        ]
+        assert fn_expr.return_type == TypeAnnotation(name="Int")
 
     def test_anon_fn_without_types(self) -> None:
         """``let f = fn(x) { return x }`` still works."""
@@ -509,7 +507,10 @@ class TestCompiledProgramFieldTypes:
         """Compiling a typed struct stores field type metadata."""
         prog = _compile_program("struct Point { x: Float, y: Float }")
         assert "Point" in prog.struct_field_types
-        assert prog.struct_field_types["Point"] == {"x": "Float", "y": "Float"}
+        assert prog.struct_field_types["Point"] == {
+            "x": "Float",
+            "y": "Float",
+        }
 
 
 class TestCompilerEmitsCheckType:
@@ -556,8 +557,8 @@ class TestCompilerStoresMetadata:
         """Compiled function stores param_types and return_type."""
         prog = _compile_program("fn add(a: Int, b: Int) -> Int { return a + b }")
         fn = prog.functions["add"]
-        assert fn.param_types == ["Int", "Int"]
-        assert fn.return_type == "Int"
+        assert fn.param_types == [TypeAnnotation(name="Int"), TypeAnnotation(name="Int")]
+        assert fn.return_type == TypeAnnotation(name="Int")
 
 
 # =============================================================================

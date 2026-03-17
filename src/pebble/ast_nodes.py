@@ -12,13 +12,62 @@ Type aliases:
 - ``Statement`` — union of all statement node types
 """
 
-from __future__ import annotations
+from dataclasses import dataclass, field
 
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pebble.tokens import SourceLocation
 
-if TYPE_CHECKING:
-    from pebble.tokens import SourceLocation
+# ---------------------------------------------------------------------------
+# Type annotation node
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class TypeAnnotation:
+    """A structured type annotation like ``Int``, ``List[Int]``, or ``Dict[String, Int]``.
+
+    Simple types have an empty params list. Parameterized types carry
+    recursive ``TypeAnnotation`` children — ``List[Int]`` becomes
+    ``TypeAnnotation(name="List", params=[TypeAnnotation(name="Int")])``.
+    """
+
+    name: str
+    params: list[TypeAnnotation] = field(default_factory=lambda: [])
+
+    def __str__(self) -> str:
+        """Serialize to a human-readable string like ``List[Int]``."""
+        if not self.params:
+            return self.name
+        inner = ", ".join(str(p) for p in self.params)
+        return f"{self.name}[{inner}]"
+
+    @classmethod
+    def from_string(cls, s: str) -> TypeAnnotation:
+        """Parse a serialized string like ``List[Int]`` back to a TypeAnnotation."""
+        bracket = s.find("[")
+        if bracket == -1:
+            return cls(name=s)
+        name = s[:bracket]
+        inner = s[bracket + 1 : -1]  # strip outer [ and ]
+        params = _split_type_params(inner)
+        return cls(name=name, params=[cls.from_string(p.strip()) for p in params])
+
+
+def _split_type_params(s: str) -> list[str]:
+    """Split a comma-separated type parameter string respecting nested brackets."""
+    parts: list[str] = []
+    depth = 0
+    start = 0
+    for i, ch in enumerate(s):
+        if ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            parts.append(s[start:i])
+            start = i + 1
+    parts.append(s[start:])
+    return parts
+
 
 # ---------------------------------------------------------------------------
 # Parameter node
@@ -30,7 +79,7 @@ class Parameter:
     """A named slot with optional type annotation and default value."""
 
     name: str
-    type_annotation: str | None = None
+    type_annotation: TypeAnnotation | None = None
     default: Expression | None = None
 
 
@@ -200,7 +249,7 @@ class FunctionExpression:
     parameters: list[Parameter]
     body: list[Statement]
     location: SourceLocation
-    return_type: str | None = None
+    return_type: TypeAnnotation | None = None
 
 
 @dataclass(frozen=True)
@@ -224,7 +273,7 @@ class Assignment:
     name: str
     value: Expression
     location: SourceLocation
-    type_annotation: str | None = None
+    type_annotation: TypeAnnotation | None = None
 
 
 @dataclass(frozen=True)
@@ -243,7 +292,7 @@ class ConstAssignment:
     name: str
     value: Expression
     location: SourceLocation
-    type_annotation: str | None = None
+    type_annotation: TypeAnnotation | None = None
 
 
 @dataclass(frozen=True)
@@ -318,7 +367,7 @@ class FunctionDef:
     parameters: list[Parameter]
     body: list[Statement]
     location: SourceLocation
-    return_type: str | None = None
+    return_type: TypeAnnotation | None = None
 
 
 @dataclass(frozen=True)

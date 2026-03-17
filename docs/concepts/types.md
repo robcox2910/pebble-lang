@@ -224,8 +224,17 @@ fn add(a: Int, b: Int) -> Int { return a + b }
 struct Point { x: Float, y: Float }
 ```
 
+You can also be specific about what's *inside* a list or dict:
+
+```pebble
+let scores: List[Int] = [90, 85, 92]
+let ages: Dict[String, Int] = {"Alice": 12, "Bob": 13}
+```
+
 Annotations are completely optional -- see
-[Type Annotations](type-annotations.md) for the full guide.
+[Type Annotations](type-annotations.md) for the full guide, including
+[parameterized types](type-annotations.md#parameterized-types-generics)
+like `List[Int]` and `Dict[String, Int]`.
 
 ## Summary
 

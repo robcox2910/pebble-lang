@@ -10,16 +10,11 @@ like ``print`` and ``range``) so the analyzer can validate calls from a
 single source of truth.
 """
 
-from __future__ import annotations
-
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
+from pebble.bytecode import CodeObject
 from pebble.errors import PebbleRuntimeError
-
-if TYPE_CHECKING:
-    from pebble.bytecode import CodeObject
 
 
 @dataclass(frozen=True)

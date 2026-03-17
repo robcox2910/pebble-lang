@@ -1,10 +1,8 @@
 """Shared test fixtures for the Pebble test suite."""
 
-from __future__ import annotations
-
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TextIO
 
 from pebble.analyzer import SemanticAnalyzer
 from pebble.bytecode import CompiledProgram
@@ -13,9 +11,6 @@ from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
 from pebble.vm import VirtualMachine
-
-if TYPE_CHECKING:
-    from typing import TextIO
 
 
 def run_source(source: str) -> str:

@@ -5,10 +5,8 @@ imported modules through the full pipeline, caching results, and
 detecting circular imports.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
@@ -17,22 +15,18 @@ from pebble.ast_nodes import (
     FromImportStatement,
     FunctionDef,
     ImportStatement,
+    Program,
+    Statement,
     StructDef,
 )
+from pebble.builtins import Value
+from pebble.bytecode import CodeObject
 from pebble.compiler import Compiler
 from pebble.errors import PebbleImportError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from pebble.stdlib import STDLIB_MODULES, StdlibModule
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pebble.ast_nodes import Program, Statement
-    from pebble.builtins import Value
-    from pebble.bytecode import CodeObject
-    from pebble.stdlib import StdlibHandler
-    from pebble.tokens import SourceLocation
+from pebble.stdlib import STDLIB_MODULES, StdlibHandler, StdlibModule
+from pebble.tokens import SourceLocation
 
 
 @dataclass(frozen=True)

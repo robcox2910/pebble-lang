@@ -7,12 +7,7 @@ a caret pointing to the exact column.  :class:`ErrorCollector` lets
 multiple errors be gathered and reported together.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from collections.abc import Iterator
+from collections.abc import Iterator
 
 
 class PebbleError(Exception):

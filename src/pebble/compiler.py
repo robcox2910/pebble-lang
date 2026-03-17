@@ -8,10 +8,7 @@ The semantic analyzer is assumed to have already validated the program, so the
 compiler does not duplicate error checking.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
 from pebble.ast_nodes import (
     ArrayLiteral,
@@ -61,6 +58,7 @@ from pebble.ast_nodes import (
     SuperMethodCall,
     ThrowStatement,
     TryCatch,
+    TypeAnnotation,
     UnaryOp,
     UnpackAssignment,
     UnpackConstAssignment,
@@ -71,9 +69,7 @@ from pebble.ast_nodes import (
 )
 from pebble.builtins import METHOD_ARITIES, METHOD_NONE, SLICE_NONE
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
-
-if TYPE_CHECKING:
-    from pebble.tokens import SourceLocation
+from pebble.tokens import SourceLocation
 
 # -- Operator mapping ---------------------------------------------------------
 
@@ -371,7 +367,7 @@ class Compiler:
         """Compile ``let name[: Type] = value``."""
         self._compile_expression(node.value)
         if node.type_annotation is not None:
-            self._emit(OpCode.CHECK_TYPE, node.type_annotation, location=node.location)
+            self._emit(OpCode.CHECK_TYPE, str(node.type_annotation), location=node.location)
         self._emit_store(node.name, location=node.location)
 
     def _compile_const_assignment(self, node: ConstAssignment) -> None:
@@ -612,7 +608,7 @@ class Compiler:
         name: str,
         node_params: list[Parameter],
         body: list[Statement],
-        return_type: str | None,
+        return_type: TypeAnnotation | None,
     ) -> CodeObject:
         """Compile a function body into a separate CodeObject.
 
@@ -649,7 +645,7 @@ class Compiler:
         if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
             self._emit_constant(None)
             if return_type is not None:
-                self._emit(OpCode.CHECK_TYPE, return_type)
+                self._emit(OpCode.CHECK_TYPE, str(return_type))
             self._emit(OpCode.RETURN)
 
         self._functions[name] = fn_code
@@ -682,7 +678,7 @@ class Compiler:
         else:
             self._emit_constant(None, location=node.location)
         if self._current.return_type is not None:
-            self._emit(OpCode.CHECK_TYPE, self._current.return_type, location=node.location)
+            self._emit(OpCode.CHECK_TYPE, str(self._current.return_type), location=node.location)
         for _ in range(self._try_depth):
             self._emit(OpCode.POP_TRY, location=node.location)
         self._emit(OpCode.RETURN, location=node.location)
@@ -1167,7 +1163,7 @@ class Compiler:
     def _compile_struct_def(self, node: StructDef) -> None:
         """Compile a struct definition — store field metadata, emit no bytecode."""
         self._structs[node.name] = [f.name for f in node.fields]
-        annotated = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
+        annotated = {f.name: str(f.type_annotation) for f in node.fields if f.type_annotation}
         if annotated:
             self._struct_field_types[node.name] = annotated
 
@@ -1183,7 +1179,7 @@ class Compiler:
 
             # Merge parent field type annotations
             parent_types = dict(self._struct_field_types.get(node.parent, {}))
-            own_types = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
+            own_types = {f.name: str(f.type_annotation) for f in node.fields if f.type_annotation}
             merged_types = {**parent_types, **own_types}
             if merged_types:
                 self._struct_field_types[node.name] = merged_types
@@ -1192,7 +1188,7 @@ class Compiler:
             self._class_parents[node.name] = node.parent
         else:
             self._structs[node.name] = own_fields
-            annotated = {f.name: f.type_annotation for f in node.fields if f.type_annotation}
+            annotated = {f.name: str(f.type_annotation) for f in node.fields if f.type_annotation}
             if annotated:
                 self._struct_field_types[node.name] = annotated
 
