@@ -6,13 +6,13 @@ references.  The VM processes one instruction at a time until it reaches
 a ``HALT`` opcode.
 """
 
-from __future__ import annotations
-
 import operator
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, ClassVar, Never
+from typing import ClassVar, Never, TextIO
 
+from pebble.ast_nodes import TypeAnnotation
 from pebble.builtins import (
     BUILTIN_ARITIES,
     BUILTINS,
@@ -29,15 +29,9 @@ from pebble.builtins import (
     Value,
     format_value,
 )
-from pebble.bytecode import Instruction, OpCode
+from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 from pebble.errors import PebbleRuntimeError
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from typing import TextIO
-
-    from pebble.bytecode import CodeObject, CompiledProgram
-    from pebble.stdlib import StdlibHandler
+from pebble.stdlib import StdlibHandler
 
 _DIVISION_BY_ZERO = "Division by zero"
 
@@ -1217,34 +1211,73 @@ class VirtualMachine:
             case _:
                 return isinstance(value, StructInstance) and value.type_name == type_name
 
-    def _check_type(self, value: Value, type_name: str) -> None:
-        """Validate *value* matches *type_name*, raising on mismatch."""
-        if not self._matches_type(value, type_name):
+    @staticmethod
+    def _matches_type_annotation(value: Value, annotation: TypeAnnotation) -> bool:
+        """Return True if *value* conforms to *annotation*, with deep element checking.
+
+        For ``List[T]``, check that every element matches ``T``.
+        For ``Dict[K, V]``, check that every key matches ``K`` and every value
+        matches ``V``.  Nested annotations are validated recursively.
+        Empty containers pass any parameterized check.
+        """
+        name = annotation.name
+        params = annotation.params
+
+        # Simple (non-parameterized) type — delegate to the flat checker
+        if not params:
+            return VirtualMachine._matches_type(value, name)
+
+        # List[T] — container must be a list, then check each element
+        if name == "List":
+            if not isinstance(value, list):
+                return False
+            elem_ann = params[0]
+            return all(VirtualMachine._matches_type_annotation(elem, elem_ann) for elem in value)
+
+        # Dict[K, V] — container must be a dict, then check keys and values
+        if name == "Dict":
+            if not isinstance(value, dict):
+                return False
+            key_ann, val_ann = params[0], params[1]
+            return all(
+                VirtualMachine._matches_type_annotation(k, key_ann)
+                and VirtualMachine._matches_type_annotation(v, val_ann)
+                for k, v in value.items()
+            )
+
+        # Unknown parameterized type — fall back to base type check only
+        return VirtualMachine._matches_type(value, name)
+
+    def _check_type_annotation(self, value: Value, annotation: TypeAnnotation) -> None:
+        """Validate *value* matches *annotation*, raising on mismatch."""
+        if not self._matches_type_annotation(value, annotation):
             actual = self._value_type_display(value)
-            self._runtime_error(f"Type error: expected {type_name}, got {actual}")
+            self._runtime_error(f"Type error: expected {annotation}, got {actual}")
 
     def _exec_check_type(self, instruction: Instruction) -> None:
         """Handle CHECK_TYPE — peek TOS and validate type."""
-        type_name = _str_operand(instruction)
+        type_str = _str_operand(instruction)
         value = self._stack[-1]
-        self._check_type(value, type_name)
+        annotation = TypeAnnotation.from_string(type_str)
+        self._check_type_annotation(value, annotation)
 
-    def _check_param_type(self, value: Value, type_name: str, param_name: str) -> None:
+    def _check_param_type(self, value: Value, param_type: TypeAnnotation, param_name: str) -> None:
         """Validate a function parameter value matches its type annotation."""
-        if not self._matches_type(value, type_name):
+        if not self._matches_type_annotation(value, param_type):
             actual = self._value_type_display(value)
             self._runtime_error(
-                f"Type error: parameter '{param_name}' expected {type_name}, got {actual}"
+                f"Type error: parameter '{param_name}' expected {param_type}, got {actual}"
             )
 
     def _check_field_type(
-        self, value: Value, type_name: str, field_name: str, struct_name: str
+        self, value: Value, type_str: str, field_name: str, struct_name: str
     ) -> None:
         """Validate a struct field value matches its type annotation."""
-        if not self._matches_type(value, type_name):
+        annotation = TypeAnnotation.from_string(type_str)
+        if not self._matches_type_annotation(value, annotation):
             actual = self._value_type_display(value)
             self._runtime_error(
-                f"Type error: field '{field_name}' of '{struct_name}' expected {type_name}, got {actual}"
+                f"Type error: field '{field_name}' of '{struct_name}' expected {annotation}, got {actual}"
             )
 
     # -- Exception handling ---------------------------------------------------

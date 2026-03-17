@@ -10,14 +10,11 @@ compilation unit (the main program or a single function).
 dictionary of function ``CodeObject``s.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from pebble.tokens import SourceLocation
+from pebble.ast_nodes import TypeAnnotation
+from pebble.tokens import SourceLocation
 
 
 class OpCode(StrEnum):
@@ -161,8 +158,8 @@ class CodeObject:
     parameters: list[str] = field(default_factory=lambda: [])
     cell_variables: list[str] = field(default_factory=lambda: [])
     free_variables: list[str] = field(default_factory=lambda: [])
-    param_types: list[str | None] = field(default_factory=lambda: [])
-    return_type: str | None = None
+    param_types: list[TypeAnnotation | None] = field(default_factory=lambda: [])
+    return_type: TypeAnnotation | None = None
     is_generator: bool = False
 
     _constant_index: dict[tuple[type, int | float | str | bool | None], int] = field(
@@ -198,7 +195,7 @@ class CompiledProgram:
     main: CodeObject
     functions: dict[str, CodeObject]
     structs: dict[str, list[str]] = field(default_factory=lambda: {})
-    struct_field_types: dict[str, dict[str, str]] = field(default_factory=lambda: {})
+    struct_field_types: dict[str, dict[str, str]] = field(default_factory=lambda: {})  # serialized
     class_methods: dict[str, list[str]] = field(default_factory=lambda: {})
     enums: dict[str, list[str]] = field(default_factory=lambda: {})
     class_parents: dict[str, str] = field(default_factory=lambda: {})

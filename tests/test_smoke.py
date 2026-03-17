@@ -1,20 +1,15 @@
 """Smoke tests to verify the project scaffold and CLI are working."""
 
-from __future__ import annotations
-
 import subprocess
 import sys
+from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
 
 import pebble
 from pebble.cli import main
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 # -- Named constants ----------------------------------------------------------
 

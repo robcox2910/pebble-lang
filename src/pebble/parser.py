@@ -4,12 +4,8 @@ The parser consumes a list of :class:`~pebble.tokens.Token` objects produced
 by the lexer and builds an :class:`~pebble.ast_nodes.Program` AST.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, ClassVar, Never
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
+from collections.abc import Callable
+from typing import ClassVar, Never
 
 from pebble.ast_nodes import (
     ArrayLiteral,
@@ -60,6 +56,7 @@ from pebble.ast_nodes import (
     SuperMethodCall,
     ThrowStatement,
     TryCatch,
+    TypeAnnotation,
     UnaryOp,
     UnpackAssignment,
     UnpackConstAssignment,
@@ -209,11 +206,10 @@ class Parser:
         name_token = self._expect(TokenKind.IDENTIFIER, f"Expected variable name after '{keyword}'")
 
         # Optional type annotation
-        type_annotation: str | None = None
+        type_annotation: TypeAnnotation | None = None
         if not self._at_end() and self._peek().kind == TokenKind.COLON:
             self._advance()  # consume ':'
-            type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name after ':'")
-            type_annotation = type_token.value
+            type_annotation = self._parse_type_annotation()
 
         # Type annotation + comma → error (no annotations on unpack)
         if (
@@ -439,24 +435,43 @@ class Parser:
     def _parse_parameter(self) -> Parameter:
         """Parse ``name[: Type][= default]`` — a parameter with optional type and default."""
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected parameter name")
-        type_annotation: str | None = None
+        type_annotation: TypeAnnotation | None = None
         if not self._at_end() and self._peek().kind == TokenKind.COLON:
             self._advance()  # consume ':'
-            type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name after ':'")
-            type_annotation = type_token.value
+            type_annotation = self._parse_type_annotation()
         default: Expression | None = None
         if not self._at_end() and self._peek().kind == TokenKind.EQUAL:
             self._advance()  # consume '='
             default = self._parse_precedence(min_precedence=0)
         return Parameter(name=name_token.value, type_annotation=type_annotation, default=default)
 
-    def _parse_return_type(self) -> str | None:
+    def _parse_return_type(self) -> TypeAnnotation | None:
         """Parse optional ``-> Type`` return type annotation."""
         if not self._at_end() and self._peek().kind == TokenKind.ARROW:
             self._advance()  # consume '->'
-            type_token = self._expect(TokenKind.IDENTIFIER, "Expected return type after '->'")
-            return type_token.value
+            return self._parse_type_annotation()
         return None
+
+    def _parse_type_annotation(self) -> TypeAnnotation:
+        """Parse a type annotation like ``Int``, ``List[Int]``, or ``Dict[String, Int]``.
+
+        Recursively handles nested parameterized types such as
+        ``List[List[Int]]`` or ``Dict[String, List[Float]]``.
+        """
+        type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name")
+        name = type_token.value
+
+        # Check for type parameters: Type[...]
+        if not self._at_end() and self._peek().kind == TokenKind.LEFT_BRACKET:
+            self._advance()  # consume '['
+            params: list[TypeAnnotation] = [self._parse_type_annotation()]
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                params.append(self._parse_type_annotation())
+            self._expect(TokenKind.RIGHT_BRACKET, "Expected ']' after type parameters")
+            return TypeAnnotation(name=name, params=params)
+
+        return TypeAnnotation(name=name)
 
     def _parse_function_def(self) -> FunctionDef:
         """Parse a ``fn name(params) [-> Type] { body }`` function definition."""

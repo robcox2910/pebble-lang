@@ -79,7 +79,7 @@ select = [
     "PTH",    # flake8-use-pathlib
     "SIM",    # flake8-simplify
     "TID",    # flake8-tidy-imports
-    "TCH",    # flake8-type-checking
+    # "TCH",  # flake8-type-checking — disabled: all imports are now runtime
     "S",      # flake8-bandit (security)
     "PERF",   # Perflint (performance)
     "FURB",   # refurb (modernization)

@@ -27,6 +27,10 @@ let mixed = [1, "hello", true]
 print(mixed)   # prints: [1, hello, true]
 ```
 
+If you want Pebble to check that every element is the same type, you
+can use a [parameterized type annotation](type-annotations.md#list-with-an-element-type)
+like `List[Int]`.
+
 You can even put lists inside lists:
 
 ```pebble

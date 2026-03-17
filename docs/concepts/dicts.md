@@ -29,6 +29,10 @@ lists, or even other dicts:
 let record = {"scores": [90, 85, 100], "passed": true}
 ```
 
+If you want Pebble to check the types of keys and values, you can use a
+[parameterized type annotation](type-annotations.md#dict-with-key-and-value-types)
+like `Dict[String, Int]`.
+
 ## Reading a Value
 
 Use square brackets with the **key** (a string) to look up a value:

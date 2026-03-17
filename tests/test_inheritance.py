@@ -1,7 +1,5 @@
 """Tests for class inheritance: extends, method overriding, and super calls."""
 
-from __future__ import annotations
-
 from io import StringIO
 
 import pytest

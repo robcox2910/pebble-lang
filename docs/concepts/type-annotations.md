@@ -38,7 +38,9 @@ Pebble has eight built-in type names you can use in annotations:
 | `Bool`     | True or false                 | `true`, `false`  |
 | `Null`     | Nothing / no value            | `null`           |
 | `List`     | An ordered collection         | `[1, 2, 3]`      |
+| `List[T]`  | List with element type        | `List[Int]`       |
 | `Dict`     | Key-value pairs               | `{"a": 1}`       |
+| `Dict[K, V]` | Dict with key/value types  | `Dict[String, Int]` |
 | `Fn`       | A function or closure         | `fn(x) { x * 2 }` |
 
 You can also use any custom type name you've defined -- struct, class, or
@@ -127,6 +129,115 @@ struct Config {
     name: String,
     value           # accepts anything
 }
+```
+
+## Parameterized Types (Generics)
+
+Saying `let items: List = [1, 2, 3]` checks that `items` is a list --
+but what if someone sneaks a string in? Plain `List` can't tell you.
+
+**Parameterized types** let you be more specific. Think of it like
+labelling a box "BOOKS" instead of just "STUFF" -- you know exactly
+what should go inside.
+
+### List with an Element Type
+
+Put the element type inside square brackets:
+
+```pebble
+let scores: List[Int] = [90, 85, 92]
+let names: List[String] = ["Alice", "Bob"]
+```
+
+Pebble checks **every element** in the list, not just the container.
+If one element is the wrong type, you get a clear error:
+
+```pebble
+let oops: List[Int] = [1, "two", 3]
+# Type error: expected List[Int], got List
+```
+
+### Dict with Key and Value Types
+
+Dicts take two type parameters -- one for keys and one for values:
+
+```pebble
+let ages: Dict[String, Int] = {"Alice": 12, "Bob": 13}
+let flags: Dict[String, Bool] = {"debug": true, "verbose": false}
+```
+
+Both keys and values are checked:
+
+```pebble
+let bad: Dict[String, Int] = {"age": "twelve"}
+# Type error: expected Dict[String, Int], got Dict
+```
+
+### Nesting
+
+You can put parameterized types inside other parameterized types --
+like putting a labelled box inside another labelled box:
+
+```pebble
+let matrix: List[List[Int]] = [[1, 2], [3, 4]]
+let records: List[Dict[String, Int]] = [{"x": 1}, {"y": 2}]
+let lookup: Dict[String, List[Float]] = {"temps": [98.6, 99.1]}
+```
+
+Pebble checks every level of nesting, all the way down.
+
+### Empty Containers
+
+An empty list `[]` matches **any** `List[T]`, and an empty dict `{}`
+matches any `Dict[K, V]`. There's nothing inside to check, so there's
+nothing to be wrong:
+
+```pebble
+let empty: List[Int] = []         # OK
+let blank: Dict[String, Int] = {} # OK
+```
+
+### Bare Types Still Work
+
+You don't have to use type parameters. Plain `List` and `Dict` still
+work the same as before -- they just check that the value is a list or
+dict without looking at what's inside:
+
+```pebble
+let anything: List = [1, "two", true]   # OK -- only checks it's a list
+let lookup: Dict = {"a": 1, "b": "two"} # OK -- only checks it's a dict
+```
+
+### Generics in Functions
+
+Use parameterized types for function parameters and return types:
+
+```pebble
+fn sum_all(numbers: List[Int]) -> Int {
+    let total = 0
+    for n in numbers { total = total + n }
+    return total
+}
+
+fn keys(d: Dict[String, Int]) -> List[String] {
+    let result = []
+    for k in d { result = list_append(result, k) }
+    return result
+}
+```
+
+### Generics in Structs
+
+Struct fields can use parameterized types too:
+
+```pebble
+struct Gradebook {
+    student: String,
+    scores: List[Int]
+}
+
+let book = Gradebook("Alice", [90, 85, 92])
+book.scores = [95, 88]         # OK -- List[Int]
 ```
 
 ## When Types Are Checked
@@ -265,14 +376,18 @@ graph LR
 1. **Lexer** -- The `->` symbol produces a new `ARROW` token.
 2. **Parser** -- Parameters and fields become `Parameter` nodes with an
    optional `type_annotation`. Return types are parsed after `->`.
-3. **Analyzer** -- Each type name is validated: it must be a built-in type
-   (`Int`, `Float`, etc.) or a defined struct name.
+3. **Analyzer** -- Each type annotation is validated: the base type must be
+   a built-in (`Int`, `Float`, etc.) or a defined struct name. For
+   parameterized types, it also checks that the right number of type
+   parameters are given (1 for `List`, 2 for `Dict`) and that each
+   parameter is itself a valid type.
 4. **Compiler** -- For annotated variables and returns, the compiler emits
    a `CHECK_TYPE` instruction. Function metadata (`param_types`,
    `return_type`) and struct field types are stored alongside the bytecode.
 5. **VM** -- At runtime, `CHECK_TYPE` peeks at the value on the stack and
-   validates its type. Parameter and field checks happen at call time and
-   construction time.
+   validates its type. For parameterized types like `List[Int]`, the VM
+   checks the container *and* every element inside it (deep checking).
+   Parameter and field checks happen at call time and construction time.
 
 ## Summary
 
@@ -283,5 +398,8 @@ graph LR
 | Parameter type | `fn f(name: Type)` | `fn f(x: Int)` |
 | Return type | `fn f() -> Type` | `fn f() -> Int` |
 | Struct field type | `struct S { field: Type }` | `struct S { x: Float }` |
+| List element type | `List[T]` | `let xs: List[Int] = [1, 2]` |
+| Dict key/value types | `Dict[K, V]` | `let d: Dict[String, Int] = ...` |
+| Nested generics | `List[List[T]]` | `let m: List[List[Int]] = ...` |
 | All annotations optional | Omit `: Type` or `-> Type` | `let x = 5` |
 | Struct as type | Use the struct's name | `let p: Point = ...` |

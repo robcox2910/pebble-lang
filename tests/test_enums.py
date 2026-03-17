@@ -1,7 +1,5 @@
 """Tests for the Pebble enum feature."""
 
-from __future__ import annotations
-
 from io import StringIO
 
 import pytest

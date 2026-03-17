@@ -6,18 +6,12 @@ functions are implemented in the host language (Python) rather than in
 files on disk.
 """
 
-from __future__ import annotations
-
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
+from pebble.builtins import Value
 from pebble.errors import PebbleRuntimeError
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from pebble.builtins import Value
 
 type StdlibHandler = Callable[[list[Value]], Value] | None
 """Handler for a stdlib function.

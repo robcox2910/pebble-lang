@@ -9,9 +9,8 @@ block scoping: each block (``if``, ``while``, ``for``, ``fn``) introduces
 a new child scope.  Variable lookup walks the chain toward the root.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
+from typing import ClassVar
 
 from pebble.ast_nodes import (
     ArrayLiteral,
@@ -57,6 +56,7 @@ from pebble.ast_nodes import (
     SuperMethodCall,
     ThrowStatement,
     TryCatch,
+    TypeAnnotation,
     UnaryOp,
     UnpackAssignment,
     UnpackConstAssignment,
@@ -290,14 +290,38 @@ class SemanticAnalyzer:
             raise RuntimeError(msg)
         self._scope = self._scope.parent
 
-    def _validate_type_name(self, name: str, location: SourceLocation) -> None:
-        """Validate that *name* is a known type (builtin or struct)."""
-        if name in _BUILTIN_TYPES:
-            return
-        if self._scope.resolve_function(name) is not None:
-            return
-        msg = f"Unknown type '{name}'"
-        raise SemanticError(msg, line=location.line, column=location.column)
+    _GENERIC_PARAM_COUNTS: ClassVar[dict[str, int]] = {"List": 1, "Dict": 2}
+
+    def _validate_type_annotation(
+        self, annotation: TypeAnnotation, location: SourceLocation
+    ) -> None:
+        """Validate a type annotation recursively.
+
+        Check that the base type is known, the parameter count matches for
+        generic types, and all inner type parameters are themselves valid.
+        """
+        name = annotation.name
+        # Check base type exists
+        if name not in _BUILTIN_TYPES and self._scope.resolve_function(name) is None:
+            msg = f"Unknown type '{name}'"
+            raise SemanticError(msg, line=location.line, column=location.column)
+
+        # Check type parameter count
+        if annotation.params:
+            if name in self._GENERIC_PARAM_COUNTS:
+                expected = self._GENERIC_PARAM_COUNTS[name]
+                actual = len(annotation.params)
+                if actual != expected:
+                    s = "s" if expected != 1 else ""
+                    msg = f"{name} expects {expected} type parameter{s}, got {actual}"
+                    raise SemanticError(msg, line=location.line, column=location.column)
+            else:
+                msg = f"{name} does not accept type parameters"
+                raise SemanticError(msg, line=location.line, column=location.column)
+
+        # Recursively validate inner type parameters
+        for param in annotation.params:
+            self._validate_type_annotation(param, location)
 
     # -- Statement dispatch ---------------------------------------------------
 
@@ -418,14 +442,14 @@ class SemanticAnalyzer:
         """Visit a ``let`` declaration — check value, then declare name."""
         self._visit_expression(node.value)
         if node.type_annotation is not None:
-            self._validate_type_name(node.type_annotation, node.location)
+            self._validate_type_annotation(node.type_annotation, node.location)
         self._scope.declare_variable(node.name, node.location)
 
     def _visit_const_assignment(self, node: ConstAssignment) -> None:
         """Visit a ``const`` declaration — check value, then declare as constant."""
         self._visit_expression(node.value)
         if node.type_annotation is not None:
-            self._validate_type_name(node.type_annotation, node.location)
+            self._validate_type_annotation(node.type_annotation, node.location)
         self._scope.declare_constant(node.name, node.location)
 
     def _visit_reassignment(self, node: Reassignment) -> None:
@@ -526,9 +550,9 @@ class SemanticAnalyzer:
         for param in node.parameters:
             self._scope.declare_variable(param.name, node.location)
             if param.type_annotation is not None:
-                self._validate_type_name(param.type_annotation, node.location)
+                self._validate_type_annotation(param.type_annotation, node.location)
         if node.return_type is not None:
-            self._validate_type_name(node.return_type, node.location)
+            self._validate_type_annotation(node.return_type, node.location)
         prev_in_function = self._in_function
         self._in_function = True
         for stmt in node.body:
@@ -791,13 +815,13 @@ class SemanticAnalyzer:
         self._scope.variables[node.name] = node.location
         for f in node.fields:
             if f.type_annotation is not None:
-                self._validate_type_name(f.type_annotation, node.location)
+                self._validate_type_annotation(f.type_annotation, node.location)
 
     def _visit_class_def(self, node: ClassDef) -> None:
         """Visit a class definition — register constructor, validate methods."""
         for f in node.fields:
             if f.type_annotation is not None:
-                self._validate_type_name(f.type_annotation, node.location)
+                self._validate_type_annotation(f.type_annotation, node.location)
 
         all_fields, inherited_methods = self._validate_class_inheritance(node)
 
@@ -897,9 +921,9 @@ class SemanticAnalyzer:
             for param in method.parameters:
                 self._scope.declare_variable(param.name, method.location)
                 if param.type_annotation is not None and param.name != "self":
-                    self._validate_type_name(param.type_annotation, method.location)
+                    self._validate_type_annotation(param.type_annotation, method.location)
             if method.return_type is not None:
-                self._validate_type_name(method.return_type, method.location)
+                self._validate_type_annotation(method.return_type, method.location)
             prev_in_function = self._in_function
             self._in_function = True
             for stmt in method.body:

@@ -1,7 +1,5 @@
 """Tests for operator overloading via dunder methods on classes."""
 
-from __future__ import annotations
-
 from io import StringIO
 
 import pytest

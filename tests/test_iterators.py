@@ -1,7 +1,5 @@
 """Tests for iterators and generators in Pebble."""
 
-from __future__ import annotations
-
 from io import StringIO
 
 import pytest

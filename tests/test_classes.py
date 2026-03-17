@@ -1,14 +1,12 @@
 """Tests for class definitions with methods."""
 
-from __future__ import annotations
-
 from io import StringIO
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pytest
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.ast_nodes import ClassDef, FunctionDef, Parameter, Statement
+from pebble.ast_nodes import ClassDef, FunctionDef, Parameter, Statement, TypeAnnotation
 from pebble.bytecode import CodeObject, CompiledProgram, OpCode
 from pebble.compiler import Compiler
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
@@ -20,9 +18,6 @@ from tests.conftest import (  # pyright: ignore[reportMissingImports]
     run_source,  # pyright: ignore[reportUnknownVariableType]
     run_source_with_imports,  # pyright: ignore[reportUnknownVariableType]
 )
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 # -- Named constants ----------------------------------------------------------
 
@@ -178,7 +173,7 @@ class TestClassParser:
         assert [f.name for f in node.fields] == ["name"]
         assert len(node.methods) == 1
         assert node.methods[0].name == "bark"
-        assert node.methods[0].return_type == "String"
+        assert node.methods[0].return_type == TypeAnnotation(name="String")
 
     def test_multiple_methods(self) -> None:
         """A class with multiple methods parses correctly."""
@@ -218,8 +213,8 @@ class TestClassParser:
         stmts = _parse(source)
         node = stmts[0]
         assert isinstance(node, ClassDef)
-        assert node.fields[0].type_annotation == "Int"
-        assert node.fields[1].type_annotation == "Int"
+        assert node.fields[0].type_annotation == TypeAnnotation(name="Int")
+        assert node.fields[1].type_annotation == TypeAnnotation(name="Int")
 
     def test_return_type_on_method(self) -> None:
         """Method return type annotations are preserved."""
@@ -232,7 +227,7 @@ class TestClassParser:
         stmts = _parse(source)
         node = stmts[0]
         assert isinstance(node, ClassDef)
-        assert node.methods[0].return_type == "String"
+        assert node.methods[0].return_type == TypeAnnotation(name="String")
 
     def test_duplicate_field_error(self) -> None:
         """Duplicate field names in a class raise ParseError."""
@@ -260,7 +255,7 @@ class TestClassParser:
         assert isinstance(node, ClassDef)
         method = node.methods[0]
         assert [p.name for p in method.parameters] == ["self", "a", "b"]
-        assert method.parameters[1].type_annotation == "Int"
+        assert method.parameters[1].type_annotation == TypeAnnotation(name="Int")
 
     def test_empty_class(self) -> None:
         """A class with no fields and no methods is valid."""
@@ -468,7 +463,7 @@ class TestClassCompiler:
         }"""
         compiled = _compile_program(source)
         code = compiled.functions["Dog.bark"]
-        assert code.return_type == "String"
+        assert code.return_type == TypeAnnotation(name="String")
 
     def test_implicit_return(self) -> None:
         """Methods without explicit return get implicit return 0."""
