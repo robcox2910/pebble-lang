@@ -329,33 +329,49 @@ class SemanticAnalyzer:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _visit_statement(self, stmt: Statement) -> None:
+    def _visit_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
         """Dispatch to the appropriate visitor based on statement type."""
         self._enforce_import_ordering(stmt)
 
         match stmt:
-            case (
-                Assignment()
-                | UnpackAssignment()
-                | ConstAssignment()
-                | UnpackConstAssignment()
-                | Reassignment()
-                | UnpackReassignment()
-            ):
-                self._visit_variable_statement(stmt)
-            case IfStatement() | WhileLoop() | ForLoop() | MatchStatement():
-                self._visit_control_flow_statement(stmt)
-            case (
-                FunctionDef()
-                | ReturnStatement()
-                | YieldStatement()
-                | StructDef()
-                | ClassDef()
-                | EnumDef()
-            ):
-                self._visit_definition_statement(stmt)
+            # Variable declarations and reassignments
+            case Assignment():
+                self._visit_assignment(stmt)
+            case UnpackAssignment():
+                self._visit_unpack_assignment(stmt)
+            case ConstAssignment():
+                self._visit_const_assignment(stmt)
+            case UnpackConstAssignment():
+                self._visit_unpack_const_assignment(stmt)
+            case Reassignment():
+                self._visit_reassignment(stmt)
+            case UnpackReassignment():
+                self._visit_unpack_reassignment(stmt)
             case PrintStatement():
                 self._visit_expression(stmt.expression)
+            # Control flow
+            case IfStatement():
+                self._visit_if(stmt)
+            case WhileLoop():
+                self._visit_while(stmt)
+            case ForLoop():
+                self._visit_for(stmt)
+            case MatchStatement():
+                self._visit_match(stmt)
+            # Definitions
+            case FunctionDef():
+                self._visit_function_def(stmt)
+            case ReturnStatement():
+                self._visit_return(stmt)
+            case YieldStatement():
+                self._visit_yield(stmt)
+            case StructDef():
+                self._visit_struct_def(stmt)
+            case ClassDef():
+                self._visit_class_def(stmt)
+            case EnumDef():
+                self._visit_enum_def(stmt)
+            # Other statements
             case IndexAssignment():
                 self._visit_index_assignment(stmt)
             case FieldAssignment():
@@ -383,62 +399,6 @@ class SemanticAnalyzer:
                 raise SemanticError(msg, line=loc.line, column=loc.column)
         else:
             self._past_imports = True
-
-    def _visit_variable_statement(
-        self,
-        stmt: Assignment
-        | UnpackAssignment
-        | ConstAssignment
-        | UnpackConstAssignment
-        | Reassignment
-        | UnpackReassignment,
-    ) -> None:
-        """Dispatch variable declaration, constant, and reassignment statements."""
-        match stmt:
-            case Assignment():
-                self._visit_assignment(stmt)
-            case UnpackAssignment():
-                self._visit_unpack_assignment(stmt)
-            case ConstAssignment():
-                self._visit_const_assignment(stmt)
-            case UnpackConstAssignment():
-                self._visit_unpack_const_assignment(stmt)
-            case Reassignment():
-                self._visit_reassignment(stmt)
-            case UnpackReassignment():
-                self._visit_unpack_reassignment(stmt)
-
-    def _visit_control_flow_statement(
-        self, stmt: IfStatement | WhileLoop | ForLoop | MatchStatement
-    ) -> None:
-        """Dispatch control flow statements (if, while, for, match)."""
-        match stmt:
-            case IfStatement():
-                self._visit_if(stmt)
-            case WhileLoop():
-                self._visit_while(stmt)
-            case ForLoop():
-                self._visit_for(stmt)
-            case MatchStatement():
-                self._visit_match(stmt)
-
-    def _visit_definition_statement(
-        self, stmt: FunctionDef | ReturnStatement | YieldStatement | StructDef | ClassDef | EnumDef
-    ) -> None:
-        """Dispatch function, struct, class, and enum definition statements."""
-        match stmt:
-            case FunctionDef():
-                self._visit_function_def(stmt)
-            case ReturnStatement():
-                self._visit_return(stmt)
-            case YieldStatement():
-                self._visit_yield(stmt)
-            case StructDef():
-                self._visit_struct_def(stmt)
-            case ClassDef():
-                self._visit_class_def(stmt)
-            case EnumDef():
-                self._visit_enum_def(stmt)
 
     # -- Statement visitors ---------------------------------------------------
 
@@ -692,7 +652,7 @@ class SemanticAnalyzer:
         for expr in exprs:
             self._visit_expression(expr)
 
-    def _visit_expression(self, expr: Expression) -> None:
+    def _visit_expression(self, expr: Expression) -> None:  # noqa: PLR0912
         """Dispatch to the appropriate visitor based on expression type."""
         match expr:
             case Identifier():
@@ -703,16 +663,23 @@ class SemanticAnalyzer:
                 self._visit_expression(expr.operand)
             case FunctionCall():
                 self._visit_function_call(expr)
-            case StringInterpolation() | ArrayLiteral():
-                self._visit_collection_expression(expr)
+            case StringInterpolation():
+                self._visit_expressions(expr.parts)
+            case ArrayLiteral():
+                self._visit_expressions(expr.elements)
             case ListComprehension():
                 self._visit_list_comprehension(expr)
             case DictLiteral():
                 self._visit_dict_literal(expr)
             case IndexAccess() | SliceAccess():
                 self._visit_index_or_slice(expr)
-            case MethodCall() | FieldAccess() | SuperMethodCall():
-                self._visit_member_access_expression(expr)
+            # Member access
+            case MethodCall():
+                self._visit_method_call(expr)
+            case FieldAccess():
+                self._visit_field_access(expr)
+            case SuperMethodCall():
+                self._visit_super_method_call(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
             case (
@@ -729,31 +696,11 @@ class SemanticAnalyzer:
         self._visit_expression(node.left)
         self._visit_expression(node.right)
 
-    def _visit_collection_expression(self, expr: StringInterpolation | ArrayLiteral) -> None:
-        """Visit a string interpolation or array literal — check all parts/elements."""
-        match expr:
-            case StringInterpolation():
-                self._visit_expressions(expr.parts)
-            case ArrayLiteral():
-                self._visit_expressions(expr.elements)
-
     def _visit_dict_literal(self, node: DictLiteral) -> None:
         """Visit a dict literal — check all key-value pairs."""
         for key, value in node.entries:
             self._visit_expression(key)
             self._visit_expression(value)
-
-    def _visit_member_access_expression(
-        self, expr: MethodCall | FieldAccess | SuperMethodCall
-    ) -> None:
-        """Dispatch member access expressions (method call, field access, super call)."""
-        match expr:
-            case MethodCall():
-                self._visit_method_call(expr)
-            case FieldAccess():
-                self._visit_field_access(expr)
-            case SuperMethodCall():
-                self._visit_super_method_call(expr)
 
     # -- Closure helpers ------------------------------------------------------
 
