@@ -1614,6 +1614,9 @@ counted loop it always has -- no iterator objects needed.</p>
   be restarted. Call the function again to get a fresh one.</li>
 <li><strong>No yield from</strong> -- Pebble doesn't support delegating to another
   generator (yet).</li>
+<li><strong>No yield in async functions</strong> -- <code>yield</code> cannot appear inside an
+  <code>async fn</code>. Async functions use <code>await</code> instead. See
+  <a href="../async/">Async / Await</a>.</li>
 </ul>
 <h2 id="practical-example-fibonacci-generator">Practical Example: Fibonacci Generator</h2>
 <p>Here's a generator that produces Fibonacci numbers forever (well, until

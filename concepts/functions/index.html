@@ -766,6 +766,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#async-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1655,6 +1666,19 @@ nest them however you like to build up complex behaviour from simple pieces.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="async-functions">Async Functions</h2>
+<p>Regular functions run immediately when you call them. Sometimes you need
+functions that can pause and resume -- for example, waiting for I/O or
+running multiple tasks at the same time. That's what <strong>async functions</strong>
+are for:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>async fn fetch_data() {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    await sleep(2)
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    return 42
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>}
+</code></pre></div>
+<p>When you call an async function, it doesn't run right away. Instead, it
+returns a <strong>coroutine</strong> that the event loop will execute later. See
+<a href="../async/">Async / Await</a> for the full story.</p>
 <h2 id="summary">Summary</h2>
 <table>
 <thead>
@@ -1687,6 +1711,10 @@ nest them however you like to build up complex behaviour from simple pieces.</p>
 <tr>
 <td>Function call <code>()</code></td>
 <td>Using a recipe</td>
+</tr>
+<tr>
+<td>Async function</td>
+<td>A recipe the kitchen runs in the background</td>
 </tr>
 </tbody>
 </table>
