@@ -261,6 +261,14 @@ class SuperMethodCall:
     location: SourceLocation
 
 
+@dataclass(frozen=True)
+class AwaitExpression:
+    """An ``await expr`` expression that suspends the current coroutine."""
+
+    value: Expression
+    location: SourceLocation
+
+
 # ---------------------------------------------------------------------------
 # Statement nodes
 # ---------------------------------------------------------------------------
@@ -362,6 +370,17 @@ class ForLoop:
 @dataclass(frozen=True)
 class FunctionDef:
     """A function definition like ``fn add(a, b) { ... }``."""
+
+    name: str
+    parameters: list[Parameter]
+    body: list[Statement]
+    location: SourceLocation
+    return_type: TypeAnnotation | None = None
+
+
+@dataclass(frozen=True)
+class AsyncFunctionDef:
+    """An ``async fn name(params) { body }`` async function definition."""
 
     name: str
     parameters: list[Parameter]
@@ -583,6 +602,7 @@ Expression = (
     | FieldAccess
     | FunctionExpression
     | SuperMethodCall
+    | AwaitExpression
 )
 
 Statement = (
@@ -609,6 +629,7 @@ Statement = (
     | ClassDef
     | EnumDef
     | FieldAssignment
+    | AsyncFunctionDef
     | ImportStatement
     | FromImportStatement
 )

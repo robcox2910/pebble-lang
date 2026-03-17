@@ -319,6 +319,59 @@ If the generator has no more values, Pebble stops with an error.
 
 See [Iterators & Generators](iterators.md) for more details.
 
+## async_run(coroutine)
+
+Start the event loop and run an async function to completion:
+
+```pebble
+async fn greet() {
+    return "hello"
+}
+
+let result = async_run(greet())
+print(result)   # prints: hello
+```
+
+## spawn(coroutine)
+
+Register a coroutine as a background task with the event loop. Returns a
+handle you can `await` later:
+
+```pebble
+async fn task() {
+    await sleep(1)
+    return 42
+}
+
+async fn main() {
+    let h = spawn(task())
+    let result = await h
+    print(result)   # prints: 42
+}
+
+async_run(main())
+```
+
+## sleep(ticks)
+
+Pause the current async task for a number of ticks. While one task
+sleeps, the event loop runs other tasks:
+
+```pebble
+async fn countdown(n) {
+    let i = n
+    while i > 0 {
+        print(i)
+        await sleep(1)
+        i = i - 1
+    }
+}
+
+async_run(countdown(3))   # prints: 3, 2, 1
+```
+
+See [Async / Await](async.md) for more details on all three.
+
 ## Putting It All Together
 
 You can combine these to do useful things. Here's a program that builds a

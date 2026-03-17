@@ -236,6 +236,24 @@ The parser catches several mistakes:
 | `fn f(a = 1, b) { }` | Required parameter cannot follow a parameter with a default |
 | `fn f(a = 1 + 2) { }` | Default parameter values must be literals |
 
+## Async Functions
+
+Regular functions run immediately when you call them. Sometimes you need
+functions that can pause and resume -- for example, waiting for I/O or
+running multiple tasks at the same time. That's what **async functions**
+are for:
+
+```pebble
+async fn fetch_data() {
+    await sleep(2)
+    return 42
+}
+```
+
+When you call an async function, it doesn't run right away. Instead, it
+returns a **coroutine** that the event loop will execute later. See
+[Async / Await](async.md) for the full story.
+
 ## Summary
 
 | Concept | Analogy |
@@ -246,3 +264,4 @@ The parser catches several mistakes:
 | Argument | The actual ingredient you hand over |
 | `return` | Handing back the finished dish |
 | Function call `()` | Using a recipe |
+| Async function | A recipe the kitchen runs in the background |

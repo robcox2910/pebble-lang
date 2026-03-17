@@ -82,6 +82,8 @@ them as variable names because they already mean something:
 | `ENUM` | `enum` | Define a fixed set of named choices |
 | `EXTENDS` | `extends` | Make a class inherit from another |
 | `SUPER` | `super` | Call a method on the parent class |
+| `ASYNC` | `async` | Declare an asynchronous function |
+| `AWAIT` | `await` | Pause until another async task completes |
 | `YIELD` | `yield` | Produce a value from a generator |
 | `NULL` | `null` | The "nothing" value |
 

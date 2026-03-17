@@ -18,6 +18,7 @@ toolbox into screwdrivers, hammers, and wrenches.
 | `fn`     | A function                      | `fn(x) { return x * 2 }` |
 | *struct* | A custom data type you define   | `Point(10, 20)`          |
 | *enum*   | A fixed set of named values     | `Color.Red`              |
+| *coroutine* | An async function waiting to run | `async fn f() {}; f()` |
 
 ## Checking a Type: `type()`
 

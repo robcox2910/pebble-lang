@@ -13,7 +13,7 @@ from tests.conftest import run_source
 
 # -- Named constants ----------------------------------------------------------
 
-TOTAL_BUILTIN_COUNT = 15
+TOTAL_BUILTIN_COUNT = 18
 MAP_ARITY = 2
 FILTER_ARITY = 2
 REDUCE_ARITY = 3

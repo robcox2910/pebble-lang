@@ -10,7 +10,7 @@ from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 
 # -- Named constants ----------------------------------------------------------
 
-OPCODE_COUNT = 56
+OPCODE_COUNT = 57
 FIRST_INDEX = 0
 SECOND_INDEX = 1
 THIRD_INDEX = 2

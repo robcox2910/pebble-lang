@@ -201,6 +201,9 @@ A few things to keep in mind:
   be restarted. Call the function again to get a fresh one.
 - **No yield from** -- Pebble doesn't support delegating to another
   generator (yet).
+- **No yield in async functions** -- `yield` cannot appear inside an
+  `async fn`. Async functions use `await` instead. See
+  [Async / Await](async.md).
 
 ## Practical Example: Fibonacci Generator
 

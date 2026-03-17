@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from pebble.ast_nodes import (
     ArrayLiteral,
     Assignment,
+    AsyncFunctionDef,
+    AwaitExpression,
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
@@ -285,6 +287,8 @@ class Compiler:
             # Function-related
             case FunctionDef():
                 self._compile_function_def(stmt)
+            case AsyncFunctionDef():
+                self._compile_async_function_def(stmt)
             case ReturnStatement():
                 self._compile_return(stmt)
             case YieldStatement():
@@ -640,6 +644,25 @@ class Compiler:
             self._emit(OpCode.MAKE_CLOSURE, node.name, location=node.location)
             self._emit(OpCode.STORE_NAME, node.name, location=node.location)
 
+    def _compile_async_function_def(self, node: AsyncFunctionDef) -> None:
+        """Compile an async function definition — set is_async flag on CodeObject."""
+        fn_code = self._compile_function_body(
+            node.name,
+            node.parameters,
+            node.body,
+            node.return_type,
+        )
+        fn_code.is_async = True
+        # If the function captures variables, it's a closure — emit MAKE_CLOSURE
+        if fn_code.free_variables:
+            self._emit(OpCode.MAKE_CLOSURE, node.name, location=node.location)
+            self._emit(OpCode.STORE_NAME, node.name, location=node.location)
+
+    def _compile_await(self, node: AwaitExpression) -> None:
+        """Compile ``await expr`` — compile inner expression, emit AWAIT."""
+        self._compile_expression(node.value)
+        self._emit(OpCode.AWAIT, location=node.location)
+
     def _compile_return(self, node: ReturnStatement) -> None:
         """Compile ``return`` or ``return expr`` — pop try handlers first."""
         if node.value is not None:
@@ -875,6 +898,8 @@ class Compiler:
                 self._compile_super_method_call(expr)
             case FunctionExpression():
                 self._compile_function_expression(expr)
+            case AwaitExpression():
+                self._compile_await(expr)
 
     # -- Expression compilers -------------------------------------------------
 
