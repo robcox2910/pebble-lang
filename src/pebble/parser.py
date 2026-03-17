@@ -445,6 +445,20 @@ class Parser:
             default = self._parse_precedence(min_precedence=0)
         return Parameter(name=name_token.value, type_annotation=type_annotation, default=default)
 
+    def _parse_parameter_list(self) -> list[Parameter]:
+        """Parse a comma-separated parameter list, consuming the closing ``)``.
+
+        Expect the opening ``(`` to have been consumed already.
+        """
+        parameters: list[Parameter] = []
+        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
+            parameters.append(self._parse_parameter())
+            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
+                self._advance()  # consume ','
+                parameters.append(self._parse_parameter())
+        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
+        return parameters
+
     def _parse_return_type(self) -> TypeAnnotation | None:
         """Parse optional ``-> Type`` return type annotation."""
         if not self._at_end() and self._peek().kind == TokenKind.ARROW:
@@ -478,15 +492,7 @@ class Parser:
         fn_token = self._advance()  # consume 'fn'
         name_token = self._expect(TokenKind.IDENTIFIER, "Expected function name after 'fn'")
         self._expect(TokenKind.LEFT_PAREN, "Expected '(' after function name")
-
-        parameters: list[Parameter] = []
-        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
-            parameters.append(self._parse_parameter())
-            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
-                self._advance()  # consume ','
-                parameters.append(self._parse_parameter())
-
-        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
+        parameters = self._parse_parameter_list()
         return_type = self._parse_return_type()
         body = self._parse_block()
         return FunctionDef(
@@ -926,16 +932,24 @@ class Parser:
             return self._parse_call(token)
         return Identifier(name=token.value, location=token.location)
 
-    def _parse_call(self, name_token: Token) -> FunctionCall:
-        """Parse a function call argument list after the name has been consumed."""
-        self._advance()  # consume '('
+    def _parse_argument_list(self, close_msg: str) -> list[Expression]:
+        """Parse a comma-separated argument list, consuming the closing ``)``.
+
+        Expect the opening ``(`` to have been consumed already.
+        """
         arguments: list[Expression] = []
         if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
             arguments.append(self._parse_precedence(min_precedence=0))
             while not self._at_end() and self._peek().kind == TokenKind.COMMA:
                 self._advance()  # consume ','
                 arguments.append(self._parse_precedence(min_precedence=0))
-        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after arguments")
+        self._expect(TokenKind.RIGHT_PAREN, close_msg)
+        return arguments
+
+    def _parse_call(self, name_token: Token) -> FunctionCall:
+        """Parse a function call argument list after the name has been consumed."""
+        self._advance()  # consume '('
+        arguments = self._parse_argument_list("Expected ')' after arguments")
         return FunctionCall(
             name=name_token.value,
             arguments=arguments,
@@ -1036,15 +1050,7 @@ class Parser:
         """Parse an anonymous function expression: ``fn(params) [-> Type] { body }``."""
         fn_token = self._advance()  # consume 'fn'
         self._expect(TokenKind.LEFT_PAREN, "Expected '(' after 'fn'")
-
-        parameters: list[Parameter] = []
-        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
-            parameters.append(self._parse_parameter())
-            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
-                self._advance()  # consume ','
-                parameters.append(self._parse_parameter())
-
-        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after parameters")
+        parameters = self._parse_parameter_list()
         return_type = self._parse_return_type()
         body = self._parse_block()
         name = f"$anon_{self._anon_counter}"
@@ -1063,13 +1069,7 @@ class Parser:
         self._expect(TokenKind.DOT, "Expected '.' after 'super'")
         method_token = self._expect(TokenKind.IDENTIFIER, "Expected method name after 'super.'")
         self._expect(TokenKind.LEFT_PAREN, "Expected '(' after method name")
-        arguments: list[Expression] = []
-        if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
-            arguments.append(self._parse_precedence(min_precedence=0))
-            while not self._at_end() and self._peek().kind == TokenKind.COMMA:
-                self._advance()  # consume ','
-                arguments.append(self._parse_precedence(min_precedence=0))
-        self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after arguments")
+        arguments = self._parse_argument_list("Expected ')' after arguments")
         return SuperMethodCall(
             method=method_token.value,
             arguments=arguments,
@@ -1102,13 +1102,7 @@ class Parser:
         # Method call: target.name(args)
         if not self._at_end() and self._peek().kind == TokenKind.LEFT_PAREN:
             self._advance()  # consume '('
-            arguments: list[Expression] = []
-            if not self._at_end() and self._peek().kind != TokenKind.RIGHT_PAREN:
-                arguments.append(self._parse_precedence(min_precedence=0))
-                while not self._at_end() and self._peek().kind == TokenKind.COMMA:
-                    self._advance()  # consume ','
-                    arguments.append(self._parse_precedence(min_precedence=0))
-            self._expect(TokenKind.RIGHT_PAREN, "Expected ')' after method arguments")
+            arguments = self._parse_argument_list("Expected ')' after method arguments")
             return MethodCall(
                 target=target,
                 method=name_token.value,
