@@ -67,6 +67,7 @@ nav:
       - Tuple Unpacking: concepts/tuple-unpacking.md
       - Structs: concepts/structs.md
       - Classes: concepts/classes.md
+      - Closures as Classes: concepts/closures-as-classes.md
       - Inheritance: concepts/inheritance.md
       - Operator Overloading: concepts/operator-overloading.md
       - Iterators & Generators: concepts/iterators.md
