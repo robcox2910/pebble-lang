@@ -11,9 +11,7 @@ from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.repl import Repl
 from pebble.tokens import TokenKind
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
-)
+from tests.conftest import run_source
 
 # -- Named constants ----------------------------------------------------------
 

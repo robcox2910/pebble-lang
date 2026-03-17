@@ -11,15 +11,7 @@ import pytest
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 from pebble.errors import PebbleRuntimeError
 from pebble.vm import Frame, VirtualMachine
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
-)
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
+from tests.conftest import run_source
 
 # -- Named constants ----------------------------------------------------------
 
@@ -87,27 +79,27 @@ class TestVMPrint:
 
     def test_print_integer(self) -> None:
         """``print(42)`` outputs ``42`` followed by a newline."""
-        assert _run_source("print(42)") == "42\n"
+        assert run_source("print(42)") == "42\n"
 
     def test_print_string(self) -> None:
         """``print("hello")`` outputs the string without quotes."""
-        assert _run_source('print("hello")') == "hello\n"
+        assert run_source('print("hello")') == "hello\n"
 
     def test_print_true(self) -> None:
         """``print(true)`` outputs ``true`` (not Python's ``True``)."""
-        assert _run_source("print(true)") == "true\n"
+        assert run_source("print(true)") == "true\n"
 
     def test_print_false(self) -> None:
         """``print(false)`` outputs ``false`` (not Python's ``False``)."""
-        assert _run_source("print(false)") == "false\n"
+        assert run_source("print(false)") == "false\n"
 
     def test_print_variable(self) -> None:
         """``let x = 42`` then ``print(x)`` outputs ``42``."""
-        assert _run_source("let x = 42\nprint(x)") == "42\n"
+        assert run_source("let x = 42\nprint(x)") == "42\n"
 
     def test_reassignment(self) -> None:
         """After reassignment, print shows the updated value."""
-        assert _run_source("let x = 1\nx = 2\nprint(x)") == "2\n"
+        assert run_source("let x = 1\nx = 2\nprint(x)") == "2\n"
 
 
 # -- Cycle 3: Arithmetic + Unary ---------------------------------------------
@@ -118,39 +110,39 @@ class TestVMArithmetic:
 
     def test_add(self) -> None:
         """``print(1 + 2)`` outputs ``3``."""
-        assert _run_source("print(1 + 2)") == "3\n"
+        assert run_source("print(1 + 2)") == "3\n"
 
     def test_subtract(self) -> None:
         """``print(5 - 3)`` outputs ``2``."""
-        assert _run_source("print(5 - 3)") == "2\n"
+        assert run_source("print(5 - 3)") == "2\n"
 
     def test_multiply(self) -> None:
         """``print(4 * 3)`` outputs ``12``."""
-        assert _run_source("print(4 * 3)") == "12\n"
+        assert run_source("print(4 * 3)") == "12\n"
 
     def test_divide_true(self) -> None:
         """``print(6 / 4)`` outputs ``1.5`` (true division)."""
-        assert _run_source("print(6 / 4)") == "1.5\n"
+        assert run_source("print(6 / 4)") == "1.5\n"
 
     def test_divide_exact(self) -> None:
         """``print(10 / 2)`` outputs ``5.0`` (always float)."""
-        assert _run_source("print(10 / 2)") == "5.0\n"
+        assert run_source("print(10 / 2)") == "5.0\n"
 
     def test_modulo(self) -> None:
         """``print(7 % 3)`` outputs ``1``."""
-        assert _run_source("print(7 % 3)") == "1\n"
+        assert run_source("print(7 % 3)") == "1\n"
 
     def test_negate(self) -> None:
         """``print(-42)`` outputs ``-42``."""
-        assert _run_source("print(-42)") == "-42\n"
+        assert run_source("print(-42)") == "-42\n"
 
     def test_nested_arithmetic(self) -> None:
         """``print(1 + 2 * 3)`` outputs ``7``."""
-        assert _run_source("print(1 + 2 * 3)") == "7\n"
+        assert run_source("print(1 + 2 * 3)") == "7\n"
 
     def test_string_concatenation(self) -> None:
         """``print("hello" + " world")`` outputs ``hello world``."""
-        assert _run_source('print("hello" + " world")') == "hello world\n"
+        assert run_source('print("hello" + " world")') == "hello world\n"
 
 
 # -- Cycle 4: Comparisons + Logical + NOT ------------------------------------
@@ -161,51 +153,51 @@ class TestVMComparisons:
 
     def test_equal_true(self) -> None:
         """``print(1 == 1)`` outputs ``true``."""
-        assert _run_source("print(1 == 1)") == "true\n"
+        assert run_source("print(1 == 1)") == "true\n"
 
     def test_equal_false(self) -> None:
         """``print(1 == 2)`` outputs ``false``."""
-        assert _run_source("print(1 == 2)") == "false\n"
+        assert run_source("print(1 == 2)") == "false\n"
 
     def test_not_equal_true(self) -> None:
         """``print(1 != 2)`` outputs ``true``."""
-        assert _run_source("print(1 != 2)") == "true\n"
+        assert run_source("print(1 != 2)") == "true\n"
 
     def test_not_equal_false(self) -> None:
         """``print(1 != 1)`` outputs ``false``."""
-        assert _run_source("print(1 != 1)") == "false\n"
+        assert run_source("print(1 != 1)") == "false\n"
 
     def test_less_than_true(self) -> None:
         """``print(1 < 2)`` outputs ``true``."""
-        assert _run_source("print(1 < 2)") == "true\n"
+        assert run_source("print(1 < 2)") == "true\n"
 
     def test_less_than_false(self) -> None:
         """``print(2 < 1)`` outputs ``false``."""
-        assert _run_source("print(2 < 1)") == "false\n"
+        assert run_source("print(2 < 1)") == "false\n"
 
     def test_less_equal_true(self) -> None:
         """``print(1 <= 1)`` outputs ``true``."""
-        assert _run_source("print(1 <= 1)") == "true\n"
+        assert run_source("print(1 <= 1)") == "true\n"
 
     def test_less_equal_false(self) -> None:
         """``print(2 <= 1)`` outputs ``false``."""
-        assert _run_source("print(2 <= 1)") == "false\n"
+        assert run_source("print(2 <= 1)") == "false\n"
 
     def test_greater_than_true(self) -> None:
         """``print(2 > 1)`` outputs ``true``."""
-        assert _run_source("print(2 > 1)") == "true\n"
+        assert run_source("print(2 > 1)") == "true\n"
 
     def test_greater_than_false(self) -> None:
         """``print(1 > 2)`` outputs ``false``."""
-        assert _run_source("print(1 > 2)") == "false\n"
+        assert run_source("print(1 > 2)") == "false\n"
 
     def test_greater_equal_true(self) -> None:
         """``print(1 >= 1)`` outputs ``true``."""
-        assert _run_source("print(1 >= 1)") == "true\n"
+        assert run_source("print(1 >= 1)") == "true\n"
 
     def test_greater_equal_false(self) -> None:
         """``print(1 >= 2)`` outputs ``false``."""
-        assert _run_source("print(1 >= 2)") == "false\n"
+        assert run_source("print(1 >= 2)") == "false\n"
 
 
 class TestVMLogical:
@@ -213,27 +205,27 @@ class TestVMLogical:
 
     def test_and_true(self) -> None:
         """``print(true and true)`` outputs ``true``."""
-        assert _run_source("print(true and true)") == "true\n"
+        assert run_source("print(true and true)") == "true\n"
 
     def test_and_false(self) -> None:
         """``print(true and false)`` outputs ``false``."""
-        assert _run_source("print(true and false)") == "false\n"
+        assert run_source("print(true and false)") == "false\n"
 
     def test_or_true(self) -> None:
         """``print(false or true)`` outputs ``true``."""
-        assert _run_source("print(false or true)") == "true\n"
+        assert run_source("print(false or true)") == "true\n"
 
     def test_or_false(self) -> None:
         """``print(false or false)`` outputs ``false``."""
-        assert _run_source("print(false or false)") == "false\n"
+        assert run_source("print(false or false)") == "false\n"
 
     def test_not_true(self) -> None:
         """``print(not true)`` outputs ``false``."""
-        assert _run_source("print(not true)") == "false\n"
+        assert run_source("print(not true)") == "false\n"
 
     def test_not_false(self) -> None:
         """``print(not false)`` outputs ``true``."""
-        assert _run_source("print(not false)") == "true\n"
+        assert run_source("print(not false)") == "true\n"
 
 
 # -- Cycle 5: Control Flow ---------------------------------------------------
@@ -244,11 +236,11 @@ class TestVMControlFlow:
 
     def test_if_true_branch(self) -> None:
         """``if true`` executes the then-branch."""
-        assert _run_source("if true { print(1) } else { print(2) }") == "1\n"
+        assert run_source("if true { print(1) } else { print(2) }") == "1\n"
 
     def test_if_false_branch(self) -> None:
         """``if false`` executes the else-branch."""
-        assert _run_source("if false { print(1) } else { print(2) }") == "2\n"
+        assert run_source("if false { print(1) } else { print(2) }") == "2\n"
 
     def test_while_loop(self) -> None:
         """While loop counts to 5."""
@@ -258,7 +250,7 @@ while x < 5 {
     x = x + 1
 }
 print(x)"""
-        assert _run_source(source) == "5\n"
+        assert run_source(source) == "5\n"
 
     def test_for_loop(self) -> None:
         """For loop prints 0, 1, 2."""
@@ -266,7 +258,7 @@ print(x)"""
 for i in range(3) {
     print(i)
 }"""
-        assert _run_source(source) == "0\n1\n2\n"
+        assert run_source(source) == "0\n1\n2\n"
 
     def test_nested_if_in_while(self) -> None:
         """Nested if inside a while loop."""
@@ -278,15 +270,15 @@ while x < 5 {
     }
     x = x + 1
 }"""
-        assert _run_source(source) == "3\n4\n"
+        assert run_source(source) == "3\n4\n"
 
     def test_if_without_else(self) -> None:
         """If without else — false condition produces no output."""
-        assert _run_source("if false { print(1) }") == ""
+        assert run_source("if false { print(1) }") == ""
 
     def test_while_false(self) -> None:
         """While false never executes the body."""
-        assert _run_source("while false { print(1) }") == ""
+        assert run_source("while false { print(1) }") == ""
 
 
 # -- Else If Chains ----------------------------------------------------------
@@ -306,7 +298,7 @@ if x > 90 {
 } else {
     print("C")
 }"""
-        assert _run_source(source) == "A\n"
+        assert run_source(source) == "A\n"
 
     def test_middle_branch_taken(self) -> None:
         """Second condition true — middle branch executes."""
@@ -319,7 +311,7 @@ if x > 90 {
 } else {
     print("C")
 }"""
-        assert _run_source(source) == "B\n"
+        assert run_source(source) == "B\n"
 
     def test_else_branch_taken(self) -> None:
         """No condition true — else branch executes."""
@@ -332,7 +324,7 @@ if x > 90 {
 } else {
     print("C")
 }"""
-        assert _run_source(source) == "C\n"
+        assert run_source(source) == "C\n"
 
     def test_else_if_no_else_no_match(self) -> None:
         """No condition true and no else — no output."""
@@ -343,7 +335,7 @@ if x > 90 {
 } else if x > 80 {
     print("B")
 }"""
-        assert _run_source(source) == ""
+        assert run_source(source) == ""
 
     def test_triple_else_if(self) -> None:
         """Triple else-if chain picks the correct branch."""
@@ -358,7 +350,7 @@ if x > 90 {
 } else {
     print("D")
 }"""
-        assert _run_source(source) == "C\n"
+        assert run_source(source) == "C\n"
 
 
 # -- Break and Continue ------------------------------------------------------
@@ -376,7 +368,7 @@ while true {
     x = x + 1
 }
 print(x)"""
-        assert _run_source(source) == "3\n"
+        assert run_source(source) == "3\n"
 
     def test_break_in_for(self) -> None:
         """``break`` exits a for loop early."""
@@ -385,7 +377,7 @@ for i in range(10) {
     if i == 3 { break }
     print(i)
 }"""
-        assert _run_source(source) == "0\n1\n2\n"
+        assert run_source(source) == "0\n1\n2\n"
 
     def test_break_as_first_statement(self) -> None:
         """``break`` as the first statement exits immediately."""
@@ -396,7 +388,7 @@ while true {
     x = x + 1
 }
 print(x)"""
-        assert _run_source(source) == "0\n"
+        assert run_source(source) == "0\n"
 
     def test_break_in_nested_loops(self) -> None:
         """``break`` in inner loop doesn't affect outer loop."""
@@ -407,7 +399,7 @@ for i in range(3) {
         print(j)
     }
 }"""
-        assert _run_source(source) == "0\n0\n0\n"
+        assert run_source(source) == "0\n0\n0\n"
 
     def test_multiple_breaks_in_same_loop(self) -> None:
         """Multiple break statements in same loop all work correctly."""
@@ -419,7 +411,7 @@ while true {
     x = x + 1
 }
 print(x)"""
-        assert _run_source(source) == "1\n"
+        assert run_source(source) == "1\n"
 
 
 class TestVMContinue:
@@ -436,7 +428,7 @@ while i < 5 {
     total = total + i
 }
 print(total)"""
-        assert _run_source(source) == "12\n"
+        assert run_source(source) == "12\n"
 
     def test_continue_in_for(self) -> None:
         """``continue`` skips to increment in for loop."""
@@ -445,7 +437,7 @@ for i in range(5) {
     if i == 2 { continue }
     print(i)
 }"""
-        assert _run_source(source) == "0\n1\n3\n4\n"
+        assert run_source(source) == "0\n1\n3\n4\n"
 
     def test_continue_as_last_statement(self) -> None:
         """``continue`` as the last statement is valid (no-op)."""
@@ -454,7 +446,7 @@ for i in range(3) {
     print(i)
     continue
 }"""
-        assert _run_source(source) == "0\n1\n2\n"
+        assert run_source(source) == "0\n1\n2\n"
 
     def test_continue_in_nested_for_loops(self) -> None:
         """``continue`` in inner loop doesn't affect outer loop."""
@@ -465,7 +457,7 @@ for i in range(3) {
         print(j)
     }
 }"""
-        assert _run_source(source) == "0\n2\n0\n2\n0\n2\n"
+        assert run_source(source) == "0\n2\n0\n2\n0\n2\n"
 
     def test_break_and_continue_together(self) -> None:
         """``break`` and ``continue`` work together in the same loop."""
@@ -479,7 +471,7 @@ while i < 10 {
     total = total + i
 }
 print(total)"""
-        assert _run_source(source) == "12\n"
+        assert run_source(source) == "12\n"
 
     def test_break_in_for_inside_function(self) -> None:
         """``break`` works inside a for loop inside a function."""
@@ -495,7 +487,7 @@ fn first_even(n) {
     return 0
 }
 print(first_even(10))"""
-        assert _run_source(source) == "2\n"
+        assert run_source(source) == "2\n"
 
 
 # -- Multi-Arg Range ---------------------------------------------------------
@@ -507,45 +499,45 @@ class TestVMRangeMultiArg:
     def test_range_two_args(self) -> None:
         """``range(2, 5)`` counts from 2 up to (not including) 5."""
         source = "for i in range(2, 5) {\n    print(i)\n}"
-        assert _run_source(source) == "2\n3\n4\n"
+        assert run_source(source) == "2\n3\n4\n"
 
     def test_range_two_args_empty(self) -> None:
         """``range(0, 0)`` produces no iterations."""
-        assert _run_source("for i in range(0, 0) {\n    print(i)\n}") == ""
+        assert run_source("for i in range(0, 0) {\n    print(i)\n}") == ""
 
     def test_range_two_args_equal(self) -> None:
         """``range(3, 3)`` produces no iterations."""
-        assert _run_source("for i in range(3, 3) {\n    print(i)\n}") == ""
+        assert run_source("for i in range(3, 3) {\n    print(i)\n}") == ""
 
     def test_range_three_args_step_two(self) -> None:
         """``range(0, 10, 2)`` counts by twos."""
         source = "for i in range(0, 10, 2) {\n    print(i)\n}"
-        assert _run_source(source) == "0\n2\n4\n6\n8\n"
+        assert run_source(source) == "0\n2\n4\n6\n8\n"
 
     def test_range_three_args_step_three(self) -> None:
         """``range(1, 10, 3)`` counts from 1 by threes."""
         source = "for i in range(1, 10, 3) {\n    print(i)\n}"
-        assert _run_source(source) == "1\n4\n7\n"
+        assert run_source(source) == "1\n4\n7\n"
 
     def test_range_three_args_step_one(self) -> None:
         """``range(0, 5, 1)`` is the same as ``range(5)``."""
         source = "for i in range(0, 5, 1) {\n    print(i)\n}"
-        assert _run_source(source) == "0\n1\n2\n3\n4\n"
+        assert run_source(source) == "0\n1\n2\n3\n4\n"
 
     def test_range_negative_step(self) -> None:
         """``range(5, 0, -1)`` counts down from 5 to 1."""
         source = "for i in range(5, 0, -1) {\n    print(i)\n}"
-        assert _run_source(source) == "5\n4\n3\n2\n1\n"
+        assert run_source(source) == "5\n4\n3\n2\n1\n"
 
     def test_range_negative_step_by_three(self) -> None:
         """``range(10, 0, -3)`` counts down by threes."""
         source = "for i in range(10, 0, -3) {\n    print(i)\n}"
-        assert _run_source(source) == "10\n7\n4\n1\n"
+        assert run_source(source) == "10\n7\n4\n1\n"
 
     def test_range_wrong_direction_produces_nothing(self) -> None:
         """``range(0, 5, -1)`` produces nothing (wrong direction)."""
         source = "for i in range(0, 5, -1) {\n    print(i)\n}"
-        assert _run_source(source) == ""
+        assert run_source(source) == ""
 
     def test_break_with_two_arg_range(self) -> None:
         """``break`` exits a two-arg range loop early."""
@@ -554,7 +546,7 @@ for i in range(2, 10) {
     if i == 4 { break }
     print(i)
 }"""
-        assert _run_source(source) == "2\n3\n"
+        assert run_source(source) == "2\n3\n"
 
     def test_continue_with_three_arg_range(self) -> None:
         """``continue`` skips to the next step in a three-arg range loop."""
@@ -563,7 +555,7 @@ for i in range(0, 10, 2) {
     if i == 4 { continue }
     print(i)
 }"""
-        assert _run_source(source) == "0\n2\n6\n8\n"
+        assert run_source(source) == "0\n2\n6\n8\n"
 
     def test_nested_multi_arg_range(self) -> None:
         """Nested multi-arg range loops produce correct output."""
@@ -573,7 +565,7 @@ for i in range(1, 4) {
         print(j)
     }
 }"""
-        assert _run_source(source) == "0\n0\n1\n0\n1\n2\n"
+        assert run_source(source) == "0\n0\n1\n0\n1\n2\n"
 
     def test_range_with_expression_args(self) -> None:
         """Range arguments can be arbitrary expressions."""
@@ -582,7 +574,7 @@ let xs = [1, 2, 3, 4, 5]
 for i in range(len(xs), 0, -1) {
     print(i)
 }"""
-        assert _run_source(source) == "5\n4\n3\n2\n1\n"
+        assert run_source(source) == "5\n4\n3\n2\n1\n"
 
     def test_break_with_negative_step(self) -> None:
         """``break`` works in a negative-step range loop."""
@@ -591,7 +583,7 @@ for i in range(10, 0, -2) {
     if i == 4 { break }
     print(i)
 }"""
-        assert _run_source(source) == "10\n8\n6\n"
+        assert run_source(source) == "10\n8\n6\n"
 
 
 # -- Cycle 6: Functions ------------------------------------------------------
@@ -605,14 +597,14 @@ class TestVMFunctions:
         source = """\
 fn add(a, b) { return a + b }
 print(add(1, 2))"""
-        assert _run_source(source) == "3\n"
+        assert run_source(source) == "3\n"
 
     def test_function_no_return(self) -> None:
         """A function with no explicit return returns null."""
         source = """\
 fn greet() { print(42) }
 print(greet())"""
-        assert _run_source(source) == "42\nnull\n"
+        assert run_source(source) == "42\nnull\n"
 
     def test_function_calling_function(self) -> None:
         """One function calls another."""
@@ -620,14 +612,14 @@ print(greet())"""
 fn add(a, b) { return a + b }
 fn add3(a, b, c) { return add(add(a, b), c) }
 print(add3(1, 2, 3))"""
-        assert _run_source(source) == "6\n"
+        assert run_source(source) == "6\n"
 
     def test_bare_function_call(self) -> None:
         """A bare function call (expression statement) discards its return value."""
         source = """\
 fn say_hello() { print(1) }
 say_hello()"""
-        assert _run_source(source) == "1\n"
+        assert run_source(source) == "1\n"
 
     def test_function_with_for_loop(self) -> None:
         """A function body can contain a for loop."""
@@ -640,7 +632,7 @@ fn sum_to(n) {
     return total
 }
 print(sum_to(5))"""
-        assert _run_source(source) == "10\n"
+        assert run_source(source) == "10\n"
 
     def test_function_with_if(self) -> None:
         """A function body can contain if/else."""
@@ -653,7 +645,7 @@ fn max(a, b) {
     }
 }
 print(max(3, 7))"""
-        assert _run_source(source) == "7\n"
+        assert run_source(source) == "7\n"
 
     def test_function_with_while(self) -> None:
         """A function body can contain a while loop."""
@@ -665,7 +657,7 @@ fn count_down(n) {
     }
 }
 count_down(3)"""
-        assert _run_source(source) == "3\n2\n1\n"
+        assert run_source(source) == "3\n2\n1\n"
 
 
 # -- Cycle 7: Runtime Errors -------------------------------------------------
@@ -677,12 +669,12 @@ class TestVMRuntimeErrors:
     def test_division_by_zero(self) -> None:
         """Division by zero raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="Division by zero"):
-            _run_source("print(1 / 0)")
+            run_source("print(1 / 0)")
 
     def test_modulo_by_zero(self) -> None:
         """Modulo by zero raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="Division by zero"):
-            _run_source("print(1 % 0)")
+            run_source("print(1 % 0)")
 
     def test_string_plus_integer(self) -> None:
         """Adding a string and integer raises PebbleRuntimeError."""

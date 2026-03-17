@@ -9,9 +9,7 @@ from pebble.errors import SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.repl import Repl
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
-)
+from tests.conftest import run_source
 
 # -- Named constants ----------------------------------------------------------
 

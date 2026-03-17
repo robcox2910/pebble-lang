@@ -7,21 +7,13 @@ first-class functions returned from and passed to other functions.
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.builtins import Cell, Closure, format_value
-from pebble.bytecode import CodeObject, CompiledProgram, OpCode
-from pebble.compiler import Compiler
-from pebble.lexer import Lexer
-from pebble.parser import Parser
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
+from pebble.bytecode import CodeObject, OpCode
+from tests.conftest import (
+    analyze_with_context,
+    compile_source,
+    run_source,
 )
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Named constants ----------------------------------------------------------
 
@@ -33,30 +25,6 @@ CELL_COUNT = 2
 VALUE_10 = 10
 VALUE_42 = 42
 VALUE_99 = 99
-
-
-# -- Helpers ------------------------------------------------------------------
-
-
-def _analyze(source: str) -> SemanticAnalyzer:
-    """Lex, parse, and analyze *source*, returning the analyzer."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzer.analyze(program)
-    return analyzer
-
-
-def _compile_program(source: str) -> CompiledProgram:
-    """Return the CompiledProgram for *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    return Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
 
 
 # -- Cycle 1: Cell + Closure data structures ----------------------------------
@@ -121,7 +89,7 @@ fn make() {
 }
 let f = make()
 print(type(f))"""
-        assert _run_source(source) == "fn\n"
+        assert run_source(source) == "fn\n"
 
 
 # -- Cycle 2: New opcodes + CodeObject fields --------------------------------
@@ -161,7 +129,7 @@ class TestAnalyzerClosureDetection:
 
     def test_no_closures_by_default(self) -> None:
         """Simple programs have empty cell_vars and free_vars."""
-        analyzer = _analyze("let x = 1\nprint(x)")
+        _, analyzer = analyze_with_context("let x = 1\nprint(x)")
         assert analyzer.cell_vars == {}
         assert analyzer.free_vars == {}
 
@@ -175,7 +143,7 @@ fn outer() {
     }
     return inner
 }"""
-        analyzer = _analyze(source)
+        _, analyzer = analyze_with_context(source)
         assert "x" in analyzer.cell_vars.get("outer", set())
         assert "x" in analyzer.free_vars.get("inner", set())
 
@@ -190,7 +158,7 @@ fn outer() {
     }
     return increment
 }"""
-        analyzer = _analyze(source)
+        _, analyzer = analyze_with_context(source)
         assert "count" in analyzer.cell_vars.get("outer", set())
         assert "count" in analyzer.free_vars.get("increment", set())
 
@@ -203,7 +171,7 @@ fn make_adder(n) {
     }
     return add
 }"""
-        analyzer = _analyze(source)
+        _, analyzer = analyze_with_context(source)
         assert "n" in analyzer.cell_vars.get("make_adder", set())
         assert "n" in analyzer.free_vars.get("add", set())
 
@@ -214,7 +182,7 @@ fn f() {
     let x = 1
     return x
 }"""
-        analyzer = _analyze(source)
+        _, analyzer = analyze_with_context(source)
         assert analyzer.cell_vars == {}
         assert analyzer.free_vars == {}
 
@@ -233,7 +201,7 @@ fn outer() {
     fn inner() { return x }
     return inner
 }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         outer_code = compiled.functions["outer"]
         store_cell = [i for i in outer_code.instructions if i.opcode is OpCode.STORE_CELL]
         assert len(store_cell) >= ONE
@@ -247,7 +215,7 @@ fn outer() {
     fn inner() { return x }
     return inner
 }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         inner_code = compiled.functions["inner"]
         load_cell = [i for i in inner_code.instructions if i.opcode is OpCode.LOAD_CELL]
         assert len(load_cell) >= ONE
@@ -261,7 +229,7 @@ fn outer() {
     fn inner() { return x }
     return inner
 }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         outer_code = compiled.functions["outer"]
         make_closure = [i for i in outer_code.instructions if i.opcode is OpCode.MAKE_CLOSURE]
         assert len(make_closure) == ONE
@@ -275,7 +243,7 @@ fn outer() {
     fn inner() { return x }
     return inner
 }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         assert "x" in compiled.functions["inner"].free_variables
 
     def test_code_object_has_cell_variables(self) -> None:
@@ -286,7 +254,7 @@ fn outer() {
     fn inner() { return x }
     return inner
 }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         assert "x" in compiled.functions["outer"].cell_variables
 
 
@@ -306,7 +274,7 @@ fn make() {
 }
 let f = make()
 print(f())"""
-        assert _run_source(source) == "42\n"
+        assert run_source(source) == "42\n"
 
     def test_closure_mutation(self) -> None:
         """Closure mutates a captured variable, changes persist."""
@@ -323,7 +291,7 @@ let inc = make_counter()
 print(inc())
 print(inc())
 print(inc())"""
-        assert _run_source(source) == "1\n2\n3\n"
+        assert run_source(source) == "1\n2\n3\n"
 
     def test_parameter_capture(self) -> None:
         """Closure captures a function parameter."""
@@ -337,7 +305,7 @@ fn make_adder(n) {
 let add5 = make_adder(5)
 print(add5(10))
 print(add5(20))"""
-        assert _run_source(source) == "15\n25\n"
+        assert run_source(source) == "15\n25\n"
 
     def test_independent_closures(self) -> None:
         """Each call creates independent closure state."""
@@ -355,7 +323,7 @@ let b = make_counter()
 print(a())
 print(a())
 print(b())"""
-        assert _run_source(source) == "1\n2\n1\n"
+        assert run_source(source) == "1\n2\n1\n"
 
     def test_closure_called_inside_defining_function(self) -> None:
         """Closure can be called inside the function that defines it."""
@@ -366,7 +334,7 @@ fn outer() {
     print(inner())
 }
 outer()"""
-        assert _run_source(source) == "10\n"
+        assert run_source(source) == "10\n"
 
     def test_closure_with_multiple_captures(self) -> None:
         """Closure captures multiple variables."""
@@ -379,7 +347,7 @@ fn make(a, b) {
 }
 let f = make(10, 20)
 print(f(3))"""
-        assert _run_source(source) == "33\n"
+        assert run_source(source) == "33\n"
 
     def test_format_closure_value(self) -> None:
         """Printing a closure shows <fn name>."""
@@ -391,14 +359,14 @@ fn make() {
 }
 let f = make()
 print(f)"""
-        assert _run_source(source) == "<fn inner>\n"
+        assert run_source(source) == "<fn inner>\n"
 
     def test_regular_functions_still_work(self) -> None:
         """Non-closure functions are unaffected by closure support."""
         source = """\
 fn add(a, b) { return a + b }
 print(add(3, 4))"""
-        assert _run_source(source) == "7\n"
+        assert run_source(source) == "7\n"
 
     def test_nested_function_no_capture(self) -> None:
         """Nested function without captures works as a regular function."""
@@ -408,7 +376,7 @@ fn outer() {
     print(inner(5))
 }
 outer()"""
-        assert _run_source(source) == "6\n"
+        assert run_source(source) == "6\n"
 
 
 # -- Cycle 6: Integration & edge cases ---------------------------------------
@@ -432,7 +400,7 @@ let inc = make_counter()
 for i in range(3) {
     print(inc())
 }"""
-        assert _run_source(source) == "1\n2\n3\n"
+        assert run_source(source) == "1\n2\n3\n"
 
     def test_closure_with_conditional(self) -> None:
         """Closure works correctly with conditional logic."""
@@ -453,7 +421,7 @@ let t = make_toggle()
 print(t())
 print(t())
 print(t())"""
-        assert _run_source(source) == "1\n0\n1\n"
+        assert run_source(source) == "1\n0\n1\n"
 
     def test_closure_with_while_loop(self) -> None:
         """Closure with while loop modifying captured state."""
@@ -470,7 +438,7 @@ let sum = make_summer()
 print(sum(10))
 print(sum(20))
 print(sum(5))"""
-        assert _run_source(source) == "10\n30\n35\n"
+        assert run_source(source) == "10\n30\n35\n"
 
     def test_closure_with_list(self) -> None:
         """Closure captures a list and mutates it."""
@@ -487,4 +455,4 @@ let collect = make_collector()
 collect(1)
 collect(2)
 print(collect(3))"""
-        assert _run_source(source) == "[1, 2, 3]\n"
+        assert run_source(source) == "[1, 2, 3]\n"

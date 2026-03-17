@@ -6,22 +6,13 @@ through the compiler and VM.
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
-from pebble.bytecode import CompiledProgram, Instruction, OpCode
-from pebble.compiler import Compiler
+from pebble.bytecode import Instruction, OpCode
 from pebble.errors import PebbleRuntimeError
-from pebble.lexer import Lexer
-from pebble.parser import Parser
 from pebble.tokens import SourceLocation
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    compile_source,
+    run_source,
 )
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Named constants ----------------------------------------------------------
 
@@ -29,21 +20,6 @@ LINE_1 = 1
 LINE_2 = 2
 LINE_3 = 3
 COLUMN_5 = 5
-
-
-# -- Helpers ------------------------------------------------------------------
-
-
-def _compile_program(source: str) -> CompiledProgram:
-    """Return the CompiledProgram for *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    return Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
 
 
 # -- Cycle 1: Instruction location field --------------------------------------
@@ -78,7 +54,7 @@ class TestCompilerLocations:
 
     def test_binary_op_has_location(self) -> None:
         """Binary operator instructions carry source location."""
-        compiled = _compile_program("let x = 1 + 2")
+        compiled = compile_source("let x = 1 + 2")
         add_insts = [i for i in compiled.main.instructions if i.opcode is OpCode.ADD]
         assert len(add_insts) == LINE_1
         assert add_insts[0].location is not None
@@ -86,14 +62,14 @@ class TestCompilerLocations:
 
     def test_call_has_location(self) -> None:
         """CALL instructions carry source location."""
-        compiled = _compile_program("print(len([1, 2]))")
+        compiled = compile_source("print(len([1, 2]))")
         call_insts = [i for i in compiled.main.instructions if i.opcode is OpCode.CALL]
         assert len(call_insts) == LINE_1
         assert call_insts[0].location is not None
 
     def test_index_get_has_location(self) -> None:
         """INDEX_GET instructions carry source location."""
-        compiled = _compile_program("let xs = [1]\nprint(xs[0])")
+        compiled = compile_source("let xs = [1]\nprint(xs[0])")
         idx_insts = [i for i in compiled.main.instructions if i.opcode is OpCode.INDEX_GET]
         assert len(idx_insts) == LINE_1
         assert idx_insts[0].location is not None
@@ -101,14 +77,14 @@ class TestCompilerLocations:
 
     def test_literal_has_location(self) -> None:
         """LOAD_CONST from a literal carries source location."""
-        compiled = _compile_program("let x = 42")
+        compiled = compile_source("let x = 42")
         load_insts = [i for i in compiled.main.instructions if i.opcode is OpCode.LOAD_CONST]
         assert load_insts[0].location is not None
         assert load_insts[0].location.line == LINE_1
 
     def test_negate_has_location(self) -> None:
         """NEGATE instruction carries source location."""
-        compiled = _compile_program("let x = -5")
+        compiled = compile_source("let x = -5")
         neg_insts = [i for i in compiled.main.instructions if i.opcode is OpCode.NEGATE]
         assert len(neg_insts) == LINE_1
         assert neg_insts[0].location is not None
@@ -123,59 +99,59 @@ class TestRuntimeErrorLocations:
     def test_division_by_zero_line(self) -> None:
         """Division by zero reports correct line number."""
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source("let x = 10 / 0")
+            run_source("let x = 10 / 0")
         assert exc_info.value.line == LINE_1
 
     def test_type_error_line(self) -> None:
         """Type error in addition reports correct line number."""
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source('let x = 1 + "hello"')
+            run_source('let x = 1 + "hello"')
         assert exc_info.value.line == LINE_1
 
     def test_multiline_error_correct_line(self) -> None:
         """Error on line 3 reports line 3, not line 1."""
         source = "let a = 1\nlet b = 2\nlet c = a / 0"
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source(source)
+            run_source(source)
         assert exc_info.value.line == LINE_3
 
     def test_index_out_of_bounds_line(self) -> None:
         """Out-of-bounds index reports correct line number."""
         source = "let xs = [1]\nprint(xs[5])"
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source(source)
+            run_source(source)
         assert exc_info.value.line == LINE_2
 
     def test_builtin_error_line(self) -> None:
         """Builtin error (len on int) reports correct line number."""
         source = "let x = 42\nprint(len(x))"
         with pytest.raises(PebbleRuntimeError, match="len") as exc_info:
-            _run_source(source)
+            run_source(source)
         assert exc_info.value.line == LINE_2
 
     def test_negate_type_error_line(self) -> None:
         """Negation type error reports correct line number."""
         with pytest.raises(PebbleRuntimeError, match="negation") as exc_info:
-            _run_source('let x = -"hello"')
+            run_source('let x = -"hello"')
         assert exc_info.value.line == LINE_1
 
     def test_error_column_is_nonzero(self) -> None:
         """Error column is set (not the default 0)."""
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source("let x = 10 / 0")
+            run_source("let x = 10 / 0")
         assert exc_info.value.column > 0
 
     def test_comparison_type_error_line(self) -> None:
         """Comparison type error reports correct line."""
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source('let x = 1 < "two"')
+            run_source('let x = 1 < "two"')
         assert exc_info.value.line == LINE_1
 
     def test_index_set_out_of_bounds_line(self) -> None:
         """Out-of-bounds index assignment reports correct line."""
         source = "let xs = [1]\nxs[5] = 42"
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source(source)
+            run_source(source)
         assert exc_info.value.line == LINE_2
 
 
@@ -187,10 +163,10 @@ class TestCLIFormatting:
 
     def test_normal_execution_still_works(self) -> None:
         """Programs without errors run normally."""
-        assert _run_source("print(42)") == "42\n"
+        assert run_source("print(42)") == "42\n"
 
     def test_error_message_includes_line(self) -> None:
         """Runtime error str() includes the correct line number."""
         with pytest.raises(PebbleRuntimeError) as exc_info:
-            _run_source("let x = 1 / 0")
+            run_source("let x = 1 / 0")
         assert "line 1" in str(exc_info.value)

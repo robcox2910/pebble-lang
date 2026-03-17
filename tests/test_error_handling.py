@@ -14,15 +14,11 @@ from pebble.compiler import Compiler
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    analyze,
+    compile_opcodes,
+    run_source,
 )
-
-
-def _run(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Named constants ----------------------------------------------------------
 
@@ -35,26 +31,6 @@ def _parse(source: str) -> list[object]:
     """Lex + parse helper returning the statement list."""
     tokens = Lexer(source).tokenize()
     return list(Parser(tokens).parse().statements)
-
-
-def _analyze(source: str) -> None:
-    """Lex + parse + analyze helper — raises on semantic errors."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    SemanticAnalyzer().analyze(program)
-
-
-def _compile(source: str) -> list[OpCode]:
-    """Lex + parse + analyze + compile, return main opcode list."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return [instr.opcode for instr in compiled.main.instructions]
 
 
 # ---------------------------------------------------------------------------
@@ -150,21 +126,21 @@ class TestAnalyzeTryCatch:
 
     def test_catch_variable_in_scope(self) -> None:
         """Catch variable is accessible inside the catch body."""
-        _analyze("try {\n  let x = 1\n} catch e {\n  print(e)\n}\n")
+        analyze("try {\n  let x = 1\n} catch e {\n  print(e)\n}\n")
 
     def test_catch_variable_not_in_outer_scope(self) -> None:
         """Catch variable is NOT accessible after the catch block."""
         with pytest.raises(SemanticError, match="Undeclared variable 'e'"):
-            _analyze("try {\n  let x = 1\n} catch e {\n  print(e)\n}\nprint(e)\n")
+            analyze("try {\n  let x = 1\n} catch e {\n  print(e)\n}\nprint(e)\n")
 
     def test_throw_undeclared_variable_raises_error(self) -> None:
         """Throw expression with undeclared variable raises SemanticError."""
         with pytest.raises(SemanticError, match="Undeclared variable 'oops'"):
-            _analyze("throw oops\n")
+            analyze("throw oops\n")
 
     def test_try_catch_inside_function(self) -> None:
         """Try/catch inside a function body is valid."""
-        _analyze("fn safe() {\n  try {\n    let x = 1\n  } catch e {\n    print(e)\n  }\n}\n")
+        analyze("fn safe() {\n  try {\n    let x = 1\n  } catch e {\n    print(e)\n  }\n}\n")
 
     def test_nested_try_blocks(self) -> None:
         """Nested try/catch blocks are valid."""
@@ -179,16 +155,16 @@ class TestAnalyzeTryCatch:
             "  print(outer)\n"
             "}\n"
         )
-        _analyze(source)
+        analyze(source)
 
     def test_throw_string_literal(self) -> None:
         """Throw with a string literal passes analysis."""
-        _analyze('throw "error"\n')
+        analyze('throw "error"\n')
 
     def test_finally_body_analyzed(self) -> None:
         """Finally body with undeclared variable raises SemanticError."""
         with pytest.raises(SemanticError, match="Undeclared variable 'z'"):
-            _analyze("try {\n  let x = 1\n} catch e {\n  print(e)\n} finally {\n  print(z)\n}\n")
+            analyze("try {\n  let x = 1\n} catch e {\n  print(e)\n} finally {\n  print(z)\n}\n")
 
 
 # ---------------------------------------------------------------------------
@@ -201,31 +177,31 @@ class TestCompileTryCatch:
 
     def test_try_catch_emits_setup_and_pop(self) -> None:
         """``try { } catch e { }`` emits SETUP_TRY and POP_TRY."""
-        opcodes = _compile("try {\n  let x = 1\n} catch e {\n  let y = 2\n}\n")
+        opcodes = compile_opcodes("try {\n  let x = 1\n} catch e {\n  let y = 2\n}\n")
         assert OpCode.SETUP_TRY in opcodes
         assert OpCode.POP_TRY in opcodes
 
     def test_throw_emits_throw_opcode(self) -> None:
         """``throw "err"`` emits LOAD_CONST + THROW."""
-        opcodes = _compile('throw "err"\n')
+        opcodes = compile_opcodes('throw "err"\n')
         assert OpCode.LOAD_CONST in opcodes
         assert OpCode.THROW in opcodes
 
     def test_catch_without_variable_emits_pop(self) -> None:
         """``catch { }`` without variable emits POP to discard exception."""
-        opcodes = _compile("try {\n  let x = 1\n} catch {\n  let y = 2\n}\n")
+        opcodes = compile_opcodes("try {\n  let x = 1\n} catch {\n  let y = 2\n}\n")
         # After SETUP_TRY section, there should be a POP for the discarded exception
         assert OpCode.POP in opcodes
 
     def test_catch_with_variable_emits_store(self) -> None:
         """``catch e { }`` with variable emits STORE_NAME for the exception."""
-        opcodes = _compile("try {\n  let x = 1\n} catch e {\n  print(e)\n}\n")
+        opcodes = compile_opcodes("try {\n  let x = 1\n} catch e {\n  print(e)\n}\n")
         assert OpCode.STORE_NAME in opcodes
 
     def test_break_inside_try_emits_pop_try(self) -> None:
         """Emit POP_TRY before JUMP for break inside try in a loop."""
         source = "while true {\n  try {\n    break\n  } catch e {\n    let y = 1\n  }\n}\n"
-        opcodes = _compile(source)
+        opcodes = compile_opcodes(source)
         # Should have POP_TRY before the break's JUMP
         pop_try_indices = [i for i, op in enumerate(opcodes) if op is OpCode.POP_TRY]
         assert len(pop_try_indices) >= 1
@@ -233,7 +209,7 @@ class TestCompileTryCatch:
     def test_continue_inside_try_emits_pop_try(self) -> None:
         """Emit POP_TRY before JUMP for continue inside try in a loop."""
         source = "while true {\n  try {\n    continue\n  } catch e {\n    let y = 1\n  }\n}\n"
-        opcodes = _compile(source)
+        opcodes = compile_opcodes(source)
         pop_try_indices = [i for i, op in enumerate(opcodes) if op is OpCode.POP_TRY]
         assert len(pop_try_indices) >= 1
 
@@ -257,7 +233,7 @@ class TestCompileTryCatch:
         source = (
             "while true {\n  try {\n    let x = 1\n  } catch e {\n    let y = 2\n  }\n  break\n}\n"
         )
-        opcodes = _compile(source)
+        opcodes = compile_opcodes(source)
         # The POP_TRY in the try block is the only one (normal exit)
         # break after the try block should NOT emit POP_TRY
         # Find position of the break's JUMP - it's the last JUMP before the final patch
@@ -277,32 +253,32 @@ class TestVMThrowCatch:
     def test_throw_without_try_raises_runtime_error(self) -> None:
         """Bare ``throw "error"`` without try raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="error"):
-            _run('throw "error"\n')
+            run_source('throw "error"\n')
 
     def test_try_catch_prints_thrown_value(self) -> None:
         """Thrown string caught and printed via catch variable."""
-        output = _run('try {\n  throw "oops"\n} catch e {\n  print(e)\n}\n')
+        output = run_source('try {\n  throw "oops"\n} catch e {\n  print(e)\n}\n')
         assert output.strip() == "oops"
 
     def test_try_catch_integer_value(self) -> None:
         """Thrown integer caught and printed."""
-        output = _run("try {\n  throw 42\n} catch e {\n  print(e)\n}\n")
+        output = run_source("try {\n  throw 42\n} catch e {\n  print(e)\n}\n")
         assert output.strip() == "42"
 
     def test_try_safe_code_catch_not_executed(self) -> None:
         """When try body succeeds, catch body is NOT executed."""
-        output = _run('try {\n  print("ok")\n} catch e {\n  print("caught")\n}\n')
+        output = run_source('try {\n  print("ok")\n} catch e {\n  print("caught")\n}\n')
         assert output.strip() == "ok"
 
     def test_try_catch_no_variable(self) -> None:
         """Catch without variable discards the exception."""
-        output = _run('try {\n  throw "x"\n} catch {\n  print("caught")\n}\n')
+        output = run_source('try {\n  throw "x"\n} catch {\n  print("caught")\n}\n')
         assert output.strip() == "caught"
 
     def test_throw_in_function_caught_by_caller(self) -> None:
         """Exception thrown inside a function is caught by caller's try/catch."""
         source = 'fn boom() {\n  throw "bang"\n}\ntry {\n  boom()\n} catch e {\n  print(e)\n}\n'
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "bang"
 
 
@@ -316,18 +292,18 @@ class TestVMCatchRuntimeErrors:
 
     def test_division_by_zero_caught(self) -> None:
         """Division by zero caught in try/catch."""
-        output = _run("try {\n  let x = 1 / 0\n} catch e {\n  print(e)\n}\n")
+        output = run_source("try {\n  let x = 1 / 0\n} catch e {\n  print(e)\n}\n")
         assert "Division by zero" in output
 
     def test_index_out_of_bounds_caught(self) -> None:
         """Index out of bounds caught in try/catch."""
         source = "let xs = [1, 2, 3]\ntry {\n  let v = xs[99]\n} catch e {\n  print(e)\n}\n"
-        output = _run(source)
+        output = run_source(source)
         assert "out of bounds" in output
 
     def test_type_error_caught(self) -> None:
         """Type error caught in try/catch."""
-        output = _run('try {\n  let x = 1 + "a"\n} catch e {\n  print(e)\n}\n')
+        output = run_source('try {\n  let x = 1 + "a"\n} catch e {\n  print(e)\n}\n')
         assert "Unsupported" in output
 
 
@@ -341,7 +317,7 @@ class TestVMFinallyAndNested:
 
     def test_finally_runs_after_normal_try(self) -> None:
         """Finally runs after normal try completion."""
-        output = _run(
+        output = run_source(
             'try {\n  print("try")\n} catch e {\n  print("catch")\n}'
             ' finally {\n  print("finally")\n}\n'
         )
@@ -350,7 +326,7 @@ class TestVMFinallyAndNested:
 
     def test_finally_runs_after_catch(self) -> None:
         """Finally runs after catch execution."""
-        output = _run(
+        output = run_source(
             'try {\n  throw "err"\n} catch e {\n  print("catch")\n}'
             ' finally {\n  print("finally")\n}\n'
         )
@@ -365,7 +341,7 @@ class TestVMFinallyAndNested:
             '  print("outer ok")\n'
             '} catch e {\n  print("outer catch")\n}\n'
         )
-        output = _run(source)
+        output = run_source(source)
         lines = output.strip().split("\n")
         assert lines == ["inner", "outer ok"]
 
@@ -376,7 +352,7 @@ class TestVMFinallyAndNested:
             '  try {\n    throw "deep"\n  } catch e {\n    throw "rethrown"\n  }\n'
             "} catch e {\n  print(e)\n}\n"
         )
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "rethrown"
 
     def test_break_inside_try_in_loop(self) -> None:
@@ -393,7 +369,7 @@ class TestVMFinallyAndNested:
             "}\n"
             "print(count)\n"
         )
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "0"
 
     def test_continue_inside_try_in_loop(self) -> None:
@@ -410,7 +386,7 @@ class TestVMFinallyAndNested:
             "}\n"
             "print(total)\n"
         )
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "0"
 
     def test_return_inside_try(self) -> None:
@@ -419,7 +395,7 @@ class TestVMFinallyAndNested:
             'fn f() {\n  try {\n    return "early"\n  } catch e {\n    return "caught"\n  }\n}\n'
             "print(f())\n"
         )
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "early"
 
     def test_try_in_for_loop_multiple_iterations(self) -> None:
@@ -436,7 +412,7 @@ class TestVMFinallyAndNested:
             "  }\n"
             "}\n"
         )
-        output = _run(source)
+        output = run_source(source)
         lines = output.strip().split("\n")
         assert lines == ["0", "caught", "2"]
 
@@ -452,7 +428,7 @@ class TestVMIntegration:
     def test_error_in_string_interpolation(self) -> None:
         """Caught error value used in string interpolation."""
         source = 'try {\n  throw "bad"\n} catch e {\n  print("caught: {e}")\n}\n'
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "caught: bad"
 
     def test_catch_convert_continue(self) -> None:
@@ -468,7 +444,7 @@ class TestVMIntegration:
             "print(safe_div(10, 2))\n"
             "print(safe_div(10, 0))\n"
         )
-        output = _run(source)
+        output = run_source(source)
         lines = output.strip().split("\n")
         assert lines == ["5.0", "0"]
 
@@ -480,7 +456,7 @@ class TestVMIntegration:
             "fn c() {\n  b()\n}\n"
             "try {\n  c()\n} catch e {\n  print(e)\n}\n"
         )
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "deep"
 
     def test_try_catch_around_map_with_throwing_callback(self) -> None:
@@ -495,7 +471,7 @@ class TestVMIntegration:
             "  print(result)\n"
             "} catch e {\n  print(e)\n}\n"
         )
-        output = _run(source)
+        output = run_source(source)
         assert output.strip() == "bad value"
 
     def test_validate_or_default_pattern(self) -> None:
@@ -512,6 +488,6 @@ class TestVMIntegration:
             "print(get_item(xs, 1))\n"
             "print(get_item(xs, 99))\n"
         )
-        output = _run(source)
+        output = run_source(source)
         lines = output.strip().split("\n")
         assert lines == ["20", "-1"]

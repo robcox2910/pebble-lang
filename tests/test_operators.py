@@ -3,9 +3,7 @@
 import pytest
 
 from pebble.errors import PebbleRuntimeError
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
-)
+from tests.conftest import run_source
 
 # -- Exponentiation -----------------------------------------------------------
 

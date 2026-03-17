@@ -1,10 +1,7 @@
 """Tests for pattern matching: match/case statements."""
 
-from io import StringIO
-
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
     CapturePattern,
     LiteralPattern,
@@ -13,12 +10,15 @@ from pebble.ast_nodes import (
     WildcardPattern,
 )
 from pebble.bytecode import OpCode
-from pebble.compiler import Compiler
 from pebble.errors import ParseError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
-from pebble.vm import VirtualMachine
+from tests.conftest import (
+    analyze,
+    compile_opcodes,
+    run_source,
+)
 
 # -- Named constants ----------------------------------------------------------
 
@@ -43,41 +43,6 @@ def _parse(source: str) -> list[object]:
     """Lex + parse helper returning the statement list."""
     tokens = Lexer(source).tokenize()
     return list(Parser(tokens).parse().statements)
-
-
-def _analyze(source: str) -> None:
-    """Lex + parse + analyze — raises on semantic errors."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    SemanticAnalyzer().analyze(program)
-
-
-def _compile_opcodes(source: str) -> list[OpCode]:
-    """Lex + parse + analyze + compile, return main opcode list."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return [instr.opcode for instr in compiled.main.instructions]
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # =============================================================================
@@ -216,35 +181,35 @@ class TestMatchAnalyzer:
     def test_exhaustiveness_error(self) -> None:
         """Error when last case is not wildcard or capture."""
         with pytest.raises(SemanticError, match="must end with a wildcard or capture"):
-            _analyze("let x = 1\nmatch x { case 1 { print(1) } }")
+            analyze("let x = 1\nmatch x { case 1 { print(1) } }")
 
     def test_unreachable_case_after_wildcard(self) -> None:
         """Error when a case follows a wildcard."""
         with pytest.raises(SemanticError, match="Unreachable"):
-            _analyze("let x = 1\nmatch x { case _ { print(0) } case 1 { print(1) } }")
+            analyze("let x = 1\nmatch x { case _ { print(0) } case 1 { print(1) } }")
 
     def test_unreachable_case_after_capture(self) -> None:
         """Error when a case follows a capture."""
         with pytest.raises(SemanticError, match="Unreachable"):
-            _analyze("let x = 1\nmatch x { case let y { print(y) } case 1 { print(1) } }")
+            analyze("let x = 1\nmatch x { case let y { print(y) } case 1 { print(1) } }")
 
     def test_empty_match_error(self) -> None:
         """Error on match with zero cases."""
         with pytest.raises(SemanticError, match="at least one case"):
-            _analyze("let x = 1\nmatch x { }")
+            analyze("let x = 1\nmatch x { }")
 
     def test_capture_scope_isolation(self) -> None:
         """Capture variable is not visible outside its case body."""
         with pytest.raises(SemanticError, match="Undeclared variable 'y'"):
-            _analyze("let x = 1\nmatch x { case let y { print(y) } }\nprint(y)")
+            analyze("let x = 1\nmatch x { case let y { print(y) } }\nprint(y)")
 
     def test_capture_binding_valid(self) -> None:
         """Capture variable is usable inside its case body — no error."""
-        _analyze("let x = 1\nmatch x { case let y { print(y) } }")
+        analyze("let x = 1\nmatch x { case let y { print(y) } }")
 
     def test_scope_isolation_between_cases(self) -> None:
         """Variables declared in one case are not visible in another."""
-        _analyze(
+        analyze(
             "let x = 1\nmatch x {\n"
             "  case 1 { let a = 10\nprint(a) }\n"
             "  case _ { let a = 20\nprint(a) }\n"
@@ -262,62 +227,62 @@ class TestMatchCompiler:
 
     def test_compile_emits_store_and_equal(self) -> None:
         """Compiler emits STORE_NAME for hidden variable and EQUAL for literal test."""
-        opcodes = _compile_opcodes("let x = 1\nmatch x { case 1 { print(1) } case _ { print(0) } }")
+        opcodes = compile_opcodes("let x = 1\nmatch x { case 1 { print(1) } case _ { print(0) } }")
         assert OpCode.STORE_NAME in opcodes
         assert OpCode.EQUAL in opcodes
 
     def test_match_int_literal(self) -> None:
         """Match an integer literal — execute matching case body."""
-        output = _run_source("let x = 42\nmatch x { case 42 { print(1) } case _ { print(0) } }")
+        output = run_source("let x = 42\nmatch x { case 42 { print(1) } case _ { print(0) } }")
         assert output.strip() == "1"
 
     def test_match_string_literal(self) -> None:
         """Match a string literal."""
-        output = _run_source('let x = "hi"\nmatch x { case "hi" { print(1) } case _ { print(0) } }')
+        output = run_source('let x = "hi"\nmatch x { case "hi" { print(1) } case _ { print(0) } }')
         assert output.strip() == "1"
 
     def test_match_bool_literal(self) -> None:
         """Match a boolean literal."""
-        output = _run_source("let x = true\nmatch x { case true { print(1) } case _ { print(0) } }")
+        output = run_source("let x = true\nmatch x { case true { print(1) } case _ { print(0) } }")
         assert output.strip() == "1"
 
     def test_match_float_literal(self) -> None:
         """Match a float literal."""
-        output = _run_source("let x = 3.14\nmatch x { case 3.14 { print(1) } case _ { print(0) } }")
+        output = run_source("let x = 3.14\nmatch x { case 3.14 { print(1) } case _ { print(0) } }")
         assert output.strip() == "1"
 
     def test_match_negative_literal(self) -> None:
         """Match a negative integer literal."""
-        output = _run_source("let x = -1\nmatch x { case -1 { print(1) } case _ { print(0) } }")
+        output = run_source("let x = -1\nmatch x { case -1 { print(1) } case _ { print(0) } }")
         assert output.strip() == "1"
 
     def test_wildcard_catches_all(self) -> None:
         """Wildcard case catches any unmatched value."""
-        output = _run_source("let x = 99\nmatch x { case 1 { print(1) } case _ { print(0) } }")
+        output = run_source("let x = 99\nmatch x { case 1 { print(1) } case _ { print(0) } }")
         assert output.strip() == "0"
 
     def test_capture_binds_value(self) -> None:
         """Capture pattern binds the matched value to a variable."""
-        output = _run_source("let x = 42\nmatch x { case let y { print(y) } }")
+        output = run_source("let x = 42\nmatch x { case let y { print(y) } }")
         assert output.strip() == "42"
 
     def test_or_pattern_matches_any(self) -> None:
         """OR pattern matches any of the listed alternatives."""
-        output = _run_source(
+        output = run_source(
             "let x = 2\nmatch x { case 1 | 2 | 3 { print(1) } case _ { print(0) } }"
         )
         assert output.strip() == "1"
 
     def test_or_pattern_no_match(self) -> None:
         """OR pattern falls through when none match."""
-        output = _run_source(
+        output = run_source(
             "let x = 5\nmatch x { case 1 | 2 | 3 { print(1) } case _ { print(0) } }"
         )
         assert output.strip() == "0"
 
     def test_first_match_wins(self) -> None:
         """When multiple cases could match, the first one wins."""
-        output = _run_source(
+        output = run_source(
             "let x = 1\nmatch x {\n"
             "  case 1 { print(1) }\n"
             "  case 1 { print(2) }\n"
@@ -328,7 +293,7 @@ class TestMatchCompiler:
 
     def test_nested_match(self) -> None:
         """Nested match statements use different hidden variables."""
-        output = _run_source(
+        output = run_source(
             "let x = 1\nlet y = 2\n"
             "match x {\n"
             "  case 1 {\n"
@@ -344,7 +309,7 @@ class TestMatchCompiler:
 
     def test_match_in_function(self) -> None:
         """Match works correctly inside a function body."""
-        output = _run_source(
+        output = run_source(
             "fn classify(n) {\n"
             "  match n {\n"
             "    case 0 { return 0 }\n"
@@ -358,7 +323,7 @@ class TestMatchCompiler:
 
     def test_match_inside_loop(self) -> None:
         """Match works correctly inside a loop."""
-        output = _run_source(
+        output = run_source(
             "for i in range(3) {\n"
             "  match i {\n"
             "    case 0 { print(0) }\n"

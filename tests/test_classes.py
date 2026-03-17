@@ -5,18 +5,18 @@ from pathlib import Path
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import ClassDef, FunctionDef, Parameter, Statement, TypeAnnotation
 from pebble.bytecode import CodeObject, CompiledProgram, OpCode
-from pebble.compiler import Compiler
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.repl import Repl
 from pebble.tokens import SourceLocation, TokenKind
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
-    run_source_with_imports,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    analyze,
+    compile_source,
+    run_source,
+    run_source_with_imports,
 )
 
 # -- Named constants ----------------------------------------------------------
@@ -38,37 +38,6 @@ def _parse(source: str) -> list[Statement]:
     """Parse *source* and return the list of statements."""
     tokens = Lexer(source).tokenize()
     return Parser(tokens).parse().statements
-
-
-def _analyze(source: str) -> SemanticAnalyzer:
-    """Analyze *source* and return the analyzer."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzer.analyze(program)
-    return analyzer
-
-
-def _compile_program(source: str) -> CompiledProgram:
-    """Compile *source* and return the compiled program."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    return Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
-
-def _run_with_imports(source: str, *, base_dir: Path) -> str:
-    """Compile and run *source* with imports, return captured output."""
-    return run_source_with_imports(source, base_dir=base_dir)  # type: ignore[no-any-return]
 
 
 # ===========================================================================
@@ -282,7 +251,7 @@ class TestClassAnalyzer:
                 return "Woof"
             }
         }"""
-        _analyze(source)  # should not raise
+        analyze(source)  # should not raise
 
     def test_constructor_arity(self) -> None:
         """The class constructor is registered with the correct arity."""
@@ -293,7 +262,7 @@ class TestClassAnalyzer:
             }
         }
         let d = Dog("Rex", 3)"""
-        _analyze(source)  # should not raise
+        analyze(source)  # should not raise
 
     def test_wrong_constructor_arity_error(self) -> None:
         """Calling the constructor with wrong arity raises SemanticError."""
@@ -302,7 +271,7 @@ class TestClassAnalyzer:
         }
         let d = Dog("Rex")"""
         with pytest.raises(SemanticError, match="expects 2 argument"):
-            _analyze(source)
+            analyze(source)
 
     def test_method_missing_self_error(self) -> None:
         """A method without self as first param raises SemanticError."""
@@ -312,7 +281,7 @@ class TestClassAnalyzer:
             }
         }"""
         with pytest.raises(SemanticError, match="self"):
-            _analyze(source)
+            analyze(source)
 
     def test_method_body_validated(self) -> None:
         """Undeclared variables in method body raise SemanticError."""
@@ -322,7 +291,7 @@ class TestClassAnalyzer:
             }
         }"""
         with pytest.raises(SemanticError, match="Undeclared variable 'unknown'"):
-            _analyze(source)
+            analyze(source)
 
     def test_method_type_annotations_validated(self) -> None:
         """Invalid type annotations on method params raise SemanticError."""
@@ -332,7 +301,7 @@ class TestClassAnalyzer:
             }
         }"""
         with pytest.raises(SemanticError, match="Unknown type 'Nonexistent'"):
-            _analyze(source)
+            analyze(source)
 
     def test_class_method_call_passes(self) -> None:
         """Calling a method defined on a class passes analysis."""
@@ -344,7 +313,7 @@ class TestClassAnalyzer:
         }
         let d = Dog("Rex")
         d.bark()"""
-        _analyze(source)  # should not raise
+        analyze(source)  # should not raise
 
     def test_unknown_method_still_errors(self) -> None:
         """Calling a truly unknown method still raises SemanticError."""
@@ -357,7 +326,7 @@ class TestClassAnalyzer:
         let d = Dog("Rex")
         d.nonexistent()"""
         with pytest.raises(SemanticError, match="Unknown method"):
-            _analyze(source)
+            analyze(source)
 
     def test_builtin_method_name_collision_error(self) -> None:
         """A class method name that collides with a builtin method raises SemanticError."""
@@ -367,7 +336,7 @@ class TestClassAnalyzer:
             }
         }"""
         with pytest.raises(SemanticError, match="reserved"):
-            _analyze(source)
+            analyze(source)
 
     def test_class_as_type_annotation(self) -> None:
         """A class name can be used as a type annotation."""
@@ -375,7 +344,7 @@ class TestClassAnalyzer:
             name
         }
         let d: Dog = Dog("Rex")"""
-        _analyze(source)  # should not raise
+        analyze(source)  # should not raise
 
 
 # ===========================================================================
@@ -389,7 +358,7 @@ class TestClassCompiler:
     def test_class_stores_struct_metadata(self) -> None:
         """A class stores its field names in the structs dict."""
         source = """class Dog { name, age }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         assert "Dog" in compiled.structs
         assert compiled.structs["Dog"] == ["name", "age"]
 
@@ -401,7 +370,7 @@ class TestClassCompiler:
                 return "Woof"
             }
         }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         assert "Dog.bark" in compiled.functions
 
     def test_method_code_object_has_self_param(self) -> None:
@@ -412,7 +381,7 @@ class TestClassCompiler:
                 return "Woof"
             }
         }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         code = compiled.functions["Dog.bark"]
         assert code.parameters[0] == "self"
 
@@ -426,7 +395,7 @@ class TestClassCompiler:
         }
         let d = Dog("Rex")
         d.bark()"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         opcodes = [i.opcode for i in compiled.main.instructions]
         assert OpCode.CALL_INSTANCE_METHOD in opcodes
 
@@ -434,7 +403,7 @@ class TestClassCompiler:
         """Builtin method calls still use CALL_METHOD opcode."""
         source = """let xs = [1, 2, 3]
         xs.push(4)"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         opcodes = [i.opcode for i in compiled.main.instructions]
         assert OpCode.CALL_METHOD in opcodes
 
@@ -449,7 +418,7 @@ class TestClassCompiler:
                 return "sitting"
             }
         }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         assert "Dog" in compiled.class_methods
         assert sorted(compiled.class_methods["Dog"]) == ["bark", "sit"]
 
@@ -461,7 +430,7 @@ class TestClassCompiler:
                 return "Woof"
             }
         }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         code = compiled.functions["Dog.bark"]
         assert code.return_type == TypeAnnotation(name="String")
 
@@ -473,7 +442,7 @@ class TestClassCompiler:
                 let x = 1
             }
         }"""
-        compiled = _compile_program(source)
+        compiled = compile_source(source)
         code = compiled.functions["Dog.bark"]
         assert code.instructions[-1].opcode == OpCode.RETURN
 
@@ -496,7 +465,7 @@ class TestClassVM:
         }
         let d = Dog("Rex")
         print(d.bark())"""
-        assert _run_source(source) == "Woof\n"
+        assert run_source(source) == "Woof\n"
 
     def test_method_reads_self_field(self) -> None:
         """A method can read fields from self."""
@@ -508,7 +477,7 @@ class TestClassVM:
         }
         let d = Dog("Rex")
         print(d.greet())"""
-        assert _run_source(source) == "I'm Rex\n"
+        assert run_source(source) == "I'm Rex\n"
 
     def test_method_mutates_self(self) -> None:
         """A method can mutate fields on self."""
@@ -522,7 +491,7 @@ class TestClassVM:
         c.increment()
         c.increment()
         print(c.value)"""
-        assert _run_source(source) == "2\n"
+        assert run_source(source) == "2\n"
 
     def test_method_with_extra_args(self) -> None:
         """A method can accept additional arguments beyond self."""
@@ -534,7 +503,7 @@ class TestClassVM:
         }
         let c = Calc(10)
         print(c.add(5))"""
-        assert _run_source(source) == "15\n"
+        assert run_source(source) == "15\n"
 
     def test_return_type_checked(self) -> None:
         """A method with a return type annotation is type-checked."""
@@ -547,7 +516,7 @@ class TestClassVM:
         let d = Dog("Rex")
         d.bark()"""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source(source)
+            run_source(source)
 
     def test_method_on_non_struct_errors(self) -> None:
         """Calling an instance method on a non-struct value raises PebbleRuntimeError."""
@@ -560,7 +529,7 @@ class TestClassVM:
         let x = 42
         x.bark()"""
         with pytest.raises(PebbleRuntimeError, match="not a struct"):
-            _run_source(source)
+            run_source(source)
 
     def test_nonexistent_method_errors(self) -> None:
         """Calling a method not defined on the struct's class raises PebbleRuntimeError."""
@@ -579,7 +548,7 @@ class TestClassVM:
         let d = Dog("Rex")
         d.meow()"""
         with pytest.raises(PebbleRuntimeError, match="has no method"):
-            _run_source(source)
+            run_source(source)
 
     def test_field_access_works(self) -> None:
         """Field access on class instances works the same as structs."""
@@ -592,7 +561,7 @@ class TestClassVM:
         let d = Dog("Rex", 3)
         print(d.name)
         print(d.age)"""
-        assert _run_source(source) == "Rex\n3\n"
+        assert run_source(source) == "Rex\n3\n"
 
     def test_field_mutation_works(self) -> None:
         """Field mutation on class instances works the same as structs."""
@@ -605,7 +574,7 @@ class TestClassVM:
         let d = Dog("Rex", 3)
         d.birthday()
         print(d.age)"""
-        assert _run_source(source) == "4\n"
+        assert run_source(source) == "4\n"
 
     def test_print_representation(self) -> None:
         """Printing a class instance shows the struct representation."""
@@ -617,7 +586,7 @@ class TestClassVM:
         }
         let d = Dog("Rex", 3)
         print(d)"""
-        assert _run_source(source) == "Dog(name=Rex, age=3)\n"
+        assert run_source(source) == "Dog(name=Rex, age=3)\n"
 
     def test_multiple_instances_independent(self) -> None:
         """Multiple instances of the same class are independent."""
@@ -634,7 +603,7 @@ class TestClassVM:
         b.increment()
         print(a.value)
         print(b.value)"""
-        assert _run_source(source) == "2\n11\n"
+        assert run_source(source) == "2\n11\n"
 
     def test_method_calls_method(self) -> None:
         """A method can call another method on self."""
@@ -649,7 +618,7 @@ class TestClassVM:
         }
         let d = Dog("Rex")
         print(d.bark())"""
-        assert _run_source(source) == "Woof! I'm Rex\n"
+        assert run_source(source) == "Woof! I'm Rex\n"
 
     def test_typed_params_checked(self) -> None:
         """Type annotations on method params are checked at runtime."""
@@ -662,7 +631,7 @@ class TestClassVM:
         let c = Calc(10)
         c.add("oops")"""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source(source)
+            run_source(source)
 
 
 # ===========================================================================
@@ -688,7 +657,7 @@ class TestClassEndToEnd:
         print(d.bark())
         d.birthday()
         print(d.age)"""
-        assert _run_source(source) == "Woof! I'm Rex\n4\n"
+        assert run_source(source) == "Woof! I'm Rex\n4\n"
 
     def test_mixed_typed_untyped(self) -> None:
         """Class with a mix of typed and untyped fields."""
@@ -697,7 +666,7 @@ class TestClassEndToEnd:
         }
         let p = Point(1, 2)
         print(p.x + p.y)"""
-        assert _run_source(source) == "3\n"
+        assert run_source(source) == "3\n"
 
     def test_class_in_list(self) -> None:
         """Class instances can be stored in a list."""
@@ -710,7 +679,7 @@ class TestClassEndToEnd:
         let dogs = [Dog("Rex"), Dog("Buddy")]
         print(dogs[0].bark())
         print(dogs[1].bark())"""
-        assert _run_source(source) == "Rex\nBuddy\n"
+        assert run_source(source) == "Rex\nBuddy\n"
 
     def test_class_passed_to_function(self) -> None:
         """A class instance can be passed to a regular function."""
@@ -725,7 +694,7 @@ class TestClassEndToEnd:
         }
         let d = Dog("Rex")
         print(make_bark(d))"""
-        assert _run_source(source) == "Woof from Rex\n"
+        assert run_source(source) == "Woof from Rex\n"
 
     def test_struct_still_works(self) -> None:
         """Structs still work alongside classes."""
@@ -742,7 +711,7 @@ class TestClassEndToEnd:
         let d = Dog("Rex")
         print(p.x)
         print(d.bark())"""
-        assert _run_source(source) == "1\nWoof\n"
+        assert run_source(source) == "1\nWoof\n"
 
 
 class TestClassResolver:
@@ -761,7 +730,7 @@ class TestClassResolver:
         source = """import "lib.pbl"
 let d = Dog("Rex")
 print(d.bark())"""
-        assert _run_with_imports(source, base_dir=tmp_path) == "Woof from Rex\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "Woof from Rex\n"
 
     def test_from_import_class(self, tmp_path: Path) -> None:
         """A class imported via from-import works correctly."""
@@ -778,7 +747,7 @@ let c = Counter(0)
 c.increment()
 c.increment()
 print(c.value)"""
-        assert _run_with_imports(source, base_dir=tmp_path) == "2\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "2\n"
 
 
 class TestClassREPL:

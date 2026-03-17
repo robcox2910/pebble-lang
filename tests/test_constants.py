@@ -2,20 +2,14 @@
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import BinaryOp, ConstAssignment, IntegerLiteral, Program, Statement
 from pebble.errors import ParseError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    analyze,
+    run_source,
 )
-
-
-def _run(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Helpers ------------------------------------------------------------------
 
@@ -29,12 +23,6 @@ def _parse(source: str) -> Program:
 def _stmts(source: str) -> list[Statement]:
     """Return top-level statements from *source*."""
     return _parse(source).statements
-
-
-def _analyze(source: str) -> Program:
-    """Lex, parse, and analyze *source*."""
-    program = _parse(source)
-    return SemanticAnalyzer().analyze(program)
 
 
 # -- Named constants ----------------------------------------------------------
@@ -97,33 +85,33 @@ class TestConstAnalyzer:
 
     def test_const_visible_in_scope(self) -> None:
         """A const variable can be read after declaration."""
-        _analyze("const x = 5\nprint(x)")
+        analyze("const x = 5\nprint(x)")
 
     def test_reassign_const_raises(self) -> None:
         """Reassigning a const variable raises a SemanticError."""
         with pytest.raises(SemanticError, match="Cannot reassign constant 'x'"):
-            _analyze("const x = 1\nx = 2")
+            analyze("const x = 1\nx = 2")
 
     def test_duplicate_const_raises(self) -> None:
         """Redeclaring a const in the same scope raises a SemanticError."""
         with pytest.raises(SemanticError, match="already declared"):
-            _analyze("const x = 1\nconst x = 2")
+            analyze("const x = 1\nconst x = 2")
 
     def test_let_reassignment_still_works(self) -> None:
         """Regular ``let`` variables can still be reassigned (regression)."""
-        _analyze("let x = 1\nx = 2")
+        analyze("let x = 1\nx = 2")
 
     def test_const_shadows_outer_let(self) -> None:
         """A const in an inner scope can shadow an outer let."""
-        _analyze("let x = 1\nif true {\n    const x = 2\n    print(x)\n}")
+        analyze("let x = 1\nif true {\n    const x = 2\n    print(x)\n}")
 
     def test_const_inside_function(self) -> None:
         """A const can be declared inside a function body."""
-        _analyze("fn f() {\n    const x = 42\n    print(x)\n}")
+        analyze("fn f() {\n    const x = 42\n    print(x)\n}")
 
     def test_const_used_in_expression(self) -> None:
         """A const variable can be used in expressions."""
-        _analyze("const x = 3\nprint(x + 2)")
+        analyze("const x = 3\nprint(x + 2)")
 
 
 # -- VM integration tests -----------------------------------------------------
@@ -137,22 +125,22 @@ class TestConstVM:
 
     def test_const_prints_value(self) -> None:
         """A const variable holds and prints its value."""
-        output = _run("const x = 42\nprint(x)")
+        output = run_source("const x = 42\nprint(x)")
         assert output == "42\n"
 
     def test_const_with_expression_value(self) -> None:
         """A const initialised with an expression evaluates correctly."""
-        output = _run("const x = 3 * 7\nprint(x)")
+        output = run_source("const x = 3 * 7\nprint(x)")
         assert output == f"{TWENTY_ONE}\n"
 
     def test_const_list_index_assignment(self) -> None:
         """Index assignment on a const list is allowed (binding is const, not value)."""
         source = "const xs = [1, 2, 3]\nxs[0] = 99\nprint(xs[0])"
-        output = _run(source)
+        output = run_source(source)
         assert output == f"{NINETY_NINE}\n"
 
     def test_const_in_loop_body(self) -> None:
         """A const inside a loop body is fresh each iteration."""
         source = "for i in range(3) {\n    const x = i * 2\n    print(x)\n}"
-        output = _run(source)
+        output = run_source(source)
         assert output == "0\n2\n4\n"

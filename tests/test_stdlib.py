@@ -32,16 +32,10 @@ from pebble.stdlib import (
     STDLIB_MODULES,
     StdlibModule,
 )
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
-    run_source_with_stdlib,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    run_source,
+    run_source_with_stdlib,
 )
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Named constants ----------------------------------------------------------
 
@@ -131,23 +125,23 @@ class TestStrBuiltin:
 
     def test_str_of_int(self) -> None:
         """str(42) returns '42'."""
-        assert _run_source("print(str(42))") == "42\n"
+        assert run_source("print(str(42))") == "42\n"
 
     def test_str_of_bool_true(self) -> None:
         """str(true) returns 'true'."""
-        assert _run_source("print(str(true))") == "true\n"
+        assert run_source("print(str(true))") == "true\n"
 
     def test_str_of_bool_false(self) -> None:
         """str(false) returns 'false'."""
-        assert _run_source("print(str(false))") == "false\n"
+        assert run_source("print(str(false))") == "false\n"
 
     def test_str_of_string(self) -> None:
         """str('hello') returns 'hello'."""
-        assert _run_source('print(str("hello"))') == "hello\n"
+        assert run_source('print(str("hello"))') == "hello\n"
 
     def test_str_of_list(self) -> None:
         """str([1, 2]) returns '[1, 2]'."""
-        assert _run_source("print(str([1, 2]))") == "[1, 2]\n"
+        assert run_source("print(str([1, 2]))") == "[1, 2]\n"
 
 
 # -- Cycle 2: int() + type() -------------------------------------------------
@@ -158,25 +152,25 @@ class TestIntBuiltin:
 
     def test_int_of_string(self) -> None:
         """int('42') returns 42."""
-        assert _run_source('print(int("42"))') == "42\n"
+        assert run_source('print(int("42"))') == "42\n"
 
     def test_int_of_negative_string(self) -> None:
         """int('-7') returns -7."""
-        assert _run_source('print(int("-7"))') == "-7\n"
+        assert run_source('print(int("-7"))') == "-7\n"
 
     def test_int_of_int(self) -> None:
         """int(42) returns 42 (identity)."""
-        assert _run_source("print(int(42))") == "42\n"
+        assert run_source("print(int(42))") == "42\n"
 
     def test_int_of_non_numeric_string(self) -> None:
         """int('hello') raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="Cannot convert"):
-            _run_source('int("hello")')
+            run_source('int("hello")')
 
     def test_int_of_bool(self) -> None:
         """int(true) raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="Cannot convert"):
-            _run_source("int(true)")
+            run_source("int(true)")
 
 
 class TestTypeBuiltin:
@@ -184,19 +178,19 @@ class TestTypeBuiltin:
 
     def test_type_of_int(self) -> None:
         """type(42) returns 'int'."""
-        assert _run_source("print(type(42))") == "int\n"
+        assert run_source("print(type(42))") == "int\n"
 
     def test_type_of_str(self) -> None:
         """type('hello') returns 'str'."""
-        assert _run_source('print(type("hello"))') == "str\n"
+        assert run_source('print(type("hello"))') == "str\n"
 
     def test_type_of_bool(self) -> None:
         """type(true) returns 'bool'."""
-        assert _run_source("print(type(true))") == "bool\n"
+        assert run_source("print(type(true))") == "bool\n"
 
     def test_type_of_list(self) -> None:
         """type([]) returns 'list'."""
-        assert _run_source("print(type([]))") == "list\n"
+        assert run_source("print(type([]))") == "list\n"
 
 
 # -- Cycle 3: push() + pop() -------------------------------------------------
@@ -208,22 +202,22 @@ class TestPushBuiltin:
     def test_push_appends_element(self) -> None:
         """push(xs, 4) appends 4 to the list."""
         source = "let xs = [1, 2, 3]\npush(xs, 4)\nprint(xs)"
-        assert _run_source(source) == "[1, 2, 3, 4]\n"
+        assert run_source(source) == "[1, 2, 3, 4]\n"
 
     def test_push_returns_list(self) -> None:
         """push() returns the mutated list."""
         source = "let xs = [1]\nprint(push(xs, 2))"
-        assert _run_source(source) == "[1, 2]\n"
+        assert run_source(source) == "[1, 2]\n"
 
     def test_push_to_empty_list(self) -> None:
         """push([], 1) works on empty lists."""
         source = "let xs = []\npush(xs, 1)\nprint(xs)"
-        assert _run_source(source) == "[1]\n"
+        assert run_source(source) == "[1]\n"
 
     def test_push_non_list_error(self) -> None:
         """push() on a non-list raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="requires a list"):
-            _run_source('push("hello", 1)')
+            run_source('push("hello", 1)')
 
 
 class TestPopBuiltin:
@@ -232,17 +226,17 @@ class TestPopBuiltin:
     def test_pop_removes_last(self) -> None:
         """pop(xs) removes and returns the last element."""
         source = "let xs = [1, 2, 3]\nlet last = pop(xs)\nprint(last)\nprint(xs)"
-        assert _run_source(source) == "3\n[1, 2]\n"
+        assert run_source(source) == "3\n[1, 2]\n"
 
     def test_pop_empty_list_error(self) -> None:
         """pop([]) raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="empty list"):
-            _run_source("let xs = []\npop(xs)")
+            run_source("let xs = []\npop(xs)")
 
     def test_pop_non_list_error(self) -> None:
         """pop() on a non-list raises PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError, match="requires a list"):
-            _run_source('pop("hello")')
+            run_source('pop("hello")')
 
 
 # -- Cycle 4: Analyzer registration -------------------------------------------
@@ -254,17 +248,17 @@ class TestAnalyzerBuiltins:
     def test_push_arity_check(self) -> None:
         """push() with wrong arity raises SemanticError."""
         with pytest.raises(SemanticError, match="expects 2"):
-            _run_source("push([1])")
+            run_source("push([1])")
 
     def test_pop_arity_check(self) -> None:
         """pop() with wrong arity raises SemanticError."""
         with pytest.raises(SemanticError, match="expects 1"):
-            _run_source("pop([1], 2)")
+            run_source("pop([1], 2)")
 
     def test_undeclared_function_still_caught(self) -> None:
         """Calling an unknown function still raises SemanticError."""
         with pytest.raises(SemanticError, match="Undeclared function"):
-            _run_source("foo()")
+            run_source("foo()")
 
     def test_existing_builtins_still_work(self) -> None:
         """print, range, and len still work after refactor."""
@@ -273,7 +267,7 @@ let xs = [1, 2, 3]
 for i in range(len(xs)) {
     print(xs[i])
 }"""
-        assert _run_source(source) == "1\n2\n3\n"
+        assert run_source(source) == "1\n2\n3\n"
 
 
 # -- Cycle 5: Integration ----------------------------------------------------
@@ -290,7 +284,7 @@ for i in range(3) {
     push(xs, i * 10)
 }
 print(xs)"""
-        assert _run_source(source) == "[0, 10, 20]\n"
+        assert run_source(source) == "[0, 10, 20]\n"
 
     def test_type_check_in_condition(self) -> None:
         """Use type() in an if condition."""
@@ -299,12 +293,12 @@ let x = 42
 if type(x) == "int" {
     print("it is an integer")
 }"""
-        assert _run_source(source) == "it is an integer\n"
+        assert run_source(source) == "it is an integer\n"
 
     def test_str_in_interpolation(self) -> None:
         """Use str() inside string interpolation."""
         source = 'let x = 42\nprint("value: {str(x)}")'
-        assert _run_source(source) == "value: 42\n"
+        assert run_source(source) == "value: 42\n"
 
     def test_int_round_trip(self) -> None:
         """Convert int to str to int."""
@@ -313,7 +307,7 @@ let x = 42
 let s = str(x)
 let y = int(s)
 print(y)"""
-        assert _run_source(source) == "42\n"
+        assert run_source(source) == "42\n"
 
     def test_stack_with_push_pop(self) -> None:
         """Use push/pop to implement a simple stack."""
@@ -324,7 +318,7 @@ push(stack, 2)
 push(stack, 3)
 let top = pop(stack)
 print("popped: {top}, remaining: {len(stack)}")"""
-        assert _run_source(source) == "popped: 3, remaining: 2\n"
+        assert run_source(source) == "popped: 3, remaining: 2\n"
 
 
 # -- Cycle 1 (stdlib): Module registry + math handlers -----------------------
