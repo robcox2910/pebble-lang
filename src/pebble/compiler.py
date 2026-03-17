@@ -116,6 +116,19 @@ class _LoopContext:
     try_depth_at_entry: int = 0
 
 
+@dataclass
+class _CompilerSnapshot:
+    """Snapshot of compiler state before entering a function body."""
+
+    current: CodeObject
+    loop_var_counter: int
+    match_var_counter: int
+    comp_var_counter: int
+    iter_var_counter: int
+    loop_contexts: list[_LoopContext]
+    try_depth: int
+
+
 class Compiler:
     """Compile a validated AST into stack-based bytecode.
 
@@ -603,6 +616,28 @@ class Compiler:
         self._patch_jump(done_jump)
         return self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
+    def _save_state(self) -> _CompilerSnapshot:
+        """Snapshot all mutable compiler state before entering a function body."""
+        return _CompilerSnapshot(
+            current=self._current,
+            loop_var_counter=self._loop_var_counter,
+            match_var_counter=self._match_var_counter,
+            comp_var_counter=self._comp_var_counter,
+            iter_var_counter=self._iter_var_counter,
+            loop_contexts=self._loop_contexts,
+            try_depth=self._try_depth,
+        )
+
+    def _restore_state(self, snapshot: _CompilerSnapshot) -> None:
+        """Restore compiler state from a previous snapshot."""
+        self._current = snapshot.current
+        self._loop_var_counter = snapshot.loop_var_counter
+        self._match_var_counter = snapshot.match_var_counter
+        self._comp_var_counter = snapshot.comp_var_counter
+        self._iter_var_counter = snapshot.iter_var_counter
+        self._loop_contexts = snapshot.loop_contexts
+        self._try_depth = snapshot.try_depth
+
     def _compile_function_body(
         self,
         name: str,
@@ -624,13 +659,7 @@ class Compiler:
         fn_code.free_variables = sorted(self._free_vars.get(name, set()))
         self._function_defaults[name] = [p.default for p in node_params]
 
-        previous = self._current
-        previous_loop_counter = self._loop_var_counter
-        previous_match_counter = self._match_var_counter
-        previous_comp_counter = self._comp_var_counter
-        previous_iter_counter = self._iter_var_counter
-        previous_loop_contexts = self._loop_contexts
-        previous_try_depth = self._try_depth
+        snapshot = self._save_state()
         self._current = fn_code
         self._loop_var_counter = 0
         self._match_var_counter = 0
@@ -649,13 +678,7 @@ class Compiler:
             self._emit(OpCode.RETURN)
 
         self._functions[name] = fn_code
-        self._current = previous
-        self._loop_var_counter = previous_loop_counter
-        self._match_var_counter = previous_match_counter
-        self._comp_var_counter = previous_comp_counter
-        self._iter_var_counter = previous_iter_counter
-        self._loop_contexts = previous_loop_contexts
-        self._try_depth = previous_try_depth
+        self._restore_state(snapshot)
         return fn_code
 
     def _compile_function_def(self, node: FunctionDef) -> None:
