@@ -6,7 +6,6 @@ arity), compiler default emission, and end-to-end integration.
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
     BooleanLiteral,
     FloatLiteral,
@@ -15,20 +14,15 @@ from pebble.ast_nodes import (
     StringLiteral,
     TypeAnnotation,
 )
-from pebble.bytecode import Instruction, OpCode
-from pebble.compiler import Compiler
+from pebble.bytecode import OpCode
 from pebble.errors import SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    analyze,
+    compile_instructions,
+    run_source,
 )
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Helpers ------------------------------------------------------------------
 
@@ -42,26 +36,6 @@ def _parse(source: str) -> FunctionDef:
             return stmt
     msg = "No FunctionDef found"
     raise ValueError(msg)
-
-
-def _compile_instructions(source: str) -> list[Instruction]:
-    """Return the main instruction list for *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    return compiled.main.instructions
-
-
-def _analyze(source: str) -> None:
-    """Parse and analyze *source* (discard result)."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    SemanticAnalyzer().analyze(program)
 
 
 # -- Named constants ----------------------------------------------------------
@@ -138,23 +112,23 @@ class TestAnalyzerDefaults:
     def test_required_after_default_error(self) -> None:
         """Required param after optional → SemanticError."""
         with pytest.raises(SemanticError, match="cannot follow"):
-            _analyze("fn f(a = 1, b) { return b }")
+            analyze("fn f(a = 1, b) { return b }")
 
     def test_non_literal_default_error(self) -> None:
         """Non-literal default → SemanticError."""
         with pytest.raises(SemanticError, match="must be literals"):
-            _analyze("fn f(a = 1 + 2) { return a }")
+            analyze("fn f(a = 1 + 2) { return a }")
 
     def test_default_arity_accepts_full(self) -> None:
         """Call with all arguments passes analysis."""
-        _analyze("""
+        analyze("""
             fn f(a, b = 10) { return a + b }
             f(1, 2)
         """)
 
     def test_default_arity_accepts_partial(self) -> None:
         """Call omitting defaulted argument passes analysis."""
-        _analyze("""
+        analyze("""
             fn f(a, b = 10) { return a + b }
             f(1)
         """)
@@ -162,7 +136,7 @@ class TestAnalyzerDefaults:
     def test_default_arity_rejects_too_few(self) -> None:
         """Call with fewer than required args → SemanticError."""
         with pytest.raises(SemanticError, match="expects"):
-            _analyze("""
+            analyze("""
                 fn f(a, b = 10) { return a + b }
                 f()
             """)
@@ -170,7 +144,7 @@ class TestAnalyzerDefaults:
     def test_default_arity_rejects_too_many(self) -> None:
         """Call with more than total args → SemanticError."""
         with pytest.raises(SemanticError, match="expects"):
-            _analyze("""
+            analyze("""
                 fn f(a, b = 10) { return a + b }
                 f(1, 2, 3)
             """)
@@ -178,7 +152,7 @@ class TestAnalyzerDefaults:
     def test_identifier_default_error(self) -> None:
         """Variable-reference default → SemanticError."""
         with pytest.raises(SemanticError, match="must be literals"):
-            _analyze("""
+            analyze("""
                 let x = 5
                 fn f(a = x) { return a }
             """)
@@ -196,7 +170,7 @@ class TestCompilerDefaults:
             fn f(a, b = 42) { return a + b }
             f(1)
         """
-        instructions = _compile_instructions(source)
+        instructions = compile_instructions(source)
         # Find the CALL instruction for f
         call_idx = next(
             i
@@ -213,7 +187,7 @@ class TestCompilerDefaults:
             fn f(a, b = 42) { return a + b }
             f(1, 2)
         """
-        instructions = _compile_instructions(source)
+        instructions = compile_instructions(source)
         call_idx = next(
             i
             for i, instr in enumerate(instructions)
@@ -234,7 +208,7 @@ class TestIntegrationDefaults:
 
     def test_default_used(self) -> None:
         """Omitted argument uses default value."""
-        output = _run_source("""
+        output = run_source("""
             fn greet(name, greeting = "Hello") {
                 print("{greeting} {name}")
             }
@@ -244,7 +218,7 @@ class TestIntegrationDefaults:
 
     def test_default_overridden(self) -> None:
         """Explicit argument overrides default."""
-        output = _run_source("""
+        output = run_source("""
             fn greet(name, greeting = "Hello") {
                 print("{greeting} {name}")
             }
@@ -254,7 +228,7 @@ class TestIntegrationDefaults:
 
     def test_multiple_defaults(self) -> None:
         """Multiple defaulted parameters work correctly."""
-        output = _run_source("""
+        output = run_source("""
             fn f(a, b = 10, c = 20) {
                 return a + b + c
             }
@@ -265,7 +239,7 @@ class TestIntegrationDefaults:
 
     def test_multiple_defaults_partial_override(self) -> None:
         """Override first default, use second."""
-        output = _run_source("""
+        output = run_source("""
             fn f(a, b = 10, c = 20) {
                 return a + b + c
             }
@@ -276,7 +250,7 @@ class TestIntegrationDefaults:
 
     def test_default_with_type_annotation(self) -> None:
         """Type-annotated default works end-to-end."""
-        output = _run_source("""
+        output = run_source("""
             fn f(x: Int = 42) {
                 return x
             }
@@ -287,7 +261,7 @@ class TestIntegrationDefaults:
 
     def test_default_string(self) -> None:
         """String default works end-to-end."""
-        output = _run_source("""
+        output = run_source("""
             fn f(x = "world") {
                 return x
             }
@@ -297,7 +271,7 @@ class TestIntegrationDefaults:
 
     def test_default_bool(self) -> None:
         """Bool default works end-to-end."""
-        output = _run_source("""
+        output = run_source("""
             fn f(x = true) {
                 return x
             }
@@ -307,7 +281,7 @@ class TestIntegrationDefaults:
 
     def test_default_float(self) -> None:
         """Float default works end-to-end."""
-        output = _run_source("""
+        output = run_source("""
             fn f(x = 3.14) {
                 return x
             }
@@ -317,7 +291,7 @@ class TestIntegrationDefaults:
 
     def test_default_in_closure(self) -> None:
         """Closure with default called by name from within its scope."""
-        output = _run_source("""
+        output = run_source("""
             fn make_adder(base) {
                 fn add(x = 10) {
                     return base + x
@@ -331,7 +305,7 @@ class TestIntegrationDefaults:
 
     def test_default_in_anonymous_fn(self) -> None:
         """Anonymous function with all args passed through variable works."""
-        output = _run_source("""
+        output = run_source("""
             let f = fn(x, y = 10) { return x + y }
             print(f(5, 20))
         """)

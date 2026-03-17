@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
     Assignment,
     ConstAssignment,
@@ -20,15 +19,19 @@ from pebble.ast_nodes import (
     StructDef,
     TypeAnnotation,
 )
-from pebble.bytecode import CodeObject, CompiledProgram, OpCode
-from pebble.compiler import Compiler
+from pebble.bytecode import CodeObject, OpCode
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.repl import Repl
-from pebble.resolver import ModuleResolver
 from pebble.tokens import SourceLocation, TokenKind
-from pebble.vm import VirtualMachine
+from tests.conftest import (
+    analyze,
+    compile_opcodes,
+    compile_source,
+    run_source,
+    run_source_with_imports,
+)
 
 # -- Named constants ----------------------------------------------------------
 
@@ -49,82 +52,6 @@ def _parse(source: str) -> list[object]:
     """Lex + parse helper returning the statement list."""
     tokens = Lexer(source).tokenize()
     return list(Parser(tokens).parse().statements)
-
-
-def _analyze(source: str) -> None:
-    """Lex + parse + analyze — raise on semantic errors."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    SemanticAnalyzer().analyze(program)
-
-
-def _compile_opcodes(source: str) -> list[OpCode]:
-    """Lex + parse + analyze + compile, return main opcode list."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return [instr.opcode for instr in compiled.main.instructions]
-
-
-def _compile_program(source: str) -> CompiledProgram:
-    """Lex + parse + analyze + compile, return the full CompiledProgram."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    return Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
-
-
-def _run_with_imports(source: str, *, base_dir: Path) -> str:
-    """Compile and run *source* with import support, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    resolver = ModuleResolver(base_dir=base_dir)
-    resolver.resolve_imports(program, analyzer)
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    all_functions = {**resolver.merged_functions, **compiled.functions}
-    all_structs = {**resolver.merged_structs, **compiled.structs}
-    all_struct_field_types = {
-        **resolver.merged_struct_field_types,
-        **compiled.struct_field_types,
-    }
-    full_program = CompiledProgram(
-        main=compiled.main,
-        functions=all_functions,
-        structs=all_structs,
-        struct_field_types=all_struct_field_types,
-    )
-    buf = StringIO()
-    VirtualMachine(output=buf).run(full_program)
-    return buf.getvalue()
 
 
 # =============================================================================
@@ -415,49 +342,49 @@ class TestAnalyzerTypeValidation:
 
     def test_builtin_int_valid(self) -> None:
         """``Int`` is accepted as a valid type."""
-        _analyze("let x: Int = 5")
+        analyze("let x: Int = 5")
 
     def test_builtin_float_valid(self) -> None:
         """``Float`` is accepted as a valid type."""
-        _analyze("let x: Float = 3.14")
+        analyze("let x: Float = 3.14")
 
     def test_builtin_string_valid(self) -> None:
         """``String`` is accepted as a valid type."""
-        _analyze('let x: String = "hello"')
+        analyze('let x: String = "hello"')
 
     def test_builtin_bool_valid(self) -> None:
         """``Bool`` is accepted as a valid type."""
-        _analyze("let x: Bool = true")
+        analyze("let x: Bool = true")
 
     def test_builtin_list_valid(self) -> None:
         """``List`` is accepted as a valid type."""
-        _analyze("let x: List = [1, 2]")
+        analyze("let x: List = [1, 2]")
 
     def test_builtin_dict_valid(self) -> None:
         """``Dict`` is accepted as a valid type."""
-        _analyze('let x: Dict = {"a": 1}')
+        analyze('let x: Dict = {"a": 1}')
 
     def test_builtin_fn_valid(self) -> None:
         """``Fn`` is accepted as a valid type."""
-        _analyze("let f: Fn = fn(x) { return x }")
+        analyze("let f: Fn = fn(x) { return x }")
 
     def test_struct_type_valid(self) -> None:
         """A defined struct name is valid as a type."""
-        _analyze("struct Point { x, y }\nlet p: Point = Point(1, 2)")
+        analyze("struct Point { x, y }\nlet p: Point = Point(1, 2)")
 
     def test_unknown_type_error(self) -> None:
         """An unknown type name raises SemanticError."""
         with pytest.raises(SemanticError, match="Unknown type 'Xyz'"):
-            _analyze("let x: Xyz = 5")
+            analyze("let x: Xyz = 5")
 
     def test_undefined_struct_type_error(self) -> None:
         """Using an undefined struct as a type raises SemanticError."""
         with pytest.raises(SemanticError, match="Unknown type 'Widget'"):
-            _analyze("let w: Widget = 0")
+            analyze("let w: Widget = 0")
 
     def test_recursive_struct_type_valid(self) -> None:
         """A struct can reference itself as a field type."""
-        _analyze("struct Node { value: Int, next }")
+        analyze("struct Node { value: Int, next }")
 
 
 class TestAnalyzerFieldTypes:
@@ -465,12 +392,12 @@ class TestAnalyzerFieldTypes:
 
     def test_valid_field_type(self) -> None:
         """Valid builtin type on a struct field passes analysis."""
-        _analyze("struct Point { x: Float, y: Float }")
+        analyze("struct Point { x: Float, y: Float }")
 
     def test_invalid_field_type(self) -> None:
         """Unknown type on a struct field raises SemanticError."""
         with pytest.raises(SemanticError, match="Unknown type 'Xyz'"):
-            _analyze("struct Bad { x: Xyz }")
+            analyze("struct Bad { x: Xyz }")
 
 
 # =============================================================================
@@ -505,7 +432,7 @@ class TestCompiledProgramFieldTypes:
 
     def test_struct_field_types_stored(self) -> None:
         """Compiling a typed struct stores field type metadata."""
-        prog = _compile_program("struct Point { x: Float, y: Float }")
+        prog = compile_source("struct Point { x: Float, y: Float }")
         assert "Point" in prog.struct_field_types
         assert prog.struct_field_types["Point"] == {
             "x": "Float",
@@ -518,7 +445,7 @@ class TestCompilerEmitsCheckType:
 
     def test_let_with_type_emits_check(self) -> None:
         """``let x: Int = 5`` emits CHECK_TYPE before STORE_NAME."""
-        opcodes = _compile_opcodes("let x: Int = 5")
+        opcodes = compile_opcodes("let x: Int = 5")
         assert OpCode.CHECK_TYPE in opcodes
         check_idx = opcodes.index(OpCode.CHECK_TYPE)
         store_idx = opcodes.index(OpCode.STORE_NAME)
@@ -526,17 +453,17 @@ class TestCompilerEmitsCheckType:
 
     def test_let_without_type_no_check(self) -> None:
         """``let x = 5`` does NOT emit CHECK_TYPE."""
-        opcodes = _compile_opcodes("let x = 5")
+        opcodes = compile_opcodes("let x = 5")
         assert OpCode.CHECK_TYPE not in opcodes
 
     def test_const_with_type_emits_check(self) -> None:
         """``const pi: Float = 3.14`` emits CHECK_TYPE."""
-        opcodes = _compile_opcodes("const pi: Float = 3.14")
+        opcodes = compile_opcodes("const pi: Float = 3.14")
         assert OpCode.CHECK_TYPE in opcodes
 
     def test_return_with_type_emits_check(self) -> None:
         """A function with return type emits CHECK_TYPE before RETURN."""
-        prog = _compile_program("fn f() -> Int { return 42 }")
+        prog = compile_source("fn f() -> Int { return 42 }")
         fn_opcodes = [i.opcode for i in prog.functions["f"].instructions]
         assert OpCode.CHECK_TYPE in fn_opcodes
         check_idx = fn_opcodes.index(OpCode.CHECK_TYPE)
@@ -545,7 +472,7 @@ class TestCompilerEmitsCheckType:
 
     def test_implicit_return_with_type_emits_check(self) -> None:
         """Implicit return on typed function emits CHECK_TYPE."""
-        prog = _compile_program("fn f() -> Int { let x = 0 }")
+        prog = compile_source("fn f() -> Int { let x = 0 }")
         fn_opcodes = [i.opcode for i in prog.functions["f"].instructions]
         assert OpCode.CHECK_TYPE in fn_opcodes
 
@@ -555,7 +482,7 @@ class TestCompilerStoresMetadata:
 
     def test_function_param_and_return_types(self) -> None:
         """Compiled function stores param_types and return_type."""
-        prog = _compile_program("fn add(a: Int, b: Int) -> Int { return a + b }")
+        prog = compile_source("fn add(a: Int, b: Int) -> Int { return a + b }")
         fn = prog.functions["add"]
         assert fn.param_types == [TypeAnnotation(name="Int"), TypeAnnotation(name="Int")]
         assert fn.return_type == TypeAnnotation(name="Int")
@@ -571,28 +498,28 @@ class TestVMCheckType:
 
     def test_int_check_passes(self) -> None:
         """``let x: Int = 5`` succeeds."""
-        _run_source("let x: Int = 5\nprint(x)")
+        run_source("let x: Int = 5\nprint(x)")
 
     def test_float_check_passes(self) -> None:
         """``let x: Float = 3.14`` succeeds."""
-        _run_source("let x: Float = 3.14\nprint(x)")
+        run_source("let x: Float = 3.14\nprint(x)")
 
     def test_string_check_passes(self) -> None:
         """``let x: String = "hi"`` succeeds."""
-        _run_source('let x: String = "hi"\nprint(x)')
+        run_source('let x: String = "hi"\nprint(x)')
 
     def test_bool_check_passes(self) -> None:
         """``let x: Bool = true`` succeeds."""
-        _run_source("let x: Bool = true\nprint(x)")
+        run_source("let x: Bool = true\nprint(x)")
 
     def test_struct_type_check_passes(self) -> None:
         """``let p: Point = Point(1.0, 2.0)`` succeeds."""
-        _run_source("struct Point { x, y }\nlet p: Point = Point(1.0, 2.0)\nprint(p.x)")
+        run_source("struct Point { x, y }\nlet p: Point = Point(1.0, 2.0)\nprint(p.x)")
 
     def test_type_mismatch_error(self) -> None:
         """``let x: Int = "hello"`` raises a type error."""
         with pytest.raises(PebbleRuntimeError, match="Type error: expected Int, got String"):
-            _run_source('let x: Int = "hello"')
+            run_source('let x: Int = "hello"')
 
 
 class TestVariableTypeChecking:
@@ -600,33 +527,33 @@ class TestVariableTypeChecking:
 
     def test_let_match(self) -> None:
         """Matching type passes."""
-        out = _run_source("let x: Int = 42\nprint(x)")
+        out = run_source("let x: Int = 42\nprint(x)")
         assert out.strip() == "42"
 
     def test_let_mismatch(self) -> None:
         """Mismatched type raises error."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source("let x: Int = 3.14")
+            run_source("let x: Int = 3.14")
 
     def test_const_match(self) -> None:
         """Const with matching type passes."""
-        out = _run_source("const pi: Float = 3.14\nprint(pi)")
+        out = run_source("const pi: Float = 3.14\nprint(pi)")
         assert out.strip() == "3.14"
 
     def test_const_mismatch(self) -> None:
         """Const with mismatched type raises error."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('const x: Int = "oops"')
+            run_source('const x: Int = "oops"')
 
     def test_bool_not_treated_as_int(self) -> None:
         """``let x: Int = true`` fails because Bool is not Int."""
         with pytest.raises(PebbleRuntimeError, match="Type error: expected Int, got Bool"):
-            _run_source("let x: Int = true")
+            run_source("let x: Int = true")
 
     def test_int_not_treated_as_bool(self) -> None:
         """``let x: Bool = 0`` fails because Int is not Bool."""
         with pytest.raises(PebbleRuntimeError, match="Type error: expected Bool, got Int"):
-            _run_source("let x: Bool = 0")
+            run_source("let x: Bool = 0")
 
 
 class TestFunctionParamTypeChecking:
@@ -634,22 +561,22 @@ class TestFunctionParamTypeChecking:
 
     def test_params_match(self) -> None:
         """Correct argument types pass."""
-        out = _run_source("fn add(a: Int, b: Int) -> Int { return a + b }\nprint(add(1, 2))")
+        out = run_source("fn add(a: Int, b: Int) -> Int { return a + b }\nprint(add(1, 2))")
         assert out.strip() == "3"
 
     def test_params_mismatch(self) -> None:
         """Wrong argument type raises error."""
         with pytest.raises(PebbleRuntimeError, match="parameter 'b' expected Int"):
-            _run_source('fn f(a: Int, b: Int) { return a }\nf(1, "x")')
+            run_source('fn f(a: Int, b: Int) { return a }\nf(1, "x")')
 
     def test_mixed_annotated_and_unannotated(self) -> None:
         """Only annotated params are checked."""
-        out = _run_source('fn f(a: Int, b) { print(a) }\nf(5, "any")')
+        out = run_source('fn f(a: Int, b) { print(a) }\nf(5, "any")')
         assert out.strip() == "5"
 
     def test_no_annotations_no_check(self) -> None:
         """Fully unannotated function accepts anything."""
-        out = _run_source('fn f(x) { print(x) }\nf("hello")')
+        out = run_source('fn f(x) { print(x) }\nf("hello")')
         assert out.strip() == "hello"
 
 
@@ -658,17 +585,17 @@ class TestFunctionReturnTypeChecking:
 
     def test_return_match(self) -> None:
         """Correct return type passes."""
-        out = _run_source("fn f() -> Int { return 42 }\nprint(f())")
+        out = run_source("fn f() -> Int { return 42 }\nprint(f())")
         assert out.strip() == "42"
 
     def test_return_mismatch(self) -> None:
         """Wrong return type raises error."""
         with pytest.raises(PebbleRuntimeError, match="Type error: expected Int, got String"):
-            _run_source('fn f() -> Int { return "oops" }\nf()')
+            run_source('fn f() -> Int { return "oops" }\nf()')
 
     def test_no_return_type_no_check(self) -> None:
         """Function without return type annotation returns anything."""
-        out = _run_source('fn f() { return "anything" }\nprint(f())')
+        out = run_source('fn f() { return "anything" }\nprint(f())')
         assert out.strip() == "anything"
 
 
@@ -677,9 +604,7 @@ class TestStructFieldTypeChecking:
 
     def test_construction_match(self) -> None:
         """Correct field types at construction pass."""
-        out = _run_source(
-            "struct Point { x: Float, y: Float }\nlet p = Point(1.0, 2.0)\nprint(p.x)"
-        )
+        out = run_source("struct Point { x: Float, y: Float }\nlet p = Point(1.0, 2.0)\nprint(p.x)")
         assert out.strip() == "1.0"
 
     def test_construction_mismatch(self) -> None:
@@ -688,11 +613,11 @@ class TestStructFieldTypeChecking:
             PebbleRuntimeError,
             match="field 'x' of 'Point' expected Float, got Int",
         ):
-            _run_source("struct Point { x: Float, y: Float }\nPoint(1, 2.0)")
+            run_source("struct Point { x: Float, y: Float }\nPoint(1, 2.0)")
 
     def test_field_assignment_match(self) -> None:
         """Correct type on field reassignment passes."""
-        out = _run_source(
+        out = run_source(
             "struct Point { x: Float, y: Float }\nlet p = Point(1.0, 2.0)\np.x = 3.0\nprint(p.x)"
         )
         assert out.strip() == "3.0"
@@ -703,13 +628,11 @@ class TestStructFieldTypeChecking:
             PebbleRuntimeError,
             match="field 'x' of 'Point' expected Float",
         ):
-            _run_source(
-                'struct Point { x: Float, y: Float }\nlet p = Point(1.0, 2.0)\np.x = "oops"'
-            )
+            run_source('struct Point { x: Float, y: Float }\nlet p = Point(1.0, 2.0)\np.x = "oops"')
 
     def test_mixed_typed_and_untyped_fields(self) -> None:
         """Only annotated fields are checked."""
-        out = _run_source('struct Mixed { x: Int, y }\nlet m = Mixed(5, "anything")\nprint(m.x)')
+        out = run_source('struct Mixed { x: Int, y }\nlet m = Mixed(5, "anything")\nprint(m.x)')
         assert out.strip() == "5"
 
 
@@ -718,13 +641,13 @@ class TestClosureTypeChecking:
 
     def test_closure_param_match(self) -> None:
         """Closure with typed param accepts correct type."""
-        out = _run_source("let double = fn(x: Int) -> Int { return x * 2 }\nprint(double(5))")
+        out = run_source("let double = fn(x: Int) -> Int { return x * 2 }\nprint(double(5))")
         assert out.strip() == "10"
 
     def test_closure_param_mismatch(self) -> None:
         """Closure with typed param rejects wrong type."""
         with pytest.raises(PebbleRuntimeError, match="parameter 'x' expected Int"):
-            _run_source('let f = fn(x: Int) { return x }\nf("wrong")')
+            run_source('let f = fn(x: Int) { return x }\nf("wrong")')
 
 
 # =============================================================================
@@ -737,7 +660,7 @@ class TestEndToEnd:
 
     def test_fully_typed_program(self) -> None:
         """A fully typed program runs correctly."""
-        out = _run_source(
+        out = run_source(
             "struct Point { x: Float, y: Float }\n"
             "fn distance(p: Point) -> Float {\n"
             "    return (p.x ** 2 + p.y ** 2) ** 0.5\n"
@@ -750,19 +673,19 @@ class TestEndToEnd:
 
     def test_fully_untyped_program(self) -> None:
         """An untyped program runs without type checks."""
-        out = _run_source("fn add(a, b) { return a + b }\nlet result = add(3, 4)\nprint(result)")
+        out = run_source("fn add(a, b) { return a + b }\nlet result = add(3, 4)\nprint(result)")
         assert out.strip() == "7"
 
     def test_mixed_typed_and_untyped(self) -> None:
         """Mixing typed and untyped code works."""
-        out = _run_source(
+        out = run_source(
             "fn square(x: Int) -> Int { return x * x }\nlet result = square(5)\nprint(result)"
         )
         assert out.strip() == "25"
 
     def test_typed_struct_with_methods(self) -> None:
         """Struct with typed fields and a typed method."""
-        out = _run_source(
+        out = run_source(
             "struct Rect { w: Float, h: Float }\n"
             "fn area(r: Rect) -> Float { return r.w * r.h }\n"
             "let r: Rect = Rect(3.0, 4.0)\n"
@@ -779,7 +702,7 @@ class TestResolverTypeMetadata:
         lib = tmp_path / "shapes.pbl"
         lib.write_text("struct Circle { radius: Float }")
         main_source = 'import "shapes.pbl"\nlet c = Circle(3.14)\nprint(c.radius)'
-        out = _run_with_imports(main_source, base_dir=tmp_path)
+        out = run_source_with_imports(main_source, base_dir=tmp_path)
         assert out.strip() == "3.14"
 
     def test_imported_struct_type_checking(self, tmp_path: Path) -> None:
@@ -791,14 +714,14 @@ class TestResolverTypeMetadata:
             PebbleRuntimeError,
             match="field 'radius' of 'Circle' expected Float, got String",
         ):
-            _run_with_imports(main_source, base_dir=tmp_path)
+            run_source_with_imports(main_source, base_dir=tmp_path)
 
     def test_imported_fn_types_preserved(self, tmp_path: Path) -> None:
         """Function parameter types from imported module are checked."""
         lib = tmp_path / "math_lib.pbl"
         lib.write_text("fn double(x: Int) -> Int { return x * 2 }")
         main_source = 'import "math_lib.pbl"\nprint(double(5))'
-        out = _run_with_imports(main_source, base_dir=tmp_path)
+        out = run_source_with_imports(main_source, base_dir=tmp_path)
         assert out.strip() == "10"
 
 

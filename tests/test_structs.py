@@ -1,10 +1,7 @@
 """Tests for structs/records: custom data types with named fields."""
 
-from io import StringIO
-
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
     FieldAccess,
     FieldAssignment,
@@ -17,12 +14,16 @@ from pebble.ast_nodes import (
 )
 from pebble.builtins import StructInstance, _builtin_type, format_value
 from pebble.bytecode import OpCode
-from pebble.compiler import Compiler
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import SourceLocation, TokenKind
-from pebble.vm import VirtualMachine
+from tests.conftest import (
+    analyze,
+    compile_instructions,
+    compile_opcodes,
+    run_source,
+)
 
 # -- Named constants ----------------------------------------------------------
 
@@ -45,54 +46,6 @@ def _parse(source: str) -> list[object]:
     """Lex + parse helper returning the statement list."""
     tokens = Lexer(source).tokenize()
     return list(Parser(tokens).parse().statements)
-
-
-def _analyze(source: str) -> None:
-    """Lex + parse + analyze — raise on semantic errors."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    SemanticAnalyzer().analyze(program)
-
-
-def _compile_opcodes(source: str) -> list[OpCode]:
-    """Lex + parse + analyze + compile, return main opcode list."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return [instr.opcode for instr in compiled.main.instructions]
-
-
-def _compile_instructions(source: str) -> list[tuple[OpCode, object]]:
-    """Lex + parse + analyze + compile, return (opcode, operand) pairs."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return [(i.opcode, i.operand) for i in compiled.main.instructions]
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # =============================================================================
@@ -263,39 +216,39 @@ class TestStructAnalyzer:
 
     def test_struct_declared_in_scope(self) -> None:
         """Struct definition passes analysis without error."""
-        _analyze("struct Point { x, y }")
+        analyze("struct Point { x, y }")
 
     def test_struct_constructor_arity(self) -> None:
         """Struct constructor arity matches field count."""
-        _analyze("struct Point { x, y }\nlet p = Point(1, 2)")
+        analyze("struct Point { x, y }\nlet p = Point(1, 2)")
 
     def test_struct_constructor_wrong_arity(self) -> None:
         """Wrong argument count to struct constructor is a semantic error."""
         with pytest.raises(SemanticError, match="expects 2 arguments"):
-            _analyze("struct Point { x, y }\nlet p = Point(1)")
+            analyze("struct Point { x, y }\nlet p = Point(1)")
 
     def test_duplicate_struct_name_error(self) -> None:
         """Redefining a struct in the same scope is a semantic error."""
         with pytest.raises(SemanticError, match="already defined"):
-            _analyze("struct Point { x, y }\nstruct Point { a, b }")
+            analyze("struct Point { x, y }\nstruct Point { a, b }")
 
     def test_field_access_undeclared_target(self) -> None:
         """Field access on undeclared variable is a semantic error."""
         with pytest.raises(SemanticError, match="Undeclared variable"):
-            _analyze("print(p.x)")
+            analyze("print(p.x)")
 
     def test_field_assignment_undeclared_target(self) -> None:
         """Field assignment on undeclared variable is a semantic error."""
         with pytest.raises(SemanticError, match="Undeclared variable"):
-            _analyze("p.x = 5")
+            analyze("p.x = 5")
 
     def test_field_access_passes_analysis(self) -> None:
         """Field access on declared variable passes analysis."""
-        _analyze("struct Point { x, y }\nlet p = Point(1, 2)\nprint(p.x)")
+        analyze("struct Point { x, y }\nlet p = Point(1, 2)\nprint(p.x)")
 
     def test_field_assignment_passes_analysis(self) -> None:
         """Field assignment on declared variable passes analysis."""
-        _analyze("struct Point { x, y }\nlet p = Point(1, 2)\np.x = 5")
+        analyze("struct Point { x, y }\nlet p = Point(1, 2)\np.x = 5")
 
 
 # =============================================================================
@@ -308,32 +261,32 @@ class TestStructCompiler:
 
     def test_struct_def_stores_metadata(self) -> None:
         """Struct definition stores metadata but emits no bytecode."""
-        opcodes = _compile_opcodes("struct Point { x, y }")
+        opcodes = compile_opcodes("struct Point { x, y }")
         # Only HALT should be emitted — no bytecode for the struct def itself
         assert opcodes == [OpCode.HALT]
 
     def test_field_access_emits_get_field(self) -> None:
         """Field access emits GET_FIELD opcode."""
-        opcodes = _compile_opcodes("struct Point { x, y }\nlet p = Point(1, 2)\nprint(p.x)")
+        opcodes = compile_opcodes("struct Point { x, y }\nlet p = Point(1, 2)\nprint(p.x)")
         assert OpCode.GET_FIELD in opcodes
 
     def test_field_assignment_emits_set_field(self) -> None:
         """Field assignment emits SET_FIELD opcode."""
-        opcodes = _compile_opcodes("struct Point { x, y }\nlet p = Point(1, 2)\np.x = 5")
+        opcodes = compile_opcodes("struct Point { x, y }\nlet p = Point(1, 2)\np.x = 5")
         assert OpCode.SET_FIELD in opcodes
 
     def test_get_field_operand_is_field_name(self) -> None:
         """GET_FIELD instruction carries the field name as operand."""
-        instructions = _compile_instructions(
+        instructions = compile_instructions(
             "struct Point { x, y }\nlet p = Point(1, 2)\nprint(p.x)"
         )
-        get_fields = [(op, operand) for op, operand in instructions if op == OpCode.GET_FIELD]
+        get_fields = [(i.opcode, i.operand) for i in instructions if i.opcode == OpCode.GET_FIELD]
         assert get_fields == [(OpCode.GET_FIELD, "x")]
 
     def test_set_field_operand_is_field_name(self) -> None:
         """SET_FIELD instruction carries the field name as operand."""
-        instructions = _compile_instructions("struct Point { x, y }\nlet p = Point(1, 2)\np.x = 5")
-        set_fields = [(op, operand) for op, operand in instructions if op == OpCode.SET_FIELD]
+        instructions = compile_instructions("struct Point { x, y }\nlet p = Point(1, 2)\np.x = 5")
+        set_fields = [(i.opcode, i.operand) for i in instructions if i.opcode == OpCode.SET_FIELD]
         assert set_fields == [(OpCode.SET_FIELD, "x")]
 
 
@@ -347,43 +300,43 @@ class TestStructEndToEnd:
 
     def test_construct_and_read_fields(self) -> None:
         """Construct a struct and read its fields."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\nlet p = Point(10, 20)\nprint(p.x)\nprint(p.y)\n"
         )
         assert output.strip() == "10\n20"
 
     def test_field_assignment_mutates(self) -> None:
         """Field assignment mutates the struct instance."""
-        output = _run_source("struct Point { x, y }\nlet p = Point(10, 20)\np.x = 30\nprint(p.x)\n")
+        output = run_source("struct Point { x, y }\nlet p = Point(10, 20)\np.x = 30\nprint(p.x)\n")
         assert output.strip() == "30"
 
     def test_type_returns_struct_name(self) -> None:
         """type() returns the struct's type name."""
-        output = _run_source("struct Point { x, y }\nlet p = Point(10, 20)\nprint(type(p))\n")
+        output = run_source("struct Point { x, y }\nlet p = Point(10, 20)\nprint(type(p))\n")
         assert output.strip() == "Point"
 
     def test_print_displays_struct(self) -> None:
         """print() displays struct as Name(field=value, ...)."""
-        output = _run_source("struct Point { x, y }\nlet p = Point(10, 20)\nprint(p)\n")
+        output = run_source("struct Point { x, y }\nlet p = Point(10, 20)\nprint(p)\n")
         assert output.strip() == "Point(x=10, y=20)"
 
     def test_equality_same_fields(self) -> None:
         """Structs with same type and field values are equal."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\nlet a = Point(10, 20)\nlet b = Point(10, 20)\nprint(a == b)\n"
         )
         assert output.strip() == "true"
 
     def test_equality_different_values(self) -> None:
         """Structs with different field values are not equal."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\nlet a = Point(10, 20)\nlet b = Point(10, 30)\nprint(a == b)\n"
         )
         assert output.strip() == "false"
 
     def test_equality_different_types(self) -> None:
         """Different struct types with same values are not equal."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "struct Vec { x, y }\n"
             "let a = Point(10, 20)\n"
@@ -395,31 +348,31 @@ class TestStructEndToEnd:
     def test_wrong_arg_count_error(self) -> None:
         """Wrong argument count to struct constructor is a semantic error."""
         with pytest.raises(SemanticError, match="expects 2 arguments"):
-            _run_source("struct Point { x, y }\nlet p = Point(1)")
+            run_source("struct Point { x, y }\nlet p = Point(1)")
 
     def test_access_nonexistent_field_error(self) -> None:
         """Accessing a nonexistent field is a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="has no field 'z'"):
-            _run_source("struct Point { x, y }\nlet p = Point(10, 20)\nprint(p.z)\n")
+            run_source("struct Point { x, y }\nlet p = Point(10, 20)\nprint(p.z)\n")
 
     def test_set_nonexistent_field_error(self) -> None:
         """Setting a nonexistent field is a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="has no field 'z'"):
-            _run_source("struct Point { x, y }\nlet p = Point(10, 20)\np.z = 5\n")
+            run_source("struct Point { x, y }\nlet p = Point(10, 20)\np.z = 5\n")
 
     def test_get_field_on_non_struct_error(self) -> None:
         """GET_FIELD on a non-struct value is a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="not a struct"):
-            _run_source("let x = 42\nprint(x.y)\n")
+            run_source("let x = 42\nprint(x.y)\n")
 
     def test_set_field_on_non_struct_error(self) -> None:
         """SET_FIELD on a non-struct value is a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="not a struct"):
-            _run_source("let x = 42\nx.y = 5\n")
+            run_source("let x = 42\nx.y = 5\n")
 
     def test_struct_inside_function(self) -> None:
         """Struct defined inside a function body works."""
-        output = _run_source(
+        output = run_source(
             "fn make_point() {\n"
             "  struct Point { x, y }\n"
             "  return Point(1, 2)\n"
@@ -431,7 +384,7 @@ class TestStructEndToEnd:
 
     def test_struct_as_function_parameter(self) -> None:
         """Struct instance can be passed as a function argument."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "fn get_x(p) { return p.x }\n"
             "let p = Point(10, 20)\n"
@@ -441,7 +394,7 @@ class TestStructEndToEnd:
 
     def test_struct_as_return_value(self) -> None:
         """Struct instance can be returned from a function."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "fn origin() { return Point(0, 0) }\n"
             "let p = origin()\n"
@@ -452,7 +405,7 @@ class TestStructEndToEnd:
 
     def test_struct_in_list(self) -> None:
         """Struct instances can be stored in a list."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "let points = [Point(1, 2), Point(3, 4)]\n"
             "print(points[0].x)\n"
@@ -462,7 +415,7 @@ class TestStructEndToEnd:
 
     def test_nested_struct(self) -> None:
         """Struct field can hold another struct."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "struct Line { start, end }\n"
             "let line = Line(Point(0, 0), Point(10, 10))\n"
@@ -473,14 +426,14 @@ class TestStructEndToEnd:
 
     def test_const_binding_field_mutation(self) -> None:
         """Field mutation through const binding is allowed (like const lists)."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\nconst p = Point(10, 20)\np.x = 30\nprint(p.x)\n"
         )
         assert output.strip() == "30"
 
     def test_struct_in_loop(self) -> None:
         """Structs work correctly inside a loop."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "for i in range(3) {\n"
             "  let p = Point(i, i * 2)\n"
@@ -491,7 +444,7 @@ class TestStructEndToEnd:
 
     def test_struct_with_match_on_field(self) -> None:
         """Pattern matching on a struct field value works."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "let p = Point(1, 2)\n"
             "match p.x {\n"
@@ -503,26 +456,26 @@ class TestStructEndToEnd:
 
     def test_struct_in_dict(self) -> None:
         """Struct instance can be stored as a dict value."""
-        output = _run_source(
+        output = run_source(
             'struct Point { x, y }\nlet d = {"origin": Point(0, 0)}\nprint(d["origin"].x)\n'
         )
         assert output.strip() == "0"
 
     def test_print_mutated_struct(self) -> None:
         """Print displays updated field values after mutation."""
-        output = _run_source("struct Point { x, y }\nlet p = Point(10, 20)\np.x = 30\nprint(p)\n")
+        output = run_source("struct Point { x, y }\nlet p = Point(10, 20)\np.x = 30\nprint(p)\n")
         assert output.strip() == "Point(x=30, y=20)"
 
     def test_inequality_operator(self) -> None:
         """Structs support != comparison."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\nlet a = Point(1, 2)\nlet b = Point(3, 4)\nprint(a != b)\n"
         )
         assert output.strip() == "true"
 
     def test_struct_field_access_chain(self) -> None:
         """Chained field access like line.start.x works."""
-        output = _run_source(
+        output = run_source(
             "struct Point { x, y }\n"
             "struct Line { start, end }\n"
             "let line = Line(Point(1, 2), Point(3, 4))\n"

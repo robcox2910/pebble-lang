@@ -5,12 +5,53 @@ from pathlib import Path
 from typing import TextIO
 
 from pebble.analyzer import SemanticAnalyzer
-from pebble.bytecode import CompiledProgram
+from pebble.ast_nodes import Program
+from pebble.bytecode import CompiledProgram, Instruction, OpCode
 from pebble.compiler import Compiler
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
 from pebble.vm import VirtualMachine
+
+
+def analyze(source: str) -> Program:
+    """Lex, parse, and analyze *source*, returning the analyzed program."""
+    tokens = Lexer(source).tokenize()
+    program = Parser(tokens).parse()
+    return SemanticAnalyzer().analyze(program)
+
+
+def analyze_with_context(source: str) -> tuple[Program, SemanticAnalyzer]:
+    """Lex, parse, and analyze *source*, returning program and analyzer."""
+    tokens = Lexer(source).tokenize()
+    program = Parser(tokens).parse()
+    analyzer = SemanticAnalyzer()
+    analyzed = analyzer.analyze(program)
+    return analyzed, analyzer
+
+
+def compile_source(source: str) -> CompiledProgram:
+    """Full pipeline: lex, parse, analyze, compile."""
+    tokens = Lexer(source).tokenize()
+    program = Parser(tokens).parse()
+    analyzer = SemanticAnalyzer()
+    analyzed = analyzer.analyze(program)
+    return Compiler(
+        cell_vars=analyzer.cell_vars,
+        free_vars=analyzer.free_vars,
+        enums=analyzer.enums,
+        class_parents=analyzer.class_parents,
+    ).compile(analyzed)
+
+
+def compile_instructions(source: str) -> list[Instruction]:
+    """Compile *source* and return the main code object's instructions."""
+    return compile_source(source).main.instructions
+
+
+def compile_opcodes(source: str) -> list[OpCode]:
+    """Compile *source* and return just the opcode sequence."""
+    return [i.opcode for i in compile_instructions(source)]
 
 
 def run_source(source: str) -> str:

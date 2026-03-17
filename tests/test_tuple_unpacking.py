@@ -1,10 +1,7 @@
 """Tests for multiple return values and tuple unpacking."""
 
-from io import StringIO
-
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
     ArrayLiteral,
     Assignment,
@@ -16,13 +13,17 @@ from pebble.ast_nodes import (
     UnpackConstAssignment,
     UnpackReassignment,
 )
-from pebble.bytecode import Instruction, OpCode
-from pebble.compiler import Compiler
+from pebble.bytecode import OpCode
 from pebble.errors import ParseError, PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import SourceLocation
-from pebble.vm import VirtualMachine
+from tests.conftest import (
+    analyze,
+    compile_instructions,
+    compile_opcodes,
+    run_source,
+)
 
 # -- Named constants ----------------------------------------------------------
 
@@ -37,54 +38,6 @@ def _parse(source: str) -> list[Statement]:
     """Lex and parse *source*, return statement list."""
     tokens = Lexer(source).tokenize()
     return Parser(tokens).parse().statements
-
-
-def _analyze(source: str) -> None:
-    """Lex + parse + analyze — raise on semantic errors."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    SemanticAnalyzer().analyze(program)
-
-
-def _compile_opcodes(source: str) -> list[OpCode]:
-    """Lex + parse + analyze + compile, return main opcode list."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return [instr.opcode for instr in compiled.main.instructions]
-
-
-def _compile_instructions(source: str) -> list[Instruction]:
-    """Return the main instruction list for *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return compiled.main.instructions
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # =============================================================================
@@ -255,35 +208,35 @@ class TestUnpackAnalyzer:
 
     def test_unpack_let_declares_names(self) -> None:
         """Each name in ``let x, y = expr`` is declared."""
-        _analyze("let x, y = [1, 2]\nprint(x)\nprint(y)")
+        analyze("let x, y = [1, 2]\nprint(x)\nprint(y)")
 
     def test_unpack_const_declares_constants(self) -> None:
         """Each name in ``const x, y = expr`` is declared as a constant."""
-        _analyze("const x, y = [1, 2]\nprint(x)\nprint(y)")
+        analyze("const x, y = [1, 2]\nprint(x)\nprint(y)")
 
     def test_unpack_const_prevents_reassignment(self) -> None:
         """Reassigning a const-unpacked variable raises SemanticError."""
         with pytest.raises(SemanticError, match="Cannot reassign constant"):
-            _analyze("const x, y = [1, 2]\nx = 3")
+            analyze("const x, y = [1, 2]\nx = 3")
 
     def test_unpack_reassignment_requires_declaration(self) -> None:
         """Undeclared variable in unpack reassignment raises SemanticError."""
         with pytest.raises(SemanticError, match="Undeclared variable"):
-            _analyze("a, b = [1, 2]")
+            analyze("a, b = [1, 2]")
 
     def test_unpack_reassignment_checks_const(self) -> None:
         """Cannot unpack-reassign a const variable."""
         with pytest.raises(SemanticError, match="Cannot reassign constant"):
-            _analyze("const x = 1\nlet y = 2\nx, y = [3, 4]")
+            analyze("const x = 1\nlet y = 2\nx, y = [3, 4]")
 
     def test_undeclared_variable_in_rhs(self) -> None:
         """Undeclared variable in the RHS expression raises SemanticError."""
         with pytest.raises(SemanticError, match="Undeclared variable"):
-            _analyze("let x, y = unknown")
+            analyze("let x, y = unknown")
 
     def test_outer_variable_in_rhs(self) -> None:
         """Outer variable can be used in the RHS of an unpack assignment."""
-        _analyze("let vals = [1, 2]\nlet x, y = vals")
+        analyze("let vals = [1, 2]\nlet x, y = vals")
 
 
 # =============================================================================
@@ -296,19 +249,19 @@ class TestUnpackCompiler:
 
     def test_emits_unpack_sequence(self) -> None:
         """Compiler emits UNPACK_SEQUENCE for a let unpack."""
-        opcodes = _compile_opcodes("let x, y = [1, 2]")
+        opcodes = compile_opcodes("let x, y = [1, 2]")
         assert OpCode.UNPACK_SEQUENCE in opcodes
 
     def test_unpack_sequence_operand(self) -> None:
         """UNPACK_SEQUENCE has the correct count operand."""
-        instructions = _compile_instructions("let x, y = [1, 2]")
+        instructions = compile_instructions("let x, y = [1, 2]")
         unpack_instrs = [i for i in instructions if i.opcode == OpCode.UNPACK_SEQUENCE]
         assert len(unpack_instrs) == 1
         assert unpack_instrs[0].operand == TWO_NAMES
 
     def test_emits_store_names_after_unpack(self) -> None:
         """N STORE_NAME instructions follow UNPACK_SEQUENCE."""
-        instructions = _compile_instructions("let x, y = [1, 2]")
+        instructions = compile_instructions("let x, y = [1, 2]")
         unpack_idx = next(
             i for i, inst in enumerate(instructions) if inst.opcode == OpCode.UNPACK_SEQUENCE
         )
@@ -330,16 +283,16 @@ class TestUnpackEndToEnd:
 
     def test_let_two_values(self) -> None:
         """``let x, y = [1, 2]`` unpacks correctly."""
-        assert _run_source("let x, y = [1, 2]\nprint(x)\nprint(y)") == "1\n2\n"
+        assert run_source("let x, y = [1, 2]\nprint(x)\nprint(y)") == "1\n2\n"
 
     def test_let_three_values(self) -> None:
         """``let a, b, c = [10, 20, 30]`` unpacks correctly."""
-        out = _run_source("let a, b, c = [10, 20, 30]\nprint(a)\nprint(b)\nprint(c)")
+        out = run_source("let a, b, c = [10, 20, 30]\nprint(a)\nprint(b)\nprint(c)")
         assert out == "10\n20\n30\n"
 
     def test_const_unpacking(self) -> None:
         """``const x, y = [1, 2]`` creates immutable bindings."""
-        assert _run_source("const x, y = [1, 2]\nprint(x)\nprint(y)") == "1\n2\n"
+        assert run_source("const x, y = [1, 2]\nprint(x)\nprint(y)") == "1\n2\n"
 
     def test_return_multiple_values(self) -> None:
         """A function returning multiple values can be unpacked at the call site."""
@@ -351,7 +304,7 @@ let x, y = swap(1, 2)
 print(x)
 print(y)
 """
-        assert _run_source(source) == "2\n1\n"
+        assert run_source(source) == "2\n1\n"
 
     def test_reassignment_unpacking(self) -> None:
         """``x, y = [3, 4]`` reassigns existing variables."""
@@ -362,7 +315,7 @@ x, y = [3, 4]
 print(x)
 print(y)
 """
-        assert _run_source(source) == "3\n4\n"
+        assert run_source(source) == "3\n4\n"
 
     def test_swap_idiom(self) -> None:
         """``a, b = [b, a]`` swaps two variables."""
@@ -373,7 +326,7 @@ a, b = [b, a]
 print(a)
 print(b)
 """
-        assert _run_source(source) == "2\n1\n"
+        assert run_source(source) == "2\n1\n"
 
     def test_function_returning_three_values(self) -> None:
         """A function can return three values via unpack."""
@@ -392,22 +345,22 @@ print(lo)
 print(hi)
 print(total)
 """
-        assert _run_source(source) == "1\n3\n6\n"
+        assert run_source(source) == "1\n3\n6\n"
 
     def test_wrong_count_too_many(self) -> None:
         """Unpacking a 3-element list into 2 variables raises runtime error."""
         with pytest.raises(PebbleRuntimeError, match="Expected 2 values to unpack, got 3"):
-            _run_source("let x, y = [1, 2, 3]")
+            run_source("let x, y = [1, 2, 3]")
 
     def test_wrong_count_too_few(self) -> None:
         """Unpacking a 2-element list into 3 variables raises runtime error."""
         with pytest.raises(PebbleRuntimeError, match="Expected 3 values to unpack, got 2"):
-            _run_source("let x, y, z = [1, 2]")
+            run_source("let x, y, z = [1, 2]")
 
     def test_non_list_error(self) -> None:
         """Unpacking a non-list value raises runtime error."""
         with pytest.raises(PebbleRuntimeError, match="Cannot unpack"):
-            _run_source("let x, y = 42")
+            run_source("let x, y = 42")
 
     def test_unpack_inside_loop(self) -> None:
         """Unpack works inside a for loop."""
@@ -418,7 +371,7 @@ for i in range(3) {
     print(a + b)
 }
 """
-        assert _run_source(source) == "3\n7\n11\n"
+        assert run_source(source) == "3\n7\n11\n"
 
     def test_unpack_inside_function(self) -> None:
         """Unpack works inside a function body."""
@@ -429,7 +382,7 @@ fn process() {
 }
 print(process())
 """
-        assert _run_source(source) == "30\n"
+        assert run_source(source) == "30\n"
 
     def test_nested_unpack_from_function(self) -> None:
         """Unpack result of a function that itself returns unpacked values."""
@@ -445,7 +398,7 @@ let sum, prod = outer()
 print(sum)
 print(prod)
 """
-        assert _run_source(source) == "3\n2\n"
+        assert run_source(source) == "3\n2\n"
 
     def test_unpack_from_list_comprehension(self) -> None:
         """Unpack from a list comprehension result."""
@@ -455,4 +408,4 @@ print(a)
 print(b)
 print(c)
 """
-        assert _run_source(source) == "0\n1\n4\n"
+        assert run_source(source) == "0\n1\n4\n"

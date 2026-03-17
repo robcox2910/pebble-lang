@@ -9,21 +9,16 @@ import pytest
 from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import Expression, Identifier, IndexAccess, MethodCall, StringLiteral
 from pebble.builtins import METHOD_NONE
-from pebble.bytecode import Instruction, OpCode
+from pebble.bytecode import OpCode
 from pebble.compiler import Compiler
 from pebble.errors import PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    compile_instructions,
+    run_source,
 )
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Named constants ----------------------------------------------------------
 
@@ -45,14 +40,6 @@ def _parse_expr(source: str) -> Expression:
     """Lex and parse a single expression from *source*."""
     tokens = Lexer(source).tokenize()
     return Parser(tokens).parse_expression()
-
-
-def _compile_instructions(source: str) -> list[Instruction]:
-    """Return the main instruction list for *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzed = SemanticAnalyzer().analyze(program)
-    return Compiler().compile(analyzed).main.instructions
 
 
 # -- Cycle 1: Lexer — DOT token -----------------------------------------------
@@ -138,12 +125,12 @@ class TestAnalyzerMethodCall:
     def test_unknown_method_error(self) -> None:
         """Calling an unknown method raises SemanticError."""
         with pytest.raises(SemanticError, match="Unknown method 'foo'"):
-            _run_source('let s = "hello"\ns.foo()')
+            run_source('let s = "hello"\ns.foo()')
 
     def test_wrong_arity_error(self) -> None:
         """Wrong argument count raises SemanticError."""
         with pytest.raises(SemanticError, match="expects 0 arguments"):
-            _run_source('let s = "hello"\ns.upper(1)')
+            run_source('let s = "hello"\ns.upper(1)')
 
     def test_split_zero_args_valid(self) -> None:
         """``split()`` with 0 args is valid (variable arity)."""
@@ -161,7 +148,7 @@ class TestAnalyzerMethodCall:
     def test_undeclared_target_error(self) -> None:
         """Undeclared target variable raises SemanticError."""
         with pytest.raises(SemanticError, match="Undeclared variable 'unknown'"):
-            _run_source("unknown.upper()")
+            run_source("unknown.upper()")
 
 
 # -- Cycle 4: Compiler — CALL_METHOD bytecode --------------------------------
@@ -172,7 +159,7 @@ class TestCompilerMethodCall:
 
     def test_upper_emits_call_method(self) -> None:
         """``s.upper()`` emits a CALL_METHOD "upper" instruction."""
-        ins = _compile_instructions('let s = "hello"\ns.upper()')
+        ins = compile_instructions('let s = "hello"\ns.upper()')
         method_ops = [i for i in ins if i.opcode is OpCode.CALL_METHOD]
         assert len(method_ops) == ONE
         assert method_ops[0].operand == "upper"
@@ -194,15 +181,15 @@ class TestStringUpper:
 
     def test_basic(self) -> None:
         """``"hello".upper()`` returns "HELLO"."""
-        assert _run_source('print("hello".upper())') == "HELLO\n"
+        assert run_source('print("hello".upper())') == "HELLO\n"
 
     def test_empty(self) -> None:
         """``"".upper()`` returns ""."""
-        assert _run_source('print("".upper())') == "\n"
+        assert run_source('print("".upper())') == "\n"
 
     def test_already_upper(self) -> None:
         """``"ABC".upper()`` returns "ABC"."""
-        assert _run_source('print("ABC".upper())') == "ABC\n"
+        assert run_source('print("ABC".upper())') == "ABC\n"
 
 
 class TestStringLower:
@@ -210,11 +197,11 @@ class TestStringLower:
 
     def test_basic(self) -> None:
         """``"HELLO".lower()`` returns "hello"."""
-        assert _run_source('print("HELLO".lower())') == "hello\n"
+        assert run_source('print("HELLO".lower())') == "hello\n"
 
     def test_empty(self) -> None:
         """``"".lower()`` returns ""."""
-        assert _run_source('print("".lower())') == "\n"
+        assert run_source('print("".lower())') == "\n"
 
 
 class TestStringStrip:
@@ -222,11 +209,11 @@ class TestStringStrip:
 
     def test_basic(self) -> None:
         """``"  hello  ".strip()`` returns "hello"."""
-        assert _run_source('print("  hello  ".strip())') == "hello\n"
+        assert run_source('print("  hello  ".strip())') == "hello\n"
 
     def test_no_whitespace(self) -> None:
         """``"hello".strip()`` returns "hello"."""
-        assert _run_source('print("hello".strip())') == "hello\n"
+        assert run_source('print("hello".strip())') == "hello\n"
 
 
 class TestStringSplit:
@@ -234,16 +221,16 @@ class TestStringSplit:
 
     def test_whitespace_default(self) -> None:
         """``"a b c".split()`` splits on whitespace."""
-        assert _run_source('print("a b c".split())') == "[a, b, c]\n"
+        assert run_source('print("a b c".split())') == "[a, b, c]\n"
 
     def test_separator(self) -> None:
         """``"a,b,c".split(",")`` splits on comma."""
-        assert _run_source('print("a,b,c".split(","))') == "[a, b, c]\n"
+        assert run_source('print("a,b,c".split(","))') == "[a, b, c]\n"
 
     def test_empty_separator_error(self) -> None:
         """``"abc".split("")`` raises a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="cannot be empty"):
-            _run_source('"abc".split("")')
+            run_source('"abc".split("")')
 
 
 class TestStringReplace:
@@ -251,11 +238,11 @@ class TestStringReplace:
 
     def test_all_occurrences(self) -> None:
         """``"aabbcc".replace("b", "x")`` replaces all b's."""
-        assert _run_source('print("aabbcc".replace("b", "x"))') == "aaxxcc\n"
+        assert run_source('print("aabbcc".replace("b", "x"))') == "aaxxcc\n"
 
     def test_no_match(self) -> None:
         """``"hello".replace("z", "x")`` returns "hello"."""
-        assert _run_source('print("hello".replace("z", "x"))') == "hello\n"
+        assert run_source('print("hello".replace("z", "x"))') == "hello\n"
 
 
 class TestStringContains:
@@ -263,11 +250,11 @@ class TestStringContains:
 
     def test_found(self) -> None:
         """``"hello".contains("ell")`` returns true."""
-        assert _run_source('print("hello".contains("ell"))') == "true\n"
+        assert run_source('print("hello".contains("ell"))') == "true\n"
 
     def test_not_found(self) -> None:
         """``"hello".contains("xyz")`` returns false."""
-        assert _run_source('print("hello".contains("xyz"))') == "false\n"
+        assert run_source('print("hello".contains("xyz"))') == "false\n"
 
 
 class TestStringStartsWith:
@@ -275,11 +262,11 @@ class TestStringStartsWith:
 
     def test_true(self) -> None:
         """``"hello".starts_with("hel")`` returns true."""
-        assert _run_source('print("hello".starts_with("hel"))') == "true\n"
+        assert run_source('print("hello".starts_with("hel"))') == "true\n"
 
     def test_false(self) -> None:
         """``"hello".starts_with("xyz")`` returns false."""
-        assert _run_source('print("hello".starts_with("xyz"))') == "false\n"
+        assert run_source('print("hello".starts_with("xyz"))') == "false\n"
 
 
 class TestStringEndsWith:
@@ -287,11 +274,11 @@ class TestStringEndsWith:
 
     def test_true(self) -> None:
         """``"hello".ends_with("llo")`` returns true."""
-        assert _run_source('print("hello".ends_with("llo"))') == "true\n"
+        assert run_source('print("hello".ends_with("llo"))') == "true\n"
 
     def test_false(self) -> None:
         """``"hello".ends_with("xyz")`` returns false."""
-        assert _run_source('print("hello".ends_with("xyz"))') == "false\n"
+        assert run_source('print("hello".ends_with("xyz"))') == "false\n"
 
 
 class TestStringFind:
@@ -299,11 +286,11 @@ class TestStringFind:
 
     def test_found(self) -> None:
         """``"hello".find("ll")`` returns 2."""
-        assert _run_source('print("hello".find("ll"))') == "2\n"
+        assert run_source('print("hello".find("ll"))') == "2\n"
 
     def test_not_found(self) -> None:
         """``"hello".find("xyz")`` returns -1."""
-        assert _run_source('print("hello".find("xyz"))') == "-1\n"
+        assert run_source('print("hello".find("xyz"))') == "-1\n"
 
 
 class TestStringCount:
@@ -311,11 +298,11 @@ class TestStringCount:
 
     def test_multiple(self) -> None:
         """``"banana".count("a")`` returns 3."""
-        assert _run_source('print("banana".count("a"))') == "3\n"
+        assert run_source('print("banana".count("a"))') == "3\n"
 
     def test_none(self) -> None:
         """``"hello".count("z")`` returns 0."""
-        assert _run_source('print("hello".count("z"))') == "0\n"
+        assert run_source('print("hello".count("z"))') == "0\n"
 
 
 class TestStringJoin:
@@ -323,16 +310,16 @@ class TestStringJoin:
 
     def test_basic(self) -> None:
         """``", ".join(["a", "b", "c"])`` returns "a, b, c"."""
-        assert _run_source('print(", ".join(["a", "b", "c"]))') == "a, b, c\n"
+        assert run_source('print(", ".join(["a", "b", "c"]))') == "a, b, c\n"
 
     def test_empty_separator(self) -> None:
         """``"".join(["a", "b"])`` returns "ab"."""
-        assert _run_source('print("".join(["a", "b"]))') == "ab\n"
+        assert run_source('print("".join(["a", "b"]))') == "ab\n"
 
     def test_non_string_in_list_error(self) -> None:
         """``", ".join([1, 2])`` raises a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="must contain strings"):
-            _run_source('", ".join([1, 2])')
+            run_source('", ".join([1, 2])')
 
 
 class TestStringRepeat:
@@ -340,16 +327,16 @@ class TestStringRepeat:
 
     def test_basic(self) -> None:
         """``"ab".repeat(3)`` returns "ababab"."""
-        assert _run_source('print("ab".repeat(3))') == "ababab\n"
+        assert run_source('print("ab".repeat(3))') == "ababab\n"
 
     def test_zero(self) -> None:
         """``"ab".repeat(0)`` returns ""."""
-        assert _run_source('print("ab".repeat(0))') == "\n"
+        assert run_source('print("ab".repeat(0))') == "\n"
 
     def test_negative_error(self) -> None:
         """``"ab".repeat(-1)`` raises a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="must not be negative"):
-            _run_source('"ab".repeat(-1)')
+            run_source('"ab".repeat(-1)')
 
 
 # -- Cycle 7: Integration tests -----------------------------------------------
@@ -361,12 +348,12 @@ class TestMethodIntegration:
     def test_method_in_interpolation(self) -> None:
         """Method call inside string interpolation."""
         source = 'let s = "hello"\nprint("{s.upper()}")'
-        assert _run_source(source) == "HELLO\n"
+        assert run_source(source) == "HELLO\n"
 
     def test_chaining(self) -> None:
         """Method chaining: strip then lower."""
         source = 'print("  HELLO  ".strip().lower())'
-        assert _run_source(source) == "hello\n"
+        assert run_source(source) == "hello\n"
 
     def test_method_in_condition(self) -> None:
         """Use method result in an if condition."""
@@ -375,7 +362,7 @@ let s = "hello world"
 if s.contains("world") {
     print("found it")
 }"""
-        assert _run_source(source) == "found it\n"
+        assert run_source(source) == "found it\n"
 
     def test_split_and_loop(self) -> None:
         """Split a string then loop over the parts."""
@@ -384,7 +371,7 @@ let parts = "a,b,c".split(",")
 for i in range(len(parts)) {
     print(parts[i])
 }"""
-        assert _run_source(source) == "a\nb\nc\n"
+        assert run_source(source) == "a\nb\nc\n"
 
     def test_join_after_split(self) -> None:
         """Split and rejoin produces the original string."""
@@ -393,7 +380,7 @@ let s = "a-b-c"
 let parts = s.split("-")
 let result = "-".join(parts)
 print(result)"""
-        assert _run_source(source) == "a-b-c\n"
+        assert run_source(source) == "a-b-c\n"
 
     def test_contains_on_both_types(self) -> None:
         """``contains`` works on both strings and lists."""
@@ -402,32 +389,32 @@ let s = "hello"
 let xs = [1, 2, 3]
 print(s.contains("ell"))
 print(xs.contains(2))"""
-        assert _run_source(source) == "true\ntrue\n"
+        assert run_source(source) == "true\ntrue\n"
 
     def test_method_on_wrong_type(self) -> None:
         """Calling a string method on an int raises error."""
         with pytest.raises(PebbleRuntimeError, match="Cannot call methods on"):
-            _run_source("let x = 42\nx.upper()")
+            run_source("let x = 42\nx.upper()")
 
     def test_string_method_on_list_error(self) -> None:
         """Calling ``upper()`` on a list raises error."""
         with pytest.raises(PebbleRuntimeError, match="has no method"):
-            _run_source("let xs = [1]\nxs.upper()")
+            run_source("let xs = [1]\nxs.upper()")
 
     def test_list_method_on_string_error(self) -> None:
         """Calling ``push()`` on a string raises error."""
         with pytest.raises(PebbleRuntimeError, match="has no method"):
-            _run_source('let s = "hello"\ns.push("x")')
+            run_source('let s = "hello"\ns.push("x")')
 
     def test_method_on_variable(self) -> None:
         """Method call on a variable (not a literal)."""
         source = 'let s = "hello world"\nprint(s.upper())'
-        assert _run_source(source) == "HELLO WORLD\n"
+        assert run_source(source) == "HELLO WORLD\n"
 
     def test_method_result_in_assignment(self) -> None:
         """Store method result in a variable."""
         source = 'let s = "hello"\nlet u = s.upper()\nprint(u)'
-        assert _run_source(source) == "HELLO\n"
+        assert run_source(source) == "HELLO\n"
 
     def test_method_in_function(self) -> None:
         """Use method inside a function."""
@@ -436,7 +423,7 @@ fn shout(s) {
     return s.upper()
 }
 print(shout("hello"))"""
-        assert _run_source(source) == "HELLO\n"
+        assert run_source(source) == "HELLO\n"
 
 
 # -- Escape sequences ---------------------------------------------------------
@@ -447,21 +434,21 @@ class TestEscapeSequences:
 
     def test_escape_newline_prints(self) -> None:
         r"""``print("a\nb")`` outputs two lines."""
-        assert _run_source(r'print("a\nb")') == "a\nb\n"
+        assert run_source(r'print("a\nb")') == "a\nb\n"
 
     def test_escape_tab_prints(self) -> None:
         r"""``print("a\tb")`` outputs a tab between a and b."""
-        assert _run_source(r'print("a\tb")') == "a\tb\n"
+        assert run_source(r'print("a\tb")') == "a\tb\n"
 
     def test_escape_backslash_prints(self) -> None:
         r"""``print("a\\b")`` outputs a single backslash."""
-        assert _run_source(r'print("a\\b")') == "a\\b\n"
+        assert run_source(r'print("a\\b")') == "a\\b\n"
 
     def test_escape_quote_prints(self) -> None:
         r"""``print("say \"hi\"")`` outputs ``say "hi"``."""
-        assert _run_source(r'print("say \"hi\"")') == 'say "hi"\n'
+        assert run_source(r'print("say \"hi\"")') == 'say "hi"\n'
 
     def test_escape_in_interpolated_string(self) -> None:
         r"""Escapes work correctly alongside interpolation."""
         source = 'let x = 1\nprint("x:\\t{x}\\n")'
-        assert _run_source(source) == "x:\t1\n\n"
+        assert run_source(source) == "x:\t1\n\n"

@@ -8,7 +8,6 @@ from io import StringIO
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
     Assignment,
     ConstAssignment,
@@ -17,13 +16,16 @@ from pebble.ast_nodes import (
     StructDef,
     TypeAnnotation,
 )
-from pebble.bytecode import CompiledProgram, OpCode
-from pebble.compiler import Compiler
+from pebble.bytecode import OpCode
 from pebble.errors import PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.repl import Repl
-from pebble.vm import VirtualMachine
+from tests.conftest import (
+    analyze,
+    compile_source,
+    run_source,
+)
 
 # -- Named constants ----------------------------------------------------------
 
@@ -38,46 +40,6 @@ def _parse(source: str) -> list[object]:
     """Lex + parse helper returning the statement list."""
     tokens = Lexer(source).tokenize()
     return list(Parser(tokens).parse().statements)
-
-
-def _analyze(source: str) -> SemanticAnalyzer:
-    """Lex + parse + analyze — return the analyzer."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzer.analyze(program)
-    return analyzer
-
-
-def _compile_program(source: str) -> CompiledProgram:
-    """Lex + parse + analyze + compile, return the full CompiledProgram."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    return Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-        enums=analyzer.enums,
-        class_parents=analyzer.class_parents,
-    ).compile(program)
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-        enums=analyzer.enums,
-        class_parents=analyzer.class_parents,
-    ).compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # =============================================================================
@@ -292,60 +254,60 @@ class TestAnalyzerGenericTypes:
 
     def test_valid_list_int(self) -> None:
         """List[Int] passes validation."""
-        _analyze("let x: List[Int] = [1]")
+        analyze("let x: List[Int] = [1]")
 
     def test_valid_dict_string_int(self) -> None:
         """Dict[String, Int] passes validation."""
-        _analyze('let x: Dict[String, Int] = {"a": 1}')
+        analyze('let x: Dict[String, Int] = {"a": 1}')
 
     def test_valid_nested(self) -> None:
         """List[List[Int]] passes validation."""
-        _analyze("let x: List[List[Int]] = [[1]]")
+        analyze("let x: List[List[Int]] = [[1]]")
 
     def test_bare_list_still_valid(self) -> None:
         """Bare List without params still passes."""
-        _analyze("let x: List = [1]")
+        analyze("let x: List = [1]")
 
     def test_bare_dict_still_valid(self) -> None:
         """Bare Dict without params still passes."""
-        _analyze('let x: Dict = {"a": 1}')
+        analyze('let x: Dict = {"a": 1}')
 
     def test_wrong_param_count_list(self) -> None:
         """List[Int, Float] — List expects 1 type parameter."""
         with pytest.raises(SemanticError, match="List expects 1 type parameter"):
-            _analyze("let x: List[Int, Float] = []")
+            analyze("let x: List[Int, Float] = []")
 
     def test_wrong_param_count_dict(self) -> None:
         """Dict[String] — Dict expects 2 type parameters."""
         with pytest.raises(SemanticError, match="Dict expects 2 type parameters"):
-            _analyze("let x: Dict[String] = {}")
+            analyze("let x: Dict[String] = {}")
 
     def test_non_generic_type_with_params(self) -> None:
         """Int[Float] — Int does not accept type parameters."""
         with pytest.raises(SemanticError, match="Int does not accept type parameters"):
-            _analyze("let x: Int[Float] = 5")
+            analyze("let x: Int[Float] = 5")
 
     def test_unknown_inner_type(self) -> None:
         """List[Foo] — unknown inner type."""
         with pytest.raises(SemanticError, match="Unknown type 'Foo'"):
-            _analyze("let x: List[Foo] = []")
+            analyze("let x: List[Foo] = []")
 
     def test_param_with_generic(self) -> None:
         """Function parameter with generic type passes."""
-        _analyze("fn f(xs: List[Int]) { return xs }")
+        analyze("fn f(xs: List[Int]) { return xs }")
 
     def test_return_type_generic(self) -> None:
         """Function with generic return type passes."""
-        _analyze("fn f() -> List[Int] { return [1] }")
+        analyze("fn f() -> List[Int] { return [1] }")
 
     def test_struct_field_generic(self) -> None:
         """Struct field with generic type passes."""
-        _analyze("struct S { items: List[Int] }")
+        analyze("struct S { items: List[Int] }")
 
     def test_dict_three_params(self) -> None:
         """Dict[String, Int, Bool] — Dict expects 2 type parameters."""
         with pytest.raises(SemanticError, match="Dict expects 2 type parameters"):
-            _analyze("let x: Dict[String, Int, Bool] = {}")
+            analyze("let x: Dict[String, Int, Bool] = {}")
 
 
 # =============================================================================
@@ -358,21 +320,21 @@ class TestCompilerGenericTypes:
 
     def test_check_type_emitted_for_list_int(self) -> None:
         """CHECK_TYPE operand is 'List[Int]' for a List[Int] annotation."""
-        compiled = _compile_program("let x: List[Int] = [1, 2]")
+        compiled = compile_source("let x: List[Int] = [1, 2]")
         check_types = [i for i in compiled.main.instructions if i.opcode is OpCode.CHECK_TYPE]
         assert len(check_types) == 1
         assert check_types[FIRST_INDEX].operand == "List[Int]"
 
     def test_check_type_simple_still_works(self) -> None:
         """CHECK_TYPE operand is 'Int' for a plain Int annotation."""
-        compiled = _compile_program("let x: Int = 5")
+        compiled = compile_source("let x: Int = 5")
         check_types = [i for i in compiled.main.instructions if i.opcode is OpCode.CHECK_TYPE]
         assert len(check_types) == 1
         assert check_types[FIRST_INDEX].operand == "Int"
 
     def test_function_param_types_stored(self) -> None:
         """Function CodeObject stores TypeAnnotation in param_types."""
-        compiled = _compile_program("fn f(xs: List[Int]) { return xs }")
+        compiled = compile_source("fn f(xs: List[Int]) { return xs }")
         fn = compiled.functions["f"]
         assert fn.param_types[FIRST_INDEX] == TypeAnnotation(
             name="List", params=[TypeAnnotation(name="Int")]
@@ -380,19 +342,19 @@ class TestCompilerGenericTypes:
 
     def test_function_return_type_stored(self) -> None:
         """Function CodeObject stores TypeAnnotation in return_type."""
-        compiled = _compile_program("fn f() -> List[Int] { return [1] }")
+        compiled = compile_source("fn f() -> List[Int] { return [1] }")
         fn = compiled.functions["f"]
         assert fn.return_type == TypeAnnotation(name="List", params=[TypeAnnotation(name="Int")])
 
     def test_struct_field_types_stored(self) -> None:
         """Struct field types store serialized TypeAnnotation string."""
-        compiled = _compile_program("struct S { items: List[Int] }")
+        compiled = compile_source("struct S { items: List[Int] }")
         assert "S" in compiled.struct_field_types
         assert compiled.struct_field_types["S"]["items"] == "List[Int]"
 
     def test_check_type_dict(self) -> None:
         """CHECK_TYPE operand is 'Dict[String, Int]' for a Dict annotation."""
-        compiled = _compile_program('let x: Dict[String, Int] = {"a": 1}')
+        compiled = compile_source('let x: Dict[String, Int] = {"a": 1}')
         check_types = [i for i in compiled.main.instructions if i.opcode is OpCode.CHECK_TYPE]
         assert len(check_types) == 1
         assert check_types[FIRST_INDEX].operand == "Dict[String, Int]"
@@ -408,107 +370,107 @@ class TestVMGenericTypeChecking:
 
     def test_list_int_pass(self) -> None:
         """List[Int] passes for a list of integers."""
-        output = _run_source("let x: List[Int] = [1, 2, 3]\nprint(x)")
+        output = run_source("let x: List[Int] = [1, 2, 3]\nprint(x)")
         assert output.strip() == "[1, 2, 3]"
 
     def test_list_int_fail(self) -> None:
         """List[Int] fails when a string is in the list."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('let x: List[Int] = [1, "two", 3]')
+            run_source('let x: List[Int] = [1, "two", 3]')
 
     def test_dict_string_int_pass(self) -> None:
         """Dict[String, Int] passes for a dict with string keys and int values."""
-        output = _run_source('let x: Dict[String, Int] = {"a": 1, "b": 2}\nprint(x)')
+        output = run_source('let x: Dict[String, Int] = {"a": 1, "b": 2}\nprint(x)')
         assert "a" in output
 
     def test_dict_string_int_fail_value(self) -> None:
         """Dict[String, Int] fails when a value is a string."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('let x: Dict[String, Int] = {"a": "one"}')
+            run_source('let x: Dict[String, Int] = {"a": "one"}')
 
     def test_empty_list_passes_any(self) -> None:
         """Empty list [] passes any List[T] check."""
-        output = _run_source("let x: List[Int] = []\nprint(x)")
+        output = run_source("let x: List[Int] = []\nprint(x)")
         assert output.strip() == "[]"
 
     def test_empty_dict_passes_any(self) -> None:
         """Empty dict {} passes any Dict[K, V] check."""
-        output = _run_source("let x: Dict[String, Int] = {}\nprint(x)")
+        output = run_source("let x: Dict[String, Int] = {}\nprint(x)")
         assert output.strip() == "{}"
 
     def test_bare_list_still_works(self) -> None:
         """Bare List (no params) only checks container type."""
-        output = _run_source('let x: List = [1, "two"]\nprint(x)')
+        output = run_source('let x: List = [1, "two"]\nprint(x)')
         assert output.strip() == "[1, two]"
 
     def test_bare_dict_still_works(self) -> None:
         """Bare Dict (no params) only checks container type."""
-        output = _run_source('let x: Dict = {"a": 1, "b": "two"}\nprint(x)')
+        output = run_source('let x: Dict = {"a": 1, "b": "two"}\nprint(x)')
         assert "a" in output
 
     def test_nested_list_list_int_pass(self) -> None:
         """List[List[Int]] passes for nested lists of ints."""
-        output = _run_source("let x: List[List[Int]] = [[1, 2], [3, 4]]\nprint(x)")
+        output = run_source("let x: List[List[Int]] = [[1, 2], [3, 4]]\nprint(x)")
         assert output.strip() == "[[1, 2], [3, 4]]"
 
     def test_nested_list_list_int_fail(self) -> None:
         """List[List[Int]] fails when inner list contains a string."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('let x: List[List[Int]] = [[1, "two"]]')
+            run_source('let x: List[List[Int]] = [[1, "two"]]')
 
     def test_param_type_generic(self) -> None:
         """Function parameter with List[Int] type is checked."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('fn f(xs: List[Int]) { return xs }\nf([1, "two"])')
+            run_source('fn f(xs: List[Int]) { return xs }\nf([1, "two"])')
 
     def test_param_type_generic_pass(self) -> None:
         """Function parameter with List[Int] type passes for valid input."""
-        output = _run_source("fn f(xs: List[Int]) { return xs }\nprint(f([1, 2]))")
+        output = run_source("fn f(xs: List[Int]) { return xs }\nprint(f([1, 2]))")
         assert output.strip() == "[1, 2]"
 
     def test_return_type_generic(self) -> None:
         """Function with List[Int] return type is checked."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('fn f() -> List[Int] { return [1, "two"] }\nf()')
+            run_source('fn f() -> List[Int] { return [1, "two"] }\nf()')
 
     def test_return_type_generic_pass(self) -> None:
         """Function with List[Int] return type passes for valid return."""
-        output = _run_source("fn f() -> List[Int] { return [1, 2] }\nprint(f())")
+        output = run_source("fn f() -> List[Int] { return [1, 2] }\nprint(f())")
         assert output.strip() == "[1, 2]"
 
     def test_list_float_fail(self) -> None:
         """List[Float] fails when an int is in the list."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source("let x: List[Float] = [1.0, 2]")
+            run_source("let x: List[Float] = [1.0, 2]")
 
     def test_list_string_pass(self) -> None:
         """List[String] passes for a list of strings."""
-        output = _run_source('let x: List[String] = ["a", "b"]\nprint(x)')
+        output = run_source('let x: List[String] = ["a", "b"]\nprint(x)')
         assert output.strip() == "[a, b]"
 
     def test_dict_nested_value_pass(self) -> None:
         """Dict[String, List[Int]] passes for valid nested structure."""
-        output = _run_source('let x: Dict[String, List[Int]] = {"a": [1, 2]}\nprint(x)')
+        output = run_source('let x: Dict[String, List[Int]] = {"a": [1, 2]}\nprint(x)')
         assert "a" in output
 
     def test_dict_nested_value_fail(self) -> None:
         """Dict[String, List[Int]] fails when inner list has wrong type."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('let x: Dict[String, List[Int]] = {"a": [1, "two"]}')
+            run_source('let x: Dict[String, List[Int]] = {"a": [1, "two"]}')
 
     def test_list_not_a_list(self) -> None:
         """List[Int] fails when the value is not a list at all."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source("let x: List[Int] = 42")
+            run_source("let x: List[Int] = 42")
 
     def test_dict_not_a_dict(self) -> None:
         """Dict[String, Int] fails when the value is not a dict."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source("let x: Dict[String, Int] = [1, 2]")
+            run_source("let x: Dict[String, Int] = [1, 2]")
 
     def test_const_generic(self) -> None:
         """Const with generic type annotation is checked."""
-        output = _run_source("const x: List[Int] = [1, 2]\nprint(x)")
+        output = run_source("const x: List[Int] = [1, 2]\nprint(x)")
         assert output.strip() == "[1, 2]"
 
 
@@ -522,22 +484,22 @@ class TestStructGenericFields:
 
     def test_struct_list_field_construction(self) -> None:
         """Struct with List[Int] field validates on construction."""
-        output = _run_source("struct S { items: List[Int] }\nlet s = S([1, 2])\nprint(s.items)")
+        output = run_source("struct S { items: List[Int] }\nlet s = S([1, 2])\nprint(s.items)")
         assert output.strip() == "[1, 2]"
 
     def test_struct_list_field_construction_fail(self) -> None:
         """Struct with List[Int] field rejects wrong element types."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('struct S { items: List[Int] }\nlet s = S([1, "two"])')
+            run_source('struct S { items: List[Int] }\nlet s = S([1, "two"])')
 
     def test_struct_field_reassignment(self) -> None:
         """Struct field reassignment with generic type is checked."""
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source('struct S { items: List[Int] }\nlet s = S([1, 2])\ns.items = [1, "two"]')
+            run_source('struct S { items: List[Int] }\nlet s = S([1, 2])\ns.items = [1, "two"]')
 
     def test_struct_field_reassignment_pass(self) -> None:
         """Struct field reassignment with generic type passes for valid value."""
-        output = _run_source(
+        output = run_source(
             "struct S { items: List[Int] }\nlet s = S([1, 2])\ns.items = [3, 4]\nprint(s.items)"
         )
         assert output.strip() == "[3, 4]"
@@ -555,7 +517,7 @@ class Container {
 let c = Container([10, 20])
 print(c.get_first())
 """
-        output = _run_source(source)
+        output = run_source(source)
         assert output.strip() == "10"
 
     def test_class_generic_field_fail(self) -> None:
@@ -569,7 +531,7 @@ class Container {
 let c = Container([1, "two"])
 """
         with pytest.raises(PebbleRuntimeError, match="Type error"):
-            _run_source(source)
+            run_source(source)
 
 
 class TestReplGeneric:

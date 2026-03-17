@@ -15,8 +15,6 @@ from pebble.repl import Repl, read_input
 # -- Named constants ----------------------------------------------------------
 
 EXIT_SUCCESS = 0
-VALUE_42 = 42
-VALUE_7 = 7
 
 
 # -- Cycle 1: Basic evaluation -----------------------------------------------

@@ -6,23 +6,16 @@ compiler bytecode generation, and VM execution of interpolated strings.
 
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import BinaryOp, Expression, Identifier, StringInterpolation, StringLiteral
-from pebble.bytecode import Instruction, OpCode
-from pebble.compiler import Compiler
+from pebble.bytecode import OpCode
 from pebble.errors import LexerError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    compile_instructions,
+    run_source,
 )
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
-
 
 # -- Named constants ----------------------------------------------------------
 
@@ -52,14 +45,6 @@ def _parse_expr(source: str) -> Expression:
     """Lex and parse a single expression from *source*."""
     tokens = Lexer(source).tokenize()
     return Parser(tokens).parse_expression()
-
-
-def _compile_instructions(source: str) -> list[Instruction]:
-    """Return the main instruction list for *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzed = SemanticAnalyzer().analyze(program)
-    return Compiler().compile(analyzed).main.instructions
 
 
 # -- Cycle 1: Lexer tokenization ---------------------------------------------
@@ -204,7 +189,7 @@ class TestCompilerStringInterpolation:
     def test_build_string_emitted(self) -> None:
         """``print("hello {name}")`` emits BUILD_STRING with correct count."""
         source = 'let name = "world"\nprint("hello {name}")'
-        ins = _compile_instructions(source)
+        ins = compile_instructions(source)
         build_string_ops = [i for i in ins if i.opcode is OpCode.BUILD_STRING]
         assert len(build_string_ops) == ONE
         assert build_string_ops[0].operand == TWO
@@ -216,44 +201,44 @@ class TestVMStringInterpolation:
     def test_simple_interpolation(self) -> None:
         """``"hello {name}"`` with name = "world" → "hello world"."""
         source = 'let name = "world"\nprint("hello {name}")'
-        assert _run_source(source) == "hello world\n"
+        assert run_source(source) == "hello world\n"
 
     def test_integer_interpolation(self) -> None:
         """Integers are converted to strings during interpolation."""
         source = 'let x = 42\nprint("x is {x}")'
-        assert _run_source(source) == "x is 42\n"
+        assert run_source(source) == "x is 42\n"
 
     def test_expression_interpolation(self) -> None:
         """Expressions inside ``{…}`` are evaluated and stringified."""
         source = 'print("sum is {1 + 2}")'
-        assert _run_source(source) == "sum is 3\n"
+        assert run_source(source) == "sum is 3\n"
 
     def test_boolean_interpolation(self) -> None:
         """Booleans format as ``true``/``false`` in interpolation."""
         source = 'print("flag is {true}")'
-        assert _run_source(source) == "flag is true\n"
+        assert run_source(source) == "flag is true\n"
 
     def test_multiple_interpolations(self) -> None:
         """Multiple expressions in one string are all evaluated."""
         source = 'let a = 1\nlet b = 2\nprint("{a} + {b} = {a + b}")'
-        assert _run_source(source) == "1 + 2 = 3\n"
+        assert run_source(source) == "1 + 2 = 3\n"
 
     def test_empty_segments(self) -> None:
         """Interpolation with no surrounding text works."""
         source = 'let x = "hello"\nprint("{x}")'
-        assert _run_source(source) == "hello\n"
+        assert run_source(source) == "hello\n"
 
     def test_escaped_brace(self) -> None:
         r"""``\{`` produces a literal brace in the output."""
         source = r'print("value: \{42}")'
-        assert _run_source(source) == "value: {42}\n"
+        assert run_source(source) == "value: {42}\n"
 
     def test_adjacent_interpolations(self) -> None:
         """Two adjacent interpolations without text between them."""
         source = 'let a = "hello"\nlet b = "world"\nprint("{a}{b}")'
-        assert _run_source(source) == "helloworld\n"
+        assert run_source(source) == "helloworld\n"
 
     def test_function_call_in_interpolation(self) -> None:
         """A function call works inside interpolation braces."""
         source = 'fn double(n) { return n * 2 }\nprint("result: {double(5)}")'
-        assert _run_source(source) == "result: 10\n"
+        assert run_source(source) == "result: 10\n"

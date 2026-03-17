@@ -264,9 +264,10 @@ class VirtualMachine:
                 else:
                     raise
 
-    def _dispatch(self, instruction: Instruction, frame: Frame) -> None:
+    def _dispatch(self, instruction: Instruction, frame: Frame) -> None:  # noqa: C901, PLR0912, PLR0915
         """Dispatch a single instruction."""
         match instruction.opcode:
+            # Variables
             case (
                 OpCode.LOAD_CONST
                 | OpCode.STORE_NAME
@@ -275,17 +276,18 @@ class VirtualMachine:
                 | OpCode.STORE_CELL
             ):
                 self._exec_variables(instruction, frame)
-            case (
-                OpCode.ADD
-                | OpCode.SUBTRACT
-                | OpCode.MULTIPLY
-                | OpCode.POWER
-                | OpCode.DIVIDE
-                | OpCode.FLOOR_DIVIDE
-                | OpCode.MODULO
-                | OpCode.NEGATE
-            ):
-                self._exec_arithmetic(instruction)
+            # Arithmetic (pure forwarding → inlined)
+            case OpCode.ADD:
+                self._exec_add()
+            case OpCode.POWER:
+                self._exec_power()
+            case OpCode.DIVIDE:
+                self._exec_divide()
+            case OpCode.NEGATE:
+                self._exec_negate()
+            case OpCode.SUBTRACT | OpCode.MULTIPLY | OpCode.FLOOR_DIVIDE | OpCode.MODULO:
+                self._exec_binary_arith(instruction.opcode)
+            # Logic and comparisons
             case (
                 OpCode.NOT
                 | OpCode.EQUAL
@@ -298,21 +300,31 @@ class VirtualMachine:
                 | OpCode.OR
             ):
                 self._exec_logic(instruction)
+            # Control flow
             case OpCode.JUMP | OpCode.JUMP_IF_FALSE | OpCode.POP:
                 self._exec_control(instruction, frame)
-            case (
-                OpCode.BUILD_STRING
-                | OpCode.BUILD_LIST
-                | OpCode.LIST_APPEND
-                | OpCode.BUILD_DICT
-                | OpCode.INDEX_GET
-                | OpCode.INDEX_SET
-                | OpCode.SLICE_GET
-                | OpCode.UNPACK_SEQUENCE
-                | OpCode.GET_FIELD
-                | OpCode.SET_FIELD
-            ):
-                self._exec_collection(instruction)
+            # Collections (pure forwarding → inlined)
+            case OpCode.BUILD_STRING:
+                self._exec_build_string(instruction)
+            case OpCode.BUILD_LIST:
+                self._exec_build_list(instruction)
+            case OpCode.LIST_APPEND:
+                self._exec_list_append(instruction)
+            case OpCode.BUILD_DICT:
+                self._exec_build_dict(instruction)
+            case OpCode.INDEX_GET:
+                self._exec_index_get()
+            case OpCode.INDEX_SET:
+                self._exec_index_set()
+            case OpCode.SLICE_GET:
+                self._exec_slice_get()
+            case OpCode.UNPACK_SEQUENCE:
+                self._exec_unpack_sequence(instruction)
+            case OpCode.GET_FIELD:
+                self._exec_get_field(instruction)
+            case OpCode.SET_FIELD:
+                self._exec_set_field(instruction)
+            # Bitwise
             case (
                 OpCode.BIT_AND
                 | OpCode.BIT_OR
@@ -322,8 +334,14 @@ class VirtualMachine:
                 | OpCode.RIGHT_SHIFT
             ):
                 self._exec_bitwise(instruction)
-            case OpCode.CALL | OpCode.CALL_METHOD | OpCode.CALL_INSTANCE_METHOD:
-                self._exec_call_dispatch(instruction)
+            # Calls (pure forwarding → inlined)
+            case OpCode.CALL:
+                self._exec_call(instruction)
+            case OpCode.CALL_METHOD:
+                self._exec_call_method(instruction)
+            case OpCode.CALL_INSTANCE_METHOD:
+                self._exec_call_instance_method(instruction)
+            # Misc
             case (
                 OpCode.PRINT
                 | OpCode.RETURN
@@ -332,10 +350,16 @@ class VirtualMachine:
                 | OpCode.LOAD_ENUM_VARIANT
             ):
                 self._exec_misc(instruction)
+            # Exception handling
             case OpCode.SETUP_TRY | OpCode.POP_TRY | OpCode.THROW:
                 self._exec_exception(instruction)
-            case OpCode.GET_ITER | OpCode.FOR_ITER | OpCode.MAKE_CLOSURE:
-                self._exec_iter_closure(instruction, frame)
+            # Iterators and closures (pure forwarding → inlined)
+            case OpCode.GET_ITER:
+                self._exec_get_iter()
+            case OpCode.FOR_ITER:
+                self._exec_for_iter(instruction, frame)
+            case OpCode.MAKE_CLOSURE:
+                self._exec_make_closure(instruction)
             case _:  # pragma: no cover
                 pass
 
@@ -419,22 +443,6 @@ class VirtualMachine:
                     self._runtime_error("__str__ must return a string")
                 return result
         return format_value(value)
-
-    def _exec_arithmetic(self, instruction: Instruction) -> None:
-        """Handle ADD, SUBTRACT, MULTIPLY, POWER, DIVIDE, FLOOR_DIVIDE, MODULO, NEGATE."""
-        match instruction.opcode:
-            case OpCode.ADD:
-                self._exec_add()
-            case OpCode.POWER:
-                self._exec_power()
-            case OpCode.DIVIDE:
-                self._exec_divide()
-            case OpCode.NEGATE:
-                self._exec_negate()
-            case OpCode.SUBTRACT | OpCode.MULTIPLY | OpCode.FLOOR_DIVIDE | OpCode.MODULO:
-                self._exec_binary_arith(instruction.opcode)
-            case _:  # pragma: no cover
-                pass
 
     def _exec_binary_arith(self, opcode: OpCode) -> None:
         """Handle SUBTRACT, MULTIPLY, FLOOR_DIVIDE, MODULO via dispatch table."""
@@ -590,18 +598,6 @@ class VirtualMachine:
             case _:  # pragma: no cover
                 pass
 
-    def _exec_call_dispatch(self, instruction: Instruction) -> None:
-        """Route CALL, CALL_METHOD, and CALL_INSTANCE_METHOD to their handlers."""
-        match instruction.opcode:
-            case OpCode.CALL:
-                self._exec_call(instruction)
-            case OpCode.CALL_METHOD:
-                self._exec_call_method(instruction)
-            case OpCode.CALL_INSTANCE_METHOD:
-                self._exec_call_instance_method(instruction)
-            case _:  # pragma: no cover
-                pass
-
     def _exec_misc(self, instruction: Instruction) -> None:
         """Handle PRINT, RETURN, YIELD, CHECK_TYPE, and LOAD_ENUM_VARIANT."""
         match instruction.opcode:
@@ -634,44 +630,6 @@ class VirtualMachine:
                 self._exception_handlers.pop()
             case OpCode.THROW:
                 raise _PebbleThrowError(self._stack.pop())
-            case _:  # pragma: no cover
-                pass
-
-    def _exec_iter_closure(self, instruction: Instruction, frame: Frame) -> None:
-        """Handle GET_ITER, FOR_ITER, and MAKE_CLOSURE."""
-        match instruction.opcode:
-            case OpCode.GET_ITER:
-                self._exec_get_iter()
-            case OpCode.FOR_ITER:
-                self._exec_for_iter(instruction, frame)
-            case OpCode.MAKE_CLOSURE:
-                self._exec_make_closure(instruction)
-            case _:  # pragma: no cover
-                pass
-
-    def _exec_collection(self, instruction: Instruction) -> None:
-        """Handle collection opcodes including BUILD_STRING, BUILD_LIST, and UNPACK_SEQUENCE."""
-        match instruction.opcode:
-            case OpCode.BUILD_STRING:
-                self._exec_build_string(instruction)
-            case OpCode.BUILD_LIST:
-                self._exec_build_list(instruction)
-            case OpCode.LIST_APPEND:
-                self._exec_list_append(instruction)
-            case OpCode.BUILD_DICT:
-                self._exec_build_dict(instruction)
-            case OpCode.INDEX_GET:
-                self._exec_index_get()
-            case OpCode.INDEX_SET:
-                self._exec_index_set()
-            case OpCode.SLICE_GET:
-                self._exec_slice_get()
-            case OpCode.UNPACK_SEQUENCE:
-                self._exec_unpack_sequence(instruction)
-            case OpCode.GET_FIELD:
-                self._exec_get_field(instruction)
-            case OpCode.SET_FIELD:
-                self._exec_set_field(instruction)
             case _:  # pragma: no cover
                 pass
 

@@ -116,6 +116,19 @@ class _LoopContext:
     try_depth_at_entry: int = 0
 
 
+@dataclass
+class _CompilerSnapshot:
+    """Snapshot of compiler state before entering a function body."""
+
+    current: CodeObject
+    loop_var_counter: int
+    match_var_counter: int
+    comp_var_counter: int
+    iter_var_counter: int
+    loop_contexts: list[_LoopContext]
+    try_depth: int
+
+
 class Compiler:
     """Compile a validated AST into stack-based bytecode.
 
@@ -244,45 +257,10 @@ class Compiler:
 
     # -- Statement dispatch ---------------------------------------------------
 
-    def _compile_statement(self, stmt: Statement) -> None:
+    def _compile_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
         """Dispatch to the appropriate compilation method."""
         match stmt:
-            case Assignment() | UnpackAssignment() | ConstAssignment():
-                self._compile_variable_statement(stmt)
-            case UnpackConstAssignment() | Reassignment() | UnpackReassignment():
-                self._compile_variable_statement(stmt)
-            case PrintStatement():
-                self._compile_print(stmt)
-            case IfStatement() | WhileLoop() | ForLoop():
-                self._compile_control_flow(stmt)
-            case FunctionDef() | ReturnStatement() | YieldStatement():
-                self._compile_callable_statement(stmt)
-            case BreakStatement() | ContinueStatement():
-                self._compile_loop_control(stmt)
-            case IndexAssignment() | FieldAssignment():
-                self._compile_compound_assignment(stmt)
-            case TryCatch() | ThrowStatement() | MatchStatement():
-                self._compile_advanced_statement(stmt)
-            case StructDef() | ClassDef() | EnumDef():
-                self._compile_type_definition(stmt)
-            case ImportStatement() | FromImportStatement():
-                pass  # Resolved at compile time by ModuleResolver
-            case _:
-                # Expression statement (e.g. bare function call)
-                self._compile_expression(stmt)  # type: ignore[arg-type]
-                self._emit(OpCode.POP)
-
-    def _compile_variable_statement(
-        self,
-        stmt: Assignment
-        | UnpackAssignment
-        | ConstAssignment
-        | UnpackConstAssignment
-        | Reassignment
-        | UnpackReassignment,
-    ) -> None:
-        """Compile variable declarations and reassignments."""
-        match stmt:
+            # Variable declarations and reassignments
             case Assignment():
                 self._compile_assignment(stmt)
             case UnpackAssignment():
@@ -295,71 +273,52 @@ class Compiler:
                 self._compile_reassignment(stmt)
             case UnpackReassignment():
                 self._compile_unpack_reassignment(stmt)
-
-    def _compile_control_flow(self, stmt: IfStatement | WhileLoop | ForLoop) -> None:
-        """Compile control-flow statements (if, while, for)."""
-        match stmt:
+            case PrintStatement():
+                self._compile_print(stmt)
+            # Control flow
             case IfStatement():
                 self._compile_if(stmt)
             case WhileLoop():
                 self._compile_while(stmt)
             case ForLoop():
                 self._compile_for(stmt)
-
-    def _compile_callable_statement(
-        self,
-        stmt: FunctionDef | ReturnStatement | YieldStatement,
-    ) -> None:
-        """Compile function-related statements (def, return, yield)."""
-        match stmt:
+            # Function-related
             case FunctionDef():
                 self._compile_function_def(stmt)
             case ReturnStatement():
                 self._compile_return(stmt)
             case YieldStatement():
                 self._compile_yield(stmt)
-
-    def _compile_loop_control(self, stmt: BreakStatement | ContinueStatement) -> None:
-        """Compile loop-control statements (break, continue)."""
-        match stmt:
+            # Loop control
             case BreakStatement():
                 self._compile_break(stmt)
             case ContinueStatement():
                 self._compile_continue(stmt)
-
-    def _compile_compound_assignment(
-        self,
-        stmt: IndexAssignment | FieldAssignment,
-    ) -> None:
-        """Compile compound assignment targets (index, field)."""
-        match stmt:
+            # Compound assignments
             case IndexAssignment():
                 self._compile_index_assignment(stmt)
             case FieldAssignment():
                 self._compile_field_assignment(stmt)
-
-    def _compile_advanced_statement(
-        self,
-        stmt: TryCatch | ThrowStatement | MatchStatement,
-    ) -> None:
-        """Compile advanced statements (try/catch, throw, match)."""
-        match stmt:
+            # Advanced statements
             case TryCatch():
                 self._compile_try(stmt)
             case ThrowStatement():
                 self._compile_throw(stmt)
             case MatchStatement():
                 self._compile_match(stmt)
-
-    def _compile_type_definition(self, stmt: StructDef | ClassDef | EnumDef) -> None:
-        """Compile type definitions (struct, class, enum)."""
-        match stmt:
+            # Type definitions
             case StructDef():
                 self._compile_struct_def(stmt)
             case ClassDef():
                 self._compile_class_def(stmt)
             case EnumDef():
                 self._compile_enum_def(stmt)
+            case ImportStatement() | FromImportStatement():
+                pass  # Resolved at compile time by ModuleResolver
+            case _:
+                # Expression statement (e.g. bare function call)
+                self._compile_expression(stmt)  # type: ignore[arg-type]
+                self._emit(OpCode.POP)
 
     # -- Statement compilers --------------------------------------------------
 
@@ -603,6 +562,28 @@ class Compiler:
         self._patch_jump(done_jump)
         return self._emit(OpCode.JUMP_IF_FALSE, 0, location=loc)
 
+    def _save_state(self) -> _CompilerSnapshot:
+        """Snapshot all mutable compiler state before entering a function body."""
+        return _CompilerSnapshot(
+            current=self._current,
+            loop_var_counter=self._loop_var_counter,
+            match_var_counter=self._match_var_counter,
+            comp_var_counter=self._comp_var_counter,
+            iter_var_counter=self._iter_var_counter,
+            loop_contexts=self._loop_contexts,
+            try_depth=self._try_depth,
+        )
+
+    def _restore_state(self, snapshot: _CompilerSnapshot) -> None:
+        """Restore compiler state from a previous snapshot."""
+        self._current = snapshot.current
+        self._loop_var_counter = snapshot.loop_var_counter
+        self._match_var_counter = snapshot.match_var_counter
+        self._comp_var_counter = snapshot.comp_var_counter
+        self._iter_var_counter = snapshot.iter_var_counter
+        self._loop_contexts = snapshot.loop_contexts
+        self._try_depth = snapshot.try_depth
+
     def _compile_function_body(
         self,
         name: str,
@@ -624,13 +605,7 @@ class Compiler:
         fn_code.free_variables = sorted(self._free_vars.get(name, set()))
         self._function_defaults[name] = [p.default for p in node_params]
 
-        previous = self._current
-        previous_loop_counter = self._loop_var_counter
-        previous_match_counter = self._match_var_counter
-        previous_comp_counter = self._comp_var_counter
-        previous_iter_counter = self._iter_var_counter
-        previous_loop_contexts = self._loop_contexts
-        previous_try_depth = self._try_depth
+        snapshot = self._save_state()
         self._current = fn_code
         self._loop_var_counter = 0
         self._match_var_counter = 0
@@ -649,13 +624,7 @@ class Compiler:
             self._emit(OpCode.RETURN)
 
         self._functions[name] = fn_code
-        self._current = previous
-        self._loop_var_counter = previous_loop_counter
-        self._match_var_counter = previous_match_counter
-        self._comp_var_counter = previous_comp_counter
-        self._iter_var_counter = previous_iter_counter
-        self._loop_contexts = previous_loop_contexts
-        self._try_depth = previous_try_depth
+        self._restore_state(snapshot)
         return fn_code
 
     def _compile_function_def(self, node: FunctionDef) -> None:
@@ -865,72 +834,47 @@ class Compiler:
 
     # -- Expression dispatch --------------------------------------------------
 
-    def _compile_expression(self, expr: Expression) -> None:
+    def _compile_expression(self, expr: Expression) -> None:  # noqa: C901, PLR0912
         """Dispatch to the appropriate expression compiler."""
         match expr:
+            # Literals
             case IntegerLiteral() | FloatLiteral() | StringLiteral() | BooleanLiteral():
                 self._emit_constant(expr.value, location=expr.location)
             case NullLiteral():
                 self._emit_constant(None, location=expr.location)
             case Identifier():
                 self._emit_load(expr.name, location=expr.location)
-            case BinaryOp() | UnaryOp():
-                self._compile_operator_expression(expr)
-            case FunctionCall() | StringInterpolation():
-                self._compile_call_or_interpolation(expr)
-            case ArrayLiteral() | ListComprehension() | DictLiteral():
-                self._compile_collection_expression(expr)
-            case IndexAccess() | SliceAccess():
-                self._compile_index_or_slice(expr)
-            case MethodCall() | FieldAccess() | SuperMethodCall():
-                self._compile_member_expression(expr)
-            case FunctionExpression():
-                self._compile_function_expression(expr)
-
-    def _compile_operator_expression(self, expr: BinaryOp | UnaryOp) -> None:
-        """Compile operator expressions (binary and unary)."""
-        match expr:
+            # Operators
             case BinaryOp():
                 self._compile_binary(expr)
             case UnaryOp():
                 self._compile_unary(expr)
-
-    def _compile_call_or_interpolation(
-        self,
-        expr: FunctionCall | StringInterpolation,
-    ) -> None:
-        """Compile function calls and string interpolations."""
-        match expr:
+            # Calls and interpolation
             case FunctionCall():
                 self._compile_call(expr)
             case StringInterpolation():
                 self._compile_string_interpolation(expr)
-
-    def _compile_collection_expression(
-        self,
-        expr: ArrayLiteral | ListComprehension | DictLiteral,
-    ) -> None:
-        """Compile collection literal expressions (array, list comprehension, dict)."""
-        match expr:
+            # Collections
             case ArrayLiteral():
                 self._compile_array_literal(expr)
             case ListComprehension():
                 self._compile_list_comprehension(expr)
             case DictLiteral():
                 self._compile_dict_literal(expr)
-
-    def _compile_member_expression(
-        self,
-        expr: MethodCall | FieldAccess | SuperMethodCall,
-    ) -> None:
-        """Compile member access expressions (method call, field access, super call)."""
-        match expr:
+            # Index and slice
+            case IndexAccess():
+                self._compile_index_access(expr)
+            case SliceAccess():
+                self._compile_slice_access(expr)
+            # Member access
             case MethodCall():
                 self._compile_method_call(expr)
             case FieldAccess():
                 self._compile_field_access(expr)
             case SuperMethodCall():
                 self._compile_super_method_call(expr)
+            case FunctionExpression():
+                self._compile_function_expression(expr)
 
     # -- Expression compilers -------------------------------------------------
 
@@ -1117,14 +1061,6 @@ class Compiler:
             self._compile_expression(key)
             self._compile_expression(value)
         self._emit(OpCode.BUILD_DICT, len(node.entries), location=node.location)
-
-    def _compile_index_or_slice(self, expr: IndexAccess | SliceAccess) -> None:
-        """Dispatch to index or slice compilation."""
-        match expr:
-            case IndexAccess():
-                self._compile_index_access(expr)
-            case SliceAccess():
-                self._compile_slice_access(expr)
 
     def _compile_index_access(self, node: IndexAccess) -> None:
         """Compile an index access: push target and index, then INDEX_GET."""

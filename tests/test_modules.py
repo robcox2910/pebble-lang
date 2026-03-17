@@ -12,8 +12,9 @@ from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.repl import Repl
 from pebble.tokens import SourceLocation, Token, TokenKind
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source_with_imports,  # pyright: ignore[reportUnknownVariableType]
+from tests.conftest import (
+    analyze,
+    run_source_with_imports,
 )
 
 # -- Named constants -----------------------------------------------------------
@@ -34,17 +35,6 @@ def _lex(source: str) -> list[Token]:
 def _parse(source: str) -> Program:
     """Parse *source* and return the AST Program."""
     return Parser(_lex(source)).parse()
-
-
-def _analyze(source: str) -> Program:
-    """Parse and analyze *source*, return the program."""
-    program = Parser(Lexer(source).tokenize()).parse()
-    return SemanticAnalyzer().analyze(program)
-
-
-def _run_with_imports(source: str, *, base_dir: Path) -> str:
-    """Compile and run *source* with import support."""
-    return run_source_with_imports(source, base_dir=base_dir)  # pyright: ignore[reportUnknownVariableType]
 
 
 # ===========================================================================
@@ -160,21 +150,21 @@ class TestAnalyzerImport:
 
     def test_import_at_top_passes(self) -> None:
         """Import followed by a statement is valid."""
-        _analyze('import "math.pbl"\nlet x = 1')
+        analyze('import "math.pbl"\nlet x = 1')
 
     def test_multiple_imports_at_top(self) -> None:
         """Multiple imports at the top of a file pass analysis."""
-        _analyze('import "a.pbl"\nimport "b.pbl"\nlet x = 1')
+        analyze('import "a.pbl"\nimport "b.pbl"\nlet x = 1')
 
     def test_import_after_statement_fails(self) -> None:
         """Import after a non-import statement raises SemanticError."""
         with pytest.raises(SemanticError, match="must appear at the top"):
-            _analyze('let x = 1\nimport "math.pbl"')
+            analyze('let x = 1\nimport "math.pbl"')
 
     def test_from_import_after_statement_fails(self) -> None:
         """From-import after a non-import statement raises SemanticError."""
         with pytest.raises(SemanticError, match="must appear at the top"):
-            _analyze('let x = 1\nfrom "math.pbl" import add')
+            analyze('let x = 1\nfrom "math.pbl" import add')
 
     def test_register_imported_function(self) -> None:
         """Register an imported function so calls pass analysis."""
@@ -214,7 +204,7 @@ class TestResolver:
         """Import a module with one function and call it."""
         (tmp_path / "math.pbl").write_text("fn add(a, b) {\n    return a + b\n}\n")
         source = 'import "math.pbl"\nprint(add(1, 2))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "3\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "3\n"
 
     def test_from_import_function(self, tmp_path: Path) -> None:
         """From-import a specific function."""
@@ -222,20 +212,20 @@ class TestResolver:
             "fn add(a, b) {\n    return a + b\n}\nfn sub(a, b) {\n    return a - b\n}\n"
         )
         source = 'from "math.pbl" import add\nprint(add(3, 4))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "7\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "7\n"
 
     def test_from_import_name_not_found(self, tmp_path: Path) -> None:
         """From-import a name that doesn't exist raises PebbleImportError."""
         (tmp_path / "math.pbl").write_text("fn add(a, b) {\n    return a + b\n}\n")
         source = 'from "math.pbl" import multiply'
         with pytest.raises(PebbleImportError, match="does not export 'multiply'"):
-            _run_with_imports(source, base_dir=tmp_path)
+            run_source_with_imports(source, base_dir=tmp_path)
 
     def test_module_not_found(self, tmp_path: Path) -> None:
         """Import a non-existent module raises PebbleImportError."""
         source = 'import "nonexistent.pbl"'
         with pytest.raises(PebbleImportError, match="not found"):
-            _run_with_imports(source, base_dir=tmp_path)
+            run_source_with_imports(source, base_dir=tmp_path)
 
     def test_circular_import(self, tmp_path: Path) -> None:
         """Circular import raises PebbleImportError."""
@@ -243,7 +233,7 @@ class TestResolver:
         (tmp_path / "b.pbl").write_text('import "a.pbl"\nfn fb() { return 2 }\n')
         source = 'import "a.pbl"\nprint(fa())'
         with pytest.raises(PebbleImportError, match="Circular"):
-            _run_with_imports(source, base_dir=tmp_path)
+            run_source_with_imports(source, base_dir=tmp_path)
 
     def test_nested_imports(self, tmp_path: Path) -> None:
         """A imports B, B imports C — transitive chain works."""
@@ -251,7 +241,7 @@ class TestResolver:
         (tmp_path / "b.pbl").write_text('import "c.pbl"\nfn triple(x) {\n    return x * 3\n}\n')
         (tmp_path / "a.pbl").write_text('import "b.pbl"\nfn quad(x) {\n    return x * 4\n}\n')
         source = 'import "a.pbl"\nprint(quad(5))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "20\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "20\n"
 
     def test_diamond_imports(self, tmp_path: Path) -> None:
         """A imports B and C; both B and C import D — no recompilation error."""
@@ -259,19 +249,19 @@ class TestResolver:
         (tmp_path / "b.pbl").write_text('import "d.pbl"\nfn fb() {\n    return helper()\n}\n')
         (tmp_path / "c.pbl").write_text('import "d.pbl"\nfn fc() {\n    return helper()\n}\n')
         source = 'import "b.pbl"\nimport "c.pbl"\nprint(fb())\nprint(fc())'
-        assert _run_with_imports(source, base_dir=tmp_path) == "42\n42\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "42\n42\n"
 
     def test_import_struct(self, tmp_path: Path) -> None:
         """Import a module with a struct definition."""
         (tmp_path / "geom.pbl").write_text("struct Point { x, y }\n")
         source = 'import "geom.pbl"\nlet p = Point(3, 4)\nprint(p.x)'
-        assert _run_with_imports(source, base_dir=tmp_path) == "3\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "3\n"
 
     def test_from_import_struct(self, tmp_path: Path) -> None:
         """From-import a struct by name."""
         (tmp_path / "geom.pbl").write_text("struct Point { x, y }\nstruct Line { start, end }\n")
         source = 'from "geom.pbl" import Point\nlet p = Point(1, 2)\nprint(p.y)'
-        assert _run_with_imports(source, base_dir=tmp_path) == "2\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "2\n"
 
     def test_selective_import_limits_scope(self, tmp_path: Path) -> None:
         """From-import only brings in selected names; others are unavailable."""
@@ -280,7 +270,7 @@ class TestResolver:
         )
         source = 'from "math.pbl" import add\nprint(sub(5, 3))'
         with pytest.raises(SemanticError, match="Undeclared function 'sub'"):
-            _run_with_imports(source, base_dir=tmp_path)
+            run_source_with_imports(source, base_dir=tmp_path)
 
     def test_internal_helpers_included(self, tmp_path: Path) -> None:
         """An imported function that calls internal helpers works at runtime."""
@@ -289,7 +279,7 @@ class TestResolver:
             "fn sum_of_squares(a, b) {\n    return _square(a) + _square(b)\n}\n"
         )
         source = 'from "math.pbl" import sum_of_squares\nprint(sum_of_squares(3, 4))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "25\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "25\n"
 
     def test_import_from_subdirectory(self, tmp_path: Path) -> None:
         """Import from a subdirectory path."""
@@ -297,7 +287,7 @@ class TestResolver:
         lib_dir.mkdir()
         (lib_dir / "utils.pbl").write_text("fn greet() {\n    return 42\n}\n")
         source = 'import "lib/utils.pbl"\nprint(greet())'
-        assert _run_with_imports(source, base_dir=tmp_path) == "42\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "42\n"
 
 
 class TestEndToEnd:
@@ -307,13 +297,13 @@ class TestEndToEnd:
         """Import a function and call it — full pipeline."""
         (tmp_path / "math.pbl").write_text("fn add(a, b) {\n    return a + b\n}\n")
         source = 'import "math.pbl"\nprint(add(10, 20))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "30\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "30\n"
 
     def test_import_struct_and_construct(self, tmp_path: Path) -> None:
         """Import a struct and construct an instance."""
         (tmp_path / "geom.pbl").write_text("struct Point { x, y }\n")
         source = 'import "geom.pbl"\nlet p = Point(5, 10)\nprint(p)'
-        assert _run_with_imports(source, base_dir=tmp_path) == "Point(x=5, y=10)\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "Point(x=5, y=10)\n"
 
     def test_imported_fn_calls_helper(self, tmp_path: Path) -> None:
         """An imported function that calls an internal helper works."""
@@ -322,14 +312,14 @@ class TestEndToEnd:
             "fn transform(x) {\n    return _helper(x) + 1\n}\n"
         )
         source = 'import "utils.pbl"\nprint(transform(5))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "51\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "51\n"
 
     def test_import_from_multiple_modules(self, tmp_path: Path) -> None:
         """Import from two different modules."""
         (tmp_path / "math.pbl").write_text("fn add(a, b) {\n    return a + b\n}\n")
         (tmp_path / "str.pbl").write_text("fn greet() {\n    return 99\n}\n")
         source = 'import "math.pbl"\nimport "str.pbl"\nprint(add(1, greet()))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "100\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "100\n"
 
     def test_from_import_multiple_names(self, tmp_path: Path) -> None:
         """From-import multiple names from one module."""
@@ -337,7 +327,7 @@ class TestEndToEnd:
             "fn add(a, b) {\n    return a + b\n}\nfn mul(a, b) {\n    return a * b\n}\n"
         )
         source = 'from "math.pbl" import add, mul\nprint(add(2, mul(3, 4)))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "14\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "14\n"
 
     def test_module_with_functions_and_structs(self, tmp_path: Path) -> None:
         """Import a module that has both functions and structs."""
@@ -345,7 +335,7 @@ class TestEndToEnd:
             "struct Point { x, y }\nfn origin() {\n    return Point(0, 0)\n}\n"
         )
         source = 'import "geom.pbl"\nlet o = origin()\nprint(o)'
-        assert _run_with_imports(source, base_dir=tmp_path) == "Point(x=0, y=0)\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "Point(x=0, y=0)\n"
 
     def test_nested_module_chain(self, tmp_path: Path) -> None:
         """Three-level nested import chain works end-to-end."""
@@ -353,7 +343,7 @@ class TestEndToEnd:
         (tmp_path / "b.pbl").write_text('import "c.pbl"\nfn mid() {\n    return base() + 10\n}\n')
         (tmp_path / "a.pbl").write_text('import "b.pbl"\nfn top() {\n    return mid() + 100\n}\n')
         source = 'import "a.pbl"\nprint(top())'
-        assert _run_with_imports(source, base_dir=tmp_path) == "111\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "111\n"
 
     def test_import_function_with_closure(self, tmp_path: Path) -> None:
         """Import a function that uses closures."""
@@ -366,14 +356,14 @@ class TestEndToEnd:
             "}\n"
         )
         source = 'import "counter.pbl"\nlet add5 = make_adder(5)\nprint(add5(10))'
-        assert _run_with_imports(source, base_dir=tmp_path) == "15\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "15\n"
 
     def test_module_level_print_does_not_execute(self, tmp_path: Path) -> None:
         """Top-level print in a module does NOT execute during import."""
         (tmp_path / "noisy.pbl").write_text("print(999)\nfn quiet() {\n    return 0\n}\n")
         source = 'import "noisy.pbl"\nprint(quiet())'
         # Only "0\n" — the module's print(999) should not run
-        assert _run_with_imports(source, base_dir=tmp_path) == "0\n"
+        assert run_source_with_imports(source, base_dir=tmp_path) == "0\n"
 
 
 class TestReplImport:

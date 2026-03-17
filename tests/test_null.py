@@ -14,14 +14,7 @@ from pebble.errors import PebbleRuntimeError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
-from tests.conftest import (  # pyright: ignore[reportMissingImports]
-    run_source,  # pyright: ignore[reportUnknownVariableType]
-)
-
-
-def _run(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    return run_source(source)  # type: ignore[no-any-return]
+from tests.conftest import run_source
 
 
 def _tokens(source: str) -> list[tuple[TokenKind, str]]:
@@ -153,85 +146,85 @@ class TestNullIntegration:
 
     def test_print_null(self) -> None:
         """``print(null)`` outputs ``null``."""
-        assert _run("print(null)") == "null\n"
+        assert run_source("print(null)") == "null\n"
 
     def test_type_of_null(self) -> None:
         """``type(null)`` returns ``"null"``."""
-        assert _run("print(type(null))") == "null\n"
+        assert run_source("print(type(null))") == "null\n"
 
     def test_null_equality(self) -> None:
         """``null == null`` is ``true``."""
-        assert _run("print(null == null)") == "true\n"
+        assert run_source("print(null == null)") == "true\n"
 
     def test_null_not_equal_zero(self) -> None:
         """``null == 0`` is ``false``."""
-        assert _run("print(null == 0)") == "false\n"
+        assert run_source("print(null == 0)") == "false\n"
 
     def test_null_not_equal_false(self) -> None:
         """``null == false`` is ``false``."""
-        assert _run("print(null == false)") == "false\n"
+        assert run_source("print(null == false)") == "false\n"
 
     def test_null_not_equal_empty_string(self) -> None:
         """``null == ""`` is ``false``."""
-        assert _run('print(null == "")') == "false\n"
+        assert run_source('print(null == "")') == "false\n"
 
     def test_null_is_falsy(self) -> None:
         """``if null`` takes the else branch."""
         source = 'if null { print("yes") } else { print("no") }'
-        assert _run(source) == "no\n"
+        assert run_source(source) == "no\n"
 
     def test_not_null(self) -> None:
         """``not null`` is ``true``."""
-        assert _run("print(not null)") == "true\n"
+        assert run_source("print(not null)") == "true\n"
 
     def test_null_arithmetic_error(self) -> None:
         """``null + 1`` raises a PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError):
-            _run("print(null + 1)")
+            run_source("print(null + 1)")
 
     def test_null_comparison_error(self) -> None:
         """``null < 1`` raises a PebbleRuntimeError."""
         with pytest.raises(PebbleRuntimeError):
-            _run("print(null < 1)")
+            run_source("print(null < 1)")
 
     def test_implicit_return_is_null(self) -> None:
         """A function without explicit return returns null."""
-        assert _run("fn f() { let x = 1 }\nprint(f())") == "null\n"
+        assert run_source("fn f() { let x = 1 }\nprint(f())") == "null\n"
 
     def test_bare_return_is_null(self) -> None:
         """A bare ``return`` produces null."""
-        assert _run("fn f() { return }\nprint(f())") == "null\n"
+        assert run_source("fn f() { return }\nprint(f())") == "null\n"
 
     def test_null_in_list(self) -> None:
         """Null values in a list print correctly."""
-        assert _run("print([1, null, 3])") == "[1, null, 3]\n"
+        assert run_source("print([1, null, 3])") == "[1, null, 3]\n"
 
     def test_null_in_dict(self) -> None:
         """Null values in a dict print correctly."""
-        assert _run('print({"a": null})') == "{a: null}\n"
+        assert run_source('print({"a": null})') == "{a: null}\n"
 
     def test_null_in_string_interpolation(self) -> None:
         """Null in string interpolation converts to ``"null"``."""
-        assert _run('let x = null\nprint("{x}")') == "null\n"
+        assert run_source('let x = null\nprint("{x}")') == "null\n"
 
     def test_null_type_annotation_e2e(self) -> None:
         """``let x: Null = null`` works at runtime."""
-        assert _run("let x: Null = null\nprint(x)") == "null\n"
+        assert run_source("let x: Null = null\nprint(x)") == "null\n"
 
     def test_null_type_mismatch(self) -> None:
         """``let x: Int = null`` raises a runtime type error."""
         with pytest.raises(PebbleRuntimeError, match="expected Int, got Null"):
-            _run("let x: Int = null")
+            run_source("let x: Int = null")
 
     def test_list_push_returns_null(self) -> None:
         """``xs.push(2)`` returns null (not 0)."""
         source = "let xs = [1]\nlet r = xs.push(2)\nprint(r)"
-        assert _run(source) == "null\n"
+        assert run_source(source) == "null\n"
 
     def test_null_default_param(self) -> None:
         """``fn f(x = null)`` uses null when called without arguments."""
         source = "fn f(x = null) { return x }\nprint(f())"
-        assert _run(source) == "null\n"
+        assert run_source(source) == "null\n"
 
     def test_null_in_match(self) -> None:
         """``case null`` matches a null value."""
@@ -242,12 +235,12 @@ class TestNullIntegration:
             '  case _ { print("nope") }\n'
             "}"
         )
-        assert _run(source) == "matched\n"
+        assert run_source(source) == "matched\n"
 
     def test_null_and_short_circuit(self) -> None:
         """``null and 1`` short-circuits to null (falsy)."""
-        assert _run("print(null and 1)") == "null\n"
+        assert run_source("print(null and 1)") == "null\n"
 
     def test_null_or_short_circuit(self) -> None:
         """``null or 42`` short-circuits to 42."""
-        assert _run("print(null or 42)") == "42\n"
+        assert run_source("print(null or 42)") == "42\n"

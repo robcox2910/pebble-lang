@@ -1,10 +1,7 @@
 """Tests for list comprehensions: ``[x * 2 for x in range(5)]``."""
 
-from io import StringIO
-
 import pytest
 
-from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import (
     ArrayLiteral,
     BinaryOp,
@@ -13,13 +10,17 @@ from pebble.ast_nodes import (
     Identifier,
     ListComprehension,
 )
-from pebble.bytecode import Instruction, OpCode
-from pebble.compiler import Compiler
+from pebble.bytecode import OpCode
 from pebble.errors import ParseError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import SourceLocation
-from pebble.vm import VirtualMachine
+from tests.conftest import (
+    analyze,
+    compile_instructions,
+    compile_opcodes,
+    run_source,
+)
 
 # -- Named constants ----------------------------------------------------------
 
@@ -36,54 +37,6 @@ def _parse_expr(source: str) -> Expression:
     """Lex and parse a single expression from *source*."""
     tokens = Lexer(source).tokenize()
     return Parser(tokens).parse_expression()
-
-
-def _analyze(source: str) -> None:
-    """Lex + parse + analyze — raise on semantic errors."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    SemanticAnalyzer().analyze(program)
-
-
-def _compile_opcodes(source: str) -> list[OpCode]:
-    """Lex + parse + analyze + compile, return main opcode list."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return [instr.opcode for instr in compiled.main.instructions]
-
-
-def _compile_instructions(source: str) -> list[Instruction]:
-    """Return the main instruction list for *source*."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    program = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(program)
-    return compiled.main.instructions
-
-
-def _run_source(source: str) -> str:
-    """Compile and run *source*, return captured output."""
-    tokens = Lexer(source).tokenize()
-    program = Parser(tokens).parse()
-    analyzer = SemanticAnalyzer()
-    analyzed = analyzer.analyze(program)
-    compiled = Compiler(
-        cell_vars=analyzer.cell_vars,
-        free_vars=analyzer.free_vars,
-    ).compile(analyzed)
-    buf = StringIO()
-    VirtualMachine(output=buf).run(compiled)
-    return buf.getvalue()
 
 
 # =============================================================================
@@ -218,29 +171,29 @@ class TestListComprehensionAnalyzer:
     def test_loop_variable_scoped_to_comprehension(self) -> None:
         """The loop variable is not visible outside the comprehension."""
         with pytest.raises(SemanticError, match="x"):
-            _analyze("let result = [x for x in range(5)]\nprint(x)")
+            analyze("let result = [x for x in range(5)]\nprint(x)")
 
     def test_outer_variable_accessible_in_mapping(self) -> None:
         """An outer variable can be used in the mapping expression."""
-        _analyze("let n = 2\nlet result = [x * n for x in range(5)]")
+        analyze("let n = 2\nlet result = [x * n for x in range(5)]")
 
     def test_undeclared_variable_in_mapping(self) -> None:
         """Using an undeclared variable in the mapping raises SemanticError."""
         with pytest.raises(SemanticError, match="y"):
-            _analyze("[y for x in range(5)]")
+            analyze("[y for x in range(5)]")
 
     def test_undeclared_variable_in_condition(self) -> None:
         """Using an undeclared variable in the condition raises SemanticError."""
         with pytest.raises(SemanticError, match="y"):
-            _analyze("[x for x in range(5) if y > 0]")
+            analyze("[x for x in range(5) if y > 0]")
 
     def test_valid_comprehension_passes(self) -> None:
         """A well-formed comprehension passes analysis."""
-        _analyze("let result = [x * 2 for x in range(5)]")
+        analyze("let result = [x * 2 for x in range(5)]")
 
     def test_valid_comprehension_with_filter(self) -> None:
         """A comprehension with filter passes analysis."""
-        _analyze("let result = [x for x in range(10) if x > 5]")
+        analyze("let result = [x for x in range(10) if x > 5]")
 
 
 # =============================================================================
@@ -253,13 +206,13 @@ class TestListComprehensionCompiler:
 
     def test_emits_build_list_zero(self) -> None:
         """Compiler emits BUILD_LIST with operand 0 for the empty result list."""
-        instructions = _compile_instructions("let r = [x for x in range(5)]")
+        instructions = compile_instructions("let r = [x for x in range(5)]")
         build_list_instrs = [i for i in instructions if i.opcode == OpCode.BUILD_LIST]
         assert any(i.operand == 0 for i in build_list_instrs)
 
     def test_emits_list_append(self) -> None:
         """Compiler emits LIST_APPEND for the comprehension."""
-        opcodes = _compile_opcodes("let r = [x for x in range(5)]")
+        opcodes = compile_opcodes("let r = [x for x in range(5)]")
         assert OpCode.LIST_APPEND in opcodes
 
 
@@ -273,40 +226,40 @@ class TestListComprehensionEndToEnd:
 
     def test_identity(self) -> None:
         """``[x for x in range(5)]`` produces ``[0, 1, 2, 3, 4]``."""
-        assert _run_source("print([x for x in range(5)])") == "[0, 1, 2, 3, 4]\n"
+        assert run_source("print([x for x in range(5)])") == "[0, 1, 2, 3, 4]\n"
 
     def test_mapping(self) -> None:
         """``[x * 2 for x in range(5)]`` produces ``[0, 2, 4, 6, 8]``."""
-        assert _run_source("print([x * 2 for x in range(5)])") == "[0, 2, 4, 6, 8]\n"
+        assert run_source("print([x * 2 for x in range(5)])") == "[0, 2, 4, 6, 8]\n"
 
     def test_filter(self) -> None:
         """``[x for x in range(10) if x > 5]`` produces ``[6, 7, 8, 9]``."""
-        assert _run_source("print([x for x in range(10) if x > 5])") == "[6, 7, 8, 9]\n"
+        assert run_source("print([x for x in range(10) if x > 5])") == "[6, 7, 8, 9]\n"
 
     def test_mapping_and_filter(self) -> None:
         """``[x * x for x in range(6) if x > 2]`` produces ``[9, 16, 25]``."""
-        assert _run_source("print([x * x for x in range(6) if x > 2])") == "[9, 16, 25]\n"
+        assert run_source("print([x * x for x in range(6) if x > 2])") == "[9, 16, 25]\n"
 
     def test_empty_range(self) -> None:
         """``[x for x in range(0)]`` produces ``[]``."""
-        assert _run_source("print([x for x in range(0)])") == "[]\n"
+        assert run_source("print([x for x in range(0)])") == "[]\n"
 
     def test_filter_removes_all(self) -> None:
         """``[x for x in range(5) if x > 10]`` produces ``[]``."""
-        assert _run_source("print([x for x in range(5) if x > 10])") == "[]\n"
+        assert run_source("print([x for x in range(5) if x > 10])") == "[]\n"
 
     def test_range_two_args(self) -> None:
         """``[x for x in range(2, 5)]`` produces ``[2, 3, 4]``."""
-        assert _run_source("print([x for x in range(2, 5)])") == "[2, 3, 4]\n"
+        assert run_source("print([x for x in range(2, 5)])") == "[2, 3, 4]\n"
 
     def test_range_three_args(self) -> None:
         """``[x for x in range(0, 10, 3)]`` produces ``[0, 3, 6, 9]``."""
-        assert _run_source("print([x for x in range(0, 10, 3)])") == "[0, 3, 6, 9]\n"
+        assert run_source("print([x for x in range(0, 10, 3)])") == "[0, 3, 6, 9]\n"
 
     def test_assign_and_print(self) -> None:
         """Assign a comprehension to a variable and print it."""
         source = "let nums = [x * 2 for x in range(4)]\nprint(nums)"
-        assert _run_source(source) == "[0, 2, 4, 6]\n"
+        assert run_source(source) == "[0, 2, 4, 6]\n"
 
     def test_inside_function(self) -> None:
         """Comprehension works inside a function body."""
@@ -316,17 +269,17 @@ fn squares(n) {
 }
 print(squares(4))
 """
-        assert _run_source(source) == "[0, 1, 4, 9]\n"
+        assert run_source(source) == "[0, 1, 4, 9]\n"
 
     def test_len_of_comprehension(self) -> None:
         """``len()`` works on comprehension result."""
         source = "print(len([x for x in range(5)]))"
-        assert _run_source(source) == "5\n"
+        assert run_source(source) == "5\n"
 
     def test_index_into_comprehension(self) -> None:
         """Index access works on comprehension result."""
         source = "let nums = [x * 10 for x in range(3)]\nprint(nums[2])"
-        assert _run_source(source) == "20\n"
+        assert run_source(source) == "20\n"
 
     def test_two_comprehensions_same_scope(self) -> None:
         """Two comprehensions in the same scope work independently."""
@@ -336,7 +289,7 @@ let b = [x * 2 for x in range(4)]
 print(a)
 print(b)
 """
-        assert _run_source(source) == "[0, 1, 2]\n[0, 2, 4, 6]\n"
+        assert run_source(source) == "[0, 1, 2]\n[0, 2, 4, 6]\n"
 
     def test_comprehension_inside_loop(self) -> None:
         """Comprehension inside a for loop."""
@@ -346,9 +299,9 @@ for i in range(3) {
     print(row)
 }
 """
-        assert _run_source(source) == "[0, 0, 0]\n[0, 1, 2]\n[0, 2, 4]\n"
+        assert run_source(source) == "[0, 0, 0]\n[0, 1, 2]\n[0, 2, 4]\n"
 
     def test_nested_comprehension(self) -> None:
         """Comprehension in the mapping expression (nested)."""
         source = "print([len([y for y in range(x)]) for x in range(4)])"
-        assert _run_source(source) == "[0, 1, 2, 3]\n"
+        assert run_source(source) == "[0, 1, 2, 3]\n"
