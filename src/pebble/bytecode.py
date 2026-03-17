@@ -84,6 +84,7 @@ class OpCode(StrEnum):
 
     # -- Generators / iteration -----------------------------------------------
     YIELD = "YIELD"
+    AWAIT = "AWAIT"
     GET_ITER = "GET_ITER"
     FOR_ITER = "FOR_ITER"
 
@@ -161,6 +162,7 @@ class CodeObject:
     param_types: list[TypeAnnotation | None] = field(default_factory=lambda: [])
     return_type: TypeAnnotation | None = None
     is_generator: bool = False
+    is_async: bool = False
 
     _constant_index: dict[tuple[type, int | float | str | bool | None], int] = field(
         default_factory=lambda: {},

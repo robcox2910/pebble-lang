@@ -44,6 +44,8 @@ type Value = (
     | EnumVariant
     | SequenceIterator
     | GeneratorObject
+    | CoroutineObject
+    | SleepMarker
 )
 
 
@@ -126,6 +128,41 @@ class GeneratorObject:
     exhausted: bool = False
 
 
+@dataclass
+class CoroutineObject:
+    """Suspended async coroutine created from an ``async fn`` call.
+
+    Attributes:
+        code: The compiled function body.
+        ip: Instruction pointer for resumption.
+        variables: Snapshot of local variables at the await point.
+        cells: Snapshot of closure cells at the await point.
+        state: One of ``"pending"``, ``"completed"``, or ``"failed"``.
+        result: The return value once completed.
+        error: Error message if failed.
+        awaiter: The coroutine waiting on this one's result.
+        awaited_value: The value that was awaited (set by AWAIT opcode).
+
+    """
+
+    code: CodeObject
+    ip: int
+    variables: dict[str, Value]
+    cells: dict[str, Cell]
+    state: str = "pending"
+    result: Value = None
+    error: str | None = None
+    awaiter: CoroutineObject | None = None
+    awaited_value: Value = None
+
+
+@dataclass(frozen=True)
+class SleepMarker:
+    """Marker value produced by ``sleep(n)`` for the event loop to interpret."""
+
+    ticks: int
+
+
 # -- Value formatting ----------------------------------------------------------
 
 
@@ -165,11 +202,13 @@ def _format_collection(value: Value) -> str | None:
 
 
 def _format_internal(value: Value) -> str:
-    """Format internal VM types (closures, generators, iterators)."""
+    """Format internal VM types (closures, generators, coroutines, iterators)."""
     if isinstance(value, Closure):
         return f"<fn {value.code.name}>"
     if isinstance(value, GeneratorObject):
         return f"<generator {value.code.name}>"
+    if isinstance(value, CoroutineObject):
+        return f"<coroutine {value.code.name}>"
     if isinstance(value, SequenceIterator):
         return "<iterator>"
     return str(value)  # pragma: no cover
@@ -235,6 +274,7 @@ _TYPE_NAMES: dict[type, str] = {
     list: "list",
     Closure: "fn",
     GeneratorObject: "generator",
+    CoroutineObject: "coroutine",
     SequenceIterator: "iterator",
 }
 
@@ -344,6 +384,9 @@ BUILTIN_ARITIES: dict[str, Arity] = {
     "filter": _FILTER_ARITY,
     "reduce": _REDUCE_ARITY,
     "next": 1,
+    "async_run": 1,
+    "spawn": 1,
+    "sleep": 1,
 }
 """Map of ALL builtin names (runtime + compile-time) to arity."""
 

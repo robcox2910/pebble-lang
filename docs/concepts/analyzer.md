@@ -236,6 +236,8 @@ fn process(n) {              # New scope: n is a parameter
 | `const x = 1` then `x = 2` | Cannot reassign constant 'x' |
 | `break` (outside loop) | Break statement outside loop |
 | `continue` (outside loop) | Continue statement outside loop |
+| `await expr` (not in async fn) | await can only be used inside an async function |
+| `yield` (inside async fn) | Cannot use yield inside an async function |
 
 ## Summary
 

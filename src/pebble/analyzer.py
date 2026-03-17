@@ -15,6 +15,8 @@ from typing import ClassVar
 from pebble.ast_nodes import (
     ArrayLiteral,
     Assignment,
+    AsyncFunctionDef,
+    AwaitExpression,
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
@@ -227,6 +229,7 @@ class SemanticAnalyzer:
         for name, arity in BUILTIN_ARITIES.items():
             self._scope.functions[name] = (arity, _BUILTIN_LOCATION)
         self._in_function = False
+        self._in_async_function = False
         self._loop_depth = 0
         self._try_depth = 0
         self._past_imports = False
@@ -361,6 +364,8 @@ class SemanticAnalyzer:
             # Definitions
             case FunctionDef():
                 self._visit_function_def(stmt)
+            case AsyncFunctionDef():
+                self._visit_async_function_def(stmt)
             case ReturnStatement():
                 self._visit_return(stmt)
             case YieldStatement():
@@ -564,15 +569,71 @@ class SemanticAnalyzer:
             self._visit_expression(node.value)
 
     def _visit_yield(self, node: YieldStatement) -> None:
-        """Visit a ``yield`` statement — must be inside a function, not in try block."""
+        """Visit a ``yield`` statement — must be inside a function, not in try or async."""
         if not self._in_function:
             msg = "Yield statement outside function"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        if self._in_async_function:
+            msg = "Cannot use yield inside an async function"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         if self._try_depth > 0:
             msg = "Yield inside try block is not supported"
             raise SemanticError(msg, line=node.location.line, column=node.location.column)
         if node.value is not None:
             self._visit_expression(node.value)
+
+    def _visit_async_function_def(self, node: AsyncFunctionDef) -> None:
+        """Visit an ``async fn`` definition — like function def but sets async flag."""
+        self._visit_async_function_body(node)
+        self._scope.variables[node.name] = node.location
+
+    def _visit_async_function_body(self, node: AsyncFunctionDef | FunctionExpression) -> None:
+        """Visit the shared scope/param/body logic for async functions."""
+        # Validate default parameter ordering and literal-only restriction
+        seen_default = False
+        for param in node.parameters:
+            if param.default is not None:
+                seen_default = True
+                if not isinstance(
+                    param.default,
+                    IntegerLiteral | FloatLiteral | StringLiteral | BooleanLiteral | NullLiteral,
+                ):
+                    msg = "Default parameter values must be literals"
+                    raise SemanticError(msg, line=node.location.line, column=node.location.column)
+            elif seen_default:
+                msg = f"Required parameter '{param.name}' cannot follow a parameter with a default"
+                raise SemanticError(msg, line=node.location.line, column=node.location.column)
+
+        required = sum(1 for p in node.parameters if p.default is None)
+        total = len(node.parameters)
+        arity: int | tuple[int, ...] = (
+            tuple(range(required, total + 1)) if required != total else total
+        )
+        self._scope.declare_function(node.name, arity, node.location)
+        self._push_scope()
+        self._scope.function_name = node.name
+        for param in node.parameters:
+            self._scope.declare_variable(param.name, node.location)
+            if param.type_annotation is not None:
+                self._validate_type_annotation(param.type_annotation, node.location)
+        if node.return_type is not None:
+            self._validate_type_annotation(node.return_type, node.location)
+        prev_in_function = self._in_function
+        prev_in_async = self._in_async_function
+        self._in_function = True
+        self._in_async_function = True
+        for stmt in node.body:
+            self._visit_statement(stmt)
+        self._in_function = prev_in_function
+        self._in_async_function = prev_in_async
+        self._pop_scope()
+
+    def _visit_await(self, node: AwaitExpression) -> None:
+        """Visit an ``await`` expression — must be inside an async function."""
+        if not self._in_async_function:
+            msg = "Cannot use await outside an async function"
+            raise SemanticError(msg, line=node.location.line, column=node.location.column)
+        self._visit_expression(node.value)
 
     def _visit_break(self, node: BreakStatement) -> None:
         """Visit a ``break`` statement — must be inside a loop."""
@@ -652,7 +713,7 @@ class SemanticAnalyzer:
         for expr in exprs:
             self._visit_expression(expr)
 
-    def _visit_expression(self, expr: Expression) -> None:  # noqa: PLR0912
+    def _visit_expression(self, expr: Expression) -> None:  # noqa: C901, PLR0912
         """Dispatch to the appropriate visitor based on expression type."""
         match expr:
             case Identifier():
@@ -682,6 +743,8 @@ class SemanticAnalyzer:
                 self._visit_super_method_call(expr)
             case FunctionExpression():
                 self._visit_function_expression(expr)
+            case AwaitExpression():
+                self._visit_await(expr)
             case (
                 IntegerLiteral()
                 | FloatLiteral()

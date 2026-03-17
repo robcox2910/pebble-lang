@@ -53,6 +53,8 @@ class TokenKind(StrEnum):
     TRUE = "TRUE"
     FALSE = "FALSE"
     NULL = "NULL"
+    ASYNC = "ASYNC"
+    AWAIT = "AWAIT"
 
     # -- Operators ------------------------------------------------------------
     PLUS = "PLUS"
@@ -159,6 +161,8 @@ KEYWORDS: dict[str, TokenKind] = {
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
     "null": TokenKind.NULL,
+    "async": TokenKind.ASYNC,
+    "await": TokenKind.AWAIT,
     "and": TokenKind.AND,
     "or": TokenKind.OR,
     "not": TokenKind.NOT,

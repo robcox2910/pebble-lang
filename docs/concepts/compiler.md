@@ -370,6 +370,7 @@ just knows the function exists so it can `CALL` it later.
 | `SET_FIELD` | name | Pop value and struct instance, set the named field |
 | `LOAD_ENUM_VARIANT` | enum:variant | Push an enum variant value onto the stack |
 | `YIELD` | — | Pause a generator and emit the top-of-stack value |
+| `AWAIT` | — | Pause an async coroutine and return control to the event loop |
 | `GET_ITER` | — | Pop a value and push an iterator over it |
 | `FOR_ITER` | target | Advance the iterator; jump to *target* when exhausted |
 | `PRINT` | — | Pop and print the top value |

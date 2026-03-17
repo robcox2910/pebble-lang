@@ -10,6 +10,8 @@ from typing import ClassVar, Never
 from pebble.ast_nodes import (
     ArrayLiteral,
     Assignment,
+    AsyncFunctionDef,
+    AwaitExpression,
     BinaryOp,
     BooleanLiteral,
     BreakStatement,
@@ -500,6 +502,23 @@ class Parser:
             parameters=parameters,
             body=body,
             location=fn_token.location,
+            return_type=return_type,
+        )
+
+    def _parse_async_function_def(self) -> AsyncFunctionDef:
+        """Parse ``async fn name(params) [-> Type] { body }``."""
+        async_token = self._advance()  # consume 'async'
+        self._expect(TokenKind.FN, "Expected 'fn' after 'async'")
+        name_token = self._expect(TokenKind.IDENTIFIER, "Expected function name after 'fn'")
+        self._expect(TokenKind.LEFT_PAREN, "Expected '(' after function name")
+        parameters = self._parse_parameter_list()
+        return_type = self._parse_return_type()
+        body = self._parse_block()
+        return AsyncFunctionDef(
+            name=name_token.value,
+            parameters=parameters,
+            body=body,
+            location=async_token.location,
             return_type=return_type,
         )
 
@@ -1063,6 +1082,12 @@ class Parser:
             return_type=return_type,
         )
 
+    def _parse_await(self) -> AwaitExpression:
+        """Parse ``await expr`` — suspend until the awaited value resolves."""
+        await_token = self._advance()  # consume 'await'
+        value = self._parse_precedence(min_precedence=0)
+        return AwaitExpression(value=value, location=await_token.location)
+
     def _parse_super(self) -> SuperMethodCall:
         """Parse ``super.method(args)`` — call a parent class method."""
         super_token = self._advance()  # consume 'super'
@@ -1197,6 +1222,7 @@ class Parser:
         TokenKind.LEFT_BRACE: _parse_dict,
         TokenKind.FN: _parse_fn_expression,
         TokenKind.SUPER: _parse_super,
+        TokenKind.AWAIT: _parse_await,
     }
 
     # -- Statement dispatch table ---------------------------------------------
@@ -1220,6 +1246,7 @@ class Parser:
         TokenKind.ENUM: _parse_enum_def,
         TokenKind.IMPORT: _parse_import,
         TokenKind.FROM: _parse_from_import,
+        TokenKind.ASYNC: _parse_async_function_def,
     }
 
     # -- Token helpers --------------------------------------------------------

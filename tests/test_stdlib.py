@@ -40,7 +40,7 @@ from tests.conftest import (
 # -- Named constants ----------------------------------------------------------
 
 RUNTIME_BUILTIN_COUNT = 8
-TOTAL_BUILTIN_COUNT = 15
+TOTAL_BUILTIN_COUNT = 18
 STRING_METHOD_COUNT = 12
 LIST_METHOD_COUNT = 5
 METHOD_ARITY_COUNT = 16

@@ -8,8 +8,10 @@ a ``HALT`` opcode.
 
 import operator
 import sys
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from heapq import heappop, heappush
 from typing import ClassVar, Never, TextIO
 
 from pebble.ast_nodes import TypeAnnotation
@@ -22,9 +24,11 @@ from pebble.builtins import (
     STRING_METHODS,
     Cell,
     Closure,
+    CoroutineObject,
     EnumVariant,
     GeneratorObject,
     SequenceIterator,
+    SleepMarker,
     StructInstance,
     Value,
     format_value,
@@ -131,6 +135,7 @@ class Frame:
     variables: dict[str, Value] = field(default_factory=lambda: {})
     cells: dict[str, Cell] = field(default_factory=lambda: {})
     generator: GeneratorObject | None = None
+    coroutine: CoroutineObject | None = None
 
 
 class VirtualMachine:
@@ -163,6 +168,11 @@ class VirtualMachine:
         self._min_depth: int = 0
         self._stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] = {}
         self._globals: dict[str, Value] = {}
+        self._event_loop_ready: deque[CoroutineObject] = deque()
+        self._event_loop_sleeping: list[tuple[int, int, CoroutineObject]] = []
+        self._event_loop_tick: int = 0
+        self._event_loop_active: bool = False
+        self._event_loop_seq: int = 0
 
     # -- Public API -----------------------------------------------------------
 
@@ -346,6 +356,7 @@ class VirtualMachine:
                 OpCode.PRINT
                 | OpCode.RETURN
                 | OpCode.YIELD
+                | OpCode.AWAIT
                 | OpCode.CHECK_TYPE
                 | OpCode.LOAD_ENUM_VARIANT
             ):
@@ -599,7 +610,7 @@ class VirtualMachine:
                 pass
 
     def _exec_misc(self, instruction: Instruction) -> None:
-        """Handle PRINT, RETURN, YIELD, CHECK_TYPE, and LOAD_ENUM_VARIANT."""
+        """Handle PRINT, RETURN, YIELD, AWAIT, CHECK_TYPE, and LOAD_ENUM_VARIANT."""
         match instruction.opcode:
             case OpCode.PRINT:
                 self._output.write(self._format_value(self._stack.pop()) + "\n")
@@ -607,6 +618,8 @@ class VirtualMachine:
                 self._exec_return()
             case OpCode.YIELD:
                 self._exec_yield()
+            case OpCode.AWAIT:
+                self._exec_await()
             case OpCode.CHECK_TYPE:
                 self._exec_check_type(instruction)
             case OpCode.LOAD_ENUM_VARIANT:
@@ -798,6 +811,9 @@ class VirtualMachine:
         "filter": "_vm_builtin_filter",
         "reduce": "_vm_builtin_reduce",
         "next": "_vm_builtin_next",
+        "async_run": "_vm_builtin_async_run",
+        "spawn": "_vm_builtin_spawn",
+        "sleep": "_vm_builtin_sleep",
     }
 
     def _exec_call(self, instruction: Instruction) -> None:
@@ -904,6 +920,20 @@ class VirtualMachine:
                 cells=cells,
             )
             self._stack.append(gen)
+            return
+        # Async functions: create CoroutineObject, don't execute yet
+        if fn_code.is_async:
+            cells = {}
+            for cell_var in fn_code.cell_variables:
+                if cell_var in args:
+                    cells[cell_var] = Cell(args.pop(cell_var))
+            coro = CoroutineObject(
+                code=fn_code,
+                ip=0,
+                variables=args,
+                cells=cells,
+            )
+            self._stack.append(coro)
             return
         new_frame = Frame(code=fn_code, variables=args)
         self._init_cells(new_frame)
@@ -1022,6 +1052,19 @@ class VirtualMachine:
             )
             self._stack.append(gen)
             return
+        # Async closures: create CoroutineObject, don't execute yet
+        if fn_code.is_async:
+            for cell_var in fn_code.cell_variables:
+                if cell_var in args:
+                    cells[cell_var] = Cell(args.pop(cell_var))
+            coro = CoroutineObject(
+                code=fn_code,
+                ip=0,
+                variables=args,
+                cells=cells,
+            )
+            self._stack.append(coro)
+            return
         new_frame = Frame(code=fn_code, variables=args, cells=cells)
         self._init_cells(new_frame)
         self._frames.append(new_frame)
@@ -1037,11 +1080,15 @@ class VirtualMachine:
         """Handle RETURN — pop frame, push return value.
 
         If the frame belongs to a generator, mark it exhausted.
+        If the frame belongs to a coroutine, mark it completed with the result.
         """
         return_value = self._stack.pop()
         frame = self._frames.pop()
         if frame.generator is not None:
             frame.generator.exhausted = True
+        if frame.coroutine is not None:
+            frame.coroutine.state = "completed"
+            frame.coroutine.result = return_value
         self._stack.append(return_value)
 
     # -- Generator support ----------------------------------------------------
@@ -1089,6 +1136,187 @@ class VirtualMachine:
         if arg.exhausted:
             self._runtime_error("Generator is exhausted")
         self._stack.append(result)
+
+    def _vm_builtin_async_run(self, args: list[Value]) -> None:
+        """Implement async_run(coroutine) — run event loop, push result."""
+        arg = args[0]
+        if not isinstance(arg, CoroutineObject):
+            self._runtime_error("async_run() requires a coroutine")
+        result = self._run_event_loop(arg)
+        self._stack.append(result)
+
+    def _vm_builtin_spawn(self, args: list[Value]) -> None:
+        """Implement spawn(coroutine) — register task with event loop, push handle."""
+        arg = args[0]
+        if not isinstance(arg, CoroutineObject):
+            self._runtime_error("spawn() requires a coroutine")
+        self._event_loop_ready.append(arg)
+        self._stack.append(arg)
+
+    def _vm_builtin_sleep(self, args: list[Value]) -> None:
+        """Implement sleep(ticks) — create a SleepMarker, push to stack."""
+        arg = args[0]
+        if not isinstance(arg, int) or isinstance(arg, bool):
+            self._runtime_error("sleep() requires an integer")
+        self._stack.append(SleepMarker(ticks=arg))
+
+    # -- Coroutine / async support --------------------------------------------
+
+    def _exec_await(self) -> None:
+        """Handle AWAIT — save frame state to coroutine, pop frame.
+
+        The awaited value is stored on the coroutine so the event loop
+        can inspect it and decide what to do.
+        """
+        awaited = self._stack.pop()
+        frame = self._frames.pop()
+        coro = frame.coroutine
+        if coro is None:
+            self._runtime_error("AWAIT executed outside of a coroutine")
+        # Save frame state
+        coro.ip = frame.ip
+        coro.variables = dict(frame.variables)
+        coro.cells = dict(frame.cells)
+        coro.awaited_value = awaited
+
+    def _advance_coroutine(self, coro: CoroutineObject, send_value: Value) -> None:
+        """Resume a coroutine, run until AWAIT or RETURN.
+
+        If resuming (not first run), push *send_value* onto the stack so it
+        becomes the result of the ``await`` expression.
+        """
+        frame = Frame(
+            code=coro.code,
+            ip=coro.ip,
+            variables=dict(coro.variables),
+            cells=dict(coro.cells),
+        )
+        frame.coroutine = coro
+        # Push send_value if resuming (ip > 0 means we've run before)
+        if coro.ip > 0:
+            self._stack.append(send_value)
+        depth = len(self._frames)
+        self._frames.append(frame)
+        self._execute(min_depth=depth)
+
+    def _run_event_loop(self, main_task: CoroutineObject) -> Value:
+        """Run the cooperative event loop until the main task completes.
+
+        Round-robin through ready tasks.  Sleep tasks wake based on tick count.
+        Tasks spawned via ``spawn()`` are drained from ``_event_loop_ready``
+        each iteration so the event loop picks them up.  A ``ready_set``
+        prevents the same coroutine from appearing in the queue twice.
+        """
+        ready: deque[CoroutineObject] = deque([main_task])
+        ready_set: set[int] = {id(main_task)}
+        sleeping: list[tuple[int, int, CoroutineObject]] = []
+        tick = 0
+        seq = 0
+        self._event_loop_ready.clear()
+
+        def _enqueue(coro: CoroutineObject) -> None:
+            """Add *coro* to the ready queue if not already present."""
+            coro_id = id(coro)
+            if coro_id not in ready_set:
+                ready.append(coro)
+                ready_set.add(coro_id)
+
+        while ready or sleeping:
+            tick = self._drain_and_wake(ready, sleeping, tick, _enqueue)
+            if not ready:
+                break  # pragma: no cover
+
+            task = ready.popleft()
+            ready_set.discard(id(task))
+
+            if task.state != "pending":
+                continue
+
+            send_value = task.result if task.ip > 0 else None
+
+            try:
+                self._advance_coroutine(task, send_value)
+            except (_PebbleThrowError, PebbleRuntimeError) as exc:
+                self._fail_task(task, exc)
+                raise
+
+            tick, seq = self._route_completed_task(
+                task,
+                tick,
+                seq,
+                sleeping,
+                _enqueue,
+            )
+
+        return main_task.result
+
+    def _drain_and_wake(
+        self,
+        ready: deque[CoroutineObject],
+        sleeping: list[tuple[int, int, CoroutineObject]],
+        tick: int,
+        _enqueue: Callable[[CoroutineObject], None],
+    ) -> int:
+        """Drain spawned tasks and wake sleepers, advancing tick if needed."""
+        while self._event_loop_ready:
+            _enqueue(self._event_loop_ready.popleft())
+
+        while sleeping and sleeping[0][0] <= tick:
+            _, _, sleeper = heappop(sleeping)
+            if sleeper.state == "pending":
+                _enqueue(sleeper)
+
+        if not ready and sleeping:
+            tick = sleeping[0][0]
+            # Re-wake after fast-forwarding
+            while sleeping and sleeping[0][0] <= tick:
+                _, _, sleeper = heappop(sleeping)
+                if sleeper.state == "pending":
+                    _enqueue(sleeper)
+
+        return tick
+
+    @staticmethod
+    def _fail_task(
+        task: CoroutineObject,
+        exc: _PebbleThrowError | PebbleRuntimeError,
+    ) -> None:
+        """Mark *task* (and its awaiter) as failed after an exception."""
+        error_msg = exc.value if isinstance(exc, _PebbleThrowError) else exc.message
+        task.state = "failed"
+        task.error = str(error_msg)
+        if task.awaiter is not None:
+            task.awaiter.state = "failed"
+            task.awaiter.error = task.error
+
+    @staticmethod
+    def _route_completed_task(
+        task: CoroutineObject,
+        tick: int,
+        seq: int,
+        sleeping: list[tuple[int, int, CoroutineObject]],
+        _enqueue: Callable[[CoroutineObject], None],
+    ) -> tuple[int, int]:
+        """Route a task that just finished executing to the correct queue."""
+        if task.state == "completed":
+            if task.awaiter is not None:
+                task.awaiter.result = task.result
+                _enqueue(task.awaiter)
+        elif isinstance(task.awaited_value, SleepMarker):
+            wake_tick = tick + task.awaited_value.ticks
+            seq += 1
+            heappush(sleeping, (wake_tick, seq, task))
+            task.awaited_value = None
+        elif isinstance(task.awaited_value, CoroutineObject):
+            awaited_coro = task.awaited_value
+            task.awaited_value = None
+            if awaited_coro.state == "completed":
+                task.result = awaited_coro.result
+                _enqueue(task)
+            else:
+                awaited_coro.awaiter = task
+                _enqueue(awaited_coro)
+        return tick, seq
 
     # -- Iteration support ----------------------------------------------------
 
