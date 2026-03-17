@@ -270,7 +270,7 @@ print(result)"""
             _run_source("reduce(fn(a, b) { return a + b }, [1])")
 
     def test_builtin_arities_count(self) -> None:
-        """BUILTIN_ARITIES includes all 14 builtins after adding map/filter/reduce."""
+        """BUILTIN_ARITIES includes all 15 builtins after adding map/filter/reduce."""
         assert len(BUILTIN_ARITIES) == TOTAL_BUILTIN_COUNT
 
     def test_existing_closures_still_work(self) -> None:

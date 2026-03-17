@@ -77,11 +77,11 @@ class TestBuiltinsModule:
     """Verify the builtins registry structure."""
 
     def test_runtime_builtin_count(self) -> None:
-        """There are 9 runtime builtins."""
+        """There are 8 runtime builtins."""
         assert len(BUILTINS) == RUNTIME_BUILTIN_COUNT
 
     def test_total_builtin_arities(self) -> None:
-        """BUILTIN_ARITIES includes all 14 builtins."""
+        """BUILTIN_ARITIES includes all 15 builtins."""
         assert len(BUILTIN_ARITIES) == TOTAL_BUILTIN_COUNT
 
     def test_all_runtime_builtins_in_arities(self) -> None:
