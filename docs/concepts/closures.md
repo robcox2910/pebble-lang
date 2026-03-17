@@ -151,3 +151,9 @@ shows `<fn name>`.
 
 Closures work perfectly as callbacks for [higher-order
 functions](higher-order.md) like `map`, `filter`, and `reduce`.
+
+## See Also
+
+- [Closures as Classes](closures-as-classes.md) -- see how closures can
+  emulate objects with private state and methods, and why classes are
+  syntactic sugar for this pattern.

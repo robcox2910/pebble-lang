@@ -379,6 +379,12 @@ Now that you know how classes work, the next step is
 another class, inheriting its fields and methods. It's like creating a
 "Dog" that automatically gets everything an "Animal" already has.
 
+## See Also
+
+- [Closures as Classes](closures-as-classes.md) -- discover how closures
+  can build the same "private state + methods" pattern, and why classes
+  are syntactic sugar that makes it cleaner.
+
 ## Summary
 
 | Syntax | What it does |
