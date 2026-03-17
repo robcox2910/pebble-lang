@@ -873,3 +873,22 @@ class TestStdlibREPL:
         r.eval_line("fn hypotenuse(a, b) { return sqrt(a * a + b * b) }")
         r.eval_line("print(hypotenuse(3, 4))")
         assert buf.getvalue() == "5.0\n"
+
+
+# ---------------------------------------------------------------------------
+# Bug regression: math_pow with complex results
+# ---------------------------------------------------------------------------
+
+
+class TestMathPowComplexGuard:
+    """Verify pow() rejects negative base with fractional exponent."""
+
+    def test_pow_complex_result_raises(self) -> None:
+        """``pow(-1, 0.5)`` raises instead of returning a complex number."""
+        with pytest.raises(PebbleRuntimeError, match="complex result"):
+            run_source_with_stdlib('import "math"\nprint(pow(-1, 0.5))')
+
+    def test_pow_negative_base_integer_exponent_ok(self) -> None:
+        """``pow(-2, 3)`` is fine: -8."""
+        output = run_source_with_stdlib('import "math"\nprint(pow(-2, 3))')  # type: ignore[no-any-return]
+        assert output == "-8\n"

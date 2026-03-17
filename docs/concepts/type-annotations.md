@@ -219,10 +219,8 @@ fn sum_all(numbers: List[Int]) -> Int {
     return total
 }
 
-fn keys(d: Dict[String, Int]) -> List[String] {
-    let result = []
-    for k in d { result = list_append(result, k) }
-    return result
+fn first_two(items: List[Int]) -> List[Int] {
+    return items[0:2]
 }
 ```
 

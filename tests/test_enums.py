@@ -409,3 +409,22 @@ class TestEnumRepl:
         r.eval_line("let c = Color.Red")
         r.eval_line('match c {\n  case Color.Red { print("red") }\n  case _ { print("other") }\n}')
         assert buf.getvalue() == "red\n"
+
+
+# ---------------------------------------------------------------------------
+# Bug regression: enum names as type annotations
+# ---------------------------------------------------------------------------
+
+
+class TestEnumTypeAnnotation:
+    """Verify enum names are accepted as type annotations."""
+
+    def test_enum_type_annotation_accepted(self) -> None:
+        """``let c: Color = Color.Red`` should pass the analyzer."""
+        source = "enum Color { Red, Green }\nlet c: Color = Color.Red\nprint(c)"
+        assert run_source(source) == "Color.Red\n"
+
+    def test_enum_type_annotation_in_function(self) -> None:
+        """A function parameter annotated with an enum type is accepted."""
+        source = "enum Color { Red, Green }\nfn show(c: Color) { print(c) }\nshow(Color.Green)"
+        assert run_source(source) == "Color.Green\n"

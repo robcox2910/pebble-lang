@@ -303,7 +303,7 @@ See [Higher-Order Functions](higher-order.md) for more details.
 Get the next value from a generator (a function that uses `yield`):
 
 ```pebble
-fn* count_up() {
+fn count_up() {
     yield 1
     yield 2
     yield 3

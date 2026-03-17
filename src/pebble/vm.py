@@ -1191,6 +1191,8 @@ class VirtualMachine:
             return "Null"
         if isinstance(value, StructInstance):
             return value.type_name
+        if isinstance(value, EnumVariant):
+            return value.enum_name
         if isinstance(value, Closure):
             return "Fn"
         name = type(value).__name__
@@ -1209,7 +1211,9 @@ class VirtualMachine:
             case _ if type_name in _TYPE_MAP:
                 return isinstance(value, _TYPE_MAP[type_name])
             case _:
-                return isinstance(value, StructInstance) and value.type_name == type_name
+                return (isinstance(value, StructInstance) and value.type_name == type_name) or (
+                    isinstance(value, EnumVariant) and value.enum_name == type_name
+                )
 
     @staticmethod
     def _matches_type_annotation(value: Value, annotation: TypeAnnotation) -> bool:
@@ -1431,8 +1435,13 @@ class VirtualMachine:
 def _display_type(value: Value) -> str:
     """Return a Pebble-friendly type name for *value*."""
     if value is None:
-        return "null"
-    return type(value).__name__
+        return "Null"
+    if isinstance(value, StructInstance):
+        return value.type_name
+    if isinstance(value, EnumVariant):
+        return value.enum_name
+    name = type(value).__name__
+    return _TYPE_DISPLAY.get(name, name)
 
 
 def _both_numeric(left: Value, right: Value) -> bool:

@@ -148,3 +148,20 @@ class TestPrecedence:
     def test_xor_between_and_and_or(self) -> None:
         """Verify ``3 | 1 ^ 2`` groups as ``3 | (1 ^ 2)`` = ``3``."""
         assert run_source("print(3 | 1 ^ 2)") == "3\n"
+
+
+# -- Error message consistency ------------------------------------------------
+
+
+class TestErrorMessageTypeNames:
+    """Verify error messages use Pebble type names, not Python ones."""
+
+    def test_type_error_uses_pebble_names(self) -> None:
+        """Unsupported operand error should say 'Int' not 'int'."""
+        with pytest.raises(PebbleRuntimeError, match="Int"):
+            run_source('print(1 + "hello")')
+
+    def test_type_error_string_name(self) -> None:
+        """Unsupported operand error should say 'String' not 'str'."""
+        with pytest.raises(PebbleRuntimeError, match="String"):
+            run_source('print("a" - "b")')

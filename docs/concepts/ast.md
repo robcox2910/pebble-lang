@@ -63,6 +63,9 @@ nodes:
 | `FieldAccess` | `p.x` | An object and field name |
 | `FunctionExpression` | `fn(x) { return x }` | An anonymous (inline) function |
 | `ListComprehension` | `[x * 2 for x in xs]` | Expression, variable, iterable, optional filter |
+| `NullLiteral` | `null` | The null value |
+| `SuperMethodCall` | `super.greet()` | A call to a parent class method |
+| `YieldStatement` | `yield value` | Yield a value from a generator |
 
 ### Statement Nodes (do something)
 
@@ -91,6 +94,7 @@ nodes:
 | `TryCatch` | `try { } catch e { }` | Try body, catch variable, catch body, optional finally body |
 | `ThrowStatement` | `throw "oops"` | Raise an error with a value |
 | `ClassDef` | `class Dog { name, fn bark(self) { } }` | The name, fields, and methods |
+| `EnumDef` | `enum Color { Red, Green }` | The name and list of variant names |
 
 ### Pattern Nodes (used in match/case)
 
@@ -100,6 +104,7 @@ nodes:
 | `WildcardPattern` | `case _` | Matches anything, discards the value |
 | `CapturePattern` | `case let x` | Matches anything, binds the value to a name |
 | `OrPattern` | `case 1 \| 2` | Matches if any sub-pattern matches |
+| `EnumPattern` | `case Color.Red` | Matches a specific enum variant |
 
 ### Helper Nodes
 

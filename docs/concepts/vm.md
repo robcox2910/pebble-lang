@@ -99,13 +99,17 @@ Pebble has its own rules for printing values:
 | Pebble value | What gets printed |
 |--------------|-------------------|
 | `42` | `42` |
+| `3.14` | `3.14` |
 | `"hello"` | `hello` (no quotes) |
 | `true` | `true` (lowercase) |
 | `false` | `false` (lowercase) |
+| `null` | `null` |
 | `[1, 2, 3]` | `[1, 2, 3]` |
 | `{"a": 1}` | `{a: 1}` |
 | a closure | `<fn name>` |
 | a struct instance | `Point(x=10, y=20)` |
+| an enum variant | `Color.Red` |
+| a generator | `<generator name>` |
 
 This is different from Python, which would print `True` and `False`
 with capital letters.
