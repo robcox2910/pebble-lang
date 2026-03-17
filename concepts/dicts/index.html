@@ -1469,6 +1469,9 @@ key and value:</p>
 lists, or even other dicts:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let record = {&quot;scores&quot;: [90, 85, 100], &quot;passed&quot;: true}
 </code></pre></div>
+<p>If you want Pebble to check the types of keys and values, you can use a
+<a href="../type-annotations/#dict-with-key-and-value-types">parameterized type annotation</a>
+like <code>Dict[String, Int]</code>.</p>
 <h2 id="reading-a-value">Reading a Value</h2>
 <p>Use square brackets with the <strong>key</strong> (a string) to look up a value:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}

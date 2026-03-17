@@ -1320,6 +1320,100 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parameterized-types-generics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameterized Types (Generics)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameterized Types (Generics)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-with-an-element-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List with an Element Type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dict-with-key-and-value-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dict with Key and Value Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nesting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empty Containers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bare-types-still-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bare Types Still Work
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generics-in-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generics in Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generics-in-structs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generics in Structs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#when-types-are-checked" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1556,9 +1650,19 @@ and stops the program if someone puts the wrong thing in the wrong box.</p>
 <td><code>[1, 2, 3]</code></td>
 </tr>
 <tr>
+<td><code>List[T]</code></td>
+<td>List with element type</td>
+<td><code>List[Int]</code></td>
+</tr>
+<tr>
 <td><code>Dict</code></td>
 <td>Key-value pairs</td>
 <td><code>{"a": 1}</code></td>
+</tr>
+<tr>
+<td><code>Dict[K, V]</code></td>
+<td>Dict with key/value types</td>
+<td><code>Dict[String, Int]</code></td>
 </tr>
 <tr>
 <td><code>Fn</code></td>
@@ -1626,6 +1730,77 @@ you <strong>change</strong> a field:</p>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    value           # accepts anything
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
 </code></pre></div>
+<h2 id="parameterized-types-generics">Parameterized Types (Generics)</h2>
+<p>Saying <code>let items: List = [1, 2, 3]</code> checks that <code>items</code> is a list --
+but what if someone sneaks a string in? Plain <code>List</code> can't tell you.</p>
+<p><strong>Parameterized types</strong> let you be more specific. Think of it like
+labelling a box "BOOKS" instead of just "STUFF" -- you know exactly
+what should go inside.</p>
+<h3 id="list-with-an-element-type">List with an Element Type</h3>
+<p>Put the element type inside square brackets:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let scores: List[Int] = [90, 85, 92]
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let names: List[String] = [&quot;Alice&quot;, &quot;Bob&quot;]
+</code></pre></div>
+<p>Pebble checks <strong>every element</strong> in the list, not just the container.
+If one element is the wrong type, you get a clear error:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let oops: List[Int] = [1, &quot;two&quot;, 3]
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a># Type error: expected List[Int], got List
+</code></pre></div>
+<h3 id="dict-with-key-and-value-types">Dict with Key and Value Types</h3>
+<p>Dicts take two type parameters -- one for keys and one for values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let ages: Dict[String, Int] = {&quot;Alice&quot;: 12, &quot;Bob&quot;: 13}
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>let flags: Dict[String, Bool] = {&quot;debug&quot;: true, &quot;verbose&quot;: false}
+</code></pre></div>
+<p>Both keys and values are checked:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let bad: Dict[String, Int] = {&quot;age&quot;: &quot;twelve&quot;}
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a># Type error: expected Dict[String, Int], got Dict
+</code></pre></div>
+<h3 id="nesting">Nesting</h3>
+<p>You can put parameterized types inside other parameterized types --
+like putting a labelled box inside another labelled box:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let matrix: List[List[Int]] = [[1, 2], [3, 4]]
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>let records: List[Dict[String, Int]] = [{&quot;x&quot;: 1}, {&quot;y&quot;: 2}]
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>let lookup: Dict[String, List[Float]] = {&quot;temps&quot;: [98.6, 99.1]}
+</code></pre></div>
+<p>Pebble checks every level of nesting, all the way down.</p>
+<h3 id="empty-containers">Empty Containers</h3>
+<p>An empty list <code>[]</code> matches <strong>any</strong> <code>List[T]</code>, and an empty dict <code>{}</code>
+matches any <code>Dict[K, V]</code>. There's nothing inside to check, so there's
+nothing to be wrong:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>let empty: List[Int] = []         # OK
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>let blank: Dict[String, Int] = {} # OK
+</code></pre></div>
+<h3 id="bare-types-still-work">Bare Types Still Work</h3>
+<p>You don't have to use type parameters. Plain <code>List</code> and <code>Dict</code> still
+work the same as before -- they just check that the value is a list or
+dict without looking at what's inside:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let anything: List = [1, &quot;two&quot;, true]   # OK -- only checks it&#39;s a list
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>let lookup: Dict = {&quot;a&quot;: 1, &quot;b&quot;: &quot;two&quot;} # OK -- only checks it&#39;s a dict
+</code></pre></div>
+<h3 id="generics-in-functions">Generics in Functions</h3>
+<p>Use parameterized types for function parameters and return types:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>fn sum_all(numbers: List[Int]) -&gt; Int {
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    let total = 0
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    for n in numbers { total = total + n }
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    return total
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>}
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>fn keys(d: Dict[String, Int]) -&gt; List[String] {
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    let result = []
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    for k in d { result = list_append(result, k) }
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    return result
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>}
+</code></pre></div>
+<h3 id="generics-in-structs">Generics in Structs</h3>
+<p>Struct fields can use parameterized types too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>struct Gradebook {
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    student: String,
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    scores: List[Int]
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>}
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>let book = Gradebook(&quot;Alice&quot;, [90, 85, 92])
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>book.scores = [95, 88]         # OK -- List[Int]
+</code></pre></div>
 <h2 id="when-types-are-checked">When Types Are Checked</h2>
 <p>Pebble checks type annotations <strong>at runtime</strong> -- that means the program
 actually runs and checks each value as it flows through. Here are the five
@@ -1648,75 +1823,75 @@ and not others -- this is called <strong>gradual typing</strong> (meaning you ca
 <em>gradually</em> add types to your code, a little at a time, instead of having
 to type everything all at once). Unannotated code works exactly like it
 always has:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a># Fully typed
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn add(a: Int, b: Int) -&gt; Int {
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    return a + b
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>}
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a># Fully untyped -- still works perfectly
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>fn multiply(a, b) {
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    return a * b
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>}
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a># Mixed -- only &#39;name&#39; is checked
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>fn greet(name: String, times) {
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    for i in range(times) {
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>        print(&quot;Hello {name}&quot;)
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    }
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a># Fully typed
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>fn add(a: Int, b: Int) -&gt; Int {
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    return a + b
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>}
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a># Fully untyped -- still works perfectly
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>fn multiply(a, b) {
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    return a * b
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>}
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a># Mixed -- only &#39;name&#39; is checked
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>fn greet(name: String, times) {
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>    for i in range(times) {
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>        print(&quot;Hello {name}&quot;)
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>    }
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>}
 </code></pre></div>
 <h2 id="using-struct-types">Using Struct Types</h2>
 <p>You can use a struct's name as a type annotation:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>struct Point { x: Float, y: Float }
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>let origin: Point = Point(0.0, 0.0)
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>fn distance(p: Point) -&gt; Float {
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    return (p.x ** 2 + p.y ** 2) ** 0.5
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>struct Point { x: Float, y: Float }
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>let origin: Point = Point(0.0, 0.0)
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>fn distance(p: Point) -&gt; Float {
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    return (p.x ** 2 + p.y ** 2) ** 0.5
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>}
 </code></pre></div>
 <p>A struct can even reference itself in its field types:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>struct Node {
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    value: Int,
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    label         # untyped -- could hold another Node or anything
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>struct Node {
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    value: Int,
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    label         # untyped -- could hold another Node or anything
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>}
 </code></pre></div>
 <h2 id="error-messages">Error Messages</h2>
 <p>When a type check fails, Pebble gives you a clear error message:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Type error: expected Int, got String
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Type error: expected Int, got String
 </code></pre></div>
 <p>For function parameters, it names the parameter:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Type error: parameter &#39;age&#39; expected Int, got String
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Type error: parameter &#39;age&#39; expected Int, got String
 </code></pre></div>
 <p>For struct fields, it names both the field and the struct:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>Type error: field &#39;x&#39; of &#39;Point&#39; expected Float, got Int
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>Type error: field &#39;x&#39; of &#39;Point&#39; expected Float, got Int
 </code></pre></div>
 <h2 id="practical-examples">Practical Examples</h2>
 <h3 id="a-simple-calculator">A Simple Calculator</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>fn calculate(a: Float, b: Float, op: String) -&gt; Float {
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    match op {
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>        case &quot;+&quot; { return a + b }
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        case &quot;-&quot; { return a - b }
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        case &quot;*&quot; { return a * b }
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        case &quot;/&quot; { return a / b }
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    }
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    return 0.0
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>}
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>print(calculate(10.0, 3.0, &quot;+&quot;))   # 13.0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>fn calculate(a: Float, b: Float, op: String) -&gt; Float {
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    match op {
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>        case &quot;+&quot; { return a + b }
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>        case &quot;-&quot; { return a - b }
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>        case &quot;*&quot; { return a * b }
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>        case &quot;/&quot; { return a / b }
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    }
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    return 0.0
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>}
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>print(calculate(10.0, 3.0, &quot;+&quot;))   # 13.0
 </code></pre></div>
 <h3 id="a-user-record">A User Record</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>struct User {
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    name: String,
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    age: Int
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>}
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>fn describe(u: User) -&gt; String {
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    return &quot;{u.name} is {u.age} years old&quot;
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>}
-<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
-<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>let alice: User = User(&quot;Alice&quot;, 12)
-<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>print(describe(alice))   # Alice is 12 years old
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>struct User {
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    name: String,
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    age: Int
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>}
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>fn describe(u: User) -&gt; String {
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    return &quot;{u.name} is {u.age} years old&quot;
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>}
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>let alice: User = User(&quot;Alice&quot;, 12)
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>print(describe(alice))   # Alice is 12 years old
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>The type annotation system touches every stage of the compiler pipeline:</p>
@@ -1729,14 +1904,18 @@ always has:</p>
 <li><strong>Lexer</strong> -- The <code>-&gt;</code> symbol produces a new <code>ARROW</code> token.</li>
 <li><strong>Parser</strong> -- Parameters and fields become <code>Parameter</code> nodes with an
    optional <code>type_annotation</code>. Return types are parsed after <code>-&gt;</code>.</li>
-<li><strong>Analyzer</strong> -- Each type name is validated: it must be a built-in type
-   (<code>Int</code>, <code>Float</code>, etc.) or a defined struct name.</li>
+<li><strong>Analyzer</strong> -- Each type annotation is validated: the base type must be
+   a built-in (<code>Int</code>, <code>Float</code>, etc.) or a defined struct name. For
+   parameterized types, it also checks that the right number of type
+   parameters are given (1 for <code>List</code>, 2 for <code>Dict</code>) and that each
+   parameter is itself a valid type.</li>
 <li><strong>Compiler</strong> -- For annotated variables and returns, the compiler emits
    a <code>CHECK_TYPE</code> instruction. Function metadata (<code>param_types</code>,
    <code>return_type</code>) and struct field types are stored alongside the bytecode.</li>
 <li><strong>VM</strong> -- At runtime, <code>CHECK_TYPE</code> peeks at the value on the stack and
-   validates its type. Parameter and field checks happen at call time and
-   construction time.</li>
+   validates its type. For parameterized types like <code>List[Int]</code>, the VM
+   checks the container <em>and</em> every element inside it (deep checking).
+   Parameter and field checks happen at call time and construction time.</li>
 </ol>
 <h2 id="summary">Summary</h2>
 <table>
@@ -1772,6 +1951,21 @@ always has:</p>
 <td>Struct field type</td>
 <td><code>struct S { field: Type }</code></td>
 <td><code>struct S { x: Float }</code></td>
+</tr>
+<tr>
+<td>List element type</td>
+<td><code>List[T]</code></td>
+<td><code>let xs: List[Int] = [1, 2]</code></td>
+</tr>
+<tr>
+<td>Dict key/value types</td>
+<td><code>Dict[K, V]</code></td>
+<td><code>let d: Dict[String, Int] = ...</code></td>
+</tr>
+<tr>
+<td>Nested generics</td>
+<td><code>List[List[T]]</code></td>
+<td><code>let m: List[List[Int]] = ...</code></td>
 </tr>
 <tr>
 <td>All annotations optional</td>

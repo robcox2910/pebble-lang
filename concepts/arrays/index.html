@@ -1578,6 +1578,9 @@ can look up a box by its number.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let mixed = [1, &quot;hello&quot;, true]
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(mixed)   # prints: [1, hello, true]
 </code></pre></div>
+<p>If you want Pebble to check that every element is the same type, you
+can use a <a href="../type-annotations/#list-with-an-element-type">parameterized type annotation</a>
+like <code>List[Int]</code>.</p>
 <p>You can even put lists inside lists:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let grid = [[1, 2], [3, 4]]
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(grid)   # prints: [[1, 2], [3, 4]]
