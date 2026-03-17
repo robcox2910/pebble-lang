@@ -2014,6 +2014,26 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 <td>Pop value and struct instance, set the named field</td>
 </tr>
 <tr>
+<td><code>LOAD_ENUM_VARIANT</code></td>
+<td>enum:variant</td>
+<td>Push an enum variant value onto the stack</td>
+</tr>
+<tr>
+<td><code>YIELD</code></td>
+<td>—</td>
+<td>Pause a generator and emit the top-of-stack value</td>
+</tr>
+<tr>
+<td><code>GET_ITER</code></td>
+<td>—</td>
+<td>Pop a value and push an iterator over it</td>
+</tr>
+<tr>
+<td><code>FOR_ITER</code></td>
+<td>target</td>
+<td>Advance the iterator; jump to <em>target</em> when exhausted</td>
+</tr>
+<tr>
 <td><code>PRINT</code></td>
 <td>—</td>
 <td>Pop and print the top value</td>

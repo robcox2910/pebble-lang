@@ -1785,11 +1785,9 @@ dict without looking at what's inside:</p>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    return total
 <a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>}
 <a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>fn keys(d: Dict[String, Int]) -&gt; List[String] {
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    let result = []
-<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    for k in d { result = list_append(result, k) }
-<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    return result
-<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>}
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>fn first_two(items: List[Int]) -&gt; List[Int] {
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    return items[0:2]
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>}
 </code></pre></div>
 <h3 id="generics-in-structs">Generics in Structs</h3>
 <p>Struct fields can use parameterized types too:</p>

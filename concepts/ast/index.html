@@ -1557,6 +1557,21 @@ nodes:</p>
 <td><code>[x * 2 for x in xs]</code></td>
 <td>Expression, variable, iterable, optional filter</td>
 </tr>
+<tr>
+<td><code>NullLiteral</code></td>
+<td><code>null</code></td>
+<td>The null value</td>
+</tr>
+<tr>
+<td><code>SuperMethodCall</code></td>
+<td><code>super.greet()</code></td>
+<td>A call to a parent class method</td>
+</tr>
+<tr>
+<td><code>YieldStatement</code></td>
+<td><code>yield value</code></td>
+<td>Yield a value from a generator</td>
+</tr>
 </tbody>
 </table>
 <h3 id="statement-nodes-do-something">Statement Nodes (do something)</h3>
@@ -1684,6 +1699,11 @@ nodes:</p>
 <td><code>class Dog { name, fn bark(self) { } }</code></td>
 <td>The name, fields, and methods</td>
 </tr>
+<tr>
+<td><code>EnumDef</code></td>
+<td><code>enum Color { Red, Green }</code></td>
+<td>The name and list of variant names</td>
+</tr>
 </tbody>
 </table>
 <h3 id="pattern-nodes-used-in-matchcase">Pattern Nodes (used in match/case)</h3>
@@ -1715,6 +1735,11 @@ nodes:</p>
 <td><code>OrPattern</code></td>
 <td><code>case 1 \| 2</code></td>
 <td>Matches if any sub-pattern matches</td>
+</tr>
+<tr>
+<td><code>EnumPattern</code></td>
+<td><code>case Color.Red</code></td>
+<td>Matches a specific enum variant</td>
 </tr>
 </tbody>
 </table>
