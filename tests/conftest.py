@@ -8,6 +8,7 @@ from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import Program
 from pebble.bytecode import CompiledProgram, Instruction, OpCode
 from pebble.compiler import Compiler
+from pebble.debugger import Debugger
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
@@ -160,3 +161,22 @@ def run_source_with_stdlib(
         stdlib_constants=resolver.merged_stdlib_constants,
     )
     return buf.getvalue()
+
+
+def debug_run_source(source: str, commands: str) -> tuple[str, str]:
+    """Compile and run *source* under the debugger, return (debugger_output, program_output).
+
+    *commands* is a newline-separated string of debugger commands fed as input.
+    """
+    compiled = compile_source(source)
+    program_buf = StringIO()
+    debug_buf = StringIO()
+    cmd_input = StringIO(commands)
+    debugger = Debugger(
+        source=source,
+        output=debug_buf,
+        input_stream=cmd_input,
+    )
+    vm = VirtualMachine(output=program_buf)
+    vm.run(compiled, debug_hook=debugger)
+    return debug_buf.getvalue(), program_buf.getvalue()

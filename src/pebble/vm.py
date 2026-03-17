@@ -11,8 +11,9 @@ import sys
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from enum import StrEnum
 from heapq import heappop, heappush
-from typing import ClassVar, Never, TextIO
+from typing import ClassVar, Never, Protocol, TextIO
 
 from pebble.ast_nodes import TypeAnnotation
 from pebble.builtins import (
@@ -95,6 +96,28 @@ _COMPARISON_OPS: dict[
 }
 
 
+class DebugAction(StrEnum):
+    """Action the VM should take after a debug hook fires."""
+
+    CONTINUE = "CONTINUE"
+    QUIT = "QUIT"
+
+
+class DebugHook(Protocol):
+    """Protocol for objects that intercept each VM instruction."""
+
+    def on_instruction(
+        self,
+        instruction: Instruction,
+        ip: int,
+        code: CodeObject,
+        stack: list[Value],
+        frames: list[Frame],
+    ) -> DebugAction:
+        """Handle one instruction; return the action the VM should take."""
+        ...  # pragma: no cover
+
+
 class _PebbleThrowError(Exception):
     """Internal exception for Pebble throw/catch unwinding."""
 
@@ -173,6 +196,7 @@ class VirtualMachine:
         self._event_loop_tick: int = 0
         self._event_loop_active: bool = False
         self._event_loop_seq: int = 0
+        self._debug_hook: DebugHook | None = None
 
     # -- Public API -----------------------------------------------------------
 
@@ -182,8 +206,10 @@ class VirtualMachine:
         *,
         stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] | None = None,
         stdlib_constants: dict[str, Value] | None = None,
+        debug_hook: DebugHook | None = None,
     ) -> None:
         """Execute *program* from the first instruction of ``main``."""
+        self._debug_hook = debug_hook
         self._functions = dict(program.functions)
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
@@ -206,11 +232,13 @@ class VirtualMachine:
         *,
         stdlib_handlers: dict[str, tuple[int | tuple[int, ...], StdlibHandler]] | None = None,
         stdlib_constants: dict[str, Value] | None = None,
+        debug_hook: DebugHook | None = None,
     ) -> dict[str, Value]:
         """Execute *program* with initial *variables*, return updated state.
 
         Used by the REPL to carry variable bindings across inputs.
         """
+        self._debug_hook = debug_hook
         self._functions = dict(program.functions)
         self._structs = dict(program.structs)
         self._struct_field_types = dict(program.struct_field_types)
@@ -260,6 +288,17 @@ class VirtualMachine:
             instruction = frame.code.instructions[frame.ip]
             frame.ip += 1
             self._current_instruction = instruction
+
+            if self._debug_hook is not None:
+                action = self._debug_hook.on_instruction(
+                    instruction,
+                    frame.ip,
+                    frame.code,
+                    self._stack,
+                    self._frames,
+                )
+                if action is DebugAction.QUIT:
+                    return
 
             if instruction.opcode is OpCode.HALT:
                 return
