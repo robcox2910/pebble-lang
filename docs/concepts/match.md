@@ -182,7 +182,7 @@ Pattern matching is like a cleaner version of long `if`/`else` chains.
 Compare:
 
 ```pebble
-// With if/else
+# With if/else
 if x == 1 {
     print("one")
 } else if x == 2 or x == 3 {
@@ -191,7 +191,7 @@ if x == 1 {
     print("other")
 }
 
-// With match
+# With match
 match x {
     case 1 {
         print("one")

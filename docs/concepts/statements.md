@@ -224,9 +224,20 @@ for i in range(10, 0, -2) {
 
 See [Standard Library](stdlib.md) for all three forms of `range()`.
 
-Behind the scenes, the compiler turns a `for` loop into a `while` loop with
-a hidden counter variable. You don't need to worry about that — just think
-of it as "do this N times, and give me the number each time".
+You can also loop directly over lists and strings:
+
+```pebble
+for item in [10, 20, 30] {
+    print(item)
+}
+
+for ch in "hello" {
+    print(ch)
+}
+```
+
+See [Iterators & Generators](iterators.md) for more on iterating over
+collections and custom sequences.
 
 ## Exiting Early: `break`
 

@@ -112,7 +112,11 @@ def _math_sqrt(args: list[Value]) -> Value:
 def _math_pow(args: list[Value]) -> Value:
     """Return x raised to the power y."""
     x, y = _require_two_numeric(args[0], args[1], "pow")
-    return x**y
+    result = x**y
+    if isinstance(result, complex):
+        msg = "pow() produced a complex result (negative base with fractional exponent)"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return result
 
 
 def _math_sin(args: list[Value]) -> Value:

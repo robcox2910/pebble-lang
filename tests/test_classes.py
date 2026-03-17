@@ -784,6 +784,24 @@ print(c.value)"""
 class TestClassREPL:
     """Verify class persistence across REPL evaluations."""
 
+    def test_different_classes_same_method_name_different_arities(self) -> None:
+        """Two classes with same method name but different arities should both be accepted."""
+        source = (
+            "class A {\n"
+            "    x,\n"
+            "    fn foo(self) -> Int { return self.x }\n"
+            "}\n"
+            "class B {\n"
+            "    x,\n"
+            "    fn foo(self, n: Int) -> Int { return self.x + n }\n"
+            "}\n"
+            "let a = A(10)\n"
+            "let b = B(20)\n"
+            "print(a.foo())\n"
+            "print(b.foo(5))\n"
+        )
+        assert run_source(source) == "10\n25\n"
+
     def test_class_persists_across_evals(self) -> None:
         """A class defined in one REPL eval is available in the next."""
         buf = StringIO()

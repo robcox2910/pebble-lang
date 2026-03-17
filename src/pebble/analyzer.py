@@ -301,8 +301,12 @@ class SemanticAnalyzer:
         generic types, and all inner type parameters are themselves valid.
         """
         name = annotation.name
-        # Check base type exists
-        if name not in _BUILTIN_TYPES and self._scope.resolve_function(name) is None:
+        # Check base type exists (builtins, struct/class constructors, or enums)
+        if (
+            name not in _BUILTIN_TYPES
+            and self._scope.resolve_function(name) is None
+            and name not in self._enums
+        ):
             msg = f"Unknown type '{name}'"
             raise SemanticError(msg, line=location.line, column=location.column)
 
@@ -1071,22 +1075,24 @@ class SemanticAnalyzer:
                 self._visit_expression(arg)
             return
 
-        # Class instance method path — check if ANY class defines this method.
-        # We intentionally allow any class method on any instance because the
-        # target's concrete type is unknown at static-analysis time; the VM
-        # performs the real type check at runtime.
+        # Class instance method path — collect all arities from every class
+        # that defines this method.  We intentionally allow any class method on
+        # any instance because the target's concrete type is unknown at
+        # static-analysis time; the VM performs the real type check at runtime.
+        matching_arities: set[int] = set()
         for methods in self._class_methods.values():
             if node.method in methods:
-                self._check_arity(
-                    "Method",
-                    node.method,
-                    methods[node.method],
-                    len(node.arguments),
-                    node.location,
-                )
-                for arg in node.arguments:
-                    self._visit_expression(arg)
-                return
+                matching_arities.add(methods[node.method])
+
+        if matching_arities:
+            actual = len(node.arguments)
+            if actual not in matching_arities:
+                # Pick the first arity for the error message
+                expected = sorted(matching_arities)[0]
+                self._check_arity("Method", node.method, expected, actual, node.location)
+            for arg in node.arguments:
+                self._visit_expression(arg)
+            return
 
         msg = f"Unknown method '{node.method}'"
         raise SemanticError(msg, line=node.location.line, column=node.location.column)

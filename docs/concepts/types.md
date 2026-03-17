@@ -1,10 +1,10 @@
 # Types
 
-Every value in Pebble is one of **ten types**. Think of a type as a label
-that tells you what *kind* of thing a value is -- just like how you'd sort
-items in a toolbox into screwdrivers, hammers, and wrenches.
+Every value in Pebble has a **type**. Think of a type as a label that tells
+you what *kind* of thing a value is -- just like how you'd sort items in a
+toolbox into screwdrivers, hammers, and wrenches.
 
-## The Ten Types
+## The Built-in Types
 
 | Type     | What it is                      | Examples                  |
 |----------|---------------------------------|---------------------------|

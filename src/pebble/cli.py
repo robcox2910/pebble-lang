@@ -47,6 +47,11 @@ def main() -> None:
         compiled = Compiler(
             cell_vars=analyzer.cell_vars,
             free_vars=analyzer.free_vars,
+            enums=resolver.merged_enums,
+            class_parents=resolver.merged_class_parents,
+            structs=resolver.merged_structs,
+            class_methods=resolver.merged_class_methods,
+            functions=resolver.merged_functions,
             variable_arity_functions=resolver.variable_arity_functions,
         ).compile(analyzed)
         all_functions = {**resolver.merged_functions, **compiled.functions}
