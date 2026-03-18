@@ -35,9 +35,10 @@ graph LR
     A[Source Code] --> B[Lexer]
     B --> C[Parser]
     C --> D[Analyzer]
-    D --> E[Compiler]
-    E --> F[Optimizer]
-    F --> G[Virtual Machine]
+    D --> E[Type Checker]
+    E --> F[Compiler]
+    F --> G[Optimizer]
+    G --> H[Virtual Machine]
 ```
 
 1. **Lexer** -- Breaks the text into small pieces called *tokens* (like
@@ -46,12 +47,15 @@ graph LR
    relate to each other (like diagramming a sentence)
 3. **Analyzer** -- Checks the tree for mistakes (like a teacher proofreading
    your essay)
-4. **Compiler** -- Translates the tree into simple numbered instructions
+4. **Type Checker** -- Verifies that values are used correctly according to
+   their type annotations (like checking you don't put a word where a number
+   should go)
+5. **Compiler** -- Translates the tree into simple numbered instructions
    called *bytecode* (like writing a recipe as step-by-step directions)
-5. **Optimizer** -- Tidies up the bytecode, pre-computing answers and removing
+6. **Optimizer** -- Tidies up the bytecode, pre-computing answers and removing
    steps that can never run (like a smart cook who measures 200 g of flour
    instead of two separate 100 g scoops)
-6. **Virtual Machine** -- Follows the instructions one by one and produces the
+7. **Virtual Machine** -- Follows the instructions one by one and produces the
    result (like a cook following a recipe)
 
 ## Why Build a Compiler?

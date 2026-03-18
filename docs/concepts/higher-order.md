@@ -146,7 +146,8 @@ Reading from the inside out:
 
 ## Using Closures
 
-Higher-order functions work beautifully with closures that capture variables:
+Higher-order functions work beautifully with [closures](closures.md)
+that capture variables:
 
 ```pebble
 fn make_multiplier(factor) {
