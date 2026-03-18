@@ -223,7 +223,12 @@ division by zero), the VM:
 4. Jumps to the catch block's first instruction.
 
 If there's no handler on the stack, the exception becomes a runtime error
-and the program stops.
+and the program stops -- with a **stack trace** showing the chain of
+function calls that led to the error.
+
+> **See also:** [Stack Traces](stack-traces.md) explains how Pebble
+> shows the "breadcrumb trail" of function calls when an error isn't
+> caught.
 
 ## Summary
 

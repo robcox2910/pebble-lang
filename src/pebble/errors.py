@@ -8,6 +8,23 @@ multiple errors be gathered and reported together.
 """
 
 from collections.abc import Iterator
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class TraceEntry:
+    """One frame in a Pebble traceback.
+
+    Attributes:
+        function_name: The function (or ``<main>``) where execution was.
+        line: 1-based source line of the call site.
+        column: 1-based source column of the call site.
+
+    """
+
+    function_name: str
+    line: int
+    column: int
 
 
 class PebbleError(Exception):
@@ -43,6 +60,18 @@ class SemanticError(PebbleError):
 class PebbleRuntimeError(PebbleError):
     """Raise when the virtual machine encounters an execution error."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        line: int,
+        column: int,
+        traceback: list[TraceEntry] | None = None,
+    ) -> None:
+        """Create a runtime error with optional traceback."""
+        self.traceback: list[TraceEntry] = traceback if traceback is not None else []
+        super().__init__(message, line=line, column=column)
+
 
 class PebbleImportError(PebbleError):
     """Raise when an import fails (file not found, circular, name missing)."""
@@ -76,6 +105,37 @@ def format_error(source: str, *, line: int, column: int, message: str) -> str:
     caret = " " * (len(prefix) + max(column, 1) - 1) + "^"
 
     return f"{prefix}{source_line}\n{caret}\n{message}"
+
+
+def format_traceback(error: PebbleRuntimeError) -> str:
+    """Format a runtime error with its traceback in Python-style.
+
+    If the error has a non-empty traceback, produce::
+
+        Traceback (most recent call last):
+          line 8, in <main>
+          line 4, in outer
+        Error: Division by zero at line 2, column 5
+
+    If the traceback is empty but the error has a valid line, return::
+
+        Error: <message> at line <L>, column <C>
+
+    If line is 0, return just ``Error: <message>``.
+    """
+    error_line = (
+        f"Error: {error.message} at line {error.line}, column {error.column}"
+        if error.line > 0
+        else f"Error: {error.message}"
+    )
+    if not error.traceback:
+        return error_line
+    lines = [
+        "Traceback (most recent call last):",
+        *[f"  line {entry.line}, in {entry.function_name}" for entry in error.traceback],
+        error_line,
+    ]
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------

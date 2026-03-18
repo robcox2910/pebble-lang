@@ -20,7 +20,7 @@ from pebble.analyzer import SemanticAnalyzer
 from pebble.builtins import Value
 from pebble.bytecode import CodeObject, CompiledProgram
 from pebble.compiler import Compiler
-from pebble.errors import PebbleError
+from pebble.errors import PebbleError, PebbleRuntimeError, format_traceback
 from pebble.lexer import Lexer
 from pebble.optimizer import optimize
 from pebble.parser import Parser
@@ -200,4 +200,7 @@ def repl(output: TextIO | None = None) -> None:
         try:
             r.eval_line(source)
         except PebbleError as exc:
-            sys.stderr.write(f"Error: {exc.message}\n")
+            if isinstance(exc, PebbleRuntimeError) and exc.traceback:
+                sys.stderr.write(format_traceback(exc) + "\n")
+            else:
+                sys.stderr.write(f"Error: {exc.message}\n")

@@ -295,13 +295,19 @@ class Debugger:
             self.output.write(f"  {label}: {format_value(value)}\n")
 
     def _cmd_backtrace(self, frames: list[Frame]) -> None:
-        """Print the call stack."""
+        """Print the call stack with line numbers."""
         if not frames:
             self.output.write("No active frames.\n")
             return
         for i, frame in enumerate(reversed(frames)):
             marker = ">" if i == 0 else " "
-            self.output.write(f"  {marker} {frame.code.name}\n")
+            line = 0
+            if frame.ip > 0:
+                instr = frame.code.instructions[frame.ip - 1]
+                if instr.location:
+                    line = instr.location.line
+            line_info = f" (line {line})" if line > 0 else ""
+            self.output.write(f"  {marker} {frame.code.name}{line_info}\n")
 
     def _cmd_list(self, instruction: Instruction) -> None:
         """Show source lines around the current location."""
