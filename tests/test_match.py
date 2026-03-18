@@ -333,3 +333,20 @@ class TestMatchCompiler:
             "}"
         )
         assert output.strip() == "0\n1\n2"
+
+    def test_capture_pattern_used_in_closure(self) -> None:
+        """Capture pattern variable is accessible from a nested closure."""
+        output = run_source(
+            "fn outer(val) {\n"
+            "  match val {\n"
+            "    case let captured {\n"
+            "      fn inner() {\n"
+            "        return captured\n"
+            "      }\n"
+            "      return inner()\n"
+            "    }\n"
+            "  }\n"
+            "}\n"
+            "print(outer(42))"
+        )
+        assert output.strip() == "42"

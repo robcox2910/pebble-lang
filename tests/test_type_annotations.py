@@ -636,6 +636,20 @@ class TestStructFieldTypeChecking:
         assert out.strip() == "5"
 
 
+class TestInheritedFieldTypeChecking:
+    """Verify type checking for constructors of subclasses with inherited fields."""
+
+    def test_inherited_field_type_checked(self) -> None:
+        """Inherited typed field is checked at subclass construction."""
+        with pytest.raises(
+            SemanticError,
+            match="argument 'name' expected String",
+        ):
+            run_source(
+                'class Animal { name: String }\nclass Dog extends Animal { breed }\nDog(42, "Lab")'
+            )
+
+
 class TestClosureTypeChecking:
     """Verify closure parameter type checking."""
 

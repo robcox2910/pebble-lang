@@ -192,10 +192,17 @@ class TypeChecker:
                     self._struct_fields[stmt.name] = list(stmt.fields)
                     self._function_sigs[stmt.name] = (stmt.fields, None)
                 case ClassDef():
-                    self._struct_fields[stmt.name] = list(stmt.fields)
-                    self._function_sigs[stmt.name] = (stmt.fields, None)
+                    all_fields = self._collect_class_fields(stmt)
+                    self._struct_fields[stmt.name] = all_fields
+                    self._function_sigs[stmt.name] = (all_fields, None)
                 case _:
                     pass
+
+    def _collect_class_fields(self, stmt: ClassDef) -> list[Parameter]:
+        """Return the full field list for a class, including inherited fields."""
+        if stmt.parent is not None and stmt.parent in self._struct_fields:
+            return list(self._struct_fields[stmt.parent]) + list(stmt.fields)
+        return list(stmt.fields)
 
     # -- Statement dispatch ---------------------------------------------------
 

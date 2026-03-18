@@ -157,6 +157,16 @@ class TestAnalyzerDefaults:
                 fn f(a = x) { return a }
             """)
 
+    def test_class_method_non_literal_default_error(self) -> None:
+        """Non-literal default in class method → SemanticError."""
+        with pytest.raises(SemanticError, match="must be literals"):
+            analyze("class Foo {\n  fn greet(self, greeting = 1 + 2) { print(greeting) }\n}")
+
+    def test_class_method_required_after_default_error(self) -> None:
+        """Required param after optional in class method → SemanticError."""
+        with pytest.raises(SemanticError, match="cannot follow"):
+            analyze("class Foo {\n  fn calc(self, a = 5, b) { return a + b }\n}")
+
 
 # -- Cycle 3: Compiler --------------------------------------------------------
 
