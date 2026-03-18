@@ -92,6 +92,10 @@ Because each frame has its *own* notebook, a variable called `x` inside
 one function doesn't interfere with a variable called `x` in another
 function. They're on separate pages.
 
+> **See also:** Frames are also the building blocks of
+> [Stack Traces](stack-traces.md) -- when an error happens, the VM
+> walks its frames to build the "breadcrumb trail" of function calls.
+
 ## Print Formatting
 
 Pebble has its own rules for printing values:

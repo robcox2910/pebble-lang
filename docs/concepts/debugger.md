@@ -35,7 +35,7 @@ That's where you type debugger commands.
 | `print x`   | `p x` | Show the value of variable `x`      |
 | `locals`    |       | Show all local variables            |
 | `stack`     |       | Show the operand stack              |
-| `backtrace` | `bt`  | Show the call stack                 |
+| `backtrace` | `bt`  | Show the call stack with line numbers|
 | `list`      | `l`   | Show source code around current line|
 | `help`      | `h`   | Show all commands                   |
 | `quit`      | `q`   | Stop the program                    |

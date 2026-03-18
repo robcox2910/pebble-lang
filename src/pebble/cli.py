@@ -18,7 +18,7 @@ from pebble.analyzer import SemanticAnalyzer
 from pebble.bytecode import CompiledProgram
 from pebble.compiler import Compiler
 from pebble.debugger import Debugger
-from pebble.errors import PebbleError, format_error
+from pebble.errors import PebbleError, PebbleRuntimeError, format_error, format_traceback
 from pebble.lexer import Lexer
 from pebble.optimizer import optimize
 from pebble.parser import Parser
@@ -105,7 +105,9 @@ def main() -> None:
             debug_hook=debug_hook,
         )
     except PebbleError as exc:
-        if exc.line > 0:
+        if isinstance(exc, PebbleRuntimeError) and exc.traceback:
+            sys.stderr.write(format_traceback(exc) + "\n")
+        elif exc.line > 0:
             formatted = format_error(source, line=exc.line, column=exc.column, message=exc.message)
             sys.stderr.write(formatted + "\n")
         else:

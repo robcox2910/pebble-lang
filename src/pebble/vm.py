@@ -35,7 +35,7 @@ from pebble.builtins import (
     format_value,
 )
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
-from pebble.errors import PebbleRuntimeError
+from pebble.errors import PebbleRuntimeError, TraceEntry
 from pebble.stdlib import StdlibHandler
 
 _DIVISION_BY_ZERO = "Division by zero"
@@ -223,7 +223,13 @@ class VirtualMachine:
         try:
             self._execute()
         except _PebbleThrowError as exc:
-            raise PebbleRuntimeError(str(exc.value), line=0, column=0) from None
+            line, column = self._throw_location()
+            raise PebbleRuntimeError(
+                str(exc.value),
+                line=line,
+                column=column,
+                traceback=self._build_traceback(),
+            ) from None
 
     def run_repl(
         self,
@@ -253,10 +259,47 @@ class VirtualMachine:
         try:
             self._execute()
         except _PebbleThrowError as exc:
-            raise PebbleRuntimeError(str(exc.value), line=0, column=0) from None
+            line, column = self._throw_location()
+            raise PebbleRuntimeError(
+                str(exc.value),
+                line=line,
+                column=column,
+                traceback=self._build_traceback(),
+            ) from None
         return dict(self._frames[-1].variables)
 
     # -- Error helper ---------------------------------------------------------
+
+    def _throw_location(self) -> tuple[int, int]:
+        """Return ``(line, column)`` from the current instruction, or ``(0, 0)``."""
+        if self._current_instruction and self._current_instruction.location:
+            loc = self._current_instruction.location
+            return loc.line, loc.column
+        return 0, 0
+
+    def _build_traceback(self) -> list[TraceEntry]:
+        """Walk the call stack and build a list of traceback entries.
+
+        Each entry records the function name and the call-site location
+        (the instruction that transferred control to the next frame).
+        The current (innermost) frame is excluded — its location is
+        already on the error itself.
+        """
+        if len(self._frames) <= 1:
+            return []
+        entries: list[TraceEntry] = []
+        # Walk all frames except the innermost (current) one.
+        for frame in self._frames[:-1]:
+            line, column = 0, 0
+            # ip points to the *next* instruction, so ip-1 is the CALL
+            # that transferred control to the subsequent frame.
+            if frame.ip > 0:
+                call_instr = frame.code.instructions[frame.ip - 1]
+                if call_instr.location:
+                    line = call_instr.location.line
+                    column = call_instr.location.column
+            entries.append(TraceEntry(frame.code.name, line, column))
+        return entries
 
     def _runtime_error(self, msg: str) -> Never:
         """Raise a PebbleRuntimeError with the current instruction's location."""
@@ -264,7 +307,12 @@ class VirtualMachine:
         if self._current_instruction and self._current_instruction.location:
             loc = self._current_instruction.location
             line, column = loc.line, loc.column
-        raise PebbleRuntimeError(msg, line=line, column=column)
+        raise PebbleRuntimeError(
+            msg,
+            line=line,
+            column=column,
+            traceback=self._build_traceback(),
+        )
 
     # -- Execution loop -------------------------------------------------------
 

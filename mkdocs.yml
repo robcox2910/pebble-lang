@@ -77,4 +77,5 @@ nav:
       - Type Annotations: concepts/type-annotations.md
       - Type Checker: concepts/type-checker.md
       - REPL: concepts/repl.md
+      - Stack Traces: concepts/stack-traces.md
       - Debugger: concepts/debugger.md
