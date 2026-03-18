@@ -767,6 +767,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#fill-in-the-blanks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fill-in-the-Blanks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-it-works" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1586,9 +1597,13 @@
 
 
 <h1 id="string-interpolation">String Interpolation</h1>
-<p>Sometimes you want to mix text with values in a single string. Instead of
-joining pieces together with <code>+</code>, Pebble lets you put expressions right
-inside the string using curly braces <code>{…}</code>.</p>
+<h2 id="fill-in-the-blanks">Fill-in-the-Blanks</h2>
+<p>Imagine a birthday card template: "Happy Birthday, ____! You are
+____ years old." You fill in the blanks with the right name and age.</p>
+<p><strong>String interpolation</strong> is Pebble's version of fill-in-the-blanks.
+Instead of joining pieces together with <code>+</code>, you put expressions right
+inside the string using curly braces <code>{…}</code> and Pebble fills them in for
+you.</p>
 <h2 id="how-it-works">How It Works</h2>
 <p>Wrap any expression in <code>{</code> and <code>}</code> inside a double-quoted string:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let name = &quot;Alice&quot;

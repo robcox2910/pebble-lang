@@ -1588,9 +1588,10 @@ assembly line in a factory:</p>
     A[Source Code] --&gt; B[Lexer]
     B --&gt; C[Parser]
     C --&gt; D[Analyzer]
-    D --&gt; E[Compiler]
-    E --&gt; F[Optimizer]
-    F --&gt; G[Virtual Machine]</code></pre>
+    D --&gt; E[Type Checker]
+    E --&gt; F[Compiler]
+    F --&gt; G[Optimizer]
+    G --&gt; H[Virtual Machine]</code></pre>
 <ol>
 <li><strong>Lexer</strong> -- Breaks the text into small pieces called <em>tokens</em> (like
    splitting a sentence into words)</li>
@@ -1598,6 +1599,9 @@ assembly line in a factory:</p>
    relate to each other (like diagramming a sentence)</li>
 <li><strong>Analyzer</strong> -- Checks the tree for mistakes (like a teacher proofreading
    your essay)</li>
+<li><strong>Type Checker</strong> -- Verifies that values are used correctly according to
+   their type annotations (like checking you don't put a word where a number
+   should go)</li>
 <li><strong>Compiler</strong> -- Translates the tree into simple numbered instructions
    called <em>bytecode</em> (like writing a recipe as step-by-step directions)</li>
 <li><strong>Optimizer</strong> -- Tidies up the bytecode, pre-computing answers and removing

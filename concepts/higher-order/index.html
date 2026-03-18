@@ -1719,7 +1719,8 @@ a value, you can feed the result of one directly into another:</p>
 <li><code>reduce(add, [4, 8, 12], 0)</code> sums to <code>24</code></li>
 </ol>
 <h2 id="using-closures">Using Closures</h2>
-<p>Higher-order functions work beautifully with closures that capture variables:</p>
+<p>Higher-order functions work beautifully with <a href="../closures/">closures</a>
+that capture variables:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn make_multiplier(factor) {
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    fn multiply(x) { return x * factor }
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    return multiply
