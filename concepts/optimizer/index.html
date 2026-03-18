@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/closures/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/optimizer/">
       
       
-        <link rel="prev" href="../stdlib/">
+        <link rel="prev" href="../compiler/">
       
       
-        <link rel="next" href="../higher-order/">
+        <link rel="next" href="../vm/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Closures - Pebble</title>
+        <title>Optimizer - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#closures" class="md-skip">
+        <a href="#optimizer" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Closures
+              Optimizer
             
           </span>
         </div>
@@ -648,10 +648,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../optimizer/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimizer
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -667,6 +694,198 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-an-optimizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Is an Optimizer?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constant-folding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constant Folding
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Constant Folding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-gets-folded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Gets Folded?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cascading-folds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cascading Folds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#safety-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Safety Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dead-code-elimination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dead Code Elimination
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dead Code Elimination">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jump-targets-stay-alive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jump Targets Stay Alive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-jumps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Jumps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How It Works Under the Hood">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jump-adjustment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jump Adjustment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#peephole-window" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peephole Window
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -844,37 +1063,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Closures
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../closures/" class="md-nav__link">
         
   
   
@@ -890,120 +1082,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#a-simple-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A Simple Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#closures-remember-state" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Closures Remember State
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#independent-closures" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Independent Closures
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works-under-the-hood" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works Under the Hood
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How It Works Under the Hood">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#new-opcodes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        New Opcodes
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#the-analyzers-job" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Analyzer's Job
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#closures-as-values" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Closures as Values
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1484,154 +1562,164 @@
   
 
 
-<h1 id="closures">Closures</h1>
-<p>A <strong>closure</strong> is a function that remembers variables from the place where it
-was created, even after that place has finished running.</p>
-<p>Think of it like a backpack: when a function is born inside another function,
-it packs up any variables it needs from the outside and carries them along
-wherever it goes.</p>
-<h2 id="a-simple-example">A Simple Example</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn make_greeter(greeting) {
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    fn greet(name) {
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        print(&quot;{greeting}, {name}!&quot;)
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    }
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    return greet
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>}
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>let hello = make_greeter(&quot;Hello&quot;)
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>hello(&quot;Alice&quot;)    # prints: Hello, Alice!
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>hello(&quot;Bob&quot;)      # prints: Hello, Bob!
+<h1 id="optimizer">Optimizer</h1>
+<p>The <strong>optimizer</strong> is an extra step in the Pebble pipeline. After the
+compiler has turned your program into bytecode, the optimizer looks at
+those instructions and tidies them up — making them shorter and faster
+without changing what the program does.</p>
+<h2 id="what-is-an-optimizer">What Is an Optimizer?</h2>
+<p>Imagine you wrote a recipe:</p>
+<blockquote>
+<p>Step 4: Measure 100 g of flour.
+Step 5: Measure another 100 g of flour.
+Step 6: Mix the two piles together.</p>
+</blockquote>
+<p>A smart cook would notice: "Why not just measure 200 g of flour and
+skip straight to mixing?" That is <strong>optimization</strong> — getting the same
+result with fewer steps.</p>
+<p>In a compiler, the "recipe steps" are bytecode instructions. The
+optimizer reads them and replaces patterns that do unnecessary work.</p>
+<h2 id="constant-folding">Constant Folding</h2>
+<p><strong>Constant folding</strong> replaces arithmetic on values that are already
+known at compile time.</p>
+<p>When you write:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>print(1 + 2)
 </code></pre></div>
-<p>Here <code>greet</code> <strong>captures</strong> the <code>greeting</code> parameter from <code>make_greeter</code>. Even
-after <code>make_greeter</code> finishes, the closure still has access to <code>greeting</code>.</p>
-<h2 id="closures-remember-state">Closures Remember State</h2>
-<p>Closures don't just read captured variables — they can change them too. This
-lets you create little "state machines" that remember things between calls:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>fn make_counter() {
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    let count = 0
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    fn increment() {
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        count = count + 1
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        return count
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    }
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    return increment
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>}
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>let counter = make_counter()
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>print(counter())   # prints: 1
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>print(counter())   # prints: 2
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>print(counter())   # prints: 3
+<p>The compiler turns that into three instructions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>LOAD_CONST 0    # push 1
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>LOAD_CONST 1    # push 2
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>ADD             # pop both, push 3
 </code></pre></div>
-<p>Each time you call <code>counter()</code>, the captured <code>count</code> variable goes up by one.</p>
-<p>How does this work? The variable lives inside a special container called a
-<strong>Cell</strong> — think of it like a shared whiteboard on a wall. Instead of each
-function getting its own copy of <code>count</code>, they both look at the same
-whiteboard. When the closure erases the old number and writes a new one,
-the outer function would see the change too (and vice versa). That shared
-whiteboard is what makes the counter work.</p>
-<h2 id="independent-closures">Independent Closures</h2>
-<p>Every time you call the outer function, you get a brand-new closure with its
-own private copy of the captured variables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>fn make_counter() {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    let count = 0
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    fn increment() {
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        count = count + 1
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        return count
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    }
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    return increment
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>}
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>let a = make_counter()
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>let b = make_counter()
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>print(a())   # prints: 1
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>print(a())   # prints: 2
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>print(b())   # prints: 1  (b has its own count!)
+<p>But the optimizer notices: "Both operands are constants — I can
+calculate the answer right now!" It replaces those three instructions
+with just one:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>LOAD_CONST 2    # push 3 (pre-computed)
 </code></pre></div>
-<p>Closures <code>a</code> and <code>b</code> each have their own <code>count</code> — changing one doesn't
-affect the other.</p>
-<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
-<p>When the compiler sees a function that uses a variable from an outer function,
-it marks that variable as <strong>captured</strong>:</p>
-<ol>
-<li><strong>Cell variables</strong> — In the outer function, the captured variable is stored
-   in a <code>Cell</code> (a small mutable box) instead of a regular variable slot.</li>
-<li><strong>Free variables</strong> — The inner function knows it needs to look in its Cell
-   storage instead of its local variables.</li>
-<li><strong>MAKE_CLOSURE</strong> — When the inner function definition runs, the VM creates
-   a <code>Closure</code> object that bundles the function's compiled code with references
-   to the Cells from the outer function's frame.</li>
-</ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Outer function&#39;s frame          Closure object
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>+-------------------+          +------------------+
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>| cells:            |   shared | code: inner&#39;s    |
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>|   count → Cell(0) | ←------→|   instructions   |
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>+-------------------+          | cells: [Cell(0)] |
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                               +------------------+
-</code></pre></div>
-<p>Because the Cell is <strong>shared</strong> (not copied), when the closure mutates <code>count</code>,
-the outer function sees the change too — and vice versa.</p>
-<h3 id="new-opcodes">New Opcodes</h3>
+<h3 id="what-gets-folded">What Gets Folded?</h3>
+<p>The optimizer folds all the operations it can compute safely:</p>
 <table>
 <thead>
 <tr>
-<th>Opcode</th>
-<th>Operand</th>
-<th>What it does</th>
+<th>Category</th>
+<th>Operations</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>STORE_CELL</code></td>
-<td>variable name</td>
-<td>Pop the stack and store into a Cell</td>
+<td>Arithmetic</td>
+<td><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>//</code> <code>%</code> <code>**</code></td>
 </tr>
 <tr>
-<td><code>LOAD_CELL</code></td>
-<td>variable name</td>
-<td>Push a Cell's current value onto the stack</td>
+<td>Comparisons</td>
+<td><code>==</code> <code>!=</code> <code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td>
 </tr>
 <tr>
-<td><code>MAKE_CLOSURE</code></td>
-<td>function name</td>
-<td>Create a Closure from a function + captured Cells</td>
+<td>Logical</td>
+<td><code>and</code> <code>or</code> <code>not</code></td>
+</tr>
+<tr>
+<td>Bitwise</td>
+<td><code>&amp;</code> <code>\|</code> <code>^</code> <code>~</code> <code>&lt;&lt;</code> <code>&gt;&gt;</code></td>
+</tr>
+<tr>
+<td>Unary</td>
+<td><code>-</code> (negate) <code>not</code> <code>~</code></td>
+</tr>
+<tr>
+<td>Strings</td>
+<td><code>"hello" + " world"</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="the-analyzers-job">The Analyzer's Job</h3>
-<p>The semantic analyzer detects captures during its walk of the AST. When it sees
-a variable used inside a function but declared in a different (outer) function,
-it records:</p>
-<ul>
-<li>The outer function has a <strong>cell variable</strong> (its local needs Cell storage).</li>
-<li>The inner function has a <strong>free variable</strong> (it captures from outside).</li>
-</ul>
-<p>The compiler uses this information to decide whether to emit <code>STORE_NAME</code> /
-<code>LOAD_NAME</code> (regular variables) or <code>STORE_CELL</code> / <code>LOAD_CELL</code> (captured
-variables).</p>
-<h2 id="closures-as-values">Closures as Values</h2>
-<p>Closures are first-class values in Pebble — you can store them in variables,
-return them from functions, and pass them as arguments.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>fn make_adder(n) {
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    fn add(x) {
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        return n + x
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    }
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    return add
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>}
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>let add5 = make_adder(5)
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>let add10 = make_adder(10)
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>print(add5(3))    # prints: 8
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>print(add10(3))   # prints: 13
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>print(type(add5)) # prints: fn
+<h3 id="cascading-folds">Cascading Folds</h3>
+<p>Longer expressions get folded in multiple rounds. Take <code>1 + 2 + 3</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Round 1:  LOAD_CONST 1, LOAD_CONST 2, ADD  →  LOAD_CONST 3
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>          Now we have: LOAD_CONST 3, LOAD_CONST 3, ADD
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Round 2:  LOAD_CONST 3, LOAD_CONST 3, ADD  →  LOAD_CONST 6
 </code></pre></div>
-<p>The <code>type()</code> function returns <code>"fn"</code> for closures, and printing a closure
-shows <code>&lt;fn name&gt;</code>.</p>
-<p>Closures work perfectly as callbacks for <a href="../higher-order/">higher-order
-functions</a> like <code>map</code>, <code>filter</code>, and <code>reduce</code>.</p>
-<h2 id="see-also">See Also</h2>
+<p>The optimizer loops until nothing changes, so even long chains of
+constants collapse into a single instruction.</p>
+<h3 id="safety-rules">Safety Rules</h3>
+<p>The optimizer is careful <strong>not</strong> to fold things that might cause
+errors:</p>
 <ul>
-<li><a href="../closures-as-classes/">Closures as Classes</a> -- see how closures can
-  emulate objects with private state and methods, and why classes are
-  syntactic sugar for this pattern.</li>
+<li><strong>Division by zero</strong> — <code>10 / 0</code> is kept as-is so the VM can report
+  the error at runtime with the correct line number</li>
+<li><strong>Negative shifts</strong> — <code>1 &lt;&lt; -1</code> is kept for the same reason</li>
+<li><strong>Booleans in arithmetic</strong> — Pebble doesn't treat <code>true</code> as the
+  number 1, so <code>-true</code> is left alone</li>
+<li><strong>Jump boundaries</strong> — if another instruction might jump into the
+  middle of a foldable sequence, the fold is skipped (see below)</li>
+</ul>
+<h2 id="dead-code-elimination">Dead Code Elimination</h2>
+<p><strong>Dead code elimination</strong> (DCE) removes instructions that can never
+run. If the program can never reach a line, there is no point keeping
+it in the bytecode.</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>After a <code>return</code>, an unconditional <code>jump</code>, or <code>halt</code>, the instructions
+that follow are <strong>dead</strong> — normal execution will never reach them.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>fn greet() {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    return &quot;hello&quot;
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    print(&quot;this never runs&quot;)   # dead code!
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>}
+</code></pre></div>
+<p>The compiler emits instructions for the <code>print</code> call, but the
+optimizer removes them because the <code>return</code> already ended the function.</p>
+<h3 id="jump-targets-stay-alive">Jump Targets Stay Alive</h3>
+<p>There is one important exception: if another instruction <strong>jumps to</strong>
+a line after a <code>return</code>, that line is still reachable.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>0  LOAD_CONST 0
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>1  JUMP_IF_FALSE 4    ← might jump to index 4
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>2  LOAD_CONST 1
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>3  RETURN
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>4  LOAD_CONST 2       ← jump target — still alive!
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>5  RETURN
+</code></pre></div>
+<p>The optimizer keeps index 4 and 5 because <code>JUMP_IF_FALSE</code> at index 1
+can land there.</p>
+<h3 id="conditional-jumps">Conditional Jumps</h3>
+<p>A <code>JUMP_IF_FALSE</code> does <strong>not</strong> make the next instruction dead. The
+fall-through path is still valid when the condition is true:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>0  LOAD_CONST 0
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>1  JUMP_IF_FALSE 4
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>2  LOAD_CONST 1       ← still alive (condition was true)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>3  PRINT
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>4  HALT
+</code></pre></div>
+<p>Only truly <strong>unconditional</strong> terminators (<code>RETURN</code>, <code>JUMP</code>, <code>HALT</code>)
+start a dead region.</p>
+<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
+<h3 id="the-pipeline">The Pipeline</h3>
+<p>The optimizer sits between the compiler and the VM:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Source → Lexer → Parser → Analyzer → Compiler → Optimizer → VM
+</code></pre></div>
+<p>It receives a <code>CompiledProgram</code> and returns a new <code>CompiledProgram</code>
+with optimized instructions. Every <code>CodeObject</code> (the main program
+<strong>and</strong> each function) is optimized independently.</p>
+<h3 id="jump-adjustment">Jump Adjustment</h3>
+<p>When folding replaces three instructions with one, every instruction
+after the fold shifts to a lower index. Jump targets that pointed at
+those later instructions now point to the wrong place.</p>
+<p>The optimizer tracks where each old instruction ended up and rewrites
+every jump operand to match the new positions. The same adjustment
+happens after dead code elimination removes instructions.</p>
+<h3 id="peephole-window">Peephole Window</h3>
+<p>The optimizer uses a technique called <strong>peephole optimization</strong>. It
+slides a small window (2–3 instructions) across the bytecode, looking
+for patterns it can simplify. It is like proofreading a recipe one
+sentence at a time instead of rewriting the whole thing from scratch.</p>
+<h2 id="summary">Summary</h2>
+<ul>
+<li>The <strong>optimizer</strong> improves bytecode after compilation, before the VM
+  runs it</li>
+<li><strong>Constant folding</strong> pre-computes arithmetic on known values, turning
+  three instructions into one</li>
+<li><strong>Dead code elimination</strong> removes instructions that can never execute</li>
+<li>Jump targets are carefully adjusted when instructions are removed</li>
+<li>The optimizer loops until no more improvements are possible</li>
+<li>Safety rules prevent folding operations that would hide runtime
+  errors</li>
 </ul>
 
 

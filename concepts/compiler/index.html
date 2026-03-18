@@ -16,7 +16,7 @@
         <link rel="prev" href="../analyzer/">
       
       
-        <link rel="next" href="../vm/">
+        <link rel="next" href="../optimizer/">
       
       
         
@@ -892,10 +892,49 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#what-happens-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Happens Next?
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2106,6 +2145,11 @@ just knows the function exists so it can <code>CALL</code> it later.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="what-happens-next">What Happens Next?</h2>
+<p>After the compiler produces bytecode, the <a href="../optimizer/">Optimizer</a>
+makes a pass over the instructions to simplify them — pre-computing
+constant expressions and removing unreachable code — before handing
+them to the VM.</p>
 
 
 
