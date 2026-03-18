@@ -79,3 +79,5 @@ nav:
       - REPL: concepts/repl.md
       - Stack Traces: concepts/stack-traces.md
       - Debugger: concepts/debugger.md
+      - Formatter: concepts/formatter.md
+      - Linter: concepts/linter.md
