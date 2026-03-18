@@ -1497,6 +1497,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../stack-traces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stack Traces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../debugger/" class="md-nav__link">
         
   
@@ -1620,6 +1648,11 @@ frame's notebook.</p>
 <p>Because each frame has its <em>own</em> notebook, a variable called <code>x</code> inside
 one function doesn't interfere with a variable called <code>x</code> in another
 function. They're on separate pages.</p>
+<blockquote>
+<p><strong>See also:</strong> Frames are also the building blocks of
+<a href="../stack-traces/">Stack Traces</a> -- when an error happens, the VM
+walks its frames to build the "breadcrumb trail" of function calls.</p>
+</blockquote>
 <h2 id="print-formatting">Print Formatting</h2>
 <p>Pebble has its own rules for printing values:</p>
 <table>

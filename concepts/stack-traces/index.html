@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/higher-order/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/stack-traces/">
       
       
-        <link rel="prev" href="../closures/">
+        <link rel="prev" href="../repl/">
       
       
-        <link rel="next" href="../error-handling/">
+        <link rel="next" href="../debugger/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Higher-Order Functions - Pebble</title>
+        <title>Stack Traces - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#higher-order-functions" class="md-skip">
+        <a href="#stack-traces" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Higher-Order Functions
+              Stack Traces
             
           </span>
         </div>
@@ -872,37 +872,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Higher-Order Functions
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../higher-order/" class="md-nav__link">
         
   
   
@@ -918,114 +891,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#first-class-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        First-Class Functions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mapfn-list" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        map(fn, list)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#filterfn-list" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        filter(fn, list)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reducefn-list-initial" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        reduce(fn, list, initial)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#chaining-together" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Chaining Together
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-closures" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using Closures
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works-under-the-hood" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works Under the Hood
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1455,10 +1320,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../stack-traces/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stack Traces
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1474,6 +1366,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#following-the-breadcrumb-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Following the Breadcrumb Trail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-stack-trace-looks-like" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a Stack Trace Looks Like
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-stack-traces-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Stack Traces Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deeper-call-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deeper Call Chains
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trycatch-and-stack-traces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Try/Catch and Stack Traces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-debugger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Debugger
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1534,164 +1534,153 @@
   
 
 
-<h1 id="higher-order-functions">Higher-Order Functions</h1>
-<p>A <strong>higher-order function</strong> is a function that takes another function as an
-argument. Pebble has three built-in higher-order functions: <code>map</code>, <code>filter</code>,
-and <code>reduce</code>.</p>
-<p>Think of them like machines on an assembly line:</p>
-<ul>
-<li><strong>map</strong> — a machine that transforms every item on the belt</li>
-<li><strong>filter</strong> — a quality inspector that removes items that don't pass a test</li>
-<li><strong>reduce</strong> — a machine that combines all the items into one final product</li>
-</ul>
-<h2 id="first-class-functions">First-Class Functions</h2>
-<p>Before we can pass functions around, we need to understand that in Pebble,
-<strong>all functions are values</strong> — just like numbers and strings. You can store a
-function in a variable, put it in a list, or pass it to another function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let f = double
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>print(f(5))         # prints: 10
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print(type(double))  # prints: fn
+<h1 id="stack-traces">Stack Traces</h1>
+<h2 id="following-the-breadcrumb-trail">Following the Breadcrumb Trail</h2>
+<p>Imagine you're exploring a maze. At every turn, you drop a breadcrumb so
+you can trace your path back to the entrance. If you get stuck, you can
+look at the trail of breadcrumbs and see exactly how you got there.</p>
+<p>Stack traces work the same way. When your program calls a function, the
+computer drops a "breadcrumb" -- it remembers <em>where</em> the call happened.
+If something goes wrong deep inside a chain of function calls, those
+breadcrumbs tell you the full path the program took to reach the error.</p>
+<h2 id="what-a-stack-trace-looks-like">What a Stack Trace Looks Like</h2>
+<p>Here's a program with a bug hiding inside nested function calls:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn divide(a, b) {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  return a / b
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>fn calculate() {
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  divide(10, 0)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>}
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>calculate()
 </code></pre></div>
-<p>You can also write <strong>anonymous functions</strong> — functions with no name — directly
-where you need them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let triple = fn(x) { return x * 3 }
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(triple(4))   # prints: 12
+<p>When you run this, Pebble shows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Traceback (most recent call last):
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  line 9, in &lt;main&gt;
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  line 6, in calculate
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>Error: Division by zero at line 2, column 12
 </code></pre></div>
-<p>Anonymous functions are handy when you need a quick throwaway function,
-especially with <code>map</code>, <code>filter</code>, and <code>reduce</code>.</p>
-<h2 id="mapfn-list">map(fn, list)</h2>
-<p>Apply a function to <strong>every</strong> element of a list and collect the results:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let result = map(fn(x) { return x * 2 }, [1, 2, 3])
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(result)   # prints: [2, 4, 6]
-</code></pre></div>
-<p>Think of <code>map</code> like a cookie cutter. You have a tray of dough pieces (the
-input list) and a cutter (the function). The cutter stamps each piece into a
-new shape, and you get a new tray of shaped cookies (the output list).</p>
-<p>You can use a named function too:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn square(x) { return x * x }
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(map(square, [1, 2, 3, 4]))   # prints: [1, 4, 9, 16]
-</code></pre></div>
-<p>If the list is empty, you get an empty list back:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(map(fn(x) { return x }, []))   # prints: []
-</code></pre></div>
-<h2 id="filterfn-list">filter(fn, list)</h2>
-<p>Keep only the elements where the function returns <code>true</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let result = filter(fn(x) { return x &gt; 2 }, [1, 2, 3, 4, 5])
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(result)   # prints: [3, 4, 5]
-</code></pre></div>
-<p>Think of <code>filter</code> like a sieve. You pour a mixture through it, and only the
-pieces that fit through the holes (pass the test) come out the other side.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn is_even(x) { return x % 2 == 0 }
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(filter(is_even, [1, 2, 3, 4, 5, 6]))   # prints: [2, 4, 6]
-</code></pre></div>
-<p>If nothing passes the test, you get an empty list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>print(filter(fn(x) { return x &gt; 100 }, [1, 2, 3]))   # prints: []
-</code></pre></div>
-<h2 id="reducefn-list-initial">reduce(fn, list, initial)</h2>
-<p>Combine all elements of a list into a single value by repeatedly applying a
-function. The function takes two arguments: an <strong>accumulator</strong> (a running
-total that builds up the answer as you go through the list -- think of it like
-a snowball rolling downhill, getting bigger with each step) and the current
-element.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let sum = reduce(fn(acc, x) { return acc + x }, [1, 2, 3, 4], 0)
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(sum)   # prints: 10
-</code></pre></div>
-<p>Here's what happens step by step:</p>
+<p>Reading from top to bottom:</p>
 <ol>
-<li>Start with <code>acc = 0</code> (the initial value)</li>
-<li><code>acc = 0 + 1</code> = <code>1</code></li>
-<li><code>acc = 1 + 2</code> = <code>3</code></li>
-<li><code>acc = 3 + 3</code> = <code>6</code></li>
-<li><code>acc = 6 + 4</code> = <code>10</code></li>
+<li><strong>line 9, in <code>&lt;main&gt;</code></strong> -- the program started here, calling <code>calculate()</code>.</li>
+<li><strong>line 6, in <code>calculate</code></strong> -- inside <code>calculate</code>, it called <code>divide(10, 0)</code>.</li>
+<li><strong>Error</strong> -- inside <code>divide</code>, division by zero happened at line 2.</li>
 </ol>
-<p>Think of <code>reduce</code> like a snowball rolling down a hill. It starts small (the
-initial value), and each element it rolls over gets packed into the ball,
-making it bigger.</p>
-<p>You can compute anything with <code>reduce</code> — sums, products, even build strings:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn multiply(a, b) { return a * b }
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(reduce(multiply, [2, 3, 4], 1))   # prints: 24
+<p>The trace reads like a story: "I was on line 9 of the main program,
+which called <code>calculate</code> on line 6, which hit a division-by-zero error
+on line 2."</p>
+<h2 id="why-stack-traces-matter">Why Stack Traces Matter</h2>
+<p>Without a stack trace, you'd only see:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Error: Division by zero at line 2, column 12
 </code></pre></div>
-<p>If the list is empty, you just get the initial value back:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>print(reduce(fn(a, b) { return a + b }, [], 42))   # prints: 42
+<p>That tells you <em>what</em> went wrong and <em>where</em> the error happened, but not
+<em>how the program got there</em>. If <code>divide</code> is called from ten different
+places, you wouldn't know which call caused the problem.</p>
+<p>The stack trace answers the question: <strong>"What was the program doing when
+things went wrong?"</strong></p>
+<h2 id="deeper-call-chains">Deeper Call Chains</h2>
+<p>The more functions involved, the longer the trace:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn step_one() {
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  let x = 1 / 0
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>}
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>fn step_two() {
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  step_one()
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>}
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>fn step_three() {
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  step_two()
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>}
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>step_three()
 </code></pre></div>
-<h2 id="chaining-together">Chaining Together</h2>
-<p>The real power comes when you combine these functions. Since each one returns
-a value, you can feed the result of one directly into another:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn double(x) { return x * 2 }
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>fn is_even(x) { return x % 2 == 0 }
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>fn add(a, b) { return a + b }
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a># First filter the evens, then double them, then sum them up
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>let nums = [1, 2, 3, 4, 5, 6]
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>let result = reduce(add, map(double, filter(is_even, nums)), 0)
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>print(result)   # prints: 24
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Traceback (most recent call last):
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  line 13, in &lt;main&gt;
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  line 10, in step_three
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  line 6, in step_two
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Error: Division by zero at line 2, column 13
 </code></pre></div>
-<p>Reading from the inside out:</p>
-<ol>
-<li><code>filter(is_even, nums)</code> keeps <code>[2, 4, 6]</code></li>
-<li><code>map(double, [2, 4, 6])</code> transforms to <code>[4, 8, 12]</code></li>
-<li><code>reduce(add, [4, 8, 12], 0)</code> sums to <code>24</code></li>
-</ol>
-<h2 id="using-closures">Using Closures</h2>
-<p>Higher-order functions work beautifully with closures that capture variables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn make_multiplier(factor) {
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    fn multiply(x) { return x * factor }
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    return multiply
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>}
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>let times3 = make_multiplier(3)
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>print(map(times3, [1, 2, 3, 4]))   # prints: [3, 6, 9, 12]
+<p>Each line in the trace is one "breadcrumb" -- one function call that
+led to the next, all the way down to the error.</p>
+<h2 id="trycatch-and-stack-traces">Try/Catch and Stack Traces</h2>
+<p>When you catch an error with <code>try/catch</code>, the stack trace doesn't
+appear -- because the error was <em>handled</em>. The program keeps running:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>fn risky() {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  let x = 1 / 0
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>}
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>try {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  risky()
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>} catch e {
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>  print(&quot;Caught: {e}&quot;)
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>}
 </code></pre></div>
-<p>The closure <code>times3</code> remembers <code>factor = 3</code> from when it was created.</p>
-<h2 id="error-handling">Error Handling</h2>
-<p>All three functions check their arguments at runtime:</p>
-<ul>
-<li>The first argument must be a function (a closure). Passing a number or
-  string gives an error.</li>
-<li>The second argument must be a list. Passing anything else gives an error.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>map(42, [1, 2])         # Error: map() expects a function
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>filter(fn(x) { return true }, &quot;abc&quot;)  # Error: filter() expects a list
+<p>Output: <code>Caught: Division by zero</code></p>
+<p>No stack trace, because the <code>catch</code> block dealt with the problem.
+Stack traces only appear for <strong>uncaught</strong> errors -- ones that nobody
+handled.</p>
+<h2 id="using-the-debugger">Using the Debugger</h2>
+<p>The debugger's <code>bt</code> (backtrace) command shows you the call stack
+<em>while the program is running</em>, with line numbers for each frame:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>(pdb) bt
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  &gt; inner (line 2)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    outer (line 5)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    &lt;main&gt; (line 8)
 </code></pre></div>
+<p>The <code>&gt;</code> arrow marks the frame you're currently in. This is handy for
+understanding where you are when stepping through code.</p>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
-<p>Unlike simple builtins like <code>len()</code> or <code>push()</code>, the higher-order functions
-need to <strong>call back into user code</strong> for each element. This means they can't
-be plain Python functions — they need access to the VM's execution machinery.</p>
-<p>Here's how it works:</p>
-<ol>
-<li>
-<p><strong>VM-level builtins</strong> — <code>map</code>, <code>filter</code>, and <code>reduce</code> are implemented as
-   methods on the <code>VirtualMachine</code> class itself, not as standalone handler
-   functions. This gives them access to the VM's stack and frame management.</p>
-</li>
-<li>
-<p><strong><code>_call_callable</code> helper</strong> — A method that takes a closure and some
-   arguments, sets up a new call frame, runs the VM's execution loop until
-   that frame completes, and returns the result.</p>
-</li>
-<li>
-<p><strong>Nested execution</strong> — The <code>_execute</code> method accepts a <code>min_depth</code>
-   parameter. Normally it runs until the call stack is empty. For callbacks,
-   it runs until the stack depth drops back to where it was before the
-   callback was pushed — like a mini VM session inside the main one.</p>
-</li>
-</ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Main execution loop
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  ├─ ... instructions ...
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  ├─ CALL map
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  │   ├─ _call_callable(fn, [1])  ← mini execution
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>  │   │   ├─ push frame
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>  │   │   ├─ _execute(min_depth=2)
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>  │   │   ├─ RETURN → pop frame
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>  │   │   └─ return result
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>  │   ├─ _call_callable(fn, [2])  ← mini execution
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>  │   └─ push result list
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>  └─ ... continue ...
-</code></pre></div>
-<p>This design means any closure — including ones that capture variables from
-outer scopes — works correctly as a callback.</p>
+<p>Every time Pebble calls a function, the VM pushes a <strong>frame</strong> onto the
+call stack. Each frame remembers:</p>
+<ul>
+<li>Which function it belongs to (the function name).</li>
+<li>Which instruction it was about to execute (the instruction pointer).</li>
+<li>The local variables for that call.</li>
+</ul>
+<p>When an error happens, the VM walks the call stack from bottom to top.
+For each frame, it looks at the instruction that made the call and reads
+its source location (line and column). It packs all of these into a list
+of <strong>TraceEntry</strong> objects and attaches them to the error.</p>
+<p>The <code>format_traceback</code> function then turns that list into the
+human-readable output you see on screen.</p>
+<pre class="mermaid"><code>graph TD
+    A["main calls calculate() on line 9"] --&gt; B["calculate calls divide() on line 6"]
+    B --&gt; C["divide hits error on line 2"]
+    C --&gt; D["VM walks frames: main -&gt; calculate"]
+    D --&gt; E["Builds TraceEntry list"]
+    E --&gt; F["format_traceback renders output"]</code></pre>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>What It Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stack trace</td>
+<td>The chain of function calls that led to an error</td>
+</tr>
+<tr>
+<td>Frame</td>
+<td>One "breadcrumb" -- a function call with its line number</td>
+</tr>
+<tr>
+<td><code>&lt;main&gt;</code></td>
+<td>The top-level program (not inside any function)</td>
+</tr>
+<tr>
+<td>Traceback</td>
+<td>Pebble's name for the stack trace in the error output</td>
+</tr>
+<tr>
+<td><code>bt</code> command</td>
+<td>Debugger command to see the call stack while running</td>
+</tr>
+</tbody>
+</table>
 
 
 
