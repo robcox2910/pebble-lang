@@ -518,7 +518,7 @@ class TestVMCheckType:
 
     def test_type_mismatch_error(self) -> None:
         """``let x: Int = "hello"`` raises a type error."""
-        with pytest.raises(PebbleRuntimeError, match="Type error: expected Int, got String"):
+        with pytest.raises(SemanticError, match="Type error: expected Int, got String"):
             run_source('let x: Int = "hello"')
 
 
@@ -532,7 +532,7 @@ class TestVariableTypeChecking:
 
     def test_let_mismatch(self) -> None:
         """Mismatched type raises error."""
-        with pytest.raises(PebbleRuntimeError, match="Type error"):
+        with pytest.raises(SemanticError, match="Type error"):
             run_source("let x: Int = 3.14")
 
     def test_const_match(self) -> None:
@@ -542,17 +542,17 @@ class TestVariableTypeChecking:
 
     def test_const_mismatch(self) -> None:
         """Const with mismatched type raises error."""
-        with pytest.raises(PebbleRuntimeError, match="Type error"):
+        with pytest.raises(SemanticError, match="Type error"):
             run_source('const x: Int = "oops"')
 
     def test_bool_not_treated_as_int(self) -> None:
         """``let x: Int = true`` fails because Bool is not Int."""
-        with pytest.raises(PebbleRuntimeError, match="Type error: expected Int, got Bool"):
+        with pytest.raises(SemanticError, match="Type error: expected Int, got Bool"):
             run_source("let x: Int = true")
 
     def test_int_not_treated_as_bool(self) -> None:
         """``let x: Bool = 0`` fails because Int is not Bool."""
-        with pytest.raises(PebbleRuntimeError, match="Type error: expected Bool, got Int"):
+        with pytest.raises(SemanticError, match="Type error: expected Bool, got Int"):
             run_source("let x: Bool = 0")
 
 
@@ -566,7 +566,7 @@ class TestFunctionParamTypeChecking:
 
     def test_params_mismatch(self) -> None:
         """Wrong argument type raises error."""
-        with pytest.raises(PebbleRuntimeError, match="parameter 'b' expected Int"):
+        with pytest.raises(SemanticError, match="argument 'b' expected Int"):
             run_source('fn f(a: Int, b: Int) { return a }\nf(1, "x")')
 
     def test_mixed_annotated_and_unannotated(self) -> None:
@@ -590,7 +590,7 @@ class TestFunctionReturnTypeChecking:
 
     def test_return_mismatch(self) -> None:
         """Wrong return type raises error."""
-        with pytest.raises(PebbleRuntimeError, match="Type error: expected Int, got String"):
+        with pytest.raises(SemanticError, match="Type error: expected Int, got String"):
             run_source('fn f() -> Int { return "oops" }\nf()')
 
     def test_no_return_type_no_check(self) -> None:
@@ -610,8 +610,8 @@ class TestStructFieldTypeChecking:
     def test_construction_mismatch(self) -> None:
         """Wrong field type at construction raises error."""
         with pytest.raises(
-            PebbleRuntimeError,
-            match="field 'x' of 'Point' expected Float, got Int",
+            SemanticError,
+            match="argument 'x' expected Float, got Int",
         ):
             run_source("struct Point { x: Float, y: Float }\nPoint(1, 2.0)")
 
@@ -739,7 +739,7 @@ class TestREPL:
     def test_type_error_caught(self) -> None:
         """REPL catches type errors at runtime."""
         r = Repl()
-        with pytest.raises(PebbleRuntimeError, match="Type error"):
+        with pytest.raises(SemanticError, match="Type error"):
             r.eval_line('let x: Int = "wrong"')
 
     def test_typed_struct_persists(self) -> None:

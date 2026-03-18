@@ -24,6 +24,7 @@ from pebble.optimizer import optimize
 from pebble.parser import Parser
 from pebble.repl import repl
 from pebble.resolver import ModuleResolver
+from pebble.type_checker import type_check
 from pebble.vm import DebugHook, VirtualMachine
 
 
@@ -64,6 +65,7 @@ def main() -> None:
         resolver = ModuleResolver(base_dir=path.parent.resolve())
         resolver.resolve_imports(program, analyzer)
         analyzed = analyzer.analyze(program)
+        type_check(analyzed, analyzer=analyzer)
         compiled = Compiler(
             cell_vars=analyzer.cell_vars,
             free_vars=analyzer.free_vars,
