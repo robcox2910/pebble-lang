@@ -930,6 +930,7 @@ class SemanticAnalyzer:
     def _visit_class_method_bodies(self, node: ClassDef) -> None:
         """Visit each method body in *node*, validating parameters and statements."""
         for method in node.methods:
+            self._validate_method_defaults(method)
             self._push_scope()
             self._scope.function_name = f"{node.name}.{method.name}"
             for param in method.parameters:
@@ -944,6 +945,26 @@ class SemanticAnalyzer:
                 self._visit_statement(stmt)
             self._in_function = prev_in_function
             self._pop_scope()
+
+    def _validate_method_defaults(self, method: FunctionDef) -> None:
+        """Validate default parameter ordering and literal-only restriction for a class method."""
+        # Skip 'self' — only validate user-facing parameters
+        params = [p for p in method.parameters if p.name != "self"]
+        seen_default = False
+        for param in params:
+            if param.default is not None:
+                seen_default = True
+                if not isinstance(
+                    param.default,
+                    IntegerLiteral | FloatLiteral | StringLiteral | BooleanLiteral | NullLiteral,
+                ):
+                    msg = "Default parameter values must be literals"
+                    raise SemanticError(
+                        msg, line=method.location.line, column=method.location.column
+                    )
+            elif seen_default:
+                msg = f"Required parameter '{param.name}' cannot follow a parameter with a default"
+                raise SemanticError(msg, line=method.location.line, column=method.location.column)
 
     def _visit_enum_def(self, node: EnumDef) -> None:
         """Visit an enum definition — register name as variable, store variants."""

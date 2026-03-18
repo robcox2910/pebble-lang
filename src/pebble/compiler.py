@@ -819,7 +819,7 @@ class Compiler:
                 return end_jump
             case CapturePattern():
                 self._emit(OpCode.LOAD_NAME, match_var, location=loc)
-                self._emit(OpCode.STORE_NAME, pattern.name, location=loc)
+                self._emit_store(pattern.name, location=loc)
                 for stmt in body:
                     self._compile_statement(stmt)
             case WildcardPattern():

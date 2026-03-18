@@ -911,3 +911,50 @@ class TestEdgeCases:
         program = CompiledProgram(main=main, functions={})
         result = optimize(program)
         assert result.main.instructions == []
+
+
+class TestDeadCodeAfterThrow:
+    """Remove unreachable code after THROW instructions."""
+
+    def test_dead_code_after_throw_removed(self) -> None:
+        """Remove instructions after THROW that are not jump targets."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.THROW),
+            Instruction(OpCode.LOAD_CONST, 1),  # dead
+            Instruction(OpCode.PRINT),  # dead
+        ]
+        result = _optimized_instructions(instrs, [42, 99])
+        opcodes = [i.opcode for i in result]
+        assert opcodes == [OpCode.LOAD_CONST, OpCode.THROW]
+
+    def test_throw_jump_target_stays_alive(self) -> None:
+        """Instructions after THROW survive if they are jump targets."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.THROW),
+            Instruction(OpCode.LOAD_CONST, 1),  # dead
+            Instruction(OpCode.PRINT),  # jump target — alive
+            Instruction(OpCode.HALT),
+            Instruction(OpCode.JUMP_IF_FALSE, 3),  # points at PRINT
+        ]
+        result = _optimized_instructions(instrs, [42, 99])
+        opcodes = [i.opcode for i in result]
+        assert OpCode.PRINT in opcodes
+
+
+class TestUnaryFoldJumpTargetSafety:
+    """Ensure unary folds respect jump target boundaries."""
+
+    def test_unary_fold_skips_jump_target(self) -> None:
+        """Do NOT fold when the LOAD_CONST is itself a jump target."""
+        instrs = [
+            Instruction(OpCode.JUMP_IF_FALSE, 1),  # jumps to index 1
+            Instruction(OpCode.LOAD_CONST, 0),  # 1: value 42 — jump target!
+            Instruction(OpCode.NEGATE),  # 2
+            Instruction(OpCode.HALT),  # 3
+        ]
+        result = _optimized_instructions(instrs, [42])
+        opcodes = [i.opcode for i in result]
+        # NEGATE must still be present — fold should NOT happen
+        assert OpCode.NEGATE in opcodes

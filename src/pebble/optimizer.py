@@ -260,7 +260,7 @@ def _fold_constants(
                 continue
 
         # Try unary fold: LOAD_CONST a, UNARY_OP → LOAD_CONST result
-        if _can_unary_fold(instructions, i):
+        if _can_unary_fold(instructions, i, jump_targets):
             folded, constants = _apply_unary_fold(instructions, i, constants)
             if folded is not None:
                 new_instrs.append(folded)
@@ -319,10 +319,15 @@ def _apply_binary_fold(
     return Instruction(OpCode.LOAD_CONST, result_idx, instructions[i].location), constants
 
 
-def _can_unary_fold(instructions: list[Instruction], i: int) -> bool:
+def _can_unary_fold(
+    instructions: list[Instruction],
+    i: int,
+    jump_targets: frozenset[int],
+) -> bool:
     """Check if instructions at *i* form a foldable unary pattern."""
     return (
         instructions[i].opcode == OpCode.LOAD_CONST
+        and i not in jump_targets
         and i + 1 < len(instructions)
         and instructions[i + 1].opcode in _UNARY_FOLDERS
     )
@@ -423,6 +428,7 @@ _TERMINAL_OPCODES: frozenset[OpCode] = frozenset(
         OpCode.RETURN,
         OpCode.JUMP,
         OpCode.HALT,
+        OpCode.THROW,
     }
 )
 
