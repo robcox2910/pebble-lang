@@ -2,142 +2,146 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/analyzer/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/arrays/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/ast/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/async/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/classes/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/closures-as-classes/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/closures/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/compiler/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://robcox2910.github.io/pebble-lang/concepts/debugger/</loc>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/dicts/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/enums/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/error-handling/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/errors/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/functions/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/higher-order/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/inheritance/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/iterators/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/lexer/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/list-comprehensions/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/match/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/modules/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/operator-overloading/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/operators/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/parser/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/repl/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/statements/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/stdlib/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/string-interpolation/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/strings/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/structs/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/tokens/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/tuple-unpacking/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/type-annotations/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/types/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/vm/</loc>
-         <lastmod>2026-03-17</lastmod>
+         <lastmod>2026-03-18</lastmod>
     </url>
 </urlset>
