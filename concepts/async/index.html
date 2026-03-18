@@ -13,6 +13,10 @@
         <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/async/">
       
       
+        <link rel="prev" href="../iterators/">
+      
+      
+        <link rel="next" href="../enums/">
       
       
         
@@ -282,8 +286,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -294,13 +300,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -321,7 +325,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1176,6 +1180,213 @@
                 
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async / Await
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async / Await
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-restaurant-kitchen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Restaurant Kitchen
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-coroutines-with-async_run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Coroutines with async_run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#await-waiting-for-a-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Await -- Waiting for a Result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spawn-starting-background-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spawn -- Starting Background Tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sleep-simulated-waiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sleep -- Simulated Waiting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-event-loop-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the Event Loop Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-state-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task State Machine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-vs-generators-whats-the-difference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async vs Generators -- What's the Difference?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rules-and-restrictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules and Restrictions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Under the Hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
@@ -1497,7 +1708,7 @@ the event loop and waits for it to finish:</p>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>let result = async_run(greet())
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>print(result)    // &quot;hello&quot;
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>print(result)    # &quot;hello&quot;
 </code></pre></div>
 <p>Think of <code>async_run</code> as opening the kitchen for the day. It starts the
 event loop, runs your main task, and returns the result when everything
@@ -1512,7 +1723,7 @@ coroutine finishes (or a sleep completes):</p>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>async fn main() {
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    let value = await fetch_data()
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    print(value)    // 42
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    print(value)    # 42
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>}
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>async_run(main())
@@ -1693,7 +1904,7 @@ different purposes:</p>
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>}
 <a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
 <a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>async_run(main())
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>// prints: caught: something went wrong
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a># prints: caught: something went wrong
 </code></pre></div>
 <p>If an error is not caught, it propagates out of <code>async_run</code> just like a
 normal function error.</p>
