@@ -36,7 +36,8 @@ graph LR
     B --> C[Parser]
     C --> D[Analyzer]
     D --> E[Compiler]
-    E --> F[Virtual Machine]
+    E --> F[Optimizer]
+    F --> G[Virtual Machine]
 ```
 
 1. **Lexer** -- Breaks the text into small pieces called *tokens* (like
@@ -47,7 +48,10 @@ graph LR
    your essay)
 4. **Compiler** -- Translates the tree into simple numbered instructions
    called *bytecode* (like writing a recipe as step-by-step directions)
-5. **Virtual Machine** -- Follows the instructions one by one and produces the
+5. **Optimizer** -- Tidies up the bytecode, pre-computing answers and removing
+   steps that can never run (like a smart cook who measures 200 g of flour
+   instead of two separate 100 g scoops)
+6. **Virtual Machine** -- Follows the instructions one by one and produces the
    result (like a cook following a recipe)
 
 ## Why Build a Compiler?

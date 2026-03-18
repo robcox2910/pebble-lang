@@ -104,7 +104,7 @@ Behind the scenes, the REPL maintains persistent state across inputs:
 Each input goes through the same pipeline as a regular Pebble file:
 
 ```
-Input → Lexer → Parser → Analyzer → Compiler → VM
+Input → Lexer → Parser → Analyzer → Compiler → Optimizer → VM
 ```
 
 The difference is that the VM starts each input with the variables from
