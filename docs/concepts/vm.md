@@ -205,3 +205,7 @@ The VM runs it like this:
 8. HALT → done!
 
 Output: `10`
+
+Want to watch this happen in real time? See the
+[Bytecode Debugger](debugger.md) — it lets you step through each
+instruction and inspect the stack as the VM runs.

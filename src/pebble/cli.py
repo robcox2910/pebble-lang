@@ -4,31 +4,45 @@ Run a ``.pbl`` file through the full pipeline::
 
     pebble examples/hello.pbl
 
+Start the debugger::
+
+    pebble --debug examples/hello.pbl
+
 """
 
+import argparse
 import sys
 from pathlib import Path
 
 from pebble.analyzer import SemanticAnalyzer
 from pebble.bytecode import CompiledProgram
 from pebble.compiler import Compiler
+from pebble.debugger import Debugger
 from pebble.errors import PebbleError, format_error
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.repl import repl
 from pebble.resolver import ModuleResolver
-from pebble.vm import VirtualMachine
+from pebble.vm import DebugHook, VirtualMachine
 
-_MIN_FILE_ARGS = 2
+
+def _parse_args(argv: list[str]) -> argparse.Namespace:
+    """Parse command-line arguments from *argv*."""
+    parser = argparse.ArgumentParser(prog="pebble", description="Pebble language interpreter")
+    parser.add_argument("file", nargs="?", default=None, help="Source file to run (.pbl)")
+    parser.add_argument("--debug", action="store_true", help="Start the interactive debugger")
+    return parser.parse_args(argv)
 
 
 def main() -> None:
     """Entry point for the ``pebble`` command."""
-    if len(sys.argv) < _MIN_FILE_ARGS:
+    args = _parse_args(sys.argv[1:])
+
+    if args.file is None:
         repl()
         return
 
-    path = Path(sys.argv[1])
+    path = Path(args.file)
     try:
         source = path.read_text()
     except FileNotFoundError:
@@ -37,6 +51,11 @@ def main() -> None:
     except OSError as exc:
         sys.stderr.write(f"Error: cannot read file: {exc}\n")
         sys.exit(1)
+
+    debug_hook: DebugHook | None = None
+    if args.debug:
+        debug_hook = Debugger(source=source, output=sys.stdout, input_stream=sys.stdin)
+
     try:
         tokens = Lexer(source).tokenize()
         program = Parser(tokens).parse()
@@ -79,6 +98,7 @@ def main() -> None:
             full_program,
             stdlib_handlers=resolver.merged_stdlib_handlers,
             stdlib_constants=resolver.merged_stdlib_constants,
+            debug_hook=debug_hook,
         )
     except PebbleError as exc:
         if exc.line > 0:

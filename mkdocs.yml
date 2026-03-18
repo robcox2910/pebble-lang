@@ -75,3 +75,4 @@ nav:
       - Modules: concepts/modules.md
       - Type Annotations: concepts/type-annotations.md
       - REPL: concepts/repl.md
+      - Debugger: concepts/debugger.md
