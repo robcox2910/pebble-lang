@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/modules/">
+        <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/formatter/">
       
       
-        <link rel="prev" href="../enums/">
+        <link rel="prev" href="../debugger/">
       
       
-        <link rel="next" href="../type-annotations/">
+        <link rel="next" href="../linter/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Modules - Pebble</title>
+        <title>Formatter - Pebble</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#modules" class="md-skip">
+        <a href="#formatter" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Modules
+              Formatter
             
           </span>
         </div>
@@ -1208,37 +1208,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Modules
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../modules/" class="md-nav__link">
         
   
   
@@ -1254,208 +1227,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-sharing-machine" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Sharing Machine
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-modules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Modules?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#importing-everything" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Importing Everything
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#importing-specific-names" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Importing Specific Names
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-gets-imported" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What Gets Imported
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#file-paths" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        File Paths
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#creating-a-module" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Creating a Module
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nested-imports" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Nested Imports
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#built-in-modules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Built-in Modules
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#import-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Import Rules
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-cases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Cases
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#practical-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Practical Examples
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Practical Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#helper-library" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Helper Library
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#geometry-with-structs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Geometry with Structs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#how-it-works-under-the-hood" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works Under the Hood
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1605,10 +1376,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../formatter/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formatter
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1624,6 +1422,181 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-formatter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Is a Formatter?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-format-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Format Code?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-formatter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Formatter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-formatter-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Formatter Does
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What the Formatter Does">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#consistent-indentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consistent Indentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operator-spacing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator Spacing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brace-placement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Brace Placement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blank-lines-between-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blank Lines Between Definitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comment Preservation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How It Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parenthesization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parenthesization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string-escaping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        String Escaping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotency
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1684,257 +1657,93 @@
   
 
 
-<h1 id="modules">Modules</h1>
-<h2 id="the-sharing-machine">The Sharing Machine</h2>
-<p>Imagine you and your friends each have a toolbox. Every time you
-start a new project, you don't buy a brand-new set of hammers, saws,
-and screwdrivers -- you borrow the tools you need from a friend's
-toolbox. That way, everyone builds their own tools once, and the
-whole group benefits.</p>
-<p>A <strong>module</strong> in Pebble is like a friend's toolbox. It's a <code>.pbl</code>
-file full of functions and structs that you can borrow into your
-own program.</p>
-<h2 id="why-modules">Why Modules?</h2>
-<p>Without modules, every program would have to contain <em>everything</em> it
-needs. If you wrote a handy <code>add</code> function in one project and wanted
-to use it in another, you'd have to copy-paste it. That leads to:</p>
+<h1 id="formatter">Formatter</h1>
+<h2 id="what-is-a-formatter">What Is a Formatter?</h2>
+<p>Imagine you share a bedroom with a sibling. You both put your clothes away, but in totally different ways -- one person folds everything neatly and the other just shoves things into drawers. A <strong>formatter</strong> is like a robot that goes through the whole room and organizes everything in the exact same way, every time.</p>
+<p>In programming, a formatter takes your code and rewrites it so it follows consistent style rules. The code does the exact same thing as before -- the formatter only changes how it <em>looks</em>, not how it <em>works</em>.</p>
+<h2 id="why-format-code">Why Format Code?</h2>
+<p>When many people work on the same project, everyone has slightly different habits:</p>
 <ul>
-<li><strong>Repetition</strong> -- the same code in ten different files.</li>
-<li><strong>Mistakes</strong> -- fix a bug in one copy but forget the other nine.</li>
-<li><strong>Messiness</strong> -- one giant file that's hard to read.</li>
+<li>Some people put spaces around <code>+</code>, others don't</li>
+<li>Some people indent with 2 spaces, others with 4</li>
+<li>Some people like blank lines between functions, others don't</li>
 </ul>
-<p>Modules solve all three problems. Write it once, import it anywhere.</p>
-<h2 id="importing-everything">Importing Everything</h2>
-<p>Use <code>import</code> followed by a path in quotes:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>import &quot;helpers.pbl&quot;
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>print(add(1, 2))   # 3
+<p>These differences make code harder to read. A formatter eliminates all arguments about style by applying one set of rules automatically.</p>
+<h2 id="using-the-formatter">Using the Formatter</h2>
+<p>Format a file in place (rewrites the file):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pebble fmt myfile.pbl
 </code></pre></div>
-<p>This brings in <em>every</em> function, struct, and class that <code>helpers.pbl</code>
-defines. It's the easiest way to grab a whole toolbox at once.</p>
-<h2 id="importing-specific-names">Importing Specific Names</h2>
-<p>If you only need a few tools, use <code>from ... import</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>from &quot;helpers.pbl&quot; import add, multiply
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>print(add(2, multiply(3, 4)))   # 14
+<p>Check if a file is already formatted (useful in CI):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pebble fmt --check myfile.pbl
 </code></pre></div>
-<p>Names you don't list stay out of your program. This is like saying
-"I only need the hammer and the tape measure, thanks."</p>
-<h2 id="what-gets-imported">What Gets Imported</h2>
-<p>Only <strong>definitions</strong> travel between files:</p>
-<ul>
-<li><code>fn</code> function definitions</li>
-<li><code>struct</code> struct definitions</li>
-<li><code>class</code> class definitions</li>
-<li><code>enum</code> enum definitions</li>
-</ul>
-<p>Executable statements like <code>print(...)</code>, <code>let x = ...</code>, or loops
-do <strong>not</strong> run when you import a module. The module's code is read
-for its blueprints, not executed line by line.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># noisy.pbl
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(&quot;I am noisy!&quot;)       # this does NOT execute during import
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>fn quiet() { return 0 }   # this IS available to importers
+<p>The <code>--check</code> flag exits with code 1 if the file isn't formatted, without modifying it. This is handy for automated checks that ensure all code is formatted before it's merged.</p>
+<h2 id="what-the-formatter-does">What the Formatter Does</h2>
+<h3 id="consistent-indentation">Consistent Indentation</h3>
+<p>All blocks use 4-space indentation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># Before (messy)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>if true {
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  print(1)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    print(2)
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a> }
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a># After (clean)
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>if true {
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    print(1)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    print(2)
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>}
 </code></pre></div>
-<h2 id="file-paths">File Paths</h2>
-<p>Import paths are <strong>strings</strong> that point to <code>.pbl</code> files. They are
-resolved relative to the file that contains the <code>import</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import &quot;math.pbl&quot;           # same directory
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>import &quot;lib/utils.pbl&quot;      # subdirectory called lib
+<h3 id="operator-spacing">Operator Spacing</h3>
+<p>Binary operators always get spaces around them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a># Before
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>let x = 1+2*3
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a># After
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>let x = 1 + 2 * 3
 </code></pre></div>
-<h2 id="creating-a-module">Creating a Module</h2>
-<p>Any <code>.pbl</code> file is automatically a module. Just write functions and
-structs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a># geometry.pbl
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>struct Point { x, y }
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>fn distance(p) {
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    return (p.x ** 2 + p.y ** 2) ** 0.5
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>}
+<h3 id="brace-placement">Brace Placement</h3>
+<p>Opening braces go on the same line. Closing braces get their own line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>if x &gt; 10 {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    print(x)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>} else {
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    print(0)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>}
 </code></pre></div>
-<p>Then another file can import it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>import &quot;geometry.pbl&quot;
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>let p = Point(3, 4)
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(distance(p))   # 5.0
+<h3 id="blank-lines-between-definitions">Blank Lines Between Definitions</h3>
+<p>Functions, classes, structs, and enums are separated by blank lines:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>fn add(a, b) {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    return a + b
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>}
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>fn multiply(a, b) {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    return a * b
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>}
 </code></pre></div>
-<h2 id="nested-imports">Nested Imports</h2>
-<p>Modules can import other modules. If <code>a.pbl</code> imports <code>b.pbl</code>, and
-<code>b.pbl</code> imports <code>c.pbl</code>, everything works automatically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a># c.pbl
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>fn base() { return 1 }
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a># b.pbl
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>import &quot;c.pbl&quot;
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>fn mid() { return base() + 10 }
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a># a.pbl
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>import &quot;b.pbl&quot;
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>fn top() { return mid() + 100 }
+<h3 id="comment-preservation">Comment Preservation</h3>
+<p>The formatter keeps your comments in place:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a># Calculate the total
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>let total = price + tax  # includes shipping
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>import &quot;a.pbl&quot;
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(top())   # 111
-</code></pre></div>
-<p>Pebble handles the chain for you and never compiles the same module
-twice.</p>
-<h2 id="built-in-modules">Built-in Modules</h2>
-<p>Not every module is a <code>.pbl</code> file. Pebble comes with two <strong>built-in
-modules</strong> that are always available to import — no file needed:</p>
-<ul>
-<li><strong><code>"math"</code></strong> — numeric functions like <code>sqrt</code>, <code>abs</code>, <code>floor</code>, and
-  constants like <code>pi</code> and <code>e</code></li>
-<li><strong><code>"io"</code></strong> — the <code>input()</code> function for reading from the keyboard</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>import &quot;math&quot;
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(sqrt(16))   # 4.0
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>print(pi)         # 3.141592653589793
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>from &quot;io&quot; import input
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>let name = input(&quot;Name? &quot;)
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>print(&quot;Hi, &quot; + name)
-</code></pre></div>
-<p>These use exactly the same <code>import</code> / <code>from ... import</code> syntax as
-file modules. The resolver checks for built-in module names first;
-if there's no match, it looks for a <code>.pbl</code> file.</p>
-<p>See <a href="../stdlib/">Standard Library</a> for the full list of built-in
-module functions and constants.</p>
-<h2 id="import-rules">Import Rules</h2>
+<h2 id="how-it-works">How It Works</h2>
+<p>The formatter works in three steps:</p>
 <ol>
 <li>
-<p><strong>Imports must come first.</strong> All <code>import</code> and <code>from ... import</code>
-   lines must appear at the very top of your file, before any other
-   statements.</p>
+<p><strong>Extract comments</strong> -- Since the lexer discards <code>#</code> comments, the formatter does a separate pass over the raw source text to find and remember every comment, along with which line it was on.</p>
 </li>
 <li>
-<p><strong>No circular imports.</strong> If <code>a.pbl</code> imports <code>b.pbl</code>, then <code>b.pbl</code>
-   cannot import <code>a.pbl</code> (directly or through a chain). Pebble
-   detects this and reports an error.</p>
+<p><strong>Parse and walk the AST</strong> -- The source is lexed and parsed normally into an Abstract Syntax Tree. The formatter walks every node in the tree and produces clean, consistently-styled output.</p>
 </li>
 <li>
-<p><strong>No <code>export</code> keyword.</strong> Every top-level <code>fn</code> and <code>struct</code> is
-   automatically available to importers.</p>
-</li>
-<li>
-<p><strong>Imported names go into your scope.</strong> There are no namespaces
-   or prefixes -- <code>add</code> from <code>math.pbl</code> is just called <code>add</code>.</p>
+<p><strong>Interleave comments</strong> -- The extracted comments are inserted back into the formatted output at their original positions.</p>
 </li>
 </ol>
-<h2 id="error-cases">Error Cases</h2>
-<p>Pebble catches import problems early:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a># File not found
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>import &quot;nonexistent.pbl&quot;
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a># Error: Module &#39;nonexistent.pbl&#39; not found
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a># Circular import
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a># a.pbl imports b.pbl, b.pbl imports a.pbl
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a># Error: Circular import detected: &#39;a.pbl&#39;
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a># Name not exported
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>from &quot;math.pbl&quot; import multiply
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a># Error: Module &#39;math.pbl&#39; does not export &#39;multiply&#39;
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a># Import after code
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>let x = 1
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>import &quot;math.pbl&quot;
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a># Error: Imports must appear at the top of the file
-</code></pre></div>
-<h2 id="practical-examples">Practical Examples</h2>
-<h3 id="helper-library">Helper Library</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a># helpers.pbl
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>fn add(a, b) { return a + b }
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>fn sub(a, b) { return a - b }
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>fn mul(a, b) { return a * b }
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>from &quot;helpers.pbl&quot; import add, mul
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(add(2, mul(3, 4)))   # 14
-</code></pre></div>
-<h3 id="geometry-with-structs">Geometry with Structs</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a># geometry.pbl
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>struct Point { x, y }
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>fn distance(p) {
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    return (p.x ** 2 + p.y ** 2) ** 0.5
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>}
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>fn translate(p, dx, dy) {
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    return Point(p.x + dx, p.y + dy)
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>}
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>import &quot;geometry.pbl&quot;
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>let p = Point(3, 4)
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>print(distance(p))            # 5.0
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>let moved = translate(p, 1, 1)
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>print(moved)                   # Point(x=4, y=5)
-</code></pre></div>
-<h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
-<p>When Pebble sees an <code>import</code> statement, here's what happens at
-compile time (before any code runs):</p>
-<pre class="mermaid"><code>flowchart TD
-    A["import \"math.pbl\""] --&gt; B[Resolve path relative to current file]
-    B --&gt; C{Already compiled?}
-    C -- Yes --&gt; D[Use cached result]
-    C -- No --&gt; E{Circular?}
-    E -- Yes --&gt; F[Error: circular import]
-    E -- No --&gt; G[Read file]
-    G --&gt; H[Lex → Parse → Resolve nested imports → Analyze → Compile]
-    H --&gt; I[Extract exported fn/struct names]
-    I --&gt; J[Cache result]
-    J --&gt; K[Register names in importer's scope]
-    K --&gt; L[Merge all functions/structs into CompiledProgram]</code></pre>
-<p>The key insight: no new bytecode opcodes are needed. The resolver
-compiles each module independently, extracts its function and struct
-definitions, and merges them into the importing program's
-<code>CompiledProgram</code>. At runtime, calling an imported function is
-exactly like calling a local one -- the VM doesn't know the
-difference.</p>
-<h2 id="summary">Summary</h2>
-<table>
-<thead>
-<tr>
-<th>Syntax</th>
-<th>What it does</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>import "path.pbl"</code></td>
-<td>Bring in all functions, structs, classes, and enums from a file module</td>
-</tr>
-<tr>
-<td><code>from "path.pbl" import name</code></td>
-<td>Bring in specific names only</td>
-</tr>
-<tr>
-<td><code>import "math"</code> / <code>import "io"</code></td>
-<td>Import a built-in stdlib module</td>
-</tr>
-<tr>
-<td><code>fn</code> / <code>struct</code> in a module</td>
-<td>Automatically available to importers</td>
-</tr>
-<tr>
-<td><code>print(...)</code> in a module</td>
-<td>Does NOT execute during import</td>
-</tr>
-<tr>
-<td>Relative paths</td>
-<td>Resolved from the importing file's directory</td>
-</tr>
-<tr>
-<td>Built-in module names</td>
-<td>Checked before file lookup (<code>"math"</code>, <code>"io"</code>)</td>
-</tr>
-<tr>
-<td>Circular imports</td>
-<td>Detected and reported as an error</td>
-</tr>
-<tr>
-<td>Caching</td>
-<td>Each module is compiled at most once</td>
-</tr>
-</tbody>
-</table>
+<p>This approach is called <strong>AST-based formatting</strong>. It's the same technique used by famous formatters like Go's <code>gofmt</code>, Rust's <code>rustfmt</code>, and Python's <code>black</code>. Because the formatter rebuilds the code from the AST, the output is always canonical -- formatting the same code twice always produces the same result.</p>
+<h3 id="parenthesization">Parenthesization</h3>
+<p>One tricky part is knowing when to add parentheses. The AST doesn't store parentheses -- it stores the expression tree structure. So <code>(1 + 2) * 3</code> becomes a multiply node with an add node as its left child.</p>
+<p>The formatter uses a <strong>precedence table</strong> (the same one the parser uses!) to decide: if a child expression has lower precedence than its parent, wrap it in parentheses. So the add child (<code>+</code>, precedence 9) inside a multiply parent (<code>*</code>, precedence 10) gets parenthesized because 9 &lt; 10.</p>
+<h3 id="string-escaping">String Escaping</h3>
+<p>Another challenge: the AST stores decoded string values. A string literal <code>"hello\nworld"</code> becomes a <code>StringLiteral</code> node whose value contains an actual newline character. The formatter must <strong>re-escape</strong> these characters when outputting the string, converting the real newline back to <code>\n</code>.</p>
+<h2 id="idempotency">Idempotency</h2>
+<p>A good formatter is <strong>idempotent</strong> -- formatting already-formatted code produces the exact same output. You can run <code>pebble fmt</code> as many times as you like and the result won't change after the first time. This is an important property because it means the formatter is predictable and won't create noisy diffs.</p>
 
 
 

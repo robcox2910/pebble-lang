@@ -57,6 +57,10 @@
          <lastmod>2026-03-18</lastmod>
     </url>
     <url>
+         <loc>https://robcox2910.github.io/pebble-lang/concepts/formatter/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/functions/</loc>
          <lastmod>2026-03-18</lastmod>
     </url>
@@ -74,6 +78,10 @@
     </url>
     <url>
          <loc>https://robcox2910.github.io/pebble-lang/concepts/lexer/</loc>
+         <lastmod>2026-03-18</lastmod>
+    </url>
+    <url>
+         <loc>https://robcox2910.github.io/pebble-lang/concepts/linter/</loc>
          <lastmod>2026-03-18</lastmod>
     </url>
     <url>
