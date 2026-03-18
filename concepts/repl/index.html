@@ -1547,7 +1547,7 @@ going — it doesn't quit:</p>
    can catch errors like "undeclared variable" correctly.</li>
 </ol>
 <p>Each input goes through the same pipeline as a regular Pebble file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Input → Lexer → Parser → Analyzer → Compiler → VM
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Input → Lexer → Parser → Analyzer → Compiler → Optimizer → VM
 </code></pre></div>
 <p>The difference is that the VM starts each input with the variables from
 previous successful inputs, and the function registry accumulates across

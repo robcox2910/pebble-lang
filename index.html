@@ -1449,7 +1449,8 @@ assembly line in a factory:</p>
     B --&gt; C[Parser]
     C --&gt; D[Analyzer]
     D --&gt; E[Compiler]
-    E --&gt; F[Virtual Machine]</code></pre>
+    E --&gt; F[Optimizer]
+    F --&gt; G[Virtual Machine]</code></pre>
 <ol>
 <li><strong>Lexer</strong> -- Breaks the text into small pieces called <em>tokens</em> (like
    splitting a sentence into words)</li>
@@ -1459,6 +1460,9 @@ assembly line in a factory:</p>
    your essay)</li>
 <li><strong>Compiler</strong> -- Translates the tree into simple numbered instructions
    called <em>bytecode</em> (like writing a recipe as step-by-step directions)</li>
+<li><strong>Optimizer</strong> -- Tidies up the bytecode, pre-computing answers and removing
+   steps that can never run (like a smart cook who measures 200 g of flour
+   instead of two separate 100 g scoops)</li>
 <li><strong>Virtual Machine</strong> -- Follows the instructions one by one and produces the
    result (like a cook following a recipe)</li>
 </ol>

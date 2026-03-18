@@ -1711,13 +1711,14 @@ binds <code>self</code> to the instance, and pushes a new frame.</p>
 <p>See <a href="../classes/">Classes</a> for the full story.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <p>Here's what happens when you run <code>pebble hello.pbl</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>hello.pbl → Lexer → Parser → Analyzer → Compiler → VM → output
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>hello.pbl → Lexer → Parser → Analyzer → Compiler → Optimizer → VM → output
 </code></pre></div>
 <ol>
 <li>The <strong>lexer</strong> breaks the source into tokens</li>
 <li>The <strong>parser</strong> builds a tree (AST)</li>
 <li>The <strong>analyzer</strong> checks for mistakes</li>
 <li>The <strong>compiler</strong> turns the tree into bytecode instructions</li>
+<li>The <strong><a href="../optimizer/">optimizer</a></strong> tidies up the bytecode (pre-computing constants, removing dead code)</li>
 <li>The <strong>VM</strong> follows those instructions and produces output</li>
 </ol>
 <h2 id="a-complete-example">A Complete Example</h2>

@@ -1374,7 +1374,7 @@ regular function, but it can use <code>await</code> to pause:</p>
 Instead, it gives you back a <strong>coroutine object</strong> -- a recipe card that
 the event loop will follow later:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let c = make_soup()
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(type(c))    // &quot;coroutine&quot;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(type(c))    # &quot;coroutine&quot;
 </code></pre></div>
 <h2 id="running-coroutines-with-async_run">Running Coroutines with <code>async_run</code></h2>
 <p>A coroutine won't do anything on its own -- you need the chef (event
