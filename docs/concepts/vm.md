@@ -155,14 +155,15 @@ See [Classes](classes.md) for the full story.
 Here's what happens when you run `pebble hello.pbl`:
 
 ```
-hello.pbl → Lexer → Parser → Analyzer → Compiler → VM → output
+hello.pbl → Lexer → Parser → Analyzer → Compiler → Optimizer → VM → output
 ```
 
 1. The **lexer** breaks the source into tokens
 2. The **parser** builds a tree (AST)
 3. The **analyzer** checks for mistakes
 4. The **compiler** turns the tree into bytecode instructions
-5. The **VM** follows those instructions and produces output
+5. The **[optimizer](optimizer.md)** tidies up the bytecode (pre-computing constants, removing dead code)
+6. The **VM** follows those instructions and produces output
 
 ## A Complete Example
 

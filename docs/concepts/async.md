@@ -41,7 +41,7 @@ the event loop will follow later:
 
 ```pebble
 let c = make_soup()
-print(type(c))    // "coroutine"
+print(type(c))    # "coroutine"
 ```
 
 ## Running Coroutines with `async_run`
