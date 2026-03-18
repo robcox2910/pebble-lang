@@ -148,7 +148,7 @@ start a dead region.
 The optimizer sits between the compiler and the VM:
 
 ```
-Source → Lexer → Parser → Analyzer → Compiler → Optimizer → VM
+Source → Lexer → Parser → Analyzer → Type Checker → Compiler → Optimizer → VM
 ```
 
 It receives a `CompiledProgram` and returns a new `CompiledProgram`

@@ -460,12 +460,12 @@ class TestVMGenericTypeChecking:
 
     def test_list_not_a_list(self) -> None:
         """List[Int] fails when the value is not a list at all."""
-        with pytest.raises(PebbleRuntimeError, match="Type error"):
+        with pytest.raises(SemanticError, match="Type error"):
             run_source("let x: List[Int] = 42")
 
     def test_dict_not_a_dict(self) -> None:
         """Dict[String, Int] fails when the value is not a dict."""
-        with pytest.raises(PebbleRuntimeError, match="Type error"):
+        with pytest.raises(SemanticError, match="Type error"):
             run_source("let x: Dict[String, Int] = [1, 2]")
 
     def test_const_generic(self) -> None:

@@ -75,5 +75,6 @@ nav:
       - Enums: concepts/enums.md
       - Modules: concepts/modules.md
       - Type Annotations: concepts/type-annotations.md
+      - Type Checker: concepts/type-checker.md
       - REPL: concepts/repl.md
       - Debugger: concepts/debugger.md

@@ -10,7 +10,7 @@ from pebble.analyzer import SemanticAnalyzer
 from pebble.ast_nodes import Assignment, LiteralPattern, MatchStatement, NullLiteral
 from pebble.bytecode import CompiledProgram, OpCode
 from pebble.compiler import Compiler
-from pebble.errors import PebbleRuntimeError
+from pebble.errors import PebbleRuntimeError, SemanticError
 from pebble.lexer import Lexer
 from pebble.parser import Parser
 from pebble.tokens import TokenKind
@@ -213,7 +213,7 @@ class TestNullIntegration:
 
     def test_null_type_mismatch(self) -> None:
         """``let x: Int = null`` raises a runtime type error."""
-        with pytest.raises(PebbleRuntimeError, match="expected Int, got Null"):
+        with pytest.raises(SemanticError, match="expected Int, got Null"):
             run_source("let x: Int = null")
 
     def test_list_push_returns_null(self) -> None:

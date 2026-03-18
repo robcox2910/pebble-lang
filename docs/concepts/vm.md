@@ -155,7 +155,7 @@ See [Classes](classes.md) for the full story.
 Here's what happens when you run `pebble hello.pbl`:
 
 ```
-hello.pbl → Lexer → Parser → Analyzer → Compiler → Optimizer → VM → output
+hello.pbl → Lexer → Parser → Analyzer → Type Checker → Compiler → Optimizer → VM → output
 ```
 
 1. The **lexer** breaks the source into tokens

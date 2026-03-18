@@ -506,7 +506,7 @@ class TestClassVM:
         assert run_source(source) == "15\n"
 
     def test_return_type_checked(self) -> None:
-        """A method with a return type annotation is type-checked."""
+        """A method with a return type annotation is type-checked statically."""
         source = """class Dog {
             name,
             fn bark(self) -> Int {
@@ -515,7 +515,7 @@ class TestClassVM:
         }
         let d = Dog("Rex")
         d.bark()"""
-        with pytest.raises(PebbleRuntimeError, match="Type error"):
+        with pytest.raises(SemanticError, match="Type error"):
             run_source(source)
 
     def test_method_on_non_struct_errors(self) -> None:

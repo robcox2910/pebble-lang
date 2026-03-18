@@ -26,6 +26,7 @@ from pebble.optimizer import optimize
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
 from pebble.stdlib import StdlibHandler
+from pebble.type_checker import type_check
 from pebble.vm import VirtualMachine
 
 _PROMPT = "pebble> "
@@ -75,6 +76,7 @@ class Repl:
         resolver.resolve_imports(program, self._analyzer)
 
         analyzed = self._analyzer.analyze(program)
+        type_check(analyzed, analyzer=self._analyzer)
 
         # Merge variable-arity functions for compiler padding
         all_var_arity = {

@@ -13,6 +13,7 @@ from pebble.lexer import Lexer
 from pebble.optimizer import optimize
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
+from pebble.type_checker import type_check
 from pebble.vm import VirtualMachine
 
 
@@ -32,12 +33,22 @@ def analyze_with_context(source: str) -> tuple[Program, SemanticAnalyzer]:
     return analyzed, analyzer
 
 
-def compile_source(source: str) -> CompiledProgram:
-    """Full pipeline: lex, parse, analyze, compile."""
+def type_check_source(source: str) -> None:
+    """Lex, parse, analyze, and type-check *source*."""
     tokens = Lexer(source).tokenize()
     program = Parser(tokens).parse()
     analyzer = SemanticAnalyzer()
     analyzed = analyzer.analyze(program)
+    type_check(analyzed, analyzer=analyzer)
+
+
+def compile_source(source: str) -> CompiledProgram:
+    """Full pipeline: lex, parse, analyze, type-check, compile."""
+    tokens = Lexer(source).tokenize()
+    program = Parser(tokens).parse()
+    analyzer = SemanticAnalyzer()
+    analyzed = analyzer.analyze(program)
+    type_check(analyzed, analyzer=analyzer)
     return Compiler(
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
@@ -72,6 +83,7 @@ def run_source(source: str) -> str:
     program = Parser(tokens).parse()
     analyzer = SemanticAnalyzer()
     analyzed = analyzer.analyze(program)
+    type_check(analyzed, analyzer=analyzer)
     compiled = Compiler(
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
@@ -91,6 +103,7 @@ def run_source_with_imports(source: str, *, base_dir: Path) -> str:
     resolver = ModuleResolver(base_dir=base_dir)
     resolver.resolve_imports(program, analyzer)
     analyzed = analyzer.analyze(program)
+    type_check(analyzed, analyzer=analyzer)
     compiled = Compiler(
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
@@ -136,6 +149,7 @@ def run_source_with_stdlib(
     resolver = ModuleResolver(base_dir=base_dir or Path.cwd())
     resolver.resolve_imports(program, analyzer)
     analyzed = analyzer.analyze(program)
+    type_check(analyzed, analyzer=analyzer)
     compiled = Compiler(
         cell_vars=analyzer.cell_vars,
         free_vars=analyzer.free_vars,
