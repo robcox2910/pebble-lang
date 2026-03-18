@@ -20,6 +20,7 @@ from pebble.compiler import Compiler
 from pebble.debugger import Debugger
 from pebble.errors import PebbleError, format_error
 from pebble.lexer import Lexer
+from pebble.optimizer import optimize
 from pebble.parser import Parser
 from pebble.repl import repl
 from pebble.resolver import ModuleResolver
@@ -73,6 +74,7 @@ def main() -> None:
             functions=resolver.merged_functions,
             variable_arity_functions=resolver.variable_arity_functions,
         ).compile(analyzed)
+        compiled = optimize(compiled)
         all_functions = {**resolver.merged_functions, **compiled.functions}
         all_structs = {**resolver.merged_structs, **compiled.structs}
         all_struct_field_types = {

@@ -10,6 +10,7 @@ from pebble.bytecode import CompiledProgram, Instruction, OpCode
 from pebble.compiler import Compiler
 from pebble.debugger import Debugger
 from pebble.lexer import Lexer
+from pebble.optimizer import optimize
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
 from pebble.vm import VirtualMachine
@@ -53,6 +54,16 @@ def compile_instructions(source: str) -> list[Instruction]:
 def compile_opcodes(source: str) -> list[OpCode]:
     """Compile *source* and return just the opcode sequence."""
     return [i.opcode for i in compile_instructions(source)]
+
+
+def compile_source_optimized(source: str) -> CompiledProgram:
+    """Full pipeline with optimizer: lex, parse, analyze, compile, optimize."""
+    return optimize(compile_source(source))
+
+
+def compile_instructions_optimized(source: str) -> list[Instruction]:
+    """Compile and optimize *source*, return the main code object's instructions."""
+    return compile_source_optimized(source).main.instructions
 
 
 def run_source(source: str) -> str:

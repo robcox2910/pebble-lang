@@ -375,3 +375,10 @@ just knows the function exists so it can `CALL` it later.
 | `FOR_ITER` | target | Advance the iterator; jump to *target* when exhausted |
 | `PRINT` | — | Pop and print the top value |
 | `HALT` | — | Stop the program |
+
+## What Happens Next?
+
+After the compiler produces bytecode, the [Optimizer](optimizer.md)
+makes a pass over the instructions to simplify them — pre-computing
+constant expressions and removing unreachable code — before handing
+them to the VM.
