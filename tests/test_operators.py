@@ -39,6 +39,11 @@ class TestExponentiation:
         """Verify ``-2 ** 2`` groups as ``-(2 ** 2)`` = ``-4`` (Python convention)."""
         assert run_source("print(-2 ** 2)") == "-4\n"
 
+    def test_power_complex_result_raises(self) -> None:
+        """Verify ``(-1) ** 0.5`` raises a runtime error instead of leaking complex."""
+        with pytest.raises(PebbleRuntimeError, match="complex"):
+            run_source("print((-1) ** 0.5)")
+
 
 # -- Bitwise operators ---------------------------------------------------------
 

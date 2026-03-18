@@ -140,6 +140,18 @@ class TestFormatterOperators:
         """Right-associative ** formatted without extra parens."""
         assert Formatter("let x = 2 ** 3 ** 4").format() == "let x = 2 ** 3 ** 4\n"
 
+    def test_left_grouped_power_keeps_parens(self) -> None:
+        """Left-grouped power must keep parens: (2**3)**4 != 2**(3**4)."""
+        assert Formatter("let x = (2 ** 3) ** 4").format() == "let x = (2 ** 3) ** 4\n"
+
+    def test_same_precedence_left_assoc_no_extra_parens(self) -> None:
+        """Left-associative same-precedence: 1 + 2 - 3 needs no parens."""
+        assert Formatter("let x = 1 + 2 - 3").format() == "let x = 1 + 2 - 3\n"
+
+    def test_same_precedence_right_child_gets_parens(self) -> None:
+        """Right child of same-precedence left-assoc op needs parens if grouped."""
+        assert Formatter("let x = 1 - (2 + 3)").format() == "let x = 1 - (2 + 3)\n"
+
     def test_comparison_ops(self) -> None:
         """Comparison operators spaced correctly."""
         assert Formatter("let x = a == b").format() == "let x = a == b\n"

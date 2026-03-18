@@ -56,7 +56,7 @@ async fn greet() {
 }
 
 let result = async_run(greet())
-print(result)    // "hello"
+print(result)    # "hello"
 ```
 
 Think of `async_run` as opening the kitchen for the day. It starts the
@@ -76,7 +76,7 @@ async fn fetch_data() {
 
 async fn main() {
     let value = await fetch_data()
-    print(value)    // 42
+    print(value)    # 42
 }
 
 async_run(main())
@@ -259,7 +259,7 @@ async fn main() {
 }
 
 async_run(main())
-// prints: caught: something went wrong
+# prints: caught: something went wrong
 ```
 
 If an error is not caught, it propagates out of `async_run` just like a

@@ -601,9 +601,15 @@ class VirtualMachine:
             return
         if not _both_numeric(left, right):
             self._type_error("**", left, right)
-        # Python's ** on int|float may return int, float, or complex.
-        # For Pebble we only produce int or float results.
-        self._stack.append(left**right)  # type: ignore[operator,arg-type]
+        result = left**right  # type: ignore[operator]
+        # Python's ** may return complex (e.g. (-1)**0.5).  Pebble has no
+        # complex type, so raise a friendly error instead of leaking it.
+        if isinstance(result, complex):
+            self._runtime_error(
+                "Exponentiation produced a complex result — "
+                "negative base with fractional exponent is not supported"
+            )
+        self._stack.append(result)  # type: ignore[arg-type]
 
     def _exec_bitwise(self, instruction: Instruction) -> None:
         """Handle BIT_AND, BIT_OR, BIT_XOR, BIT_NOT, LEFT_SHIFT, RIGHT_SHIFT."""
