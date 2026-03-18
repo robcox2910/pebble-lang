@@ -1486,6 +1486,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../type-checker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Checker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../repl/" class="md-nav__link">
         
   
@@ -1692,7 +1720,7 @@ start a dead region.</p>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <h3 id="the-pipeline">The Pipeline</h3>
 <p>The optimizer sits between the compiler and the VM:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Source → Lexer → Parser → Analyzer → Compiler → Optimizer → VM
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Source → Lexer → Parser → Analyzer → Type Checker → Compiler → Optimizer → VM
 </code></pre></div>
 <p>It receives a <code>CompiledProgram</code> and returns a new <code>CompiledProgram</code>
 with optimized instructions. Every <code>CodeObject</code> (the main program

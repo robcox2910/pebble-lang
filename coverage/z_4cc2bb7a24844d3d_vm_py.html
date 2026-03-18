@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for src/pebble/vm.py: 93.90%</title>
+    <title>Coverage for src/pebble/vm.py: 93.49%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>src&#8201;/&#8201;pebble&#8201;/&#8201;vm.py</b>:
-            <span class="pc_cov">93.90%</span>
+            <span class="pc_cov">93.49%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -56,18 +56,18 @@
         </aside>
         <h2>
             <span class="text">1013 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">970<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">43<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">967<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">46<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">24<span class="text"> excluded</span></button>
-            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">38<span class="text"> partial</span></button>
+            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">41<span class="text"> partial</span></button>
         </h2>
         <p class="text">
-            <a id="prevFileLink" class="nav" href="z_4cc2bb7a24844d3d_tokens_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="prevFileLink" class="nav" href="z_4cc2bb7a24844d3d_type_checker_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="index.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-18 20:09 +0000
+            created at 2026-03-18 21:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1496,8 +1496,8 @@
     <p class="run"><span class="n"><a id="t1412" href="#t1412">1412</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1413" href="#t1413">1413</a></span><span class="t">    <span class="key">def</span> <span class="nam">_value_type_display</span><span class="op">(</span><span class="nam">value</span><span class="op">:</span> <span class="nam">Value</span><span class="op">)</span> <span class="op">-></span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1414" href="#t1414">1414</a></span><span class="t">        <span class="str">"""Return the annotation-style type name of *value*."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1415" href="#t1415">1415</a></span><span class="t">        <span class="key">if</span> <span class="nam">value</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1416" href="#t1416">1416</a></span><span class="t">            <span class="key">return</span> <span class="str">"Null"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t1415" href="#t1415">1415</a></span><span class="t">        <span class="key">if</span> <span class="nam">value</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">1415&#x202F;&#x219B;&#x202F;1416</span><span class="annotate long">line 1415 didn't jump to line 1416 because the condition on line 1415 was never true</span></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1416" href="#t1416">1416</a></span><span class="t">            <span class="key">return</span> <span class="str">"Null"</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t1417" href="#t1417">1417</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">StructInstance</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">1417&#x202F;&#x219B;&#x202F;1418</span><span class="annotate long">line 1417 didn't jump to line 1418 because the condition on line 1417 was never true</span></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1418" href="#t1418">1418</a></span><span class="t">            <span class="key">return</span> <span class="nam">value</span><span class="op">.</span><span class="nam">type_name</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t1419" href="#t1419">1419</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">EnumVariant</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">1419&#x202F;&#x219B;&#x202F;1420</span><span class="annotate long">line 1419 didn't jump to line 1420 because the condition on line 1419 was never true</span></span></p>
@@ -1542,15 +1542,15 @@
     <p class="pln"><span class="n"><a id="t1458" href="#t1458">1458</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1459" href="#t1459">1459</a></span><span class="t">        <span class="com"># List[T] &#8212; container must be a list, then check each element</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1460" href="#t1460">1460</a></span><span class="t">        <span class="key">if</span> <span class="nam">name</span> <span class="op">==</span> <span class="str">"List"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1461" href="#t1461">1461</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">list</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1462" href="#t1462">1462</a></span><span class="t">                <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t1461" href="#t1461">1461</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">list</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">1461&#x202F;&#x219B;&#x202F;1462</span><span class="annotate long">line 1461 didn't jump to line 1462 because the condition on line 1461 was never true</span></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1462" href="#t1462">1462</a></span><span class="t">                <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1463" href="#t1463">1463</a></span><span class="t">            <span class="nam">elem_ann</span> <span class="op">=</span> <span class="nam">params</span><span class="op">[</span><span class="num">0</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1464" href="#t1464">1464</a></span><span class="t">            <span class="key">return</span> <span class="nam">all</span><span class="op">(</span><span class="nam">VirtualMachine</span><span class="op">.</span><span class="nam">_matches_type_annotation</span><span class="op">(</span><span class="nam">elem</span><span class="op">,</span> <span class="nam">elem_ann</span><span class="op">)</span> <span class="key">for</span> <span class="nam">elem</span> <span class="key">in</span> <span class="nam">value</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1465" href="#t1465">1465</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1466" href="#t1466">1466</a></span><span class="t">        <span class="com"># Dict[K, V] &#8212; container must be a dict, then check keys and values</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t1467" href="#t1467">1467</a></span><span class="t">        <span class="key">if</span> <span class="nam">name</span> <span class="op">==</span> <span class="str">"Dict"</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">1467&#x202F;&#x219B;&#x202F;1478</span><span class="annotate long">line 1467 didn't jump to line 1478 because the condition on line 1467 was always true</span></span></p>
-    <p class="run"><span class="n"><a id="t1468" href="#t1468">1468</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">dict</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1469" href="#t1469">1469</a></span><span class="t">                <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t1468" href="#t1468">1468</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">value</span><span class="op">,</span> <span class="nam">dict</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">1468&#x202F;&#x219B;&#x202F;1469</span><span class="annotate long">line 1468 didn't jump to line 1469 because the condition on line 1468 was never true</span></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1469" href="#t1469">1469</a></span><span class="t">                <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1470" href="#t1470">1470</a></span><span class="t">            <span class="nam">key_ann</span><span class="op">,</span> <span class="nam">val_ann</span> <span class="op">=</span> <span class="nam">params</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">,</span> <span class="nam">params</span><span class="op">[</span><span class="num">1</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1471" href="#t1471">1471</a></span><span class="t">            <span class="key">return</span> <span class="nam">all</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t1472" href="#t1472">1472</a></span><span class="t">                <span class="nam">VirtualMachine</span><span class="op">.</span><span class="nam">_matches_type_annotation</span><span class="op">(</span><span class="nam">k</span><span class="op">,</span> <span class="nam">key_ann</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1790,12 +1790,12 @@
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="z_4cc2bb7a24844d3d_tokens_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="z_4cc2bb7a24844d3d_type_checker_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.4">coverage.py v7.13.4</a>,
-            created at 2026-03-18 20:09 +0000
+            created at 2026-03-18 21:23 +0000
         </p>
     </div>
 </footer>

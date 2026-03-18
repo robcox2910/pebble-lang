@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://robcox2910.github.io/pebble-lang/concepts/repl/">
       
       
-        <link rel="prev" href="../type-annotations/">
+        <link rel="prev" href="../type-checker/">
       
       
         <link rel="next" href="../debugger/">
@@ -1264,6 +1264,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../type-checker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Checker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1547,7 +1575,7 @@ going — it doesn't quit:</p>
    can catch errors like "undeclared variable" correctly.</li>
 </ol>
 <p>Each input goes through the same pipeline as a regular Pebble file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Input → Lexer → Parser → Analyzer → Compiler → Optimizer → VM
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Input → Lexer → Parser → Analyzer → Type Checker → Compiler → Optimizer → VM
 </code></pre></div>
 <p>The difference is that the VM starts each input with the variables from
 previous successful inputs, and the function registry accumulates across
