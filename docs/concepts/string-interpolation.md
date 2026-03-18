@@ -1,8 +1,14 @@
 # String Interpolation
 
-Sometimes you want to mix text with values in a single string. Instead of
-joining pieces together with `+`, Pebble lets you put expressions right
-inside the string using curly braces `{…}`.
+## Fill-in-the-Blanks
+
+Imagine a birthday card template: "Happy Birthday, \_\_\_\_! You are
+\_\_\_\_ years old." You fill in the blanks with the right name and age.
+
+**String interpolation** is Pebble's version of fill-in-the-blanks.
+Instead of joining pieces together with `+`, you put expressions right
+inside the string using curly braces `{…}` and Pebble fills them in for
+you.
 
 ## How It Works
 
