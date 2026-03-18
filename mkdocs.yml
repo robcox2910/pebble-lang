@@ -53,6 +53,7 @@ nav:
       - Functions: concepts/functions.md
       - Semantic Analysis: concepts/analyzer.md
       - Compiler: concepts/compiler.md
+      - Optimizer: concepts/optimizer.md
       - VM: concepts/vm.md
       - String Interpolation: concepts/string-interpolation.md
       - Arrays: concepts/arrays.md

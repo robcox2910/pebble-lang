@@ -22,6 +22,7 @@ from pebble.bytecode import CodeObject, CompiledProgram
 from pebble.compiler import Compiler
 from pebble.errors import PebbleError
 from pebble.lexer import Lexer
+from pebble.optimizer import optimize
 from pebble.parser import Parser
 from pebble.resolver import ModuleResolver
 from pebble.stdlib import StdlibHandler
@@ -90,6 +91,7 @@ class Repl:
             functions=self._functions,
             variable_arity_functions=all_var_arity,
         ).compile(analyzed)
+        compiled = optimize(compiled)
 
         # Merge new functions and structs with previously-defined ones
         all_functions = self._functions | resolver.merged_functions | compiled.functions
