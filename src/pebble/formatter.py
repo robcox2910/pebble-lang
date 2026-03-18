@@ -652,6 +652,9 @@ class Formatter:
                 return " | ".join(parts)
             case EnumPattern():
                 return f"{pattern.enum_name}.{pattern.variant_name}"
+            case _:  # pragma: no cover
+                msg = f"Unhandled pattern type: {type(pattern).__name__}"
+                raise TypeError(msg)
 
     @staticmethod
     def _format_literal_pattern_value(value: int | float | str | bool | None) -> str:
@@ -727,21 +730,33 @@ class Formatter:
                 return f"super.{expr.method}({args})"
             case AwaitExpression():
                 return f"await {self._format_expression(expr.value)}"
+            case _:  # pragma: no cover
+                msg = f"Unhandled expression type: {type(expr).__name__}"
+                raise TypeError(msg)
 
     def _format_binary_op(self, expr: BinaryOp) -> str:
         """Format a binary operation with precedence-based parenthesization."""
         left = self._format_expression(expr.left)
         right = self._format_expression(expr.right)
         my_prec = _OPERATOR_PRECEDENCE.get(expr.operator, 0)
+        is_right_assoc = expr.operator in _RIGHT_ASSOCIATIVE_OPS
 
         if isinstance(expr.left, BinaryOp):
             left_prec = _OPERATOR_PRECEDENCE.get(expr.left.operator, 0)
-            if left_prec < my_prec:
+            # Parenthesize if child has lower precedence, OR if same
+            # precedence and the operator is right-associative (e.g.
+            # (2**3)**4 must keep parens — without them it re-parses
+            # as 2**(3**4)).
+            if left_prec < my_prec or (left_prec == my_prec and is_right_assoc):
                 left = f"({left})"
 
         if isinstance(expr.right, BinaryOp):
             right_prec = _OPERATOR_PRECEDENCE.get(expr.right.operator, 0)
-            if right_prec < my_prec:
+            # Parenthesize if child has lower precedence, OR if same
+            # precedence and the operator is left-associative (e.g.
+            # 1-(2+3) must keep parens — without them it re-parses
+            # as 1-2+3 = (1-2)+3).
+            if right_prec < my_prec or (right_prec == my_prec and not is_right_assoc):
                 right = f"({right})"
 
         return f"{left} {expr.operator} {right}"

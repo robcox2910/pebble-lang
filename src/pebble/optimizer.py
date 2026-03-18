@@ -36,6 +36,20 @@ type _Numeric = int | float
 type _ConstType = type  # isinstance-compatible type or tuple of types
 type _TypeSpec = _ConstType | tuple[_ConstType, ...]
 
+# Sentinel distinct from any valid constant (including None/null).
+_NO_FOLD: object = object()
+
+
+def _logical_and(a: object, b: object) -> object:
+    """Pebble logical AND — return *a* if falsy, else *b*."""
+    return a if not a else b
+
+
+def _logical_or(a: object, b: object) -> object:
+    """Pebble logical OR — return *a* if truthy, else *b*."""
+    return a or b
+
+
 _BINARY_FOLDERS: dict[OpCode, tuple[_TypeSpec, _TypeSpec, object]] = {
     OpCode.ADD: ((int, float, str), (int, float, str), operator.add),
     OpCode.SUBTRACT: ((int, float), (int, float), operator.sub),
@@ -59,16 +73,17 @@ _BINARY_FOLDERS: dict[OpCode, tuple[_TypeSpec, _TypeSpec, object]] = {
     OpCode.LESS_EQUAL: ((int, float), (int, float), operator.le),
     OpCode.GREATER_THAN: ((int, float), (int, float), operator.gt),
     OpCode.GREATER_EQUAL: ((int, float), (int, float), operator.ge),
-    # Logical
+    # Logical — use Pebble's short-circuit semantics, NOT bitwise operators.
+    # Python's operator.and_/or_ are bitwise and crash on str/None.
     OpCode.AND: (
         (bool, int, float, str, type(None)),
         (bool, int, float, str, type(None)),
-        operator.and_,
+        _logical_and,
     ),
     OpCode.OR: (
         (bool, int, float, str, type(None)),
         (bool, int, float, str, type(None)),
-        operator.or_,
+        _logical_or,
     ),
     # Bitwise binary
     OpCode.BIT_AND: ((int,), (int,), operator.and_),
@@ -171,10 +186,18 @@ def _optimize_code_object(code: CodeObject) -> CodeObject:
         is_generator=code.is_generator,
         is_async=code.is_async,
     )
-    result.instructions = instructions
-    # Rebuild constant pool through add_constant to maintain the index cache
-    for c in constants:
-        result.add_constant(c)
+    # Rebuild constant pool through add_constant (which deduplicates),
+    # then remap LOAD_CONST operands from old indices to new indices.
+    old_to_new_const: dict[int, int] = {}
+    for old_idx, c in enumerate(constants):
+        old_to_new_const[old_idx] = result.add_constant(c)
+
+    result.instructions = [
+        Instruction(OpCode.LOAD_CONST, old_to_new_const[instr.operand], instr.location)
+        if instr.opcode == OpCode.LOAD_CONST and isinstance(instr.operand, int)
+        else instr
+        for instr in instructions
+    ]
     return result
 
 
@@ -288,11 +311,11 @@ def _apply_binary_fold(
         return None, constants
 
     folded = _try_fold_binary(op, constants[a_idx], constants[b_idx])
-    if folded is None:
+    if folded is _NO_FOLD:
         return None, constants
 
     result_idx = len(constants)
-    constants.append(folded)
+    constants.append(folded)  # type: ignore[arg-type]
     return Instruction(OpCode.LOAD_CONST, result_idx, instructions[i].location), constants
 
 
@@ -319,67 +342,73 @@ def _apply_unary_fold(
         return None, constants
 
     folded = _try_fold_unary(instructions[i + 1].opcode, constants[a_idx])
-    if folded is None:
+    if folded is _NO_FOLD:
         return None, constants
 
     result_idx = len(constants)
-    constants.append(folded)
+    constants.append(folded)  # type: ignore[arg-type]
     return Instruction(OpCode.LOAD_CONST, result_idx, instructions[i].location), constants
 
 
-def _try_fold_binary(
+def _try_fold_binary(  # noqa: PLR0911
     op: OpCode,
     a: int | float | str | bool | None,
     b: int | float | str | bool | None,
-) -> int | float | str | bool | None:
+) -> int | float | str | bool | None | object:
     """Attempt to fold a binary operation on two constants.
 
-    Return the result value, or ``None`` if the fold is not safe.
+    Return the result value, or :data:`_NO_FOLD` if the fold is not safe.
     """
     if op not in _BINARY_FOLDERS:
-        return None
+        return _NO_FOLD
 
     allowed_a, allowed_b, func = _BINARY_FOLDERS[op]
 
     # Never fold bools as numeric — Pebble treats them differently.
     if (isinstance(a, bool) or isinstance(b, bool)) and op not in _BOOL_SAFE_OPS:
-        return None
+        return _NO_FOLD
 
     if not isinstance(a, allowed_a) or not isinstance(b, allowed_b):
-        return None
+        return _NO_FOLD
 
     # Never fold division/modulo by zero or negative shifts — let the VM raise
     if (op in _ZERO_GUARDED and isinstance(b, (int, float)) and b == 0) or (
         op in _NEGATIVE_SHIFT_GUARDED and isinstance(b, int) and b < 0
     ):
-        return None
+        return _NO_FOLD
 
     # Type compatibility: ADD requires matching types (or int+float)
     if op == OpCode.ADD and isinstance(a, str) != isinstance(b, str):
-        return None
+        return _NO_FOLD
 
-    return func(a, b)  # type: ignore[operator]
+    result = func(a, b)  # type: ignore[operator]
+
+    # POWER can produce complex (e.g. (-1)**0.5) — not a valid Pebble type
+    if isinstance(result, complex):
+        return _NO_FOLD
+
+    return result  # pyright: ignore[reportUnknownVariableType]
 
 
 def _try_fold_unary(
     op: OpCode,
     a: int | float | str | bool | None,
-) -> int | float | str | bool | None:
+) -> int | float | str | bool | None | object:
     """Attempt to fold a unary operation on a constant.
 
-    Return the result value, or ``None`` if the fold is not safe.
+    Return the result value, or :data:`_NO_FOLD` if the fold is not safe.
     """
     if op not in _UNARY_FOLDERS:
-        return None
+        return _NO_FOLD
 
     allowed, func = _UNARY_FOLDERS[op]
 
     # Never fold bools as numeric (NEGATE / BIT_NOT)
     if isinstance(a, bool) and op in {OpCode.NEGATE, OpCode.BIT_NOT}:
-        return None
+        return _NO_FOLD
 
     if not isinstance(a, allowed):
-        return None
+        return _NO_FOLD
 
     return func(a)  # type: ignore[operator]
 

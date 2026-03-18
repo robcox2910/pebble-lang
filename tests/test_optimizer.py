@@ -202,6 +202,18 @@ class TestConstantFoldingArithmetic:
         expected_power = 8
         assert expected_power in _optimized_constants(instrs, [2, 3])
 
+    def test_power_complex_result_not_folded(self) -> None:
+        """Do NOT fold (-1) ** 0.5 — produces complex, let VM raise at runtime."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.LOAD_CONST, 1),
+            Instruction(OpCode.POWER),
+            Instruction(OpCode.HALT),
+        ]
+        result = _optimized_instructions(instrs, [-1, 0.5])
+        opcodes = [i.opcode for i in result]
+        assert OpCode.POWER in opcodes
+
 
 class TestConstantFoldingDivision:
     """Fold division/modulo with zero-division guard."""
@@ -436,6 +448,80 @@ class TestConstantFoldingComparisons:
         result = _optimized_instructions(instrs, [False, True])
         assert len(result) == FOLDED_LEN
         assert True in _optimized_constants(instrs, [False, True])
+
+    def test_and_string_operands(self) -> None:
+        """Fold "hello" and "world" into "world" (logical, not bitwise)."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.LOAD_CONST, 1),
+            Instruction(OpCode.AND),
+            Instruction(OpCode.HALT),
+        ]
+        result = _optimized_instructions(instrs, ["hello", "world"])
+        assert len(result) == FOLDED_LEN
+        assert "world" in _optimized_constants(instrs, ["hello", "world"])
+
+    def test_or_string_operands(self) -> None:
+        """Fold "hello" or "world" into "hello" (truthy short-circuits)."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.LOAD_CONST, 1),
+            Instruction(OpCode.OR),
+            Instruction(OpCode.HALT),
+        ]
+        result = _optimized_instructions(instrs, ["hello", "world"])
+        assert len(result) == FOLDED_LEN
+        assert "hello" in _optimized_constants(instrs, ["hello", "world"])
+
+    def test_and_int_uses_logical_not_bitwise(self) -> None:
+        """Fold 3 and 5 into 5 (logical), NOT 1 (bitwise)."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.LOAD_CONST, 1),
+            Instruction(OpCode.AND),
+            Instruction(OpCode.HALT),
+        ]
+        consts = _optimized_constants(instrs, [3, 5])
+        expected_logical_and = 5
+        assert expected_logical_and in consts
+
+    def test_or_int_uses_logical_not_bitwise(self) -> None:
+        """Fold 3 or 5 into 3 (logical), NOT 7 (bitwise)."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.LOAD_CONST, 1),
+            Instruction(OpCode.OR),
+            Instruction(OpCode.HALT),
+        ]
+        consts = _optimized_constants(instrs, [3, 5])
+        expected_logical_or = 3
+        assert expected_logical_or in consts
+
+    def test_and_null_short_circuits(self) -> None:
+        """Fold null and "hello" into null (falsy short-circuits)."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.LOAD_CONST, 1),
+            Instruction(OpCode.AND),
+            Instruction(OpCode.HALT),
+        ]
+        result = _optimized_instructions(instrs, [None, "hello"])
+        assert len(result) == FOLDED_LEN
+        consts = _optimized_constants(instrs, [None, "hello"])
+        # The folded constant should be None (falsy short-circuit)
+        assert None in consts
+
+    def test_or_empty_string_falls_through(self) -> None:
+        """Fold "" or "default" into "default" (empty string is falsy)."""
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),
+            Instruction(OpCode.LOAD_CONST, 1),
+            Instruction(OpCode.OR),
+            Instruction(OpCode.HALT),
+        ]
+        result = _optimized_instructions(instrs, ["", "default"])
+        assert len(result) == FOLDED_LEN
+        assert "default" in _optimized_constants(instrs, ["", "default"])
 
 
 class TestConstantFoldingBitwise:
@@ -786,6 +872,38 @@ class TestEdgeCases:
         program = CompiledProgram(main=main, functions={"noop": func})
         result = optimize(program)
         assert result.functions["noop"].instructions[0].opcode == OpCode.RETURN
+
+    def test_duplicate_fold_results_remap_correctly(self) -> None:
+        """Constant pool dedup after folding must remap LOAD_CONST operands.
+
+        When two folds produce the same constant, the pool shrinks during rebuild.
+        Instructions must point to valid indices in the new pool.
+        """
+        # let x = 1 + 2  (folds to 3)
+        # let y = 1 + 2  (folds to 3 — same constant!)
+        instrs = [
+            Instruction(OpCode.LOAD_CONST, 0),  # 1
+            Instruction(OpCode.LOAD_CONST, 1),  # 2
+            Instruction(OpCode.ADD),
+            Instruction(OpCode.STORE_NAME, "x"),
+            Instruction(OpCode.LOAD_CONST, 0),  # 1
+            Instruction(OpCode.LOAD_CONST, 1),  # 2
+            Instruction(OpCode.ADD),
+            Instruction(OpCode.STORE_NAME, "y"),
+            Instruction(OpCode.HALT),
+        ]
+        result = optimize(_make_program(instrs, [1, 2]))
+        # Both folds produce 3 — the pool should contain it once,
+        # and both LOAD_CONST instructions should point to a valid index.
+        expected_value = 3
+        assert expected_value in result.main.constants
+        pool_size = len(result.main.constants)
+        for instr in result.main.instructions:
+            if instr.opcode == OpCode.LOAD_CONST:
+                assert isinstance(instr.operand, int)
+                assert instr.operand < pool_size, (
+                    f"LOAD_CONST operand {instr.operand} >= pool size {pool_size}"
+                )
 
     def test_no_instructions(self) -> None:
         """Handle a CodeObject with no instructions gracefully."""
