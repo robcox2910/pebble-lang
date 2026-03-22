@@ -53,6 +53,22 @@ uv run pyright src tests
 
 Full docs at [robcox2910.github.io/pebble-lang](https://robcox2910.github.io/pebble-lang/)
 
+## Related Projects
+
+Pebble is part of an educational series where every layer of the
+computing stack is built from scratch:
+
+| Project | What It Teaches |
+|---------|----------------|
+| [PyOS](https://github.com/robcox2910/py-os) | Operating systems |
+| [PyDB](https://github.com/robcox2910/pydb) | Relational databases |
+| [PyStack](https://github.com/robcox2910/pystack) | Full-stack integration |
+| [PyWeb](https://github.com/robcox2910/pyweb) | HTTP web servers |
+| [PyGit](https://github.com/robcox2910/pygit) | Version control |
+
+All projects use TDD, comprehensive documentation with real-world
+analogies, and are designed for learners aged 12+.
+
 ## License
 
 MIT

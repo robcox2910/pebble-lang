@@ -67,3 +67,22 @@ yourself, you peek behind the curtain and see the magic trick explained.
 
 Think of it like learning to cook instead of just ordering food -- once you
 know how it works, you understand it on a completely different level.
+
+## Our Building Blocks
+
+| Concept | Analogy | What It Does |
+|---------|---------|-------------|
+| **Lexer** | Postal worker sorting letters | Break text into tokens |
+| **Tokens** | Sorted Lego bricks | The pieces the parser works with |
+| **Parser** | Building with Lego | Arrange tokens into a tree |
+| **AST** | The assembled Lego model | A tree showing how code is structured |
+| **Analyzer** | Teacher proofreading | Check for mistakes |
+| **Type Checker** | Label inspector | Verify values match their types |
+| **Compiler** | Recipe writer | Translate the tree into step-by-step bytecode |
+| **Optimizer** | Smart cook | Remove unnecessary steps |
+| **VM** | Cook following the recipe | Execute the bytecode |
+
+## Let's Start!
+
+Head to [Lexer](concepts/lexer.md) to see how source code gets
+broken into tokens -- the first step on the assembly line.
