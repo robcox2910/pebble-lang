@@ -171,9 +171,14 @@ print(1 < a < b < 10)   # prints: true   (1<2 and 2<5 and 5<10)
 This works with all six comparison operators: `<`, `<=`, `>`, `>=`,
 `==`, and `!=`.
 
-> **Note:** The middle values in a chain are evaluated twice at runtime.
-> This is fine for variables and simple expressions, which is the typical
-> use case.
+> **Note:** Because `1 < x < 10` is rewritten as `(1 < x) and (x < 10)`, a
+> middle value is written into the expression twice, so it is *evaluated*
+> twice whenever the first comparison is true. (If the first comparison is
+> false, `and` short-circuits and the second copy is never evaluated.) This is
+> fine for variables and simple expressions -- the typical use case -- but a
+> middle value with a side effect, like `1 < next() < 10`, would run `next()`
+> twice. Making the middle value evaluate exactly once (as Python does, using
+> a temporary) is a great exercise to try yourself.
 
 ## Logical Operators
 

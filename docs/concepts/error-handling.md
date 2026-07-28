@@ -107,8 +107,33 @@ Caught: oops
 This always runs!
 ```
 
-The `finally` block runs after the try block finishes normally, **and**
-after a catch block handles an error. It's great for cleanup tasks.
+The `finally` block runs on **every** way out of the try/catch:
+
+- when the try block finishes normally,
+- after a catch block handles an error,
+- when a `return` leaves the try or catch block (the finally runs *before*
+  the function actually returns),
+- when a `break` or `continue` jumps out of a `try` inside a loop,
+- and even when the catch block itself `throw`s a new error (the finally runs
+  before that error bubbles up).
+
+That's what makes it perfect for cleanup tasks -- closing a file or releasing
+a resource -- because you can trust it to run no matter how the block exits.
+
+```pebble
+fn read_first(xs) {
+  try {
+    return xs[0]
+  } catch e {
+    return -1
+  } finally {
+    print("cleanup always happens")
+  }
+}
+```
+
+Calling `read_first([10])` prints `cleanup always happens` *and then* returns
+`10` -- the finally runs even though the try block used `return`.
 
 ## Catching Built-in Errors
 

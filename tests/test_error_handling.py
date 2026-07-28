@@ -491,3 +491,115 @@ class TestVMIntegration:
         output = run_source(source)
         lines = output.strip().split("\n")
         assert lines == ["20", "-1"]
+
+
+# ---------------------------------------------------------------------------
+# Cycle 9: finally runs on EVERY exit path
+# ---------------------------------------------------------------------------
+
+
+class TestVMFinallyAllExitPaths:
+    """Verify finally runs on return, break, continue, and re-throw."""
+
+    def test_finally_runs_on_return_in_try(self) -> None:
+        """Finally runs even when the try body returns from the function."""
+        source = (
+            "fn f() {\n"
+            "  try {\n"
+            '    return "early"\n'
+            "  } catch e {\n"
+            '    return "caught"\n'
+            "  } finally {\n"
+            '    print("cleanup")\n'
+            "  }\n"
+            "}\n"
+            "print(f())\n"
+        )
+        output = run_source(source)
+        assert output.strip().split("\n") == ["cleanup", "early"]
+
+    def test_finally_runs_on_return_in_catch(self) -> None:
+        """Finally runs when the catch body returns from the function."""
+        source = (
+            "fn f() {\n"
+            "  try {\n"
+            '    throw "boom"\n'
+            "  } catch e {\n"
+            '    return "caught"\n'
+            "  } finally {\n"
+            '    print("cleanup")\n'
+            "  }\n"
+            "}\n"
+            "print(f())\n"
+        )
+        output = run_source(source)
+        assert output.strip().split("\n") == ["cleanup", "caught"]
+
+    def test_finally_runs_when_catch_rethrows(self) -> None:
+        """Finally runs even when the catch block throws a new error."""
+        source = (
+            "try {\n"
+            "  try {\n"
+            '    throw "boom"\n'
+            "  } catch e {\n"
+            '    throw "rethrown"\n'
+            "  } finally {\n"
+            '    print("inner cleanup")\n'
+            "  }\n"
+            "} catch e {\n"
+            '  print("outer: {e}")\n'
+            "}\n"
+        )
+        output = run_source(source)
+        assert output.strip().split("\n") == ["inner cleanup", "outer: rethrown"]
+
+    def test_finally_runs_on_break(self) -> None:
+        """Finally runs when a break jumps out of the try inside a loop."""
+        source = (
+            "while true {\n"
+            "  try {\n"
+            "    break\n"
+            "  } catch e {\n"
+            '    print("caught")\n'
+            "  } finally {\n"
+            '    print("cleanup")\n'
+            "  }\n"
+            "}\n"
+            'print("done")\n'
+        )
+        output = run_source(source)
+        assert output.strip().split("\n") == ["cleanup", "done"]
+
+    def test_finally_runs_on_continue(self) -> None:
+        """Finally runs when a continue jumps out of the try inside a loop."""
+        source = (
+            "for i in range(2) {\n"
+            "  try {\n"
+            "    continue\n"
+            "  } catch e {\n"
+            '    print("caught")\n'
+            "  } finally {\n"
+            '    print("cleanup")\n'
+            "  }\n"
+            "}\n"
+        )
+        output = run_source(source)
+        assert output.strip().split("\n") == ["cleanup", "cleanup"]
+
+    def test_finally_runs_once_on_normal_and_return(self) -> None:
+        """The finally side effect happens exactly once per exit."""
+        source = (
+            "fn f() {\n"
+            "  try {\n"
+            '    print("try")\n'
+            '    return "value"\n'
+            "  } catch e {\n"
+            '    return "caught"\n'
+            "  } finally {\n"
+            '    print("finally")\n'
+            "  }\n"
+            "}\n"
+            "print(f())\n"
+        )
+        output = run_source(source)
+        assert output.strip().split("\n") == ["try", "finally", "value"]

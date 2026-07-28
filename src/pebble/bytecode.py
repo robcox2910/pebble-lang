@@ -64,6 +64,10 @@ class OpCode(StrEnum):
     # -- Control flow ---------------------------------------------------------
     JUMP = "JUMP"
     JUMP_IF_FALSE = "JUMP_IF_FALSE"
+    # Short-circuit jumps: peek at the top value; jump (leaving it) when the
+    # condition matches, otherwise pop it and fall through.
+    JUMP_IF_FALSE_OR_POP = "JUMP_IF_FALSE_OR_POP"
+    JUMP_IF_TRUE_OR_POP = "JUMP_IF_TRUE_OR_POP"
     SETUP_TRY = "SETUP_TRY"
     POP_TRY = "POP_TRY"
     THROW = "THROW"

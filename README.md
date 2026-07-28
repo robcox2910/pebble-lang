@@ -8,11 +8,18 @@ compilers work, built incrementally using TDD.
 
 ## Language Features
 
-- Integers, strings, booleans
-- Variables (`let` declarations, reassignment)
-- Arithmetic, comparison, and logical operators (`and`, `or`, `not`)
-- Control flow: `if/else`, `while`, `for` loops
-- Functions (`fn`, `return`)
+- Integers, floats, strings, booleans
+- Variables (`let` declarations, `const`, reassignment)
+- Arithmetic, comparison, bitwise, and logical operators (`and`, `or`, `not`)
+- Short-circuiting `and` / `or` and chained comparisons (`1 < x < 10`)
+- Control flow: `if/else`, `while`, `for` loops, `match`
+- Collections: lists, dicts, list comprehensions, slicing, tuple unpacking
+- Functions (`fn`, `return`), default arguments, closures, and generators (`yield`)
+- Async / await (`async fn`, `await`)
+- Structs, classes with inheritance, and enums
+- Error handling: `try` / `catch` / `finally` and `throw`
+- Modules and imports (`import`, `from ... import`)
+- String interpolation (`"hello {name}"`)
 - `print()` built-in
 - Comments (`#`)
 - Curly-brace blocks, newline-delimited statements (no semicolons)
@@ -32,8 +39,11 @@ while count < 5 {
 ## Pipeline
 
 ```
-Source -> Lexer -> Parser -> Analyzer -> Compiler -> VM
+Source -> Lexer -> Parser -> Analyzer -> Module Resolver -> Type Checker -> Compiler -> Optimizer -> VM
 ```
+
+See the [documentation](https://robcox2910.github.io/pebble-lang/) for a
+kid-friendly walk-through of each stage.
 
 ## Quick Start
 

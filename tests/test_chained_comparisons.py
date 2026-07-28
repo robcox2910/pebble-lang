@@ -192,8 +192,28 @@ class TestChainedComparisonIntegration:
         assert run_source("let x = 5\nprint(0 < x + 1 < 10)") == "true\n"
 
     def test_chain_short_circuit(self) -> None:
-        """Verify short-circuit: false left skips right comparison."""
+        """Verify a false first comparison short-circuits the chain to false."""
         assert run_source("let x = 0\nprint(1 < x < 10)") == "false\n"
+
+    def test_chain_short_circuit_skips_second_comparison(self) -> None:
+        """When the first comparison is false, the middle value is not re-read.
+
+        ``1 < mid() < 10`` desugars to ``(1 < mid()) and (mid() < 10)``. With a
+        value below the range, ``1 < mid()`` is false, so ``and`` short-circuits
+        and the second ``mid()`` is never evaluated -- the side effect prints once.
+        """
+        source = 'fn mid() {\n  print("read")\n  return 0\n}\nprint(1 < mid() < 10)\n'
+        assert run_source(source).strip().split("\n") == ["read", "false"]
+
+    def test_chain_evaluates_middle_twice_when_in_range(self) -> None:
+        """Known limitation: an in-range middle value is evaluated twice.
+
+        This documents current behaviour (see the note in ``operators.md``):
+        because the desugaring reuses the middle expression, a side-effecting
+        middle value runs twice when the first comparison passes.
+        """
+        source = 'fn mid() {\n  print("read")\n  return 5\n}\nprint(1 < mid() < 10)\n'
+        assert run_source(source).strip().split("\n") == ["read", "read", "true"]
 
     def test_chain_with_float(self) -> None:
         """Verify chained comparison works with float values."""
