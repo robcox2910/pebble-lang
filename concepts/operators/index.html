@@ -2007,9 +2007,14 @@ checked:</p>
 <p>This works with all six comparison operators: <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>,
 <code>==</code>, and <code>!=</code>.</p>
 <blockquote>
-<p><strong>Note:</strong> The middle values in a chain are evaluated twice at runtime.
-This is fine for variables and simple expressions, which is the typical
-use case.</p>
+<p><strong>Note:</strong> Because <code>1 &lt; x &lt; 10</code> is rewritten as <code>(1 &lt; x) and (x &lt; 10)</code>, a
+middle value is written into the expression twice, so it is <em>evaluated</em>
+twice whenever the first comparison is true. (If the first comparison is
+false, <code>and</code> short-circuits and the second copy is never evaluated.) This is
+fine for variables and simple expressions -- the typical use case -- but a
+middle value with a side effect, like <code>1 &lt; next() &lt; 10</code>, would run <code>next()</code>
+twice. Making the middle value evaluate exactly once (as Python does, using
+a temporary) is a great exercise to try yourself.</p>
 </blockquote>
 <h2 id="logical-operators">Logical Operators</h2>
 <p>Logical operators combine <code>true</code> / <code>false</code> values. They're like the words

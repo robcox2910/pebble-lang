@@ -1756,37 +1756,59 @@ block succeeded or an error was caught. That's what <code>finally</code> is for:
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Caught: oops
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>This always runs!
 </code></pre></div>
-<p>The <code>finally</code> block runs after the try block finishes normally, <strong>and</strong>
-after a catch block handles an error. It's great for cleanup tasks.</p>
+<p>The <code>finally</code> block runs on <strong>every</strong> way out of the try/catch:</p>
+<ul>
+<li>when the try block finishes normally,</li>
+<li>after a catch block handles an error,</li>
+<li>when a <code>return</code> leaves the try or catch block (the finally runs <em>before</em>
+  the function actually returns),</li>
+<li>when a <code>break</code> or <code>continue</code> jumps out of a <code>try</code> inside a loop,</li>
+<li>and even when the catch block itself <code>throw</code>s a new error (the finally runs
+  before that error bubbles up).</li>
+</ul>
+<p>That's what makes it perfect for cleanup tasks -- closing a file or releasing
+a resource -- because you can trust it to run no matter how the block exits.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn read_first(xs) {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  try {
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    return xs[0]
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  } catch e {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    return -1
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  } finally {
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    print(&quot;cleanup always happens&quot;)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>  }
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>}
+</code></pre></div>
+<p>Calling <code>read_first([10])</code> prints <code>cleanup always happens</code> <em>and then</em> returns
+<code>10</code> -- the finally runs even though the try block used <code>return</code>.</p>
 <h2 id="catching-built-in-errors">Catching Built-in Errors</h2>
 <p>Pebble's built-in errors (like dividing by zero or accessing an array
 index that doesn't exist) can all be caught with <code>try/catch</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let xs = [10, 20, 30]
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>try {
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  let value = xs[99]
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>} catch e {
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  print(&quot;Oops: {e}&quot;)
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let xs = [10, 20, 30]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>try {
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  let value = xs[99]
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>} catch e {
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  print(&quot;Oops: {e}&quot;)
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
 </code></pre></div>
 <p>Output: <code>Oops: Index 99 out of bounds for list of length 3</code></p>
 <h2 id="errors-bubble-up">Errors Bubble Up</h2>
 <p>If a function throws an error (or triggers a built-in error), and that
 function doesn't have its own <code>try/catch</code>, the error <em>bubbles up</em> to
 whoever called it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fn step_one() {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  throw &quot;broken&quot;
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>fn step_two() {
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  step_one()
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>try {
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>  step_two()
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>} catch e {
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>  print(e)
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn step_one() {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  throw &quot;broken&quot;
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>fn step_two() {
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  step_one()
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>try {
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  step_two()
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>} catch e {
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>  print(e)
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>}
 </code></pre></div>
 <p>Output: <code>broken</code></p>
 <p>The error passed through <code>step_two</code> and <code>step_one</code> until it found a
@@ -1794,37 +1816,37 @@ whoever called it:</p>
 through layers until someone catches it.</p>
 <h2 id="practical-patterns">Practical Patterns</h2>
 <h3 id="safe-division">Safe Division</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn safe_div(a, b) {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  try {
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    return a / b
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  } catch e {
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    return 0
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  }
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>print(safe_div(10, 2))
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>print(safe_div(10, 0))
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn safe_div(a, b) {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  try {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    return a / b
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  } catch e {
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    return 0
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>  }
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>}
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>print(safe_div(10, 2))
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>print(safe_div(10, 0))
 </code></pre></div>
 <p>Output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>5.0
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>5.0
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>0
 </code></pre></div>
 <h3 id="safe-array-access">Safe Array Access</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn get_or_default(xs, index, fallback) {
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  try {
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    return xs[index]
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  } catch e {
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    return fallback
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>  }
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>}
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>let colours = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>print(get_or_default(colours, 1, &quot;unknown&quot;))
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>print(get_or_default(colours, 99, &quot;unknown&quot;))
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn get_or_default(xs, index, fallback) {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  try {
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    return xs[index]
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  } catch e {
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    return fallback
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>  }
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>let colours = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>print(get_or_default(colours, 1, &quot;unknown&quot;))
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>print(get_or_default(colours, 99, &quot;unknown&quot;))
 </code></pre></div>
 <p>Output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>green
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>unknown
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>green
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>unknown
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>When the compiler sees a <code>try</code> block, it emits three special bytecode
