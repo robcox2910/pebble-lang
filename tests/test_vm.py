@@ -227,6 +227,38 @@ class TestVMLogical:
         """``print(not false)`` outputs ``true``."""
         assert run_source("print(not false)") == "true\n"
 
+    def test_eager_and_opcode(self) -> None:
+        """The eager AND opcode returns the operand value (used by the optimizer).
+
+        Source-level ``and`` compiles to a short-circuit jump, so this exercises
+        the VM's standalone AND instruction directly via hand-built bytecode.
+        """
+        program = _program(
+            [
+                Instruction(OpCode.LOAD_CONST, 0),
+                Instruction(OpCode.LOAD_CONST, 1),
+                Instruction(OpCode.AND),
+                Instruction(OpCode.PRINT),
+                Instruction(OpCode.HALT),
+            ],
+            constants=[2, 3],
+        )
+        assert _run(program) == "3\n"
+
+    def test_eager_or_opcode(self) -> None:
+        """The eager OR opcode returns the operand value (used by match patterns)."""
+        program = _program(
+            [
+                Instruction(OpCode.LOAD_CONST, 0),
+                Instruction(OpCode.LOAD_CONST, 1),
+                Instruction(OpCode.OR),
+                Instruction(OpCode.PRINT),
+                Instruction(OpCode.HALT),
+            ],
+            constants=[0, 5],
+        )
+        assert _run(program) == "5\n"
+
 
 # -- Cycle 5: Control Flow ---------------------------------------------------
 

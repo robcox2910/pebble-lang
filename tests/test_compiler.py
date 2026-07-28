@@ -208,14 +208,18 @@ class TestCompileBinaryOps:
         assert ins[TWO] == Instruction(OpCode.GREATER_EQUAL)
 
     def test_and(self) -> None:
-        """``true and false`` → AND."""
-        ins = _instructions("let x = true and false")
-        assert ins[TWO] == Instruction(OpCode.AND)
+        """``true and false`` short-circuits via JUMP_IF_FALSE_OR_POP."""
+        ops = [instr.opcode for instr in _instructions("let x = true and false")]
+        assert OpCode.JUMP_IF_FALSE_OR_POP in ops
+        # The eager AND opcode must NOT be emitted (it would evaluate both sides).
+        assert OpCode.AND not in ops
 
     def test_or(self) -> None:
-        """``true or false`` → OR."""
-        ins = _instructions("let x = true or false")
-        assert ins[TWO] == Instruction(OpCode.OR)
+        """``true or false`` short-circuits via JUMP_IF_TRUE_OR_POP."""
+        ops = [instr.opcode for instr in _instructions("let x = true or false")]
+        assert OpCode.JUMP_IF_TRUE_OR_POP in ops
+        # The eager OR opcode must NOT be emitted (it would evaluate both sides).
+        assert OpCode.OR not in ops
 
     def test_nested_expression_ordering(self) -> None:
         """``1 + 2 * 3`` compiles with correct operand order from the AST."""

@@ -398,7 +398,13 @@ class VirtualMachine:
             ):
                 self._exec_logic(instruction)
             # Control flow
-            case OpCode.JUMP | OpCode.JUMP_IF_FALSE | OpCode.POP:
+            case (
+                OpCode.JUMP
+                | OpCode.JUMP_IF_FALSE
+                | OpCode.JUMP_IF_FALSE_OR_POP
+                | OpCode.JUMP_IF_TRUE_OR_POP
+                | OpCode.POP
+            ):
                 self._exec_control(instruction, frame)
             # Collections (pure forwarding → inlined)
             case OpCode.BUILD_STRING:
@@ -697,6 +703,22 @@ class VirtualMachine:
                 target = _int_operand(instruction)
                 if not self._stack.pop():
                     frame.ip = target
+            case OpCode.JUMP_IF_FALSE_OR_POP:
+                # Short-circuit ``and``: keep a falsy left value and jump past
+                # the right operand; otherwise discard it and evaluate the right.
+                target = _int_operand(instruction)
+                if not self._stack[-1]:
+                    frame.ip = target
+                else:
+                    self._stack.pop()
+            case OpCode.JUMP_IF_TRUE_OR_POP:
+                # Short-circuit ``or``: keep a truthy left value and jump past
+                # the right operand; otherwise discard it and evaluate the right.
+                target = _int_operand(instruction)
+                if self._stack[-1]:
+                    frame.ip = target
+                else:
+                    self._stack.pop()
             case OpCode.POP:
                 self._stack.pop()
             case _:  # pragma: no cover

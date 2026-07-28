@@ -115,7 +115,28 @@ class _LoopContext:
 
     break_patches: list[int] = field(default_factory=lambda: [])
     continue_patches: list[int] = field(default_factory=lambda: [])
-    try_depth_at_entry: int = 0
+    try_stack_len_at_entry: int = 0
+
+
+@dataclass
+class _TryContext:
+    """Track finally handling for one enclosing ``try`` block.
+
+    Think of a ``finally`` block as the "clean up after yourself" rule at a
+    campsite — it must run whether you leave calmly, in a hurry (``return``),
+    or because a bear showed up (an exception). This context lets ``return``,
+    ``break``, and ``continue`` remember to run those clean-up steps on the way
+    out.
+
+    Attributes:
+        finally_body: Statements to run on every exit path (or ``None``).
+        handler_active: True while a ``SETUP_TRY`` handler is installed for
+            this block and must be removed with ``POP_TRY`` on an early exit.
+
+    """
+
+    finally_body: list[Statement] | None = None
+    handler_active: bool = False
 
 
 @dataclass
@@ -128,7 +149,7 @@ class _CompilerSnapshot:
     comp_var_counter: int
     iter_var_counter: int
     loop_contexts: list[_LoopContext]
-    try_depth: int
+    try_stack: list[_TryContext]
 
 
 class Compiler:
@@ -162,7 +183,7 @@ class Compiler:
         self._comp_var_counter = 0
         self._iter_var_counter = 0
         self._loop_contexts: list[_LoopContext] = []
-        self._try_depth: int = 0
+        self._try_stack: list[_TryContext] = []
         self._structs: dict[str, list[str]] = dict(structs) if structs else {}
         self._struct_field_types: dict[str, dict[str, str]] = {}
         self._class_methods: dict[str, list[str]] = dict(class_methods) if class_methods else {}
@@ -385,7 +406,7 @@ class Compiler:
         self._compile_expression(node.condition)
         exit_jump = self._emit(OpCode.JUMP_IF_FALSE, 0, location=node.location)
 
-        self._loop_contexts.append(_LoopContext(try_depth_at_entry=self._try_depth))
+        self._loop_contexts.append(_LoopContext(try_stack_len_at_entry=len(self._try_stack)))
         for stmt in node.body:
             self._compile_statement(stmt)
         ctx = self._loop_contexts.pop()
@@ -430,7 +451,7 @@ class Compiler:
         exit_jump = self._compile_for_condition(nargs, node.variable, limit_name, counter, loc)
 
         # -- Body -------------------------------------------------------------
-        self._loop_contexts.append(_LoopContext(try_depth_at_entry=self._try_depth))
+        self._loop_contexts.append(_LoopContext(try_stack_len_at_entry=len(self._try_stack)))
         for stmt in node.body:
             self._compile_statement(stmt)
         ctx = self._loop_contexts.pop()
@@ -473,7 +494,7 @@ class Compiler:
         self._emit_store(node.variable, location=loc)
 
         # Body
-        self._loop_contexts.append(_LoopContext(try_depth_at_entry=self._try_depth))
+        self._loop_contexts.append(_LoopContext(try_stack_len_at_entry=len(self._try_stack)))
         for stmt in node.body:
             self._compile_statement(stmt)
         ctx = self._loop_contexts.pop()
@@ -575,7 +596,7 @@ class Compiler:
             comp_var_counter=self._comp_var_counter,
             iter_var_counter=self._iter_var_counter,
             loop_contexts=self._loop_contexts,
-            try_depth=self._try_depth,
+            try_stack=self._try_stack,
         )
 
     def _restore_state(self, snapshot: _CompilerSnapshot) -> None:
@@ -586,7 +607,7 @@ class Compiler:
         self._comp_var_counter = snapshot.comp_var_counter
         self._iter_var_counter = snapshot.iter_var_counter
         self._loop_contexts = snapshot.loop_contexts
-        self._try_depth = snapshot.try_depth
+        self._try_stack = snapshot.try_stack
 
     def _compile_function_body(
         self,
@@ -616,7 +637,7 @@ class Compiler:
         self._comp_var_counter = 0
         self._iter_var_counter = 0
         self._loop_contexts = []
-        self._try_depth = 0
+        self._try_stack = []
 
         for stmt in body:
             self._compile_statement(stmt)
@@ -663,16 +684,35 @@ class Compiler:
         self._compile_expression(node.value)
         self._emit(OpCode.AWAIT, location=node.location)
 
+    def _emit_finally_unwind(
+        self,
+        location: SourceLocation | None,
+        *,
+        down_to: int = 0,
+    ) -> None:
+        """Run pending ``finally`` blocks and drop try handlers before an exit.
+
+        Walk the enclosing ``try`` contexts from innermost outward (down to the
+        ``down_to`` index) and, for each, remove its active handler and inline
+        its ``finally`` body.  This is what makes ``finally`` run when a
+        ``return``, ``break``, or ``continue`` jumps out of a ``try``.
+        """
+        for ctx in reversed(self._try_stack[down_to:]):
+            if ctx.handler_active:
+                self._emit(OpCode.POP_TRY, location=location)
+            if ctx.finally_body is not None:
+                for stmt in ctx.finally_body:
+                    self._compile_statement(stmt)
+
     def _compile_return(self, node: ReturnStatement) -> None:
-        """Compile ``return`` or ``return expr`` — pop try handlers first."""
+        """Compile ``return`` — run enclosing finally blocks first, then RETURN."""
         if node.value is not None:
             self._compile_expression(node.value)
         else:
             self._emit_constant(None, location=node.location)
         if self._current.return_type is not None:
             self._emit(OpCode.CHECK_TYPE, str(self._current.return_type), location=node.location)
-        for _ in range(self._try_depth):
-            self._emit(OpCode.POP_TRY, location=node.location)
+        self._emit_finally_unwind(node.location)
         self._emit(OpCode.RETURN, location=node.location)
 
     def _compile_yield(self, node: YieldStatement) -> None:
@@ -720,57 +760,78 @@ class Compiler:
         return []
 
     def _compile_break(self, node: BreakStatement) -> None:
-        """Compile ``break`` — emit POP_TRY for handlers inside the loop, then JUMP."""
+        """Compile ``break`` — run finally blocks inside the loop, then JUMP."""
         ctx = self._loop_contexts[-1]
-        for _ in range(self._try_depth - ctx.try_depth_at_entry):
-            self._emit(OpCode.POP_TRY, location=node.location)
+        self._emit_finally_unwind(node.location, down_to=ctx.try_stack_len_at_entry)
         patch = self._emit(OpCode.JUMP, 0, location=node.location)
         ctx.break_patches.append(patch)
 
     def _compile_continue(self, node: ContinueStatement) -> None:
-        """Compile ``continue`` — emit POP_TRY for handlers inside the loop, then JUMP."""
+        """Compile ``continue`` — run finally blocks inside the loop, then JUMP."""
         ctx = self._loop_contexts[-1]
-        for _ in range(self._try_depth - ctx.try_depth_at_entry):
-            self._emit(OpCode.POP_TRY, location=node.location)
+        self._emit_finally_unwind(node.location, down_to=ctx.try_stack_len_at_entry)
         patch = self._emit(OpCode.JUMP, 0, location=node.location)
         ctx.continue_patches.append(patch)
 
     def _compile_try(self, node: TryCatch) -> None:
-        """Compile ``try { body } catch [e] { handler } [finally { cleanup }]``."""
+        """Compile ``try { body } catch [e] { handler } [finally { cleanup }]``.
+
+        The ``finally`` block is the "no matter what" clean-up crew: it runs when
+        the try body finishes normally, when the catch handles an error, *and*
+        when the catch itself throws.  To guarantee that, the finally body is
+        emitted on each of those exit paths (early ``return`` / ``break`` /
+        ``continue`` are handled separately by :meth:`_emit_finally_unwind`).
+        """
         loc = node.location
+        fin = node.finally_body
+        end_jumps: list[int] = []
 
-        # SETUP_TRY catch_ip
+        # -- try body: handler jumps to the catch section on an exception -----
         setup_try = self._emit(OpCode.SETUP_TRY, 0, location=loc)
-        self._try_depth += 1
-
-        # [try body]
+        self._try_stack.append(_TryContext(finally_body=fin, handler_active=True))
         for stmt in node.body:
             self._compile_statement(stmt)
+        self._try_stack.pop()
 
-        # POP_TRY — normal exit removes handler
+        # Normal completion of the try body: drop handler, run finally, done.
         self._emit(OpCode.POP_TRY, location=loc)
-        self._try_depth -= 1
+        self._emit_finally_body(fin)
+        end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
 
-        # JUMP finally_or_end
-        jump_past_catch = self._emit(OpCode.JUMP, 0, location=loc)
-
-        # catch_ip: (handler was already popped by _unwind_exception)
+        # -- catch section (handler target); exception value is on the stack --
         self._patch_jump(setup_try)
-
-        # Bind or discard exception value
         if node.catch_variable is not None:
             self._emit_store(node.catch_variable, location=loc)
         else:
             self._emit(OpCode.POP, location=loc)
 
-        # [catch body]
+        # With a finally, guard the catch body so a re-throw still runs finally.
+        catch_setup = self._emit(OpCode.SETUP_TRY, 0, location=loc) if fin is not None else None
+        self._try_stack.append(_TryContext(finally_body=fin, handler_active=fin is not None))
         for stmt in node.catch_body:
             self._compile_statement(stmt)
+        self._try_stack.pop()
 
-        # finally_ip: both normal and catch paths flow here
-        self._patch_jump(jump_past_catch)
-        if node.finally_body is not None:
-            for stmt in node.finally_body:
+        if fin is not None:
+            # Normal completion of the catch body: drop guard, run finally, done.
+            self._emit(OpCode.POP_TRY, location=loc)
+            self._emit_finally_body(fin)
+            end_jumps.append(self._emit(OpCode.JUMP, 0, location=loc))
+
+            # Exception during the catch body: run finally, then re-raise it.
+            if catch_setup is not None:
+                self._patch_jump(catch_setup)
+            self._emit_finally_body(fin)
+            self._emit(OpCode.THROW, location=loc)
+
+        # -- end: every normal exit path converges here -----------------------
+        for jump_idx in end_jumps:
+            self._patch_jump(jump_idx)
+
+    def _emit_finally_body(self, finally_body: list[Statement] | None) -> None:
+        """Compile the ``finally`` statements inline (no-op when there is none)."""
+        if finally_body is not None:
+            for stmt in finally_body:
                 self._compile_statement(stmt)
 
     def _compile_throw(self, node: ThrowStatement) -> None:
@@ -904,7 +965,26 @@ class Compiler:
     # -- Expression compilers -------------------------------------------------
 
     def _compile_binary(self, node: BinaryOp) -> None:
-        """Compile a binary operation: left, right, then operator."""
+        """Compile a binary operation: left, right, then operator.
+
+        ``and`` / ``or`` are special: they *short-circuit*.  Like a careful
+        shopper who stops reading a receipt the moment they spot a deal-breaker,
+        the right-hand side is only evaluated when the left-hand side does not
+        already decide the answer.  They lower to a peek-and-jump instruction
+        rather than the eager :data:`OpCode.AND` / :data:`OpCode.OR` opcodes.
+        """
+        if node.operator == "and":
+            self._compile_expression(node.left)
+            skip = self._emit(OpCode.JUMP_IF_FALSE_OR_POP, 0, location=node.location)
+            self._compile_expression(node.right)
+            self._patch_jump(skip)
+            return
+        if node.operator == "or":
+            self._compile_expression(node.left)
+            skip = self._emit(OpCode.JUMP_IF_TRUE_OR_POP, 0, location=node.location)
+            self._compile_expression(node.right)
+            self._patch_jump(skip)
+            return
         self._compile_expression(node.left)
         self._compile_expression(node.right)
         self._emit(_BINARY_OPS[node.operator], location=node.location)

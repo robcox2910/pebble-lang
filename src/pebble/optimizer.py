@@ -23,6 +23,8 @@ _JUMP_OPCODES: frozenset[OpCode] = frozenset(
     {
         OpCode.JUMP,
         OpCode.JUMP_IF_FALSE,
+        OpCode.JUMP_IF_FALSE_OR_POP,
+        OpCode.JUMP_IF_TRUE_OR_POP,
         OpCode.FOR_ITER,
         OpCode.SETUP_TRY,
     }

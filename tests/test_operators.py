@@ -153,6 +153,70 @@ class TestPrecedence:
         assert run_source("print(3 | 1 ^ 2)") == "3\n"
 
 
+# -- Short-circuit evaluation -------------------------------------------------
+
+
+class TestShortCircuitEvaluation:
+    """Verify ``and`` / ``or`` skip the right operand when possible."""
+
+    def test_and_skips_right_side_effect(self) -> None:
+        """A falsy left operand of ``and`` skips the right operand entirely."""
+        source = (
+            "fn boom() {\n"
+            '  print("evaluated")\n'
+            "  return true\n"
+            "}\n"
+            "let flag = false\n"
+            "print(flag and boom())\n"
+        )
+        # "evaluated" must NOT appear — boom() is never called.
+        assert run_source(source).strip().split("\n") == ["false"]
+
+    def test_or_skips_right_side_effect(self) -> None:
+        """A truthy left operand of ``or`` skips the right operand entirely."""
+        source = (
+            "fn boom() {\n"
+            '  print("evaluated")\n'
+            "  return false\n"
+            "}\n"
+            "let flag = true\n"
+            "print(flag or boom())\n"
+        )
+        assert run_source(source).strip().split("\n") == ["true"]
+
+    def test_and_guard_avoids_division_by_zero(self) -> None:
+        """The classic guard ``b != 0 and 10 / b > 1`` must not divide by zero."""
+        source = "let b = 0\nprint(b != 0 and 10 / b > 1)\n"
+        assert run_source(source) == "false\n"
+
+    def test_or_guard_avoids_division_by_zero(self) -> None:
+        """The guard ``b == 0 or 10 / b > 1`` must not divide by zero."""
+        source = "let b = 0\nprint(b == 0 or 10 / b > 1)\n"
+        assert run_source(source) == "true\n"
+
+    def test_and_right_side_runs_when_left_true(self) -> None:
+        """The right operand of ``and`` still runs when the left is truthy."""
+        source = (
+            "fn boom() {\n"
+            '  print("evaluated")\n'
+            "  return true\n"
+            "}\n"
+            "let flag = true\n"
+            "print(flag and boom())\n"
+        )
+        assert run_source(source).strip().split("\n") == ["evaluated", "true"]
+
+    def test_and_returns_operand_value(self) -> None:
+        """``and`` returns the actual operand, matching prior value semantics."""
+        assert run_source("print(2 and 3)") == "3\n"
+        assert run_source("print(0 and 3)") == "0\n"
+
+    def test_or_returns_operand_value(self) -> None:
+        """``or`` returns the actual operand, matching prior value semantics."""
+        assert run_source("print(0 or 5)") == "5\n"
+        assert run_source("print(7 or 5)") == "7\n"
+
+
 # -- Error message consistency ------------------------------------------------
 
 
