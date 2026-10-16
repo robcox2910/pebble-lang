@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1756,7 +1756,7 @@ name:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let c = Color.Red
 </code></pre></div>
 <p>You can't use a variant that doesn't exist:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let c = Color.Yellow   # Error: Enum &#39;Color&#39; has no variant &#39;Yellow&#39;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let c = Color.Yellow   # Error: Enum 'Color' has no variant 'Yellow'
 </code></pre></div>
 <h2 id="printing-and-type">Printing and Type</h2>
 <p>Printing an enum variant shows both the enum name and the variant name,
@@ -1776,7 +1776,7 @@ the same variant name:</p>
 </code></pre></div>
 <p>You can use <code>==</code> and <code>!=</code> in <code>if</code> conditions too:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>if c == Color.Red {
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    print(&quot;it&#39;s red!&quot;)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    print("it's red!")
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>}
 </code></pre></div>
 <h2 id="matchcase-with-enums">Match/Case with Enums</h2>
@@ -1787,11 +1787,11 @@ the same variant name:</p>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>let d = Direction.Left
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>match d {
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    case Direction.Up    { print(&quot;going up&quot;) }
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    case Direction.Down  { print(&quot;going down&quot;) }
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    case Direction.Left  { print(&quot;going left&quot;) }
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    case Direction.Right { print(&quot;going right&quot;) }
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    case _ { print(&quot;unknown&quot;) }
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    case Direction.Up    { print("going up") }
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    case Direction.Down  { print("going down") }
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    case Direction.Left  { print("going left") }
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    case Direction.Right { print("going right") }
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    case _ { print("unknown") }
 <a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>}
 <a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a># prints: going left
 </code></pre></div>
@@ -1808,17 +1808,17 @@ string interpolation:</p>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>print(palette[0])   # prints: Color.Red
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a># In a dict
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>let favorites = {&quot;sky&quot;: Color.Blue, &quot;grass&quot;: Color.Green}
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>print(favorites[&quot;sky&quot;])   # prints: Color.Blue
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>let favorites = {"sky": Color.Blue, "grass": Color.Green}
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>print(favorites["sky"])   # prints: Color.Blue
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a># In string interpolation
 <a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>let c = Color.Red
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>print(&quot;my color is {c}&quot;)   # prints: my color is Color.Red
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>print("my color is {c}")   # prints: my color is Color.Red
 </code></pre></div>
 <h2 id="you-cant-call-an-enum">You Can't Call an Enum</h2>
 <p>Enums are <strong>not</strong> constructors -- they don't take arguments. Writing
 <code>Color()</code> is an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Color()   # Error: &#39;Color&#39; is an enum, not a function
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Color()   # Error: 'Color' is an enum, not a function
 </code></pre></div>
 <p>To get a value, always use dot syntax: <code>Color.Red</code>.</p>
 <h2 id="practical-examples">Practical Examples</h2>
@@ -1827,10 +1827,10 @@ string interpolation:</p>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>fn describe(light) {
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    match light {
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        case Light.Red    { return &quot;stop&quot; }
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        case Light.Yellow { return &quot;caution&quot; }
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        case Light.Green  { return &quot;go&quot; }
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        case _ { return &quot;unknown&quot; }
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        case Light.Red    { return "stop" }
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        case Light.Yellow { return "caution" }
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        case Light.Green  { return "go" }
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        case _ { return "unknown" }
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    }
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>}
 <a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
@@ -1968,7 +1968,7 @@ variants instead of numbers or strings.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

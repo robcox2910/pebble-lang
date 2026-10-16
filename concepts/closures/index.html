@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1633,14 +1633,14 @@ wherever it goes.</p>
 <h2 id="a-simple-example">A Simple Example</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn make_greeter(greeting) {
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    fn greet(name) {
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        print(&quot;{greeting}, {name}!&quot;)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        print("{greeting}, {name}!")
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    }
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    return greet
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>}
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>let hello = make_greeter(&quot;Hello&quot;)
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>hello(&quot;Alice&quot;)    # prints: Hello, Alice!
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>hello(&quot;Bob&quot;)      # prints: Hello, Bob!
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>let hello = make_greeter("Hello")
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>hello("Alice")    # prints: Hello, Alice!
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>hello("Bob")      # prints: Hello, Bob!
 </code></pre></div>
 <p>Here <code>greet</code> <strong>captures</strong> the <code>greeting</code> parameter from <code>make_greeter</code>. Even
 after <code>make_greeter</code> finishes, the closure still has access to <code>greeting</code>.</p>
@@ -1700,9 +1700,9 @@ it marks that variable as <strong>captured</strong>:</p>
    a <code>Closure</code> object that bundles the function's compiled code with references
    to the Cells from the outer function's frame.</li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Outer function&#39;s frame          Closure object
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Outer function's frame          Closure object
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>+-------------------+          +------------------+
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>| cells:            |   shared | code: inner&#39;s    |
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>| cells:            |   shared | code: inner's    |
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>|   count → Cell(0) | ←------→|   instructions   |
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>+-------------------+          | cells: [Cell(0)] |
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                               +------------------+
@@ -1825,7 +1825,7 @@ functions</a> like <code>map</code>, <code>filter</code>, and <code>reduce</code
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

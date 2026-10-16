@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1792,12 +1792,12 @@ writing its name on a whiteboard in that room. Anyone in the room can see it.</p
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>if true {
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    let y = 20
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    print(x)    # Can see x (it&#39;s in the hallway)
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    print(y)    # Can see y (it&#39;s in this room)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    print(x)    # Can see x (it's in the hallway)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    print(y)    # Can see y (it's in this room)
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>print(x)        # Fine -- x is still on the hallway whiteboard
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>print(y)        # Error! y&#39;s whiteboard is in the if-room, and we left
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>print(y)        # Error! y's whiteboard is in the if-room, and we left
 </code></pre></div>
 <p>The rules are simple:</p>
 <ul>
@@ -1843,7 +1843,7 @@ writing its name on a whiteboard in that room. Anyone in the room can see it.</p
 <p>When you write <code>let x = 5</code>, the analyzer writes <code>x</code> on the current room's
 whiteboard. If <code>x</code> is already there, it raises an error:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let x = 1
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>let x = 2    # Error: Variable &#39;x&#39; already declared
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>let x = 2    # Error: Variable 'x' already declared
 </code></pre></div>
 <p>But if you're in a <em>different</em> room (an inner scope), you can use the same name.
 This is called <strong>shadowing</strong> -- your local <code>x</code> temporarily hides the outer one:</p>
@@ -1860,12 +1860,12 @@ whiteboard I can see?" It starts in the current room and walks outward through
 every enclosing scope until it reaches the global scope. If it never finds the
 name, you get an error -- like trying to pick up a package that isn't addressed
 to you:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(z)    # Error: Undeclared variable &#39;z&#39;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(z)    # Error: Undeclared variable 'z'
 </code></pre></div>
 <h3 id="reassignment">Reassignment</h3>
 <p>Reassignment (<code>x = 10</code>) only works if <code>x</code> was already declared somewhere
 visible. You can't reassign a variable that doesn't exist:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>x = 5    # Error: Undeclared variable &#39;x&#39;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>x = 5    # Error: Undeclared variable 'x'
 </code></pre></div>
 <h2 id="function-checks">Function Checks</h2>
 <h3 id="declaring-a-function">Declaring a Function</h3>
@@ -1875,8 +1875,8 @@ for functions. That means you could have a variable called <code>greet</code> an
 function called <code>greet</code> without conflict.</p>
 <p>Just like variables, you can't declare two functions with the same name in the
 same scope:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn greet() { print(&quot;hi&quot;) }
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>fn greet() { print(&quot;bye&quot;) }   # Error: Function &#39;greet&#39; already defined
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn greet() { print("hi") }
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>fn greet() { print("bye") }   # Error: Function 'greet' already defined
 </code></pre></div>
 <h3 id="calling-a-function">Calling a Function</h3>
 <p>When you call a function, the analyzer checks two things:</p>
@@ -1891,8 +1891,8 @@ same scope:</p>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    return a + b
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>add(1)        # Error: Function &#39;add&#39; expects 2 arguments, got 1
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>add(1, 2, 3)  # Error: Function &#39;add&#39; expects 2 arguments, got 3
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>add(1)        # Error: Function 'add' expects 2 arguments, got 1
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>add(1, 2, 3)  # Error: Function 'add' expects 2 arguments, got 3
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>add(1, 2)     # Fine!
 </code></pre></div>
 <p>When a function has <a href="../functions/#default-parameters">default parameters</a>, the
@@ -1902,14 +1902,14 @@ arguments.</p>
 <h3 id="define-before-you-call">Define Before You Call</h3>
 <p>Pebble reads your program from top to bottom. You must define a function
 <em>before</em> you call it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>greet()                    # Error: Undeclared function &#39;greet&#39;
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn greet() { print(&quot;hi&quot;) }
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>greet()                    # Error: Undeclared function 'greet'
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>fn greet() { print("hi") }
 </code></pre></div>
 <h3 id="built-in-functions">Built-in Functions</h3>
 <p>Several functions are built-in -- they're already on the whiteboard when your
 program starts. You never need to declare them. The full list is in
 <a href="../stdlib/">Standard Library</a>, but the most common ones are:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(&quot;hello&quot;)           # Works -- print is built in
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print("hello")           # Works -- print is built in
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>for i in range(10) { }   # Works -- range is built in
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>let n = len([1, 2, 3])   # Works -- len is built in
 </code></pre></div>
@@ -1922,7 +1922,7 @@ level is like trying to "send back" an answer when nobody asked you a question
 <p>Inside a function, you can return from any depth of nesting:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn check(x) {
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    if x &gt; 0 {
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        return x     # Fine -- we&#39;re inside fn check
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        return x     # Fine -- we're inside fn check
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    }
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    return 0
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>}
@@ -1940,7 +1940,7 @@ level is like trying to "send back" an answer when nobody asked you a question
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    }
 <a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    # i is gone here (left the for-room)
 <a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    # temp is gone here (left the if-room)
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    # n is still visible (we&#39;re still in the function)
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    # n is still visible (we're still in the function)
 <a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>}
 </code></pre></div>
 <h2 id="error-examples">Error Examples</h2>
@@ -2097,7 +2097,7 @@ level is like trying to "send back" an answer when nobody asked you a question
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1928,10 +1928,10 @@ they're ready to use the moment your program starts.</p>
 <p>Display a value on screen. Every Pebble type is automatically converted to
 text:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>print(42)              # prints: 42
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(&quot;hello&quot;)         # prints: hello
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print("hello")         # prints: hello
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>print(true)            # prints: true
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>print([1, 2, 3])       # prints: [1, 2, 3]
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print({&quot;a&quot;: 1})        # prints: {a: 1}
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print({"a": 1})        # prints: {a: 1}
 </code></pre></div>
 <p><code>print()</code> always adds a newline at the end.</p>
 <h2 id="range">range(...)</h2>
@@ -1984,7 +1984,7 @@ body never runs — there's nothing to count through.</p>
 interpolation.</p>
 <h2 id="intvalue">int(value)</h2>
 <p>Convert a value to a whole number. Works with strings, floats, and integers:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let age = int(&quot;12&quot;)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let age = int("12")
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(age + 1)   # prints: 13
 </code></pre></div>
 <p>When converting a float, <code>int()</code> <strong>truncates</strong> toward zero (chops off the
@@ -1993,7 +1993,7 @@ decimal part):</p>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(int(-2.9))   # prints: -2
 </code></pre></div>
 <p>If the string doesn't look like a number, Pebble stops with an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>int(&quot;hello&quot;)   # Error: Cannot convert &#39;hello&#39; to int
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>int("hello")   # Error: Cannot convert 'hello' to int
 </code></pre></div>
 <p>Passing an integer to <code>int()</code> gives back the same number (handy if you're
 not sure what type you have):</p>
@@ -2002,17 +2002,17 @@ not sure what type you have):</p>
 <h2 id="floatvalue">float(value)</h2>
 <p>Convert a value to a decimal number. Works with integers and strings:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>print(float(42))       # prints: 42.0
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(float(&quot;3.14&quot;))   # prints: 3.14
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(float("3.14"))   # prints: 3.14
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>print(float(1.5))      # prints: 1.5
 </code></pre></div>
 <p>If the string doesn't look like a number, Pebble stops with an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>float(&quot;hello&quot;)   # Error: Cannot convert &#39;hello&#39; to float
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>float("hello")   # Error: Cannot convert 'hello' to float
 </code></pre></div>
 <h2 id="typevalue">type(value)</h2>
 <p>Find out what kind of value something is:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(type(42))        # prints: int
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(type(3.14))      # prints: float
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>print(type(&quot;hello&quot;))   # prints: str
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>print(type("hello"))   # prints: str
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>print(type(true))      # prints: bool
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>print(type([1, 2]))    # prints: list
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>print(type({}))        # prints: dict
@@ -2026,15 +2026,15 @@ returns the struct's name:</p>
 </code></pre></div>
 <p>You can use it in conditions:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let x = 42
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>if type(x) == &quot;int&quot; {
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    print(&quot;it is a number&quot;)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>if type(x) == "int" {
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    print("it is a number")
 <a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>}
 </code></pre></div>
 <h2 id="lenvalue">len(value)</h2>
 <p>Count the number of items in a list or dict, or characters in a string:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>print(len([10, 20, 30]))       # prints: 3
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(len(&quot;hello&quot;))             # prints: 5
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>print(len({&quot;a&quot;: 1, &quot;b&quot;: 2}))  # prints: 2
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(len("hello"))             # prints: 5
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>print(len({"a": 1, "b": 2}))  # prints: 2
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>print(len([]))                  # prints: 0
 </code></pre></div>
 <h2 id="pushlist-value">push(list, value)</h2>
@@ -2066,7 +2066,7 @@ from an empty container.</p>
 </div>
 <h2 id="keysdict">keys(dict)</h2>
 <p>Return a list of all the keys in a dictionary, in the order they were added:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>let d = {"name": "Alice", "age": 12}
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>print(keys(d))   # prints: [name, age]
 </code></pre></div>
 <p>If the dictionary is empty, you get an empty list:</p>
@@ -2074,7 +2074,7 @@ from an empty container.</p>
 </code></pre></div>
 <h2 id="valuesdict">values(dict)</h2>
 <p>Return a list of all the values in a dictionary, in the order they were added:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>let d = {"name": "Alice", "age": 12}
 <a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>print(values(d))   # prints: [Alice, 12]
 </code></pre></div>
 <p>If the dictionary is empty, you get an empty list:</p>
@@ -2121,7 +2121,7 @@ value:</p>
 <h2 id="async_runcoroutine">async_run(coroutine)</h2>
 <p>Start the event loop and run an async function to completion:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>async fn greet() {
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    return &quot;hello&quot;
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    return "hello"
 <a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>}
 <a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
 <a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>let result = async_run(greet())
@@ -2169,13 +2169,13 @@ list dynamically:</p>
 </code></pre></div>
 <p>And here's a simple stack (last-in, first-out):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>let stack = []
-<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>push(stack, &quot;first&quot;)
-<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>push(stack, &quot;second&quot;)
-<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>push(stack, &quot;third&quot;)
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>push(stack, "first")
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>push(stack, "second")
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>push(stack, "third")
 <a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>
 <a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>let top = pop(stack)
-<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>print(&quot;popped: {top}&quot;)         # prints: popped: third
-<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>print(&quot;size: {len(stack)}&quot;)    # prints: size: 2
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>print("popped: {top}")         # prints: popped: third
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>print("size: {len(stack)}")    # prints: size: 2
 </code></pre></div>
 <h2 id="how-built-ins-work-under-the-hood">How Built-ins Work Under the Hood</h2>
 <p>Every built-in function lives in a Python module called <code>builtins.py</code>. It
@@ -2204,10 +2204,10 @@ yourself), these are <strong>built-in</strong> modules that come with Pebble. Yo
 import them the same way, but you don't need any <code>.pbl</code> file on disk.</p>
 <h3 id="the-math-module">The <code>math</code> Module</h3>
 <p>Import it with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>import &quot;math&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>import "math"
 </code></pre></div>
 <p>Or grab just the functions you need:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>from &quot;math&quot; import sqrt, pi
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>from "math" import sqrt, pi
 </code></pre></div>
 <h4 id="constants">Constants</h4>
 <table>
@@ -2232,7 +2232,7 @@ import them the same way, but you don't need any <code>.pbl</code> file on disk.
 </tbody>
 </table>
 <p>Constants are just values — use them without parentheses:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>import &quot;math&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>import "math"
 <a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>print(pi)   # prints: 3.141592653589793
 <a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>print(e)    # prints: 2.718281828459045
 </code></pre></div>
@@ -2291,7 +2291,7 @@ import them the same way, but you don't need any <code>.pbl</code> file on disk.
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>import &quot;math&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>import "math"
 <a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>
 <a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>print(abs(-7))       # prints: 7
 <a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>print(min(3, 8))     # prints: 3
@@ -2309,33 +2309,33 @@ import them the same way, but you don't need any <code>.pbl</code> file on disk.
 <h3 id="the-io-module">The <code>io</code> Module</h3>
 <p>The <code>io</code> module gives you one function — <code>input()</code> — for reading text
 from the user's keyboard.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>import &quot;io&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>import "io"
 <a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>
-<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>let name = input(&quot;What is your name? &quot;)
-<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>print(&quot;Hello, &quot; + name)
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>let name = input("What is your name? ")
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>print("Hello, " + name)
 </code></pre></div>
 <p>Running this program shows:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>What is your name? Alice
 <a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>Hello, Alice
 </code></pre></div>
 <p>You can also call <code>input()</code> with no argument:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>import &quot;io&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>import "io"
 <a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>
 <a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>let line = input()
-<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>print(&quot;You typed: &quot; + line)
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>print("You typed: " + line)
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code>input()</code> always returns a <strong>string</strong>. If you need a number, wrap it
 with <code>int()</code> or <code>float()</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>import &quot;io&quot;
-<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>let age = int(input(&quot;How old are you? &quot;))
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>import "io"
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>let age = int(input("How old are you? "))
 <a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>print(age + 1)
 </code></pre></div>
 </div>
 <h3 id="selective-imports">Selective Imports</h3>
 <p>Just like with file modules, you can import only the names you need:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>from &quot;math&quot; import sqrt, pi
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>from "math" import sqrt, pi
 <a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>
 <a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>let radius = 5
 <a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a>let area = pi * radius * radius
@@ -2343,22 +2343,22 @@ with <code>int()</code> or <code>float()</code>:</p>
 <a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>print(sqrt(area))   # prints: 8.862269254527579
 </code></pre></div>
 <p>Names you didn't import are not available:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>from &quot;math&quot; import sqrt
-<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>print(cos(0))   # Error: &#39;cos&#39; is not defined
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>from "math" import sqrt
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>print(cos(0))   # Error: 'cos' is not defined
 </code></pre></div>
 <h3 id="error-cases">Error Cases</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a># Unknown module (no .pbl file either)
-<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>import &quot;graphics&quot;
-<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a># Error: Module &#39;graphics&#39; not found
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>import "graphics"
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a># Error: Module 'graphics' not found
 <a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>
 <a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a># Unknown name in a known module
-<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>from &quot;math&quot; import tangent
-<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a># Error: Module &#39;math&#39; does not export &#39;tangent&#39;
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>from "math" import tangent
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a># Error: Module 'math' does not export 'tangent'
 <a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>
 <a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a># Wrong argument count
-<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>import &quot;math&quot;
+<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>import "math"
 <a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a>sqrt(1, 2)
-<a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a># Error: Function &#39;sqrt&#39; expects 1 argument but got 2
+<a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a># Error: Function 'sqrt' expects 1 argument but got 2
 </code></pre></div>
 <h3 id="how-importable-modules-work-under-the-hood">How Importable Modules Work Under the Hood</h3>
 <p>The resolver — the same component that handles <code>import "file.pbl"</code> —
@@ -2456,7 +2456,7 @@ the VM's global variables at startup — no function call needed.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

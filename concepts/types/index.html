@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1783,7 +1783,7 @@ toolbox into screwdrivers, hammers, and wrenches.</p>
 returns a string:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>print(type(42))        # prints: int
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(type(3.14))      # prints: float
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>print(type(&quot;hello&quot;))   # prints: str
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>print(type("hello"))   # prints: str
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>print(type(true))      # prints: bool
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>print(type(null))      # prints: null
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>print(type([1, 2]))    # prints: list
@@ -1800,8 +1800,8 @@ returns a string:</p>
 </code></pre></div>
 <p>You can use it in conditions:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let x = 42
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>if type(x) == &quot;int&quot; {
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    print(&quot;it is a number&quot;)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>if type(x) == "int" {
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    print("it is a number")
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>}
 </code></pre></div>
 <h2 id="what-each-type-can-do">What Each Type Can Do</h2>
@@ -1896,12 +1896,12 @@ string, it's that there's genuinely nothing inside.</p>
 <li><strong>Void methods</strong>: list methods like <code>push()</code>, <code>reverse()</code>, and <code>sort()</code>
   return <code>null</code> because they modify the list in place.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>fn greet() { print(&quot;hi&quot;) }
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>fn greet() { print("hi") }
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(greet())   # prints: hi  then  null
 </code></pre></div>
 <h3 id="null-is-falsy">Null is falsy</h3>
 <p>In conditions, <code>null</code> behaves like <code>false</code> -- it means "no":</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>if null { print(&quot;yes&quot;) } else { print(&quot;no&quot;) }   # prints: no
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>if null { print("yes") } else { print("no") }   # prints: no
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(not null)                                   # prints: true
 </code></pre></div>
 <h3 id="null-is-not-zero">Null is not zero</h3>
@@ -1909,7 +1909,7 @@ string, it's that there's genuinely nothing inside.</p>
 all", not "zero" or "empty":</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>print(null == 0)      # prints: false
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(null == false)   # prints: false
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>print(null == &quot;&quot;)      # prints: false
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>print(null == "")      # prints: false
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>print(null == null)    # prints: true
 </code></pre></div>
 <h3 id="what-null-cant-do">What null can't do</h3>
@@ -1946,28 +1946,28 @@ use <code>//</code>:</p>
 <p>Use <code>float()</code> to turn an integer or string into a float, and <code>int()</code> to
 go the other way (it chops off the decimal part):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>print(float(42))     # prints: 42.0
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(float(&quot;3.14&quot;)) # prints: 3.14
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(float("3.14")) # prints: 3.14
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>print(int(3.7))      # prints: 3    (truncates toward zero)
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>print(int(-2.9))     # prints: -2   (truncates toward zero)
 </code></pre></div>
 <h2 id="automatic-conversions">Automatic Conversions</h2>
 <p>Pebble does <strong>not</strong> automatically convert between unrelated types. If you
 try to add a number and a string, you get an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>print(1 + &quot;hello&quot;)   # Error: Cannot add int and str
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>print(1 + "hello")   # Error: Cannot add int and str
 </code></pre></div>
 <p>To convert explicitly, use <code>str()</code>, <code>int()</code>, or <code>float()</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let x = 42
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>print(&quot;answer: &quot; + str(x))   # prints: answer: 42
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>print("answer: " + str(x))   # prints: answer: 42
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>let s = &quot;7&quot;
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>let s = "7"
 <a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>print(int(s) + 3)             # prints: 10
 <a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>let f = &quot;3.14&quot;
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>let f = "3.14"
 <a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>print(float(f) + 1)           # prints: 4.140000000000001
 </code></pre></div>
 <p>Or use string interpolation, which converts automatically:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>let x = 42
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print(&quot;answer: {x}&quot;)   # prints: answer: 42
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>print("answer: {x}")   # prints: answer: 42
 </code></pre></div>
 <h2 id="type-annotations">Type Annotations</h2>
 <p>You can add <strong>type annotations</strong> to variables, function parameters, return
@@ -1981,7 +1981,7 @@ doesn't match:</p>
 </code></pre></div>
 <p>You can also be specific about what's <em>inside</em> a list or dict:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>let scores: List[Int] = [90, 85, 92]
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>let ages: Dict[String, Int] = {&quot;Alice&quot;: 12, &quot;Bob&quot;: 13}
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>let ages: Dict[String, Int] = {"Alice": 12, "Bob": 13}
 </code></pre></div>
 <p>Annotations are completely optional -- see
 <a href="../type-annotations/">Type Annotations</a> for the full guide, including
@@ -2082,7 +2082,7 @@ like <code>List[Int]</code> and <code>Dict[String, Int]</code>.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

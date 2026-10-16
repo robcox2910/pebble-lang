@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1776,7 +1776,7 @@ robots together?</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>class Vector { x, y }
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>let a = Vector(1, 2)
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let b = Vector(3, 4)
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>let c = a + b   # Error! Pebble doesn&#39;t know how to add Vectors
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>let c = a + b   # Error! Pebble doesn't know how to add Vectors
 </code></pre></div>
 <p>Pebble knows how to add numbers and concatenate strings, but it has
 no idea what "adding two Vectors" means. <strong>Operator overloading</strong> lets
@@ -1954,7 +1954,7 @@ string display:</p>
 <a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    }
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>    fn __str__(self) -&gt; String {
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        return &quot;(&quot; + str(self.x) + &quot;, &quot; + str(self.y) + &quot;)&quot;
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        return "(" + str(self.x) + ", " + str(self.y) + ")"
 <a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    }
 <a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>}
 <a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
@@ -1965,7 +1965,7 @@ string display:</p>
 <a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>print(a - b)     # prints: (-2, -2)
 <a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>print(a == b)    # prints: false
 <a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>print(-a)        # prints: (-1, -2)
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>print(&quot;v = {a}&quot;) # prints: v = (1, 2)
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>print("v = {a}") # prints: v = (1, 2)
 </code></pre></div>
 <h2 id="custom-string-display-with-__str__">Custom String Display with <code>__str__</code></h2>
 <p>When you define <code>__str__</code>, it's used everywhere Pebble needs to turn
@@ -1986,7 +1986,7 @@ name and all fields:</p>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    x, y,
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    fn __str__(self) -&gt; String {
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        return &quot;(&quot; + str(self.x) + &quot;, &quot; + str(self.y) + &quot;)&quot;
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        return "(" + str(self.x) + ", " + str(self.y) + ")"
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    }
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>}
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
@@ -2018,7 +2018,7 @@ name and all fields:</p>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    }
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    fn __str__(self) -&gt; String {
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        return &quot;Base(&quot; + str(self.val) + &quot;)&quot;
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        return "Base(" + str(self.val) + ")"
 <a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    }
 <a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>}
 <a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
@@ -2028,7 +2028,7 @@ name and all fields:</p>
 <a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    }
 <a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
 <a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    fn __str__(self) -&gt; String {
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>        return &quot;Fancy(&quot; + str(self.val) + &quot;)&quot;
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>        return "Fancy(" + str(self.val) + ")"
 <a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    }
 <a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>}
 <a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>
@@ -2093,7 +2093,7 @@ dunder:</p>
 <a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    fn __str__(self) -&gt; String {
 <a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>        let dollars = self.cents // 100
 <a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>        let remaining = self.cents % 100
-<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>        return &quot;$&quot; + str(dollars) + &quot;.&quot; + str(remaining)
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>        return "$" + str(dollars) + "." + str(remaining)
 <a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>    }
 <a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>}
 <a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>
@@ -2227,7 +2227,7 @@ values one at a time, like dealing cards from a deck.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

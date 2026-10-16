@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1799,7 +1799,7 @@ can look up a box by its number.</p>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(empty)   # prints: []
 </code></pre></div>
 <p>Lists can hold any mix of types:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let mixed = [1, &quot;hello&quot;, true]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let mixed = [1, "hello", true]
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(mixed)   # prints: [1, hello, true]
 </code></pre></div>
 <p>If you want Pebble to check that every element is the same type, you
@@ -1817,7 +1817,7 @@ like <code>List[Int]</code>.</p>
 <h2 id="reading-an-element">Reading an Element</h2>
 <p>Use square brackets after the list name with an <strong>index</strong> — the position
 number. Positions start at <strong>0</strong>, not 1:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let fruits = [&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let fruits = ["apple", "banana", "cherry"]
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(fruits[0])   # prints: apple
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>print(fruits[1])   # prints: banana
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(fruits[2])   # prints: cherry
@@ -1837,7 +1837,7 @@ knowing exactly how long it is. Negative indices let you count backwards:
 <p>Think of a queue of people. Positive indices count from the <strong>front</strong> of the
 line — 0 is the first person, 1 is the second. Negative indices count from
 the <strong>back</strong> — -1 is the last person, -2 is the one just before them.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let colours = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let colours = ["red", "green", "blue"]
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(colours[-1])   # prints: blue
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>print(colours[-2])   # prints: green
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>print(colours[-3])   # prints: red
@@ -1899,7 +1899,7 @@ is the first index to include and <code>stop</code> is the first index to <em>ex
 </code></pre></div>
 <h3 id="slicing-strings">Slicing strings</h3>
 <p>Slicing works on strings just the same way:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let s = &quot;hello&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>let s = "hello"
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>print(s[1:4])    # prints: ell
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>print(s[::-1])   # prints: olleh
 </code></pre></div>
@@ -2016,11 +2016,11 @@ error.</p>
 <a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>print(len([]))   # prints: 0
 </code></pre></div>
 <p><code>len()</code> also works on strings:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>print(len(&quot;hello&quot;))   # prints: 5
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>print(len("hello"))   # prints: 5
 </code></pre></div>
 <h2 id="looping-over-a-list">Looping Over a List</h2>
 <p>Combine <code>for</code> + <code>range</code> + indexing to visit every element:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>let colours = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>let colours = ["red", "green", "blue"]
 <a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>for i in range(len(colours)) {
 <a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>    print(colours[i])
 <a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>}
@@ -2030,7 +2030,7 @@ error.</p>
 <h3 id="string-interpolation">String Interpolation</h3>
 <p>You can use list elements inside <code>{…}</code> strings:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>let xs = [1, 2, 3]
-<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>print(&quot;first: {xs[0]}, total: {len(xs)}&quot;)
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>print("first: {xs[0]}, total: {len(xs)}")
 <a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a># prints: first: 1, total: 3
 </code></pre></div>
 <h3 id="functions">Functions</h3>
@@ -2117,7 +2117,7 @@ pocket for something new.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

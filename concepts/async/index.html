@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1687,28 +1687,28 @@ to stop; each task politely says <em>"I'm waiting, go ahead"</em>.</p>
 <p>An <strong>async function</strong> is declared with <code>async fn</code>. It looks like a
 regular function, but it can use <code>await</code> to pause:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>async fn make_soup() {
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    print(&quot;chopping vegetables&quot;)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    print("chopping vegetables")
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    await sleep(3)
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    print(&quot;soup is ready!&quot;)
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    return &quot;soup&quot;
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    print("soup is ready!")
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    return "soup"
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>}
 </code></pre></div>
 <p>When you <strong>call</strong> an async function, it doesn't run the code right away.
 Instead, it gives you back a <strong>coroutine object</strong> -- a recipe card that
 the event loop will follow later:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>let c = make_soup()
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(type(c))    # &quot;coroutine&quot;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>print(type(c))    # "coroutine"
 </code></pre></div>
 <h2 id="running-coroutines-with-async_run">Running Coroutines with <code>async_run</code></h2>
 <p>A coroutine won't do anything on its own -- you need the chef (event
 loop) to start cooking! The <code>async_run</code> builtin hands a coroutine to
 the event loop and waits for it to finish:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>async fn greet() {
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    return &quot;hello&quot;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    return "hello"
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>let result = async_run(greet())
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>print(result)    # &quot;hello&quot;
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>print(result)    # "hello"
 </code></pre></div>
 <p>Think of <code>async_run</code> as opening the kitchen for the day. It starts the
 event loop, runs your main task, and returns the result when everything
@@ -1741,15 +1741,15 @@ plate the dish -- let me work on the sauce first."</em></p>
 builtin registers a coroutine with the event loop and gives you back a
 <strong>handle</strong> you can <code>await</code> later:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>async fn task_a() {
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    print(&quot;a start&quot;)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    print("a start")
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    await sleep(2)
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    print(&quot;a done&quot;)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    print("a done")
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>}
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>async fn task_b() {
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    print(&quot;b start&quot;)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    print("b start")
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    await sleep(1)
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    print(&quot;b done&quot;)
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    print("b done")
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>}
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>async fn main() {
@@ -1787,16 +1787,16 @@ though <code>task_a</code> was spawned first!</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>async fn countdown(name, n) {
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    let i = n
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    while i &gt; 0 {
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        print(name + &quot;: &quot; + str(i))
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        print(name + ": " + str(i))
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        await sleep(1)
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        i = i - 1
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    }
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    print(name + &quot;: done!&quot;)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    print(name + ": done!")
 <a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>}
 <a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
 <a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>async fn main() {
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    let h1 = spawn(countdown(&quot;A&quot;, 3))
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    let h2 = spawn(countdown(&quot;B&quot;, 2))
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    let h1 = spawn(countdown("A", 3))
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    let h2 = spawn(countdown("B", 2))
 <a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    await h1
 <a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    await h2
 <a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>}
@@ -1892,14 +1892,14 @@ different purposes:</p>
 <h2 id="error-handling">Error Handling</h2>
 <p>If an async function throws an error, it propagates through <code>await</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>async fn risky() {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    throw &quot;something went wrong&quot;
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    throw "something went wrong"
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>async fn main() {
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    try {
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        await risky()
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    } catch e {
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        print(&quot;caught: &quot; + e)
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        print("caught: " + e)
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    }
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>}
 <a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
@@ -1986,7 +1986,7 @@ tasks are done, the loop returns the main task's result.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1737,7 +1737,7 @@ answer.</p>
 </ul>
 <h2 id="variable-declarations-let">Variable Declarations: <code>let</code></h2>
 <p>To create a new variable, use <code>let</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let name = &quot;Alice&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let name = "Alice"
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>let age = 12
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let score = 80 + 15
 </code></pre></div>
@@ -1749,12 +1749,12 @@ after <code>=</code> is what goes in the box.</p>
 week or a player's starting score. Use <code>const</code> instead of <code>let</code> to tell Pebble
 "this box is sealed shut -- once I put something in, nobody can swap it out":</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>const pi = 3
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>const greeting = &quot;hello&quot;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>const greeting = "hello"
 </code></pre></div>
 <p>If you try to reassign a <code>const</code> variable, Pebble stops you before the program
 even runs:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>const max_lives = 3
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>max_lives = 5  # Error: Cannot reassign constant &#39;max_lives&#39;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>max_lives = 5  # Error: Cannot reassign constant 'max_lives'
 </code></pre></div>
 <p>Think of <code>const</code> as writing a label on a box <em>and then gluing the lid shut</em>.
 You can still look inside (read the value), but you can't swap what's in there.</p>
@@ -1763,8 +1763,8 @@ You can still look inside (read the value), but you can't swap what's in there.<
 <p><code>const</code> locks the <strong>label</strong>, not the <strong>value itself</strong>. If the value is a
 list, you can still change items inside the list -- you just can't point the
 name at a completely different list:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>const colours = [&quot;red&quot;, &quot;green&quot;]
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>colours[0] = &quot;blue&quot;   # Fine -- changing an item inside
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>const colours = ["red", "green"]
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>colours[0] = "blue"   # Fine -- changing an item inside
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>colours = [1, 2, 3]   # Error -- trying to replace the whole list
 </code></pre></div>
 </div>
@@ -1778,7 +1778,7 @@ replacing what's inside an existing one.</p>
 <h2 id="printing-print">Printing: <code>print()</code></h2>
 <p>To display a value on screen:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>print(42)
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print(&quot;Hello, world!&quot;)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>print("Hello, world!")
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>print(x + y)
 </code></pre></div>
 <p>The parentheses are required -- <code>print</code> is written like a function call. You can
@@ -1786,40 +1786,40 @@ put any expression inside.</p>
 <h2 id="making-decisions-if-else">Making Decisions: <code>if</code> / <code>else</code></h2>
 <p>Sometimes your program needs to choose between two paths, like a fork in a road:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>if score &gt; 90 {
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    print(&quot;Excellent!&quot;)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    print("Excellent!")
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>} else {
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    print(&quot;Keep trying!&quot;)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    print("Keep trying!")
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>}
 </code></pre></div>
 <p>The condition (<code>score &gt; 90</code>) is an expression that produces <code>true</code> or <code>false</code>.
 If it's <code>true</code>, the first block runs. If it's <code>false</code>, the <code>else</code> block runs.</p>
 <p>The <code>else</code> part is optional:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>if raining {
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    print(&quot;Bring an umbrella&quot;)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    print("Bring an umbrella")
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
 </code></pre></div>
 <h2 id="else-if-chains">Else If Chains</h2>
 <p>What if there are more than two paths? Think of a traffic light: it can be
 green, yellow, or red — three choices, not just two. You <em>could</em> nest <code>if</code>
 inside <code>else</code>, but that gets messy fast. Instead, use <code>else if</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>if colour == &quot;green&quot; {
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    print(&quot;Go!&quot;)
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>} else if colour == &quot;yellow&quot; {
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    print(&quot;Slow down&quot;)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>if colour == "green" {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    print("Go!")
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>} else if colour == "yellow" {
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    print("Slow down")
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>} else {
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    print(&quot;Stop&quot;)
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    print("Stop")
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>}
 </code></pre></div>
 <p>You can chain as many <code>else if</code> branches as you need:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let score = 85
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>if score &gt; 90 {
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    print(&quot;A&quot;)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    print("A")
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>} else if score &gt; 80 {
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    print(&quot;B&quot;)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    print("B")
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>} else if score &gt; 70 {
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    print(&quot;C&quot;)
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    print("C")
 <a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>} else {
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    print(&quot;D&quot;)
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    print("D")
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>}
 </code></pre></div>
 <p>The computer checks each condition from top to bottom and runs the <strong>first</strong>
@@ -1829,12 +1829,12 @@ matches.</p>
 <p>Under the hood, <code>else if</code> is just a shortcut. The parser turns it into a
 nested <code>if</code> inside the <code>else</code> block, exactly as if you had written:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>if score &gt; 90 {
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print(&quot;A&quot;)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    print("A")
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>} else {
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    if score &gt; 80 {
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        print(&quot;B&quot;)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        print("B")
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    } else {
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        print(&quot;C&quot;)
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        print("C")
 <a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    }
 <a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>}
 </code></pre></div>
@@ -1889,7 +1889,7 @@ counts up to (but not including) <code>5</code>.</p>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    print(item)
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>}
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>for ch in &quot;hello&quot; {
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>for ch in "hello" {
 <a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    print(ch)
 <a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>}
 </code></pre></div>
@@ -2205,7 +2205,7 @@ problem was found.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1734,7 +1734,7 @@ to use it in another, you'd have to copy-paste it. That leads to:</p>
 <p>Modules solve all three problems. Write it once, import it anywhere.</p>
 <h2 id="importing-everything">Importing Everything</h2>
 <p>Use <code>import</code> followed by a path in quotes:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>import &quot;helpers.pbl&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>import "helpers.pbl"
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>print(add(1, 2))   # 3
 </code></pre></div>
@@ -1742,7 +1742,7 @@ to use it in another, you'd have to copy-paste it. That leads to:</p>
 defines. It's the easiest way to grab a whole toolbox at once.</p>
 <h2 id="importing-specific-names">Importing Specific Names</h2>
 <p>If you only need a few tools, use <code>from ... import</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>from &quot;helpers.pbl&quot; import add, multiply
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>from "helpers.pbl" import add, multiply
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>print(add(2, multiply(3, 4)))   # 14
 </code></pre></div>
@@ -1760,14 +1760,14 @@ defines. It's the easiest way to grab a whole toolbox at once.</p>
 do <strong>not</strong> run when you import a module. The module's code is read
 for its blueprints, not executed line by line.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># noisy.pbl
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print(&quot;I am noisy!&quot;)       # this does NOT execute during import
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>print("I am noisy!")       # this does NOT execute during import
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>fn quiet() { return 0 }   # this IS available to importers
 </code></pre></div>
 <h2 id="file-paths">File Paths</h2>
 <p>Import paths are <strong>strings</strong> that point to <code>.pbl</code> files. They are
 resolved relative to the file that contains the <code>import</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import &quot;math.pbl&quot;           # same directory
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>import &quot;lib/utils.pbl&quot;      # subdirectory called lib
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>import "math.pbl"           # same directory
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>import "lib/utils.pbl"      # subdirectory called lib
 </code></pre></div>
 <h2 id="creating-a-module">Creating a Module</h2>
 <p>Any <code>.pbl</code> file is automatically a module. Just write functions and
@@ -1781,7 +1781,7 @@ structs:</p>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>}
 </code></pre></div>
 <p>Then another file can import it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>import &quot;geometry.pbl&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>import "geometry.pbl"
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>let p = Point(3, 4)
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(distance(p))   # 5.0
@@ -1793,14 +1793,14 @@ structs:</p>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>fn base() { return 1 }
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a># b.pbl
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>import &quot;c.pbl&quot;
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>import "c.pbl"
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>fn mid() { return base() + 10 }
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a># a.pbl
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>import &quot;b.pbl&quot;
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>import "b.pbl"
 <a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>fn top() { return mid() + 100 }
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>import &quot;a.pbl&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>import "a.pbl"
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(top())   # 111
 </code></pre></div>
 <p>Pebble handles the chain for you and never compiles the same module
@@ -1813,13 +1813,13 @@ modules</strong> that are always available to import — no file needed:</p>
   constants like <code>pi</code> and <code>e</code></li>
 <li><strong><code>"io"</code></strong> — the <code>input()</code> function for reading from the keyboard</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>import &quot;math&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>import "math"
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>print(sqrt(16))   # 4.0
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>print(pi)         # 3.141592653589793
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>from &quot;io&quot; import input
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>let name = input(&quot;Name? &quot;)
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>print(&quot;Hi, &quot; + name)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>from "io" import input
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>let name = input("Name? ")
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>print("Hi, " + name)
 </code></pre></div>
 <p>These use exactly the same <code>import</code> / <code>from ... import</code> syntax as
 file modules. The resolver checks for built-in module names first;
@@ -1850,20 +1850,20 @@ module functions and constants.</p>
 <h2 id="error-cases">Error Cases</h2>
 <p>Pebble catches import problems early:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a># File not found
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>import &quot;nonexistent.pbl&quot;
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a># Error: Module &#39;nonexistent.pbl&#39; not found
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>import "nonexistent.pbl"
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a># Error: Module 'nonexistent.pbl' not found
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a># Circular import
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a># a.pbl imports b.pbl, b.pbl imports a.pbl
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a># Error: Circular import detected: &#39;a.pbl&#39;
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a># Error: Circular import detected: 'a.pbl'
 <a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
 <a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a># Name not exported
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>from &quot;math.pbl&quot; import multiply
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a># Error: Module &#39;math.pbl&#39; does not export &#39;multiply&#39;
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>from "math.pbl" import multiply
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a># Error: Module 'math.pbl' does not export 'multiply'
 <a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
 <a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a># Import after code
 <a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>let x = 1
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>import &quot;math.pbl&quot;
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>import "math.pbl"
 <a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a># Error: Imports must appear at the top of the file
 </code></pre></div>
 <h2 id="practical-examples">Practical Examples</h2>
@@ -1873,7 +1873,7 @@ module functions and constants.</p>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>fn sub(a, b) { return a - b }
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>fn mul(a, b) { return a * b }
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>from &quot;helpers.pbl&quot; import add, mul
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>from "helpers.pbl" import add, mul
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(add(2, mul(3, 4)))   # 14
 </code></pre></div>
 <h3 id="geometry-with-structs">Geometry with Structs</h3>
@@ -1888,7 +1888,7 @@ module functions and constants.</p>
 <a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    return Point(p.x + dx, p.y + dy)
 <a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>}
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>import &quot;geometry.pbl&quot;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>import "geometry.pbl"
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>let p = Point(3, 4)
 <a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>print(distance(p))            # 5.0
@@ -2015,7 +2015,7 @@ difference.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

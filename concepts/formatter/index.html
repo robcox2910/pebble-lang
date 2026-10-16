@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1621,6 +1621,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#never-breaking-your-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Never Breaking Your Code
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1772,6 +1783,14 @@
 <p>Another challenge: the AST stores decoded string values. A string literal <code>"hello\nworld"</code> becomes a <code>StringLiteral</code> node whose value contains an actual newline character. The formatter must <strong>re-escape</strong> these characters when outputting the string, converting the real newline back to <code>\n</code>.</p>
 <h2 id="idempotency">Idempotency</h2>
 <p>A good formatter is <strong>idempotent</strong> -- formatting already-formatted code produces the exact same output. You can run <code>pebble fmt</code> as many times as you like and the result won't change after the first time. This is an important property because it means the formatter is predictable and won't create noisy diffs.</p>
+<h2 id="never-breaking-your-code">Never Breaking Your Code</h2>
+<p>Tidying must never change what a program <em>means</em>, and it must never produce code that won't run. Think of a tidy-up robot in your bedroom: it can sort your things into neat piles, but it must never throw anything away or glue a drawer shut.</p>
+<p>We check this two ways:</p>
+<ul>
+<li><strong>Round-trip tests.</strong> For every example (and hundreds of random programs invented by the <a href="https://hypothesis.readthedocs.io/">Hypothesis</a> library), we check that the formatted code still parses, means exactly the same thing as the original, and stays the same when formatted again.</li>
+<li><strong>A safety net in <code>pebble fmt</code>.</strong> Because <code>pebble fmt</code> overwrites your file, it parses the tidied code <em>before</em> saving. If that ever failed, it refuses to write and leaves your original file untouched.</li>
+</ul>
+<p>These checks once caught a real bug: the formatter wrote struct fields one per line, but the parser didn't allow a line break after the comma, so <code>struct Point { x, y }</code> became code Pebble couldn't read.</p>
 
 
 
@@ -1824,7 +1843,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

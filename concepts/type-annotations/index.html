@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1907,7 +1907,7 @@ for <em>your</em> labels; <code>type()</code> shows the internal name.</p>
 <p>Add a colon and a type name after the variable name:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let x: Int = 5
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>const pi: Float = 3.14
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let name: String = &quot;Alice&quot;
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>let name: String = "Alice"
 </code></pre></div>
 <p>If you leave off the annotation, the variable accepts any value -- exactly
 like before:</p>
@@ -1923,7 +1923,7 @@ like before:</p>
 are checked:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fn greet(name: String, times) {
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    for i in range(times) {
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        print(&quot;Hello {name}&quot;)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        print("Hello {name}")
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    }
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
 </code></pre></div>
@@ -1963,28 +1963,28 @@ what should go inside.</p>
 <h3 id="list-with-an-element-type">List with an Element Type</h3>
 <p>Put the element type inside square brackets:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let scores: List[Int] = [90, 85, 92]
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let names: List[String] = [&quot;Alice&quot;, &quot;Bob&quot;]
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let names: List[String] = ["Alice", "Bob"]
 </code></pre></div>
 <p>Pebble checks <strong>every element</strong> in the list, not just the container.
 If one element is the wrong type, you get a clear error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let oops: List[Int] = [1, &quot;two&quot;, 3]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let oops: List[Int] = [1, "two", 3]
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a># Type error: expected List[Int], got List
 </code></pre></div>
 <h3 id="dict-with-key-and-value-types">Dict with Key and Value Types</h3>
 <p>Dicts take two type parameters -- one for keys and one for values:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let ages: Dict[String, Int] = {&quot;Alice&quot;: 12, &quot;Bob&quot;: 13}
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>let flags: Dict[String, Bool] = {&quot;debug&quot;: true, &quot;verbose&quot;: false}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let ages: Dict[String, Int] = {"Alice": 12, "Bob": 13}
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>let flags: Dict[String, Bool] = {"debug": true, "verbose": false}
 </code></pre></div>
 <p>Both keys and values are checked:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let bad: Dict[String, Int] = {&quot;age&quot;: &quot;twelve&quot;}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>let bad: Dict[String, Int] = {"age": "twelve"}
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a># Type error: expected Dict[String, Int], got Dict
 </code></pre></div>
 <h3 id="nesting">Nesting</h3>
 <p>You can put parameterized types inside other parameterized types --
 like putting a labelled box inside another labelled box:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let matrix: List[List[Int]] = [[1, 2], [3, 4]]
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>let records: List[Dict[String, Int]] = [{&quot;x&quot;: 1}, {&quot;y&quot;: 2}]
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>let lookup: Dict[String, List[Float]] = {&quot;temps&quot;: [98.6, 99.1]}
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>let records: List[Dict[String, Int]] = [{"x": 1}, {"y": 2}]
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>let lookup: Dict[String, List[Float]] = {"temps": [98.6, 99.1]}
 </code></pre></div>
 <p>Pebble checks every level of nesting, all the way down.</p>
 <h3 id="empty-containers">Empty Containers</h3>
@@ -1998,8 +1998,8 @@ nothing to be wrong:</p>
 <p>You don't have to use type parameters. Plain <code>List</code> and <code>Dict</code> still
 work the same as before -- they just check that the value is a list or
 dict without looking at what's inside:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let anything: List = [1, &quot;two&quot;, true]   # OK -- only checks it&#39;s a list
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>let lookup: Dict = {&quot;a&quot;: 1, &quot;b&quot;: &quot;two&quot;} # OK -- only checks it&#39;s a dict
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>let anything: List = [1, "two", true]   # OK -- only checks it's a list
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>let lookup: Dict = {"a": 1, "b": "two"} # OK -- only checks it's a dict
 </code></pre></div>
 <h3 id="generics-in-functions">Generics in Functions</h3>
 <p>Use parameterized types for function parameters and return types:</p>
@@ -2020,7 +2020,7 @@ dict without looking at what's inside:</p>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    scores: List[Int]
 <a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>}
 <a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>let book = Gradebook(&quot;Alice&quot;, [90, 85, 92])
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>let book = Gradebook("Alice", [90, 85, 92])
 <a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>book.scores = [95, 88]         # OK -- List[Int]
 </code></pre></div>
 <h2 id="when-types-are-checked">When Types Are Checked</h2>
@@ -2055,10 +2055,10 @@ always has:</p>
 <a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    return a * b
 <a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>}
 <a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
-<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a># Mixed -- only &#39;name&#39; is checked
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a># Mixed -- only 'name' is checked
 <a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>fn greet(name: String, times) {
 <a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>    for i in range(times) {
-<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>        print(&quot;Hello {name}&quot;)
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>        print("Hello {name}")
 <a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>    }
 <a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>}
 </code></pre></div>
@@ -2083,24 +2083,24 @@ always has:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Type error: expected Int, got String
 </code></pre></div>
 <p>For function parameters, it names the parameter:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Type error: parameter &#39;age&#39; expected Int, got String
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Type error: parameter 'age' expected Int, got String
 </code></pre></div>
 <p>For struct fields, it names both the field and the struct:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>Type error: field &#39;x&#39; of &#39;Point&#39; expected Float, got Int
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>Type error: field 'x' of 'Point' expected Float, got Int
 </code></pre></div>
 <h2 id="practical-examples">Practical Examples</h2>
 <h3 id="a-simple-calculator">A Simple Calculator</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>fn calculate(a: Float, b: Float, op: String) -&gt; Float {
 <a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    match op {
-<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>        case &quot;+&quot; { return a + b }
-<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>        case &quot;-&quot; { return a - b }
-<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>        case &quot;*&quot; { return a * b }
-<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>        case &quot;/&quot; { return a / b }
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>        case "+" { return a + b }
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>        case "-" { return a - b }
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>        case "*" { return a * b }
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>        case "/" { return a / b }
 <a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    }
 <a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    return 0.0
 <a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>}
 <a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
-<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>print(calculate(10.0, 3.0, &quot;+&quot;))   # 13.0
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>print(calculate(10.0, 3.0, "+"))   # 13.0
 </code></pre></div>
 <h3 id="a-user-record">A User Record</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>struct User {
@@ -2109,10 +2109,10 @@ always has:</p>
 <a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>}
 <a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
 <a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>fn describe(u: User) -&gt; String {
-<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    return &quot;{u.name} is {u.age} years old&quot;
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    return "{u.name} is {u.age} years old"
 <a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>}
 <a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>
-<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>let alice: User = User(&quot;Alice&quot;, 12)
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>let alice: User = User("Alice", 12)
 <a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>print(describe(alice))   # Alice is 12 years old
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
@@ -2253,7 +2253,7 @@ always has:</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1864,7 +1864,7 @@ it clear that <code>increment</code> belongs to <code>c</code>.</p>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    let the_name = name
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    fn bark() {
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        return &quot;Woof! I&#39;m &quot; + the_name
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        return "Woof! I'm " + the_name
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    }
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    fn rename(new_name) {
@@ -1878,10 +1878,10 @@ it clear that <code>increment</code> belongs to <code>c</code>.</p>
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    return bark, rename, get_name
 <a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>}
 <a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>let bark, rename, get_name = make_dog(&quot;Rex&quot;)
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>print(bark())       # prints: Woof! I&#39;m Rex
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>rename(&quot;Buddy&quot;)
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>print(bark())       # prints: Woof! I&#39;m Buddy
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>let bark, rename, get_name = make_dog("Rex")
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>print(bark())       # prints: Woof! I'm Rex
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>rename("Buddy")
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>print(bark())       # prints: Woof! I'm Buddy
 </code></pre></div>
 <p>Notice that the parameter <code>name</code> is copied into <code>the_name</code> so the
 closure can capture and change it.</p>
@@ -1890,7 +1890,7 @@ closure can capture and change it.</p>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    name,
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    fn bark(self) {
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        return &quot;Woof! I&#39;m &quot; + self.name
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        return "Woof! I'm " + self.name
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    }
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    fn rename(self, new_name) {
@@ -1898,10 +1898,10 @@ closure can capture and change it.</p>
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    }
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>}
 <a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>let d = Dog(&quot;Rex&quot;)
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>print(d.bark())       # prints: Woof! I&#39;m Rex
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>d.rename(&quot;Buddy&quot;)
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>print(d.bark())       # prints: Woof! I&#39;m Buddy
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>let d = Dog("Rex")
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>print(d.bark())       # prints: Woof! I'm Rex
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>d.rename("Buddy")
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>print(d.bark())       # prints: Woof! I'm Buddy
 </code></pre></div>
 <h3 id="what-changed">What Changed?</h3>
 <p>With the class version:</p>
@@ -2191,7 +2191,7 @@ more readable, and more powerful.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

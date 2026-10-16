@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1682,7 +1682,7 @@ a dict lets you use a descriptive name.</p>
 <h2 id="creating-a-dict">Creating a Dict</h2>
 <p>Put key-value pairs between curly braces <code>{}</code>, with a colon <code>:</code> between each
 key and value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let person = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>let person = {"name": "Alice", "age": 12}
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>print(person)   # prints: {name: Alice, age: 12}
 </code></pre></div>
 <p>An empty dict has nothing between the braces:</p>
@@ -1691,70 +1691,70 @@ key and value:</p>
 </code></pre></div>
 <p>Keys must be <strong>strings</strong>. Values can be any type — numbers, strings, booleans,
 lists, or even other dicts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let record = {&quot;scores&quot;: [90, 85, 100], &quot;passed&quot;: true}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let record = {"scores": [90, 85, 100], "passed": true}
 </code></pre></div>
 <p>If you want Pebble to check the types of keys and values, you can use a
 <a href="../type-annotations/#dict-with-key-and-value-types">parameterized type annotation</a>
 like <code>Dict[String, Int]</code>.</p>
 <h2 id="reading-a-value">Reading a Value</h2>
 <p>Use square brackets with the <strong>key</strong> (a string) to look up a value:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(d[&quot;name&quot;])   # prints: Alice
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>print(d[&quot;age&quot;])    # prints: 12
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let d = {"name": "Alice", "age": 12}
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>print(d["name"])   # prints: Alice
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>print(d["age"])    # prints: 12
 </code></pre></div>
 <p>If you use a key that doesn't exist, Pebble stops with an error:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(d[&quot;email&quot;])   # Error: Key &#39;email&#39; not found in dict
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>print(d["email"])   # Error: Key 'email' not found in dict
 </code></pre></div>
 <h2 id="changing-or-adding-values">Changing or Adding Values</h2>
 <p>Assign to a key to change its value, or create a new key if it doesn't exist
 yet:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;}
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>d[&quot;name&quot;] = &quot;Bob&quot;      # change existing key
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>d[&quot;age&quot;] = 13           # add a new key
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>let d = {"name": "Alice"}
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>d["name"] = "Bob"      # change existing key
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>d["age"] = 13           # add a new key
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>print(d)                # prints: {name: Bob, age: 13}
 </code></pre></div>
 <p>This is called an <strong>upsert</strong> — it <strong>up</strong>dates if the key exists, or
 <strong>insert</strong>s if it doesn't.</p>
 <h2 id="finding-the-size">Finding the Size</h2>
 <p>The built-in <code>len()</code> function tells you how many key-value pairs a dict has:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let d = {&quot;a&quot;: 1, &quot;b&quot;: 2, &quot;c&quot;: 3}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let d = {"a": 1, "b": 2, "c": 3}
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>print(len(d))   # prints: 3
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>print(len({}))  # prints: 0
 </code></pre></div>
 <h2 id="getting-keys-and-values">Getting Keys and Values</h2>
 <p>Two built-in functions let you pull out just the keys or just the values:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let d = {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let d = {"name": "Alice", "age": 12}
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>print(keys(d))     # prints: [name, age]
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>print(values(d))   # prints: [Alice, 12]
 </code></pre></div>
 <p>Both return a <strong>list</strong>, so you can use them with <code>len()</code>, indexing, or loops:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let d = {&quot;x&quot;: 10, &quot;y&quot;: 20, &quot;z&quot;: 30}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>let d = {"x": 10, "y": 20, "z": 30}
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>let k = keys(d)
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>for i in range(len(k)) {
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    print(&quot;{k[i]}: {d[k[i]]}&quot;)
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    print("{k[i]}: {d[k[i]]}")
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>}
 </code></pre></div>
 <h2 id="checking-the-type">Checking the Type</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>print(type({}))          # prints: dict
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(type({&quot;a&quot;: 1}))   # prints: dict
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>print(type({"a": 1}))   # prints: dict
 </code></pre></div>
 <h2 id="dicts-with-other-features">Dicts with Other Features</h2>
 <h3 id="string-interpolation">String Interpolation</h3>
 <p>You can use dict values inside <code>{...}</code> strings:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let person = {&quot;name&quot;: &quot;Alice&quot;}
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print(&quot;hello {person[&quot;name&quot;]}&quot;)   # prints: hello Alice
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>let person = {"name": "Alice"}
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>print("hello {person["name"]}")   # prints: hello Alice
 </code></pre></div>
 <h3 id="functions">Functions</h3>
 <p>Dicts can be passed to and returned from functions:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn greet(person) {
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    return &quot;Hi, {person[&quot;name&quot;]}!&quot;
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    return "Hi, {person["name"]}!"
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>}
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(greet({&quot;name&quot;: &quot;Bob&quot;}))   # prints: Hi, Bob!
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>print(greet({"name": "Bob"}))   # prints: Hi, Bob!
 </code></pre></div>
 <h3 id="nested-dicts">Nested Dicts</h3>
 <p>A dict value can itself be a dict:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let data = {&quot;user&quot;: {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 12}}
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(data[&quot;user&quot;][&quot;name&quot;])   # prints: Alice
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>let data = {"user": {"name": "Alice", "age": 12}}
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>print(data["user"]["name"])   # prints: Alice
 </code></pre></div>
 <h2 id="how-it-works-under-the-hood">How It Works Under the Hood</h2>
 <p>When the <strong>compiler</strong> sees <code>{"a": 1, "b": 2}</code>, it pushes each key and value
@@ -1836,7 +1836,7 @@ existing one.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand", "toc.integrate", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
