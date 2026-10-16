@@ -1762,6 +1762,13 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a># Calculate the total
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>let total = price + tax  # includes shipping
 </code></pre></div>
+<p>How does it know where "in place" is, after it has rebuilt every line? Each
+line the formatter writes remembers which line of <em>your</em> file it came from --
+like sticky notes saying "this came from line 7". A comment at the end of a
+line rejoins the line made from that same source line. A comment on its own
+line goes just before the next statement you wrote after it, indented to match
+the <code>{ }</code> blocks it was written inside (even right at the end of a block, just
+before the closing <code>}</code>).</p>
 <h2 id="how-it-works">How It Works</h2>
 <p>The formatter works in three steps:</p>
 <ol>
