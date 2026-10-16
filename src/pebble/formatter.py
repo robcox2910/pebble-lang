@@ -71,6 +71,7 @@ from pebble.ast_nodes import (
 )
 from pebble.lexer import Lexer
 from pebble.parser import Parser
+from pebble.tokens import Token, TokenKind
 
 __all__ = ["Formatter", "extract_comments"]
 
@@ -248,18 +249,6 @@ def _classify_comments(
     return standalone, inline
 
 
-def _count_code_lines_before(source: str, comments: dict[int, str], target_line: int) -> int:
-    """Count non-comment, non-blank source lines before *target_line*."""
-    source_lines = source.split("\n")
-    count = 0
-    for i in range(1, target_line):
-        if i not in comments:
-            line = source_lines[i - 1].strip() if i <= len(source_lines) else ""
-            if line and not line.startswith("#"):
-                count += 1
-    return count
-
-
 # -- Formatter -----------------------------------------------------------------
 
 
@@ -277,6 +266,11 @@ class Formatter:
         self._comments = extract_comments(source)
         self._indent = 0
         self._lines: list[str] = []
+        # For every output line: (source line it came from, indent level).
+        # Comments use this to find their way back to the right spot.
+        self._line_origins: list[tuple[int | None, int]] = []
+        self._current_source_line: int | None = None
+        self._tokens: list[Token] = []
 
     def format(self) -> str:
         """Return the formatted source code."""
@@ -284,6 +278,7 @@ class Formatter:
             return "\n"
 
         tokens = Lexer(self._source).tokenize()
+        self._tokens = tokens
         program = Parser(tokens).parse()
         self._format_program(program)
         return self._build_output()
@@ -293,6 +288,12 @@ class Formatter:
     def _emit(self, text: str) -> None:
         """Append a formatted line (with current indentation)."""
         self._lines.append(f"{_INDENT * self._indent}{text}")
+        self._line_origins.append((self._current_source_line, self._indent))
+
+    def _emit_blank(self) -> None:
+        """Append an empty separator line."""
+        self._lines.append("")
+        self._line_origins.append((None, 0))
 
     def _build_output(self) -> str:
         """Build final output with comments interleaved."""
@@ -305,77 +306,91 @@ class Formatter:
         return result
 
     def _interleave_comments(self) -> str:
-        """Interleave extracted comments into the formatted output."""
+        """Put every comment back next to the code it was written beside.
+
+        Each output line remembers the source line it came from, so:
+
+        - an **inline** comment (``x = 1  # note``) rejoins the output line
+          made from its own source line;
+        - a **standalone** comment goes just before the next statement written
+          after it, at the depth of the ``{ }`` blocks it was written inside.
+        """
         if not self._comments:
             return "\n".join(self._lines)
 
         standalone, inline = _classify_comments(self._source, self._comments)
-        out_lines = "\n".join(self._lines).split("\n")
-        source_lines = self._source.split("\n")
+        lines = list(self._lines)
 
-        result_lines: list[str] = []
-        used: set[int] = set()
+        for source_line, comment in inline.items():
+            target = self._first_line_from(source_line)
+            if target is None:
+                standalone[source_line] = comment  # nowhere to hang it; keep it nearby
+            else:
+                lines[target] = f"{lines[target]}  {comment}"
 
-        # Emit standalone comments that appear before any code
-        src_line = 1
-        while src_line in standalone:
-            result_lines.append(standalone[src_line])
-            used.add(src_line)
-            src_line += 1
+        inserts: dict[int, list[str]] = {}
+        for source_line in sorted(standalone):
+            depth = self._brace_depth_before(source_line)
+            position = self._standalone_position(source_line, depth)
+            text = f"{_INDENT * depth}{standalone[source_line].strip()}"
+            inserts.setdefault(position, []).append(text)
 
-        for idx, raw_line in enumerate(out_lines):
-            # Append inline comment if the formatted line matches
-            annotated = self._attach_inline_comment(raw_line, inline, source_lines, used)
-            result_lines.append(annotated)
+        result: list[str] = []
+        for index, line in enumerate(lines):
+            result.extend(inserts.get(index, []))
+            result.append(line)
+        result.extend(inserts.get(len(lines), []))
+        return "\n".join(result)
 
-            # Insert any standalone comments that belong after this line
-            self._insert_standalone_after(idx, out_lines, standalone, used, result_lines)
+    def _first_line_from(self, source_line: int) -> int | None:
+        """Return the first output line made from *source_line*, if any."""
+        for index, (origin, _indent) in enumerate(self._line_origins):
+            if origin == source_line:
+                return index
+        return None
 
-        # Append remaining comments at end of file
-        result_lines.extend(self._comments[ln] for ln in sorted(self._comments) if ln not in used)
-        return "\n".join(result_lines)
+    def _brace_depth_before(self, source_line: int) -> int:
+        """Count how many ``{ }`` blocks are still open before *source_line*."""
+        depth = 0
+        for token in self._tokens:
+            if token.location.line >= source_line:
+                break
+            if token.kind == TokenKind.LEFT_BRACE:
+                depth += 1
+            elif token.kind == TokenKind.RIGHT_BRACE:
+                depth = max(0, depth - 1)
+        return depth
 
-    @staticmethod
-    def _attach_inline_comment(
-        line: str,
-        inline: dict[int, str],
-        source_lines: list[str],
-        used: set[int],
-    ) -> str:
-        """Attach an inline comment to *line* if one matches."""
-        stripped = line.strip()
-        if not stripped:
-            return line
-        for ln, cmt in inline.items():
-            if ln in used:
-                continue
-            src = source_lines[ln - 1] if ln <= len(source_lines) else ""
-            src_code = src.split("#")[0].strip()
-            if src_code and stripped.startswith(src_code.split()[0]):
-                used.add(ln)
-                return f"{line}  {cmt}"
-        return line
+    def _closes_block_after(self, source_line: int) -> bool:
+        """Return True if the next code after *source_line* is a closing ``}``."""
+        for token in self._tokens:
+            if token.location.line > source_line and token.kind != TokenKind.NEWLINE:
+                return token.kind == TokenKind.RIGHT_BRACE
+        return False
 
-    def _insert_standalone_after(
-        self,
-        idx: int,
-        out_lines: list[str],
-        standalone: dict[int, str],
-        used: set[int],
-        result_lines: list[str],
-    ) -> None:
-        """Insert standalone comments that belong between idx and idx+1."""
-        if idx >= len(out_lines) - 1:
-            return
-        # Count how many non-blank formatted lines we've seen so far
-        fmt_code_count = sum(1 for i in range(idx + 1) if out_lines[i].strip())
-        for ln in sorted(standalone):
-            if ln in used:
-                continue
-            code_before = _count_code_lines_before(self._source, self._comments, ln)
-            if fmt_code_count == code_before:
-                result_lines.append(standalone[ln])
-                used.add(ln)
+    def _standalone_position(self, source_line: int, depth: int) -> int:
+        """Find where a standalone comment written at *source_line* belongs.
+
+        Start just before the next statement that came after it in the
+        source. If the comment sat at the end of a block (just before ``}`` or
+        ``} else {``), that next statement is *past* the block's end -- so step
+        back over any shallower lines (closing braces, blank lines) until we're
+        at the comment's own depth again.
+        """
+        position = len(self._lines)
+        for index, (origin, _indent) in enumerate(self._line_origins):
+            if origin is not None and origin > source_line:
+                position = index
+                break
+        at_depth = position < len(self._lines) and self._line_origins[position][1] >= depth
+        if at_depth and not self._closes_block_after(source_line):
+            return position
+        while position > 0:
+            origin, indent = self._line_origins[position - 1]
+            if origin is not None and indent >= depth:
+                break
+            position -= 1
+        return position
 
     # -- Program ---------------------------------------------------------------
 
@@ -385,14 +400,25 @@ class Formatter:
         for stmt in program.statements:
             is_def = isinstance(stmt, _DEFINITION_TYPES)
             if (is_def or prev_was_def) and self._lines and self._lines[-1] != "":
-                self._lines.append("")
+                self._emit_blank()
             self._format_statement(stmt)
             prev_was_def = is_def
 
     # -- Statements ------------------------------------------------------------
 
-    def _format_statement(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
-        """Format a single statement."""
+    def _format_statement(self, stmt: Statement) -> None:
+        """Format a single statement, remembering which source line it came from."""
+        outer_line = self._current_source_line
+        location = getattr(stmt, "location", None)
+        if location is not None:
+            self._current_source_line = location.line
+        try:
+            self._format_statement_body(stmt)
+        finally:
+            self._current_source_line = outer_line
+
+    def _format_statement_body(self, stmt: Statement) -> None:  # noqa: C901, PLR0912, PLR0915
+        """Format a single statement's text."""
         match stmt:
             case Assignment():
                 self._format_assignment(stmt)
@@ -591,7 +617,7 @@ class Formatter:
             type_str = f": {field.type_annotation}" if field.type_annotation else ""
             self._emit(f"{field.name}{type_str}{suffix}")
         if stmt.fields and stmt.methods:
-            self._lines.append("")  # blank line between fields and methods
+            self._emit_blank()  # blank line between fields and methods
         for i, method in enumerate(stmt.methods):
             params = self._format_params(method.parameters)
             ret = f" -> {method.return_type}" if method.return_type else ""
@@ -599,7 +625,7 @@ class Formatter:
             self._format_block(method.body)
             self._emit("}")
             if i < len(stmt.methods) - 1:
-                self._lines.append("")  # blank line between methods
+                self._emit_blank()  # blank line between methods
         self._indent -= 1
         self._emit("}")
 
