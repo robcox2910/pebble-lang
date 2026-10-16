@@ -99,6 +99,14 @@ The formatter keeps your comments in place:
 let total = price + tax  # includes shipping
 ```
 
+How does it know where "in place" is, after it has rebuilt every line? Each
+line the formatter writes remembers which line of *your* file it came from --
+like sticky notes saying "this came from line 7". A comment at the end of a
+line rejoins the line made from that same source line. A comment on its own
+line goes just before the next statement you wrote after it, indented to match
+the `{ }` blocks it was written inside (even right at the end of a block, just
+before the closing `}`).
+
 ## How It Works
 
 The formatter works in three steps:

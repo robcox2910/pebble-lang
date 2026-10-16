@@ -107,3 +107,39 @@ def _program_source(draw: st.DrawFn) -> str:
 def test_random_programs_survive_formatting(source: str) -> None:
     """Any program we can parse still parses -- and means the same -- after tidying."""
     _check_round_trip(source)
+
+
+@st.composite
+def _commented_program(draw: st.DrawFn) -> tuple[str, list[str]]:
+    """Invent a program with comments sprinkled between and after statements."""
+    statements = draw(st.lists(_NAMES, min_size=1, max_size=4, unique=True))
+    lines: list[str] = []
+    comments: list[str] = []
+    for index, name in enumerate(statements):
+        if draw(st.booleans()):
+            comments.append(f"# note {index}")
+            lines.append(comments[-1])
+        line = f"let {name} = {index}"
+        if draw(st.booleans()):
+            comments.append(f"# tail {index}")
+            line += f"  {comments[-1]}"
+        lines.append(line)
+    if draw(st.booleans()):
+        block = ["fn helper() {", "# inside", "return 1", "}"]
+        comments.append("# inside")
+        lines.extend(block)
+    return "\n".join(lines), comments
+
+
+@settings(max_examples=200, deadline=None)
+@given(_commented_program())
+def test_comments_survive_formatting_once_each(case: tuple[str, list[str]]) -> None:
+    """Every comment appears exactly once after tidying, and the code still round-trips."""
+    source, comments = case
+    formatted = Formatter(source).format()
+    for comment in comments:
+        assert formatted.count(comment) == 1, (comment, formatted)
+    for line in formatted.splitlines():
+        if line.strip().startswith("# tail"):
+            pytest.fail(f"inline comment became a standalone line: {formatted!r}")
+    _check_round_trip(source)

@@ -634,3 +634,45 @@ class TestFormatterIdempotency:
         source = "async fn fetch(url) { return await get(url) }"
         result = Formatter(source).format()
         assert "await get(url)" in result
+
+
+class TestCommentPlacement:
+    """Comments stay exactly where the author put them."""
+
+    def test_inline_comment_stays_on_its_own_line(self) -> None:
+        """Regression: an inline comment jumped to the first line starting with the same word."""
+        source = "let a = 1\nlet b = 2  # bee"
+        assert Formatter(source).format() == "let a = 1\nlet b = 2  # bee\n"
+
+    def test_two_inline_comments_keep_their_lines(self) -> None:
+        """Each inline comment stays with its own statement."""
+        source = "let x = 1  # one\nlet xy = 2  # two"
+        assert Formatter(source).format() == "let x = 1  # one\nlet xy = 2  # two\n"
+
+    def test_comment_inside_function_is_indented(self) -> None:
+        """Regression: a comment inside a block lost its indentation."""
+        source = "fn f() {\n# inside\nreturn 1\n}"
+        assert Formatter(source).format() == "fn f() {\n    # inside\n    return 1\n}\n"
+
+    def test_comment_at_end_of_block_stays_inside(self) -> None:
+        """A comment just before ``}`` stays inside the block, indented."""
+        source = "if true {\n    print(1)\n    # last word\n}\nprint(2)"
+        expected = "if true {\n    print(1)\n    # last word\n}\nprint(2)\n"
+        assert Formatter(source).format() == expected
+
+    def test_comment_between_top_level_statements_stays_put(self) -> None:
+        """A comment between two statements sits between them, unindented."""
+        source = "let x = 1\n# middle\nlet y = 2"
+        assert Formatter(source).format() == "let x = 1\n# middle\nlet y = 2\n"
+
+    def test_inline_comment_inside_block(self) -> None:
+        """An inline comment on a nested statement stays on that statement."""
+        source = "while false {\nlet a = 1  # first\nlet b = 2\n}"
+        expected = "while false {\n    let a = 1  # first\n    let b = 2\n}\n"
+        assert Formatter(source).format() == expected
+
+    def test_comment_before_else_stays_in_the_if_branch(self) -> None:
+        """A comment just before ``} else {`` ends the if-branch, not the else-branch."""
+        source = "if true {\n    print(1)\n    # end of if\n} else {\n    print(2)\n}"
+        expected = "if true {\n    print(1)\n    # end of if\n} else {\n    print(2)\n}\n"
+        assert Formatter(source).format() == expected
