@@ -650,6 +650,11 @@ class Parser:
             seen.add(field.name)
             while not self._at_end() and self._peek().kind == TokenKind.COMMA:
                 self._advance()  # consume ','
+                # Fields may sit one per line (the formatter writes them that
+                # way), and a trailing comma before ``}`` is allowed.
+                self._skip_newlines()
+                if not self._at_end() and self._peek().kind == TokenKind.RIGHT_BRACE:
+                    break
                 field = self._parse_parameter()
                 if field.name in seen:
                     self._error(f"Duplicate field '{field.name}' in struct '{name_token.value}'")

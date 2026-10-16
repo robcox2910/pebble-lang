@@ -124,3 +124,14 @@ Another challenge: the AST stores decoded string values. A string literal `"hell
 ## Idempotency
 
 A good formatter is **idempotent** -- formatting already-formatted code produces the exact same output. You can run `pebble fmt` as many times as you like and the result won't change after the first time. This is an important property because it means the formatter is predictable and won't create noisy diffs.
+
+## Never Breaking Your Code
+
+Tidying must never change what a program *means*, and it must never produce code that won't run. Think of a tidy-up robot in your bedroom: it can sort your things into neat piles, but it must never throw anything away or glue a drawer shut.
+
+We check this two ways:
+
+- **Round-trip tests.** For every example (and hundreds of random programs invented by the [Hypothesis](https://hypothesis.readthedocs.io/) library), we check that the formatted code still parses, means exactly the same thing as the original, and stays the same when formatted again.
+- **A safety net in `pebble fmt`.** Because `pebble fmt` overwrites your file, it parses the tidied code *before* saving. If that ever failed, it refuses to write and leaves your original file untouched.
+
+These checks once caught a real bug: the formatter wrote struct fields one per line, but the parser didn't allow a line break after the comma, so `struct Point { x, y }` became code Pebble couldn't read.

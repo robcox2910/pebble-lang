@@ -71,6 +71,17 @@ def _run_fmt(argv: list[str]) -> None:
 
     formatted = Formatter(source).format()
 
+    # ``fmt`` overwrites your file, so it must never save broken code. Parse
+    # the tidied result first; if that fails, keep the original untouched.
+    try:
+        Parser(Lexer(formatted).tokenize()).parse()
+    except PebbleError as exc:
+        sys.stderr.write(
+            f"{path}: formatter produced code that does not parse ({exc}); "
+            "refusing to write. Please report this bug.\n"
+        )
+        sys.exit(1)
+
     if check_mode:
         if source != formatted:
             sys.stderr.write(f"{path}: not formatted\n")
