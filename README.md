@@ -59,6 +59,17 @@ uv run ruff check .
 uv run pyright src tests
 ```
 
+## Using Pebble from Python
+
+```python
+from pebble import run_source
+
+print(run_source('print("Hello from Pebble!")'), end="")
+```
+
+`run_source`, `compile_source`, `check` and `format_source` are Pebble's public
+API; see [Using Pebble from Python](docs/concepts/using-pebble-from-python.md).
+
 ## Documentation
 
 Full docs at [robcox2910.github.io/pebble-lang](https://robcox2910.github.io/pebble-lang/)
