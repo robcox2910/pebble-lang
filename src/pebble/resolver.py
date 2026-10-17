@@ -5,6 +5,7 @@ imported modules through the full pipeline, caching results, and
 detecting circular imports.
 """
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -60,6 +61,10 @@ class ModuleResolver:
 
     Args:
         base_dir: Directory from which relative import paths are resolved.
+        modules: The importable built-in modules, by name. Defaults to
+            Pebble's own table (``math``, ``io``, ...); the public API
+            passes its own table so each run can have extra modules
+            without touching the shared one.
 
     """
 
@@ -67,11 +72,13 @@ class ModuleResolver:
         self,
         *,
         base_dir: Path,
+        modules: Mapping[str, StdlibModule] | None = None,
         cache: dict[Path, ResolvedModule] | None = None,
         resolving: set[Path] | None = None,
     ) -> None:
         """Create a resolver rooted at *base_dir*."""
         self._base_dir = base_dir
+        self._modules: Mapping[str, StdlibModule] = STDLIB_MODULES if modules is None else modules
         self._cache: dict[Path, ResolvedModule] = cache if cache is not None else {}
         self._resolving: set[Path] = resolving if resolving is not None else set()
         self._merged_functions: dict[str, CodeObject] = {}
@@ -160,7 +167,7 @@ class ModuleResolver:
 
     def _resolve_import(self, stmt: ImportStatement, analyzer: SemanticAnalyzer) -> None:
         """Resolve an ``import "path.pbl"`` or ``import "math"`` statement."""
-        stdlib = STDLIB_MODULES.get(stmt.path)
+        stdlib = self._modules.get(stmt.path)
         if stdlib is not None:
             self._register_stdlib(stdlib, analyzer, stmt.location)
             return
@@ -187,7 +194,7 @@ class ModuleResolver:
 
     def _resolve_from_import(self, stmt: FromImportStatement, analyzer: SemanticAnalyzer) -> None:
         """Resolve a ``from "path.pbl" import name1, name2`` statement."""
-        stdlib = STDLIB_MODULES.get(stmt.path)
+        stdlib = self._modules.get(stmt.path)
         if stdlib is not None:
             self._register_stdlib_selective(stdlib, stmt, analyzer)
             return
@@ -299,6 +306,7 @@ class ModuleResolver:
             # Recursively resolve nested imports in a fresh sub-resolver
             sub_resolver = ModuleResolver(
                 base_dir=path.parent.resolve(),
+                modules=self._modules,
                 cache=self._cache,
                 resolving=self._resolving,
             )

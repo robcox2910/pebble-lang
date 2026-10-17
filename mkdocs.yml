@@ -75,6 +75,7 @@ nav:
       - Async / Await: concepts/async.md
       - Enums: concepts/enums.md
       - Modules: concepts/modules.md
+      - Using Pebble from Python: concepts/using-pebble-from-python.md
       - Type Annotations: concepts/type-annotations.md
       - Type Checker: concepts/type-checker.md
       - REPL: concepts/repl.md
