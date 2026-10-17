@@ -211,3 +211,7 @@ these docs describe, one stage after another:
 6. The [virtual machine](vm.md) runs the bytecode.
 
 The front door just presses all six buttons for you, in order.
+
+## See also
+
+- [PyStack](https://robcox2910.github.io/pystack/) -- see Pebble programs running with the whole stack of PyWeb, PyDB, PyMQ and friends plugged in.
