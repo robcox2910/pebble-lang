@@ -63,6 +63,19 @@ uv run pyright src tests
 
 Full docs at [robcox2910.github.io/pebble-lang](https://robcox2910.github.io/pebble-lang/)
 
+## Releasing
+
+Other projects in the series ([PyStack](https://github.com/robcox2910/pystack) and [PyLLM](https://github.com/robcox2910/pyllm)) use a pinned release of this one,
+not whatever is on `main`. To publish a change for them:
+
+1. Merge the change to `main`.
+2. Tag it: `git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z`.
+   A change to the public API bumps the minor version (`v0.1.0` → `v0.2.0`);
+   anything else bumps the patch (`v0.1.0` → `v0.1.1`).
+3. In each project that uses it, edit the tag in `[tool.uv.sources]`, run
+   `uv lock --upgrade-package <name>`, and open a pull request so CI checks
+   the pair together.
+
 ## Related Projects
 
 Pebble is part of an educational series where every layer of the
