@@ -4,6 +4,7 @@ site_description: An educational compiler and bytecode VM for the Pebble languag
 repo_url: https://github.com/robcox2910/pebble-lang
 repo_name: robcox2910/pebble-lang
 
+# theme:start
 theme:
   name: material
   palette:
@@ -25,6 +26,7 @@ theme:
     - navigation.expand
     - toc.integrate
     - search.highlight
+# theme:end
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -83,3 +85,27 @@ nav:
       - Debugger: concepts/debugger.md
       - Formatter: concepts/formatter.md
       - Linter: concepts/linter.md
+  # series-nav:start
+  - The series:
+      - Series home: https://robcox2910.github.io/
+      - PyOS: https://robcox2910.github.io/py-os/
+      - "[You are here] Pebble": https://robcox2910.github.io/pebble-lang/
+      - PyDB: https://robcox2910.github.io/pydb/
+      - PyKV: https://robcox2910.github.io/pykv/
+      - PyDocDB: https://robcox2910.github.io/pydoc-db/
+      - PyGraphDB: https://robcox2910.github.io/pygraphdb/
+      - PyTSDB: https://robcox2910.github.io/pytsdb/
+      - PyVecDB: https://robcox2910.github.io/pyvecdb/
+      - PyColDB: https://robcox2910.github.io/pycoldb/
+      - PyCrypt: https://robcox2910.github.io/pycrypt/
+      - PyNet: https://robcox2910.github.io/pynet/
+      - PyWeb: https://robcox2910.github.io/pyweb/
+      - PyGit: https://robcox2910.github.io/pygit/
+      - PySearch: https://robcox2910.github.io/pysearch/
+      - PyMQ: https://robcox2910.github.io/pymq/
+      - PyLLM: https://robcox2910.github.io/pyllm/
+      - PyStack: https://robcox2910.github.io/pystack/
+  # series-nav:end
+
+exclude_docs: |
+  superpowers/
