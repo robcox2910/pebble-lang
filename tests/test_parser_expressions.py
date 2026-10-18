@@ -8,6 +8,7 @@ boolean operators.
 
 import pytest
 
+from pebble import check, run_source
 from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
@@ -20,7 +21,7 @@ from pebble.ast_nodes import (
 )
 from pebble.errors import ParseError
 from pebble.lexer import Lexer
-from pebble.parser import Parser
+from pebble.parser import MAX_NESTING, Parser
 
 # -- Named constants ----------------------------------------------------------
 
@@ -338,6 +339,18 @@ class TestParserGrouped:
         """Verify missing ')' raises ParseError."""
         with pytest.raises(ParseError, match="Expected '\\)'"):
             _parse_expr("(1 + 2")
+
+    @pytest.mark.parametrize("opener", ["(", "[", "-", "not ", "2 ** ", "if true { "])
+    def test_too_deep_nesting_raises_parse_error(self, opener: str) -> None:
+        """Regression (found by a property test): ``"(" * 1111`` used to crash with RecursionError."""
+        with pytest.raises(ParseError, match="nested too deeply"):
+            check(opener * 1111)
+
+    def test_nesting_up_to_the_limit_still_runs(self) -> None:
+        """A program nested as deep as the parser allows still compiles and runs."""
+        depth = MAX_NESTING - 2  # the statement and print's argument are a level each
+        source = "print(" + "(" * depth + "1" + ")" * depth + ")"
+        assert run_source(source) == "1\n"
 
 
 # -- Comparison operators -----------------------------------------------------

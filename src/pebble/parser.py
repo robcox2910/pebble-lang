@@ -4,7 +4,8 @@ The parser consumes a list of :class:`~pebble.tokens.Token` objects produced
 by the lexer and builds an :class:`~pebble.ast_nodes.Program` AST.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from typing import ClassVar, Never
 
 from pebble.ast_nodes import (
@@ -69,6 +70,10 @@ from pebble.ast_nodes import (
 )
 from pebble.errors import ParseError
 from pebble.tokens import Token, TokenKind
+
+# How deeply brackets, operators and blocks may nest. Real programs stay far
+# below this; it stops Python running out of stack on silly input.
+MAX_NESTING = 100
 
 # ---------------------------------------------------------------------------
 # Precedence levels (higher number = tighter binding)
@@ -157,6 +162,7 @@ class Parser:
         self._tokens = tokens
         self._pos = 0
         self._anon_counter = 0
+        self._depth = 0
 
     # -- Public API -----------------------------------------------------------
 
@@ -177,24 +183,25 @@ class Parser:
 
     def _parse_statement(self) -> Statement:
         """Parse a single statement."""
-        kind = self._peek().kind
+        with self._nested():
+            kind = self._peek().kind
 
-        # Keyword-driven dispatch
-        keyword_parser = self._statement_parsers.get(kind)
-        if keyword_parser is not None:
-            return keyword_parser(self)
+            # Keyword-driven dispatch
+            keyword_parser = self._statement_parsers.get(kind)
+            if keyword_parser is not None:
+                return keyword_parser(self)
 
-        # Identifier-specific: print, reassignment, or unpack reassignment
-        if kind == TokenKind.IDENTIFIER:
-            if self._peek().value == "print":
-                return self._parse_print()
-            if self._peek_next_kind() == TokenKind.EQUAL:
-                return self._parse_reassignment()
-            if self._peek_next_kind() == TokenKind.COMMA and self._is_unpack_reassignment():
-                return self._parse_unpack_reassignment()
+            # Identifier-specific: print, reassignment, or unpack reassignment
+            if kind == TokenKind.IDENTIFIER:
+                if self._peek().value == "print":
+                    return self._parse_print()
+                if self._peek_next_kind() == TokenKind.EQUAL:
+                    return self._parse_reassignment()
+                if self._peek_next_kind() == TokenKind.COMMA and self._is_unpack_reassignment():
+                    return self._parse_unpack_reassignment()
 
-        # Fall through to expression statement
-        return self._parse_expression_statement()
+            # Fall through to expression statement
+            return self._parse_expression_statement()
 
     def _parse_declaration(
         self, keyword: str
@@ -849,64 +856,65 @@ class Parser:
 
     def _parse_precedence(self, *, min_precedence: int) -> Expression:
         """Parse an expression with at least *min_precedence* binding power."""
-        left = self._parse_prefix()
+        with self._nested():
+            left = self._parse_prefix()
 
-        while not self._at_end():
-            # Postfix index access: expr[index]
-            if self._peek().kind == TokenKind.LEFT_BRACKET:
-                left = self._parse_index_access(left)
-                continue
+            while not self._at_end():
+                # Postfix index access: expr[index]
+                if self._peek().kind == TokenKind.LEFT_BRACKET:
+                    left = self._parse_index_access(left)
+                    continue
 
-            # Postfix dot access: method call or field access
-            if self._peek().kind == TokenKind.DOT:
-                left = self._parse_dot_access(left)
-                continue
+                # Postfix dot access: method call or field access
+                if self._peek().kind == TokenKind.DOT:
+                    left = self._parse_dot_access(left)
+                    continue
 
-            if self._peek().kind not in _INFIX_PRECEDENCE:
-                break
-            prec = _INFIX_PRECEDENCE[self._peek().kind]
-            if prec < min_precedence:
-                break
+                if self._peek().kind not in _INFIX_PRECEDENCE:
+                    break
+                prec = _INFIX_PRECEDENCE[self._peek().kind]
+                if prec < min_precedence:
+                    break
 
-            op_token = self._advance()
-            op_text = _OPERATOR_TEXT[op_token.kind]
-            # Right-associative: use same precedence; left-associative: strictly higher
-            next_prec = prec if op_token.kind in _RIGHT_ASSOCIATIVE else prec + 1
-            right = self._parse_precedence(min_precedence=next_prec)
-            left = BinaryOp(
-                left=left,
-                operator=op_text,
-                right=right,
-                location=op_token.location,
-            )
+                op_token = self._advance()
+                op_text = _OPERATOR_TEXT[op_token.kind]
+                # Right-associative: use same precedence; left-associative: strictly higher
+                next_prec = prec if op_token.kind in _RIGHT_ASSOCIATIVE else prec + 1
+                right = self._parse_precedence(min_precedence=next_prec)
+                left = BinaryOp(
+                    left=left,
+                    operator=op_text,
+                    right=right,
+                    location=op_token.location,
+                )
 
-            # Desugar chained comparisons: 1 < x < 10 → (1 < x) and (x < 10)
-            if op_token.kind in _COMPARISON_OPS:
-                shared = right
-                while (
-                    not self._at_end()
-                    and self._peek().kind in _COMPARISON_OPS
-                    and _INFIX_PRECEDENCE[self._peek().kind] >= min_precedence
-                ):
-                    chain_op = self._advance()
-                    chain_text = _OPERATOR_TEXT[chain_op.kind]
-                    chain_min = _INFIX_PRECEDENCE[chain_op.kind] + 1
-                    chain_right = self._parse_precedence(min_precedence=chain_min)
-                    chain_cmp = BinaryOp(
-                        left=shared,
-                        operator=chain_text,
-                        right=chain_right,
-                        location=chain_op.location,
-                    )
-                    left = BinaryOp(
-                        left=left,
-                        operator="and",
-                        right=chain_cmp,
-                        location=chain_op.location,
-                    )
-                    shared = chain_right
+                # Desugar chained comparisons: 1 < x < 10 → (1 < x) and (x < 10)
+                if op_token.kind in _COMPARISON_OPS:
+                    shared = right
+                    while (
+                        not self._at_end()
+                        and self._peek().kind in _COMPARISON_OPS
+                        and _INFIX_PRECEDENCE[self._peek().kind] >= min_precedence
+                    ):
+                        chain_op = self._advance()
+                        chain_text = _OPERATOR_TEXT[chain_op.kind]
+                        chain_min = _INFIX_PRECEDENCE[chain_op.kind] + 1
+                        chain_right = self._parse_precedence(min_precedence=chain_min)
+                        chain_cmp = BinaryOp(
+                            left=shared,
+                            operator=chain_text,
+                            right=chain_right,
+                            location=chain_op.location,
+                        )
+                        left = BinaryOp(
+                            left=left,
+                            operator="and",
+                            right=chain_cmp,
+                            location=chain_op.location,
+                        )
+                        shared = chain_right
 
-        return left
+            return left
 
     # -- Prefix (atoms and unary operators) -----------------------------------
 
@@ -1294,6 +1302,22 @@ class Parser:
             return
         if self._peek().kind == TokenKind.NEWLINE:
             self._advance()
+
+    @contextmanager
+    def _nested(self) -> Iterator[None]:
+        """Count one more level of nesting, refusing to go deeper than MAX_NESTING.
+
+        Every bracket, unary operator, right-hand side of ``**`` and block
+        goes one level deeper. Without a limit, ``"(" * 1111`` would crash
+        Python itself with RecursionError instead of giving a ParseError.
+        """
+        if self._depth >= MAX_NESTING:
+            self._error(f"Program is nested too deeply (more than {MAX_NESTING} levels)")
+        self._depth += 1
+        try:
+            yield
+        finally:
+            self._depth -= 1
 
     def _error(self, message: str) -> Never:
         """Raise a ParseError at the current token's location."""
