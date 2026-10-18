@@ -388,7 +388,11 @@ def _try_fold_binary(  # noqa: PLR0911
     if op == OpCode.ADD and isinstance(a, str) != isinstance(b, str):
         return _NO_FOLD
 
-    result = func(a, b)  # type: ignore[operator]
+    try:
+        result = func(a, b)  # type: ignore[operator]
+    except ArithmeticError:
+        # 0 ** -1 or 10.0 ** 400: leave it for the VM, which reports it properly
+        return _NO_FOLD
 
     # POWER can produce complex (e.g. (-1)**0.5) — not a valid Pebble type
     if isinstance(result, complex):

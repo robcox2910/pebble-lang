@@ -607,7 +607,12 @@ class VirtualMachine:
             return
         if not _both_numeric(left, right):
             self._type_error("**", left, right)
-        result = left**right  # type: ignore[operator]
+        try:
+            result = left**right  # type: ignore[operator]
+        except ZeroDivisionError:  # 0 ** -1
+            self._runtime_error(_DIVISION_BY_ZERO)
+        except OverflowError:  # 10.0 ** 400 is too big for a float
+            self._runtime_error("Exponentiation result is too large")
         # Python's ** may return complex (e.g. (-1)**0.5).  Pebble has no
         # complex type, so raise a friendly error instead of leaking it.
         if isinstance(result, complex):

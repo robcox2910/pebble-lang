@@ -1,5 +1,7 @@
 """Tests for the bytecode optimizer."""
 
+import pytest
+
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 from pebble.optimizer import optimize
 from tests.conftest import (
@@ -788,6 +790,12 @@ fn add(a, b) {
         result = compile_source_optimized(source)
         assert "add" in result.functions
         assert result.functions["add"].parameters == ["a", "b"]
+
+    @pytest.mark.parametrize("expression", ["0 ** -1", "10.0 ** 400"])
+    def test_fold_that_would_fail_is_left_to_the_vm(self, expression: str) -> None:
+        """Regression (found by a property test): a fold that fails is left for the VM to report."""
+        instrs = compile_instructions_optimized(f"print({expression})")
+        assert OpCode.POWER in [i.opcode for i in instrs]
 
 
 class TestEdgeCases:
