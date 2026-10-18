@@ -85,6 +85,7 @@ nav:
       - Debugger: concepts/debugger.md
       - Formatter: concepts/formatter.md
       - Linter: concepts/linter.md
+  - Property Testing: property-testing.md
   # series-nav:start
   - The series:
       - Series home: https://robcox2910.github.io/
