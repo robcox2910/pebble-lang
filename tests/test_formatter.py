@@ -6,6 +6,8 @@ classes, enums, match/case, try/catch, imports, comment interleaving,
 idempotency, and edge cases.
 """
 
+import pytest
+
 from pebble.formatter import Formatter, extract_comments
 
 # -- Cycle 1: Comment extraction -----------------------------------------------
@@ -670,6 +672,38 @@ class TestCommentPlacement:
         source = "while false {\nlet a = 1  # first\nlet b = 2\n}"
         expected = "while false {\n    let a = 1  # first\n    let b = 2\n}\n"
         assert Formatter(source).format() == expected
+
+    def test_inline_comment_after_a_function_expression(self) -> None:
+        """Regression: a comment after an ``fn(x) { ... }`` value crashed with IndexError.
+
+        Formatting the function's body recorded where its lines came from
+        in the outer program's list, so that list no longer lined up.
+        """
+        source = "let triple = fn(x) { return x * 3 }\nprint(triple(4))   # prints: 12"
+        expected = "let triple = fn(x) {\n    return x * 3\n}\nprint(triple(4))  # prints: 12\n"
+        assert Formatter(source).format() == expected
+
+    def test_comments_around_a_function_expression_keep_their_lines(self) -> None:
+        """Comments before and after a multi-line function expression stay with their statements."""
+        source = "let a = 1  # one\nlet f = fn(x) {\n    return x\n}\nlet b = 2  # two\n"
+        assert Formatter(source).format() == source
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "print(map(fn(x) {\n    return x  # inside\n}, [1]))\nprint(2)",
+            "print(map(fn(x) {\n    # inside\n    return x\n}, [1]))\nprint(2)",
+        ],
+    )
+    def test_comment_inside_a_function_expression(self, source: str) -> None:
+        """Regression: a comment inside ``fn(x) { ... }`` crashed, or moved to the wrong place.
+
+        The whole function value is printed as part of one line, so the
+        comment goes at the end of that line, and stays there next time.
+        """
+        expected = "print(map(fn(x) {\n    return x\n}, [1]))  # inside\nprint(2)\n"
+        assert Formatter(source).format() == expected
+        assert Formatter(expected).format() == expected
 
     def test_comment_before_else_stays_in_the_if_branch(self) -> None:
         """A comment just before ``} else {`` ends the if-branch, not the else-branch."""

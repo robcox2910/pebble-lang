@@ -72,7 +72,7 @@ from pebble.ast_nodes import (
 )
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from pebble.tokens import Token, TokenKind
+from pebble.tokens import SourceLocation, Token, TokenKind
 
 __all__ = ["Formatter", "extract_comments"]
 
@@ -272,6 +272,10 @@ class Formatter:
         self._line_origins: list[tuple[int | None, int]] = []
         self._current_source_line: int | None = None
         self._tokens: list[Token] = []
+        # Source lines written inside an ``fn(x) { ... }`` value, mapped to
+        # the line of the statement holding it. That whole value is printed
+        # as part of one output line, so its comments go on that line too.
+        self._inside_function_value: dict[int, int] = {}
 
     def format(self) -> str:
         """Return the formatted source code."""
@@ -320,10 +324,14 @@ class Formatter:
             return "\n".join(self._lines)
 
         standalone, inline = _classify_comments(self._source, self._comments)
+        for source_line in self._inside_function_value.keys() & self._comments.keys():
+            standalone.pop(source_line, None)
+            inline[source_line] = self._comments[source_line]
         lines = list(self._lines)
 
-        for source_line, comment in inline.items():
-            target = self._first_line_from(source_line)
+        for source_line, comment in sorted(inline.items()):
+            holder = self._inside_function_value.get(source_line, source_line)
+            target = self._first_line_from(holder)
             if target is None:
                 standalone[source_line] = comment  # nowhere to hang it; keep it nearby
             else:
@@ -349,6 +357,24 @@ class Formatter:
             if origin == source_line:
                 return index
         return None
+
+    def _function_value_end_line(self, start: SourceLocation) -> int:
+        """Return the line of the ``}`` closing the ``fn`` value that starts at *start*."""
+        parens = braces = 0
+        for token in self._tokens:
+            if (token.location.line, token.location.column) < (start.line, start.column):
+                continue
+            if token.kind == TokenKind.LEFT_PAREN:
+                parens += 1
+            elif token.kind == TokenKind.RIGHT_PAREN:
+                parens -= 1
+            elif token.kind == TokenKind.LEFT_BRACE and (braces or parens == 0):
+                braces += 1
+            elif token.kind == TokenKind.RIGHT_BRACE and braces:
+                braces -= 1
+                if braces == 0:
+                    return token.location.line
+        return start.line  # pragma: no cover - the parser already matched the braces
 
     def _brace_depth_before(self, source_line: int) -> int:
         """Count how many ``{ }`` blocks are still open before *source_line*."""
@@ -794,14 +820,20 @@ class Formatter:
         """Format an anonymous function expression."""
         params = self._format_params(expr.parameters)
         ret = f" -> {expr.return_type}" if expr.return_type else ""
-        # Function expressions get their body formatted inline
+        # Function expressions get their body formatted inline, into lists
+        # of their own: the body becomes part of one outer line, so its lines
+        # (and where they came from) mustn't land in the outer lists.
+        if self._current_source_line is not None:
+            end = self._function_value_end_line(expr.location)
+            for line in range(expr.location.line, end + 1):
+                self._inside_function_value.setdefault(line, self._current_source_line)
         body_lines: list[str] = []
-        saved_lines = self._lines
+        saved_lines, saved_origins = self._lines, self._line_origins
         saved_indent = self._indent
-        self._lines = body_lines
+        self._lines, self._line_origins = body_lines, []
         self._indent = 0
         self._format_block(expr.body)
-        self._lines = saved_lines
+        self._lines, self._line_origins = saved_lines, saved_origins
         self._indent = saved_indent
 
         if not body_lines:
