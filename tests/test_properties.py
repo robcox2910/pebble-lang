@@ -45,6 +45,13 @@ ALL_OPERATORS = [
     "and", "or", "&", "|", "^",
 ]  # fmt: skip
 LONGEST_REPEAT = 5_000
+# What a tower starts with, and the piece it stacks: "List[" only nests
+# inside a type annotation, and "else if" only follows an "if".
+TOWER_PIECES = [
+    ("", "("), ("", "["), ("", "{"), ("", "-"), ("", "not "), ("", "~"),
+    ("", "0"), ("", "9"), ("", "if x { "),
+    ("let x: ", "List["), ("if x {}", " else if x {}"),
+]  # fmt: skip
 MOST_VALUES_PER_EXPRESSION = 6
 
 
@@ -65,15 +72,12 @@ def pebble_soup() -> st.SearchStrategy[str]:
     return st.lists(pebble_pieces(), max_size=30).map("".join)
 
 
-def repeat(piece: str, times: int) -> str:
-    """Return *piece* written out *times* times in a row."""
-    return piece * times
-
-
-def towers() -> st.SearchStrategy[str]:
-    """Make one opener or digit stacked up to 5,000 times, like 5,000 open brackets."""
-    pieces = st.sampled_from(["(", "[", "{", "-", "not ", "~", "0", "9", "if x { "])
-    return st.builds(repeat, pieces, st.integers(min_value=0, max_value=LONGEST_REPEAT))
+@st.composite
+def towers(draw: st.DrawFn) -> str:
+    """Make one piece stacked up to 5,000 times, like 5,000 open brackets."""
+    start, piece = draw(st.sampled_from(TOWER_PIECES))
+    times = draw(st.integers(min_value=0, max_value=LONGEST_REPEAT))
+    return start + piece * times
 
 
 def scraps_of_text() -> st.SearchStrategy[str]:
@@ -89,6 +93,11 @@ def one_token(token: str) -> Tokens:
 def in_brackets(left: Tokens, operator: str, right: Tokens) -> Tokens:
     """Return ``( left operator right )``."""
     return ["(", *left, operator, *right, ")"]
+
+
+def minus(digit: str) -> Tokens:
+    """Return ``- digit``, a negative number written out."""
+    return ["-", digit]
 
 
 def applied(operator: str, operand: Tokens) -> Tokens:
@@ -114,7 +123,7 @@ def small_numbers() -> st.SearchStrategy[Tokens]:
     # Kept small on purpose: ``9 ** 9 ** 9`` or ``1 << 10 ** 9`` would take
     # ages and eat all the memory, which is a different test from this one.
     positive = st.integers(min_value=0, max_value=6).map(str).map(one_token)
-    negative = st.sampled_from(["1", "2"]).map(lambda digit: ["-", digit])
+    negative = st.sampled_from(["1", "2"]).map(minus)
     return st.one_of(positive, negative)
 
 
