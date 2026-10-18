@@ -979,3 +979,7 @@ class TestUnaryFoldJumpTargetSafety:
         opcodes = [i.opcode for i in result]
         # NEGATE must still be present — fold should NOT happen
         assert OpCode.NEGATE in opcodes
+
+    def test_unary_fold_skips_operator_that_is_a_jump_target(self) -> None:
+        """Regression (found by a property test): ``-(1 or 0)`` printed 0 once optimised."""
+        assert pebble.run_source("print(-(1 or 0))") == "-1\n"

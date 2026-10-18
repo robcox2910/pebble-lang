@@ -284,12 +284,17 @@ def _can_binary_fold(
     i: int,
     jump_targets: frozenset[int],
 ) -> bool:
-    """Check if instructions at *i* form a foldable binary pattern."""
+    """Check if instructions at *i* form a foldable binary pattern.
+
+    As with unary folds, nothing may jump into the middle or onto the
+    operator, or the jump would land in the wrong place after folding.
+    """
     return (
         instructions[i].opcode == OpCode.LOAD_CONST
         and i + 2 < len(instructions)
         and instructions[i + 1].opcode == OpCode.LOAD_CONST
         and (i + 1) not in jump_targets
+        and (i + 2) not in jump_targets
         and instructions[i + 2].opcode in _BINARY_FOLDERS
     )
 
@@ -324,11 +329,17 @@ def _can_unary_fold(
     i: int,
     jump_targets: frozenset[int],
 ) -> bool:
-    """Check if instructions at *i* form a foldable unary pattern."""
+    """Check if instructions at *i* form a foldable unary pattern.
+
+    Neither instruction may be a jump target: in ``-(1 or 0)`` the ``or``
+    jumps straight to the ``-`` with 1 on the stack, so folding ``0, -``
+    into one constant would make that jump land in the wrong place.
+    """
     return (
         instructions[i].opcode == OpCode.LOAD_CONST
         and i not in jump_targets
         and i + 1 < len(instructions)
+        and (i + 1) not in jump_targets
         and instructions[i + 1].opcode in _UNARY_FOLDERS
     )
 
