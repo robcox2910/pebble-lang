@@ -251,3 +251,42 @@ class TestErrorMessageTypeNames:
         """Unsupported operand error should say 'String' not 'str'."""
         with pytest.raises(PebbleRuntimeError, match="String"):
             run_source('print("a" - "b")')
+
+
+# -- Huge numbers -------------------------------------------------------------
+
+# 10 ** 5000 has 5,001 digits: more than Python will turn into text.
+HUGE = "let a = 10 ** 5000\n"
+
+
+class TestHugeNumbers:
+    """Whole numbers can be as big as you like, but some things can't be done with them."""
+
+    @pytest.mark.parametrize(
+        "line",
+        ["print(a)", "print(str(a))", 'print("{a}")', "print([a])", 'print({"k": a})'],
+    )
+    @pytest.mark.parametrize("run", [run_source, pebble.run_source])
+    def test_too_long_to_print_raises(self, run: Callable[[str], str], line: str) -> None:
+        """Regression (found by a property test): ``print(10 ** 5000)`` crashed with ValueError."""
+        with pytest.raises(PebbleRuntimeError, match="too long to turn into text"):
+            run(HUGE + line)
+
+    def test_too_long_to_print_can_be_caught(self) -> None:
+        """The error is an ordinary Pebble error, so ``try``/``catch`` catches it."""
+        source = HUGE + 'try {\n    print(a)\n} catch e {\n    print("caught")\n}'
+        assert run_source(source) == "caught\n"
+
+    def test_huge_numbers_still_work_in_sums(self) -> None:
+        """Only turning one into text is refused: sums and comparisons are fine."""
+        assert run_source(HUGE + "print(a - a)\nprint(a > 1)") == "0\ntrue\n"
+
+    def test_throwing_a_huge_number_raises_pebble_error(self) -> None:
+        """Regression: an uncaught ``throw 10 ** 5000`` crashed with ValueError."""
+        with pytest.raises(PebbleRuntimeError, match="digits long"):
+            run_source(HUGE + "throw a")
+
+    def test_huge_index_raises_pebble_error(self) -> None:
+        """Regression: the error for a huge list index crashed with ValueError."""
+        with pytest.raises(PebbleRuntimeError, match="digits long"):
+            run_source(HUGE + "let xs = [1]\nprint(xs[a])")

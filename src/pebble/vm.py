@@ -39,6 +39,8 @@ from pebble.errors import PebbleRuntimeError, TraceEntry
 from pebble.stdlib import StdlibHandler
 
 _DIVISION_BY_ZERO = "Division by zero"
+# Python refuses to write out a whole number of more than 4,300 digits.
+NUMBER_TOO_LONG = "Number is too long to turn into text (more than 4,300 digits)"
 
 _TYPE_MAP: dict[str, type] = {
     "Int": int,
@@ -225,7 +227,7 @@ class VirtualMachine:
         except _PebbleThrowError as exc:
             line, column = self._throw_location()
             raise PebbleRuntimeError(
-                str(exc.value),
+                _show(exc.value),
                 line=line,
                 column=column,
                 traceback=self._build_traceback(),
@@ -261,7 +263,7 @@ class VirtualMachine:
         except _PebbleThrowError as exc:
             line, column = self._throw_location()
             raise PebbleRuntimeError(
-                str(exc.value),
+                _show(exc.value),
                 line=line,
                 column=column,
                 traceback=self._build_traceback(),
@@ -546,7 +548,10 @@ class VirtualMachine:
                 if not isinstance(result, str):
                     self._runtime_error("__str__ must return a string")
                 return result
-        return format_value(value)
+        try:
+            return format_value(value)
+        except ValueError:  # a whole number of more than 4,300 digits
+            self._runtime_error(NUMBER_TOO_LONG)
 
     def _exec_binary_arith(self, opcode: OpCode) -> None:
         """Handle SUBTRACT, MULTIPLY, FLOOR_DIVIDE, MODULO via dispatch table."""
@@ -829,7 +834,9 @@ class VirtualMachine:
             type_name = type(index).__name__
             self._runtime_error(f"List index must be an integer, got {type_name}")
         if index < -len(target) or index >= len(target):
-            self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
+            self._runtime_error(
+                f"Index {_show(index)} out of bounds for list of length {len(target)}"
+            )
         if index < 0:
             return index + len(target)
         return index
@@ -1408,7 +1415,7 @@ class VirtualMachine:
         """Mark *task* (and its awaiter) as failed after an exception."""
         error_msg = exc.value if isinstance(exc, _PebbleThrowError) else exc.message
         task.state = "failed"
-        task.error = str(error_msg)
+        task.error = _show(error_msg)
         if task.awaiter is not None:
             task.awaiter.state = "failed"
             task.awaiter.error = task.error
@@ -1740,6 +1747,14 @@ class VirtualMachine:
 
 
 # -- Module-level helpers (no self needed) ------------------------------------
+
+
+def _show(value: object) -> str:
+    """Return *value* as text for an error message, even a number too long to write out."""
+    try:
+        return str(value)
+    except ValueError:  # a whole number of more than 4,300 digits
+        return "(a number more than 4,300 digits long)"
 
 
 def _display_type(value: Value) -> str:
