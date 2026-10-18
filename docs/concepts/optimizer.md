@@ -82,10 +82,13 @@ errors:
 - **Division by zero** — `10 / 0` is kept as-is so the VM can report
   the error at runtime with the correct line number
 - **Negative shifts** — `1 << -1` is kept for the same reason
+- **Answers Python can't give** — `0 ** -1` and `10.0 ** 400` are
+  kept too, so the VM reports them as Pebble errors
 - **Booleans in arithmetic** — Pebble doesn't treat `true` as the
-  number 1, so `-true` is left alone
+  number 1, so `-true` and `0 < true` are left alone
 - **Jump boundaries** — if another instruction might jump into the
-  middle of a foldable sequence, the fold is skipped (see below)
+  middle of a foldable sequence, or onto its operator, the fold is
+  skipped (see below)
 
 ## Dead Code Elimination
 
