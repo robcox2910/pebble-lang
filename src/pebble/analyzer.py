@@ -66,6 +66,7 @@ from pebble.ast_nodes import (
     WhileLoop,
     WildcardPattern,
     YieldStatement,
+    else_if_chain,
 )
 from pebble.builtins import BUILTIN_ARITIES, METHOD_ARITIES, Arity
 from pebble.errors import SemanticError
@@ -457,11 +458,17 @@ class SemanticAnalyzer:
         self._visit_expression(node.value)
 
     def _visit_if(self, node: IfStatement) -> None:
-        """Visit an ``if/else`` — condition in current scope, bodies in new scopes."""
-        self._visit_expression(node.condition)
-        self._visit_block(node.body)
-        if node.else_body is not None:
-            self._visit_block(node.else_body)
+        """Visit an ``if/else`` — condition in current scope, bodies in new scopes.
+
+        An ``else if`` chain is walked in a loop (see ``else_if_chain``), so a
+        long chain doesn't use up Python's stack.
+        """
+        branches, final_else = else_if_chain(node)
+        for branch in branches:
+            self._visit_expression(branch.condition)
+            self._visit_block(branch.body)
+        if final_else is not None:
+            self._visit_block(final_else)
 
     def _visit_while(self, node: WhileLoop) -> None:
         """Visit a ``while`` loop — condition in current scope, body in new scope."""

@@ -633,3 +633,32 @@ Statement = (
     | ImportStatement
     | FromImportStatement
 )
+
+
+def else_if_chain(node: IfStatement) -> tuple[list[IfStatement], list[Statement] | None]:
+    """Return every branch of an ``if`` / ``else if`` chain, and its final ``else``.
+
+    The parser keeps ``if a {} else if b {} else {}`` as nested nodes: the
+    ``else if`` is an ``else_body`` holding just one more ``IfStatement``.
+    Walking that nesting by calling yourself once per branch runs out of
+    Python stack on a chain of a few hundred branches, so every stage walks
+    it with this loop instead.
+
+    Args:
+        node: The first ``if`` of the chain.
+
+    Returns:
+        ``(branches, final_else)``: each branch's ``IfStatement`` in source
+        order (use its ``condition``, ``body`` and ``location``, not its
+        ``else_body``), and the body of the last ``else``, or ``None``.
+
+    """
+    branches = [node]
+    while (
+        node.else_body is not None
+        and len(node.else_body) == 1
+        and isinstance(node.else_body[0], IfStatement)
+    ):
+        node = node.else_body[0]
+        branches.append(node)
+    return branches, node.else_body

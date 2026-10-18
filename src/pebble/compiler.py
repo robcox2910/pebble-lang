@@ -68,6 +68,7 @@ from pebble.ast_nodes import (
     WhileLoop,
     WildcardPattern,
     YieldStatement,
+    else_if_chain,
 )
 from pebble.builtins import METHOD_ARITIES, METHOD_NONE, SLICE_NONE
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
@@ -384,21 +385,28 @@ class Compiler:
         self._emit(OpCode.PRINT, location=node.location)
 
     def _compile_if(self, node: IfStatement) -> None:
-        """Compile ``if condition { body } else { else_body }``."""
-        self._compile_expression(node.condition)
-        jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=node.location)
+        """Compile ``if condition { body } [else if ...] [else { else_body }]``.
 
-        for stmt in node.body:
-            self._compile_statement(stmt)
-
-        if node.else_body is not None:
-            jump_past_else = self._emit(OpCode.JUMP, 0)
-            self._patch_jump(jump_if_false)
-            for stmt in node.else_body:
+        Each branch tests its condition and jumps to the next branch if it's
+        false; a branch that ran jumps past all the rest. The ``else if``
+        chain is walked in a loop (see ``else_if_chain``), not by calling
+        this method once per branch, so a long chain is fine.
+        """
+        branches, final_else = else_if_chain(node)
+        jumps_to_end: list[int] = []
+        for branch in branches:
+            self._compile_expression(branch.condition)
+            jump_if_false = self._emit(OpCode.JUMP_IF_FALSE, 0, location=branch.location)
+            for stmt in branch.body:
                 self._compile_statement(stmt)
-            self._patch_jump(jump_past_else)
-        else:
+            if branch is not branches[-1] or final_else is not None:
+                jumps_to_end.append(self._emit(OpCode.JUMP, 0))
             self._patch_jump(jump_if_false)
+
+        for stmt in final_else or []:
+            self._compile_statement(stmt)
+        for jump in jumps_to_end:
+            self._patch_jump(jump)
 
     def _compile_while(self, node: WhileLoop) -> None:
         """Compile ``while condition { body }``."""
@@ -744,9 +752,10 @@ class Compiler:
         function belongs to that inner function, not the outer one.
         """
         if isinstance(stmt, IfStatement):
-            bodies: list[list[Statement]] = [stmt.body]
-            if stmt.else_body is not None:
-                bodies.append(stmt.else_body)
+            branches, final_else = else_if_chain(stmt)
+            bodies: list[list[Statement]] = [branch.body for branch in branches]
+            if final_else is not None:
+                bodies.append(final_else)
             return bodies
         if isinstance(stmt, WhileLoop | ForLoop):
             return [stmt.body]

@@ -7,7 +7,7 @@ Covers ``let`` declarations, reassignments, ``print()``, ``if/else``,
 
 import pytest
 
-from pebble import check, run_source
+from pebble import check, format_source, run_source
 from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
@@ -31,6 +31,7 @@ from pebble.ast_nodes import (
 )
 from pebble.errors import ParseError
 from pebble.lexer import Lexer
+from pebble.linter import Linter
 from pebble.parser import Parser
 
 # -- Named constants ----------------------------------------------------------
@@ -300,6 +301,43 @@ class TestElseIfChain:
         branches = "".join(f" else if x == {i} {{\n    print({i})\n}}" for i in range(1, 200))
         source = "let x = 150\nif x == 0 {\n    print(0)\n}" + branches
         assert run_source(source) == "150\n"
+
+    def test_very_long_else_if_chain_runs(self) -> None:
+        """Regression: ``run_source`` on a 1,111-branch chain used to hit RecursionError.
+
+        The parser read the chain in a loop, but the analyzer, type checker
+        and compiler each called themselves once per ``else if``.
+        """
+        assert run_source(_long_chain(LONG_CHAIN, pick=LONG_CHAIN - 1)) == f"{LONG_CHAIN - 1}\n"
+        assert run_source(_long_chain(LONG_CHAIN, pick=-1)) == "none\n"
+
+    def test_very_long_else_if_chain_formats(self) -> None:
+        """Regression: formatting a 1,111-branch chain used to hit RecursionError."""
+        source = _long_chain(LONG_CHAIN, pick=0)
+        assert format_source(source) == source
+
+    def test_very_long_else_if_chain_lints(self) -> None:
+        """Regression: linting a 1,111-branch chain used to hit RecursionError."""
+        assert Linter(_long_chain(LONG_CHAIN, pick=0)).lint() == []
+
+    def test_very_long_else_if_chain_in_a_generator(self) -> None:
+        """Regression: looking for ``yield`` inside a 1,111-branch chain used to recurse per branch."""
+        chain = _long_chain(LONG_CHAIN, pick=0).replace("print(", "yield (")
+        body = "\n".join(f"    {line}" for line in chain.splitlines()[1:])
+        source = f"fn gen(x) {{\n{body}\n}}\nfor v in gen({LONG_CHAIN - 1}) {{\n    print(v)\n}}\n"
+        assert run_source(source) == f"{LONG_CHAIN - 1}\n"
+
+
+LONG_CHAIN = 1111
+
+
+def _long_chain(branches: int, *, pick: int) -> str:
+    """Return a tidy program whose ``if`` has *branches* branches and a final ``else``."""
+    lines = [f"let x = {pick}", "if x == 0 {", "    print(0)"]
+    for i in range(1, branches):
+        lines += [f"}} else if x == {i} {{", f"    print({i})"]
+    lines += ["} else {", '    print("none")', "}"]
+    return "\n".join(lines) + "\n"
 
 
 # -- While loop ---------------------------------------------------------------

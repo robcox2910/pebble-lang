@@ -55,6 +55,7 @@ from pebble.ast_nodes import (
     TypeAnnotation,
     UnaryOp,
     WhileLoop,
+    else_if_chain,
 )
 from pebble.errors import SemanticError
 from pebble.tokens import SourceLocation
@@ -266,10 +267,12 @@ class TypeChecker:
             self._env.define(node.name, inferred)
 
     def _visit_if(self, node: IfStatement) -> None:
-        """Visit an if/else — bodies in child scopes."""
-        self._visit_block(node.body)
-        if node.else_body is not None:
-            self._visit_block(node.else_body)
+        """Visit an if/else — bodies in child scopes, an ``else if`` chain in a loop."""
+        branches, final_else = else_if_chain(node)
+        for branch in branches:
+            self._visit_block(branch.body)
+        if final_else is not None:
+            self._visit_block(final_else)
 
     def _visit_while(self, node: WhileLoop) -> None:
         """Visit a while loop body in a child scope."""

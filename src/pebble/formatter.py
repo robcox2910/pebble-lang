@@ -68,6 +68,7 @@ from pebble.ast_nodes import (
     WhileLoop,
     WildcardPattern,
     YieldStatement,
+    else_if_chain,
 )
 from pebble.lexer import Lexer
 from pebble.parser import Parser
@@ -507,35 +508,17 @@ class Formatter:
         self._emit(f"{keyword} {names} = {self._format_expression(stmt.value)}")
 
     def _format_if(self, stmt: IfStatement) -> None:
-        """Format an if/else statement."""
-        cond = self._format_expression(stmt.condition)
-        self._emit(f"if {cond} {{")
-        self._format_block(stmt.body)
-        if stmt.else_body is None:
-            self._emit("}")
-            return
-        # Detect else-if chain
-        if len(stmt.else_body) == 1 and isinstance(stmt.else_body[0], IfStatement):
-            self._format_else_if(stmt.else_body[0])
-        else:
+        """Format an if/else statement, walking an ``else if`` chain in a loop."""
+        branches, final_else = else_if_chain(stmt)
+        opener = "if"
+        for branch in branches:
+            self._emit(f"{opener} {self._format_expression(branch.condition)} {{")
+            self._format_block(branch.body)
+            opener = "} else if"
+        if final_else is not None:
             self._emit("} else {")
-            self._format_block(stmt.else_body)
-            self._emit("}")
-
-    def _format_else_if(self, inner: IfStatement) -> None:
-        """Format an else-if chain continuation."""
-        inner_cond = self._format_expression(inner.condition)
-        self._emit(f"}} else if {inner_cond} {{")
-        self._format_block(inner.body)
-        if inner.else_body is None:
-            self._emit("}")
-            return
-        if len(inner.else_body) == 1 and isinstance(inner.else_body[0], IfStatement):
-            self._format_else_if(inner.else_body[0])
-        else:
-            self._emit("} else {")
-            self._format_block(inner.else_body)
-            self._emit("}")
+            self._format_block(final_else)
+        self._emit("}")
 
     def _format_while(self, stmt: WhileLoop) -> None:
         """Format a while loop."""
