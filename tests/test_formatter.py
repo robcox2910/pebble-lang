@@ -305,6 +305,23 @@ class TestFormatterFunctions:
         expected = "let f = fn(x) {\n    return x + 1\n}\n"
         assert Formatter(source).format() == expected
 
+    def test_blocks_inside_a_function_expression_keep_their_indent(self) -> None:
+        """Regression: blocks inside ``fn(x) { ... }`` were flattened to one indent level."""
+        source = (
+            "if true {\n"
+            "    let g = fn(a) {\n"
+            "        if a {\n"
+            "            print(1)\n"
+            "        }\n"
+            "        let h = fn(y) {\n"
+            "            return y\n"
+            "        }\n"
+            "        return h\n"
+            "    }\n"
+            "}\n"
+        )
+        assert Formatter(source).format() == source
+
     def test_blank_line_between_top_level_defs(self) -> None:
         """Blank line between top-level definitions."""
         source = "fn a() { return 1 }\nfn b() { return 2 }"

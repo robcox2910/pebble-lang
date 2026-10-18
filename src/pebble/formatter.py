@@ -829,21 +829,13 @@ class Formatter:
                 self._inside_function_value.setdefault(line, self._current_source_line)
         body_lines: list[str] = []
         saved_lines, saved_origins = self._lines, self._line_origins
-        saved_indent = self._indent
         self._lines, self._line_origins = body_lines, []
-        self._indent = 0
+        # The body is formatted at its real depth, so every line it makes
+        # (nested blocks and nested fn values included) is already indented.
         self._format_block(expr.body)
         self._lines, self._line_origins = saved_lines, saved_origins
-        self._indent = saved_indent
 
         if not body_lines:
             return f"fn({params}){ret} {{}}"
-
-        result = f"fn({params}){ret} {{\n"
-        for line in body_lines:
-            if line:
-                result += f"{_INDENT * (self._indent + 1)}{line.lstrip()}\n"
-            else:
-                result += "\n"
-        result += f"{_INDENT * self._indent}}}"
-        return result
+        body = "\n".join(body_lines)
+        return f"fn({params}){ret} {{\n{body}\n{_INDENT * self._indent}}}"
