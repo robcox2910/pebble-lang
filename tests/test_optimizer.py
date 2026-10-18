@@ -2,7 +2,9 @@
 
 import pytest
 
+import pebble
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
+from pebble.errors import PebbleRuntimeError
 from pebble.optimizer import optimize
 from tests.conftest import (
     compile_instructions_optimized,
@@ -524,6 +526,13 @@ class TestConstantFoldingComparisons:
         result = _optimized_instructions(instrs, ["", "default"])
         assert len(result) == FOLDED_LEN
         assert "default" in _optimized_constants(instrs, ["", "default"])
+
+    def test_ordering_a_bool_is_not_folded(self) -> None:
+        """Regression (found by a property test): ``0 < true`` must fail at run time, not fold."""
+        source = "print(0 < true)"
+        assert OpCode.LESS_THAN in [i.opcode for i in compile_instructions_optimized(source)]
+        with pytest.raises(PebbleRuntimeError, match="Unsupported operand types for <"):
+            pebble.run_source(source)  # the public API always optimises
 
 
 class TestConstantFoldingBitwise:

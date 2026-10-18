@@ -112,15 +112,13 @@ _NEGATIVE_SHIFT_GUARDED: frozenset[OpCode] = frozenset(
     }
 )
 
-# Binary ops where booleans are allowed as operands
+# Binary ops where booleans are allowed as operands. Not the ordering
+# comparisons (<, <=, >, >=): the VM refuses ``0 < true``, so folding it
+# would turn a run-time error into a quiet answer.
 _BOOL_SAFE_OPS: frozenset[OpCode] = frozenset(
     {
         OpCode.EQUAL,
         OpCode.NOT_EQUAL,
-        OpCode.LESS_THAN,
-        OpCode.LESS_EQUAL,
-        OpCode.GREATER_THAN,
-        OpCode.GREATER_EQUAL,
         OpCode.AND,
         OpCode.OR,
     }
