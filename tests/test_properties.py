@@ -38,8 +38,9 @@ type Tokens = list[str]
 type Lines = list[tuple[int, Tokens]]
 
 VARIABLE_NAMES = ["a", "b", "c", "total", "n"]
-BINARY_OPERATORS = [
-    "+", "-", "*", "/", "//", "%",
+ARITHMETIC_OPERATORS = ["+", "-", "*", "/", "//", "%"]
+ALL_OPERATORS = [
+    *ARITHMETIC_OPERATORS,
     "==", "!=", "<", "<=", ">", ">=",
     "and", "or", "&", "|", "^",
 ]  # fmt: skip
@@ -69,14 +70,15 @@ def repeat(piece: str, times: int) -> str:
     return piece * times
 
 
-def one_piece_many_times() -> st.SearchStrategy[str]:
-    """Make one Pebble piece repeated up to 5,000 times, like 5,000 open brackets."""
-    return st.builds(repeat, pebble_pieces(), st.integers(min_value=0, max_value=LONGEST_REPEAT))
+def towers() -> st.SearchStrategy[str]:
+    """Make one opener or digit stacked up to 5,000 times, like 5,000 open brackets."""
+    pieces = st.sampled_from(["(", "[", "{", "-", "not ", "~", "0", "9", "if x { "])
+    return st.builds(repeat, pieces, st.integers(min_value=0, max_value=LONGEST_REPEAT))
 
 
 def scraps_of_text() -> st.SearchStrategy[str]:
-    """Make text that might be Pebble: random characters, a jumble, or a long repeat."""
-    return st.one_of(any_text(), pebble_soup(), one_piece_many_times())
+    """Make text that might be Pebble: random characters, a jumble, or a tall tower."""
+    return st.one_of(any_text(), pebble_soup(), towers())
 
 
 def one_token(token: str) -> Tokens:
@@ -94,13 +96,17 @@ def applied(operator: str, operand: Tokens) -> Tokens:
     return [operator, "(", *operand, ")"]
 
 
-def literals() -> st.SearchStrategy[Tokens]:
-    """Make one value written out: a whole number, a decimal, a word in quotes, or true/false."""
+def numbers() -> st.SearchStrategy[Tokens]:
+    """Make a number written out: a whole number from 0 to 20, or a decimal like 3.25."""
     whole = st.integers(min_value=0, max_value=20).map(str)
     decimal = st.builds("{}.{}".format, st.integers(0, 9), st.integers(0, 99))
-    word = st.sampled_from(['"hi"', '"pebble"', '""'])
-    truth = st.sampled_from(["true", "false"])
-    return st.one_of(whole, decimal, word, truth).map(one_token)
+    return st.one_of(whole, decimal).map(one_token)
+
+
+def literals() -> st.SearchStrategy[Tokens]:
+    """Make any value written out: a number, a word in quotes, or true/false."""
+    others = st.sampled_from(['"hi"', '"pebble"', '""', "true", "false"]).map(one_token)
+    return st.one_of(numbers(), others)
 
 
 def small_numbers() -> st.SearchStrategy[Tokens]:
@@ -112,18 +118,36 @@ def small_numbers() -> st.SearchStrategy[Tokens]:
     return st.one_of(positive, negative)
 
 
-def bigger_expressions(smaller: st.SearchStrategy[Tokens]) -> st.SearchStrategy[Tokens]:
-    """Make an expression by joining smaller ones with an operator."""
+def bigger_sums(smaller: st.SearchStrategy[Tokens]) -> st.SearchStrategy[Tokens]:
+    """Make a sum by joining smaller ones with an arithmetic operator."""
     return st.one_of(
-        st.builds(in_brackets, smaller, st.sampled_from(BINARY_OPERATORS), smaller),
+        st.builds(in_brackets, smaller, st.sampled_from(ARITHMETIC_OPERATORS), smaller),
+        st.builds(in_brackets, smaller, st.just("**"), small_numbers()),
+        st.builds(applied, st.just("-"), smaller),
+    )
+
+
+def bigger_expressions(smaller: st.SearchStrategy[Tokens]) -> st.SearchStrategy[Tokens]:
+    """Make an expression by joining smaller ones with any operator at all."""
+    return st.one_of(
+        st.builds(in_brackets, smaller, st.sampled_from(ALL_OPERATORS), smaller),
         st.builds(in_brackets, smaller, st.sampled_from(["**", "<<", ">>"]), small_numbers()),
         st.builds(applied, st.sampled_from(["-", "not", "~"]), smaller),
     )
 
 
 @cache
+def sums(names: tuple[str, ...]) -> st.SearchStrategy[Tokens]:
+    """Make arithmetic on numbers and the variables in *names*, like ``( a * 2.5 )``."""
+    atoms = numbers()
+    if names:
+        atoms = st.one_of(atoms, st.sampled_from(names).map(one_token))
+    return st.recursive(atoms, bigger_sums, max_leaves=MOST_VALUES_PER_EXPRESSION)
+
+
+@cache
 def expressions(names: tuple[str, ...]) -> st.SearchStrategy[Tokens]:
-    """Make an expression from values, the variables in *names*, and operators."""
+    """Make any expression: values of every kind, the variables in *names*, any operator."""
     atoms = literals()
     if names:
         atoms = st.one_of(atoms, st.sampled_from(names).map(one_token))
@@ -133,20 +157,27 @@ def expressions(names: tuple[str, ...]) -> st.SearchStrategy[Tokens]:
 @st.composite
 def programs(draw: st.DrawFn) -> Lines:
     """Make a small program of ``let``, ``print`` and ``if``/``else`` lines."""
+    # Variables only ever hold numbers, and most lines print a sum, so a
+    # program usually runs to the end. A few lines mix in every kind of
+    # value and operator, which is where the strange cases live. At the end
+    # it prints every variable, so a wrong answer can't hide in one.
     lines: Lines = []
     defined: tuple[str, ...] = ()
     for name in draw(st.lists(st.sampled_from(VARIABLE_NAMES), max_size=3, unique=True)):
-        lines.append((0, ["let", name, "=", *draw(expressions(defined))]))
+        lines.append((0, ["let", name, "=", *draw(sums(defined))]))
         defined = (*defined, name)
-    for _ in range(draw(st.integers(min_value=1, max_value=3))):
-        if draw(st.booleans()):
+    for _ in range(draw(st.integers(min_value=1, max_value=4))):
+        kind = draw(st.sampled_from(["print a sum", "print anything", "if"]))
+        if kind == "if":
             lines.append((0, ["if", *draw(expressions(defined)), "{"]))
-            lines.append((1, ["print", "(", *draw(expressions(defined)), ")"]))
+            lines.append((1, ["print", "(", *draw(sums(defined)), ")"]))
             lines.append((0, ["}", "else", "{"]))
-            lines.append((1, ["print", "(", *draw(expressions(defined)), ")"]))
+            lines.append((1, ["print", "(", *draw(sums(defined)), ")"]))
             lines.append((0, ["}"]))
         else:
-            lines.append((0, ["print", "(", *draw(expressions(defined)), ")"]))
+            value = sums(defined) if kind == "print a sum" else expressions(defined)
+            lines.append((0, ["print", "(", *draw(value), ")"]))
+    lines.extend((0, ["print", "(", name, ")"]) for name in defined)
     return lines
 
 
