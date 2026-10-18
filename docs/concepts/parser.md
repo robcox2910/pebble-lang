@@ -115,6 +115,9 @@ The parser catches mistakes like:
 - **Missing closing parenthesis**: `(1 + 2` → "Expected ')'"
 - **Missing operand**: `1 +` → "Expected expression"
 - **Unexpected token**: `)` at the start → "Unexpected token ')'"
+- **Nested too deeply**: about 100 levels of nesting (each block,
+  bracket and operator counts) → "Program is nested too deeply"
+- **A number too long to read**: more than 4,300 digits → "Number is too long"
 
 Each error includes the exact line and column where the problem was found.
 

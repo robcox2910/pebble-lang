@@ -1,6 +1,10 @@
 """Tests for the bytecode optimizer."""
 
+import pytest
+
+import pebble
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
+from pebble.errors import PebbleRuntimeError
 from pebble.optimizer import optimize
 from tests.conftest import (
     compile_instructions_optimized,
@@ -523,6 +527,13 @@ class TestConstantFoldingComparisons:
         assert len(result) == FOLDED_LEN
         assert "default" in _optimized_constants(instrs, ["", "default"])
 
+    def test_ordering_a_bool_is_not_folded(self) -> None:
+        """Regression (found by a property test): ``0 < true`` must fail at run time, not fold."""
+        source = "print(0 < true)"
+        assert OpCode.LESS_THAN in [i.opcode for i in compile_instructions_optimized(source)]
+        with pytest.raises(PebbleRuntimeError, match="Unsupported operand types for <"):
+            pebble.run_source(source)  # the public API always optimises
+
 
 class TestConstantFoldingBitwise:
     """Fold bitwise binary operations on constant operands."""
@@ -789,6 +800,16 @@ fn add(a, b) {
         assert "add" in result.functions
         assert result.functions["add"].parameters == ["a", "b"]
 
+    def test_minus_zero_survives_folding(self) -> None:
+        """Regression (found by a property test): ``-(0.0)`` printed ``0.0`` once optimised."""
+        assert pebble.run_source("print(-(0.0))") == "-0.0\n"
+
+    @pytest.mark.parametrize("expression", ["0 ** -1", "10.0 ** 400"])
+    def test_fold_that_would_fail_is_left_to_the_vm(self, expression: str) -> None:
+        """Regression: a fold that fails is left for the VM (``0 ** -1`` came from a property test)."""
+        instrs = compile_instructions_optimized(f"print({expression})")
+        assert OpCode.POWER in [i.opcode for i in instrs]
+
 
 class TestEdgeCases:
     """Edge cases: bool arithmetic, null, generators, closures, empty functions."""
@@ -958,3 +979,7 @@ class TestUnaryFoldJumpTargetSafety:
         opcodes = [i.opcode for i in result]
         # NEGATE must still be present — fold should NOT happen
         assert OpCode.NEGATE in opcodes
+
+    def test_unary_fold_skips_operator_that_is_a_jump_target(self) -> None:
+        """Regression (found by a property test): ``-(1 or 0)`` printed 0 once optimised."""
+        assert pebble.run_source("print(-(1 or 0))") == "-1\n"

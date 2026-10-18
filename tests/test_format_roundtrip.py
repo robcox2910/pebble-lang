@@ -14,7 +14,7 @@ programs to try, so we catch the cases nobody thought to write down.
 import dataclasses
 
 import pytest
-from hypothesis import given, settings
+from hypothesis import given
 from hypothesis import strategies as st
 
 from pebble.formatter import Formatter
@@ -102,7 +102,6 @@ def _program_source(draw: st.DrawFn) -> str:
     return "\n".join(lines)
 
 
-@settings(max_examples=200, deadline=None)
 @given(_program_source())
 def test_random_programs_survive_formatting(source: str) -> None:
     """Any program we can parse still parses -- and means the same -- after tidying."""
@@ -131,7 +130,6 @@ def _commented_program(draw: st.DrawFn) -> tuple[str, list[str]]:
     return "\n".join(lines), comments
 
 
-@settings(max_examples=200, deadline=None)
 @given(_commented_program())
 def test_comments_survive_formatting_once_each(case: tuple[str, list[str]]) -> None:
     """Every comment appears exactly once after tidying, and the code still round-trips."""

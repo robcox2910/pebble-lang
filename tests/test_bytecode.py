@@ -105,6 +105,14 @@ class TestCodeObject:
         assert int_idx != bool_idx
         assert len(code.constants) == TWO_CONSTANTS
 
+    def test_add_constant_distinguishes_zero_and_minus_zero(self) -> None:
+        """Regression (found by a property test): 0.0 and -0.0 are equal but print differently."""
+        code = CodeObject(name="<test>")
+        plus_idx = code.add_constant(0.0)
+        minus_idx = code.add_constant(-0.0)
+        assert plus_idx != minus_idx
+        assert str(code.constants[minus_idx]) == "-0.0"
+
     def test_starts_with_empty_instructions(self) -> None:
         """A fresh CodeObject has no instructions."""
         code = CodeObject(name="main")

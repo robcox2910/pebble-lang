@@ -56,6 +56,12 @@ class TestLexerIntegers:
         """Verify a large number is tokenized as INTEGER."""
         assert _kind_value_pairs("123456") == [(TokenKind.INTEGER, "123456")]
 
+    @pytest.mark.parametrize("source", ["²", "1²"])
+    def test_superscript_digit_raises_lexer_error(self, source: str) -> None:
+        """Regression: ``²`` counts as a digit to str.isdigit() but int() can't read it."""
+        with pytest.raises(LexerError, match="Unexpected character '²'"):
+            Lexer(source).tokenize()
+
 
 class TestLexerStrings:
     """Verify tokenization of string literals."""

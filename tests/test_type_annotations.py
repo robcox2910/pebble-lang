@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 
+from pebble import check
 from pebble.ast_nodes import (
     Assignment,
     ConstAssignment,
@@ -204,6 +205,11 @@ class TestParseParamAnnotations:
         fn = stmts[FIRST_INDEX]
         assert isinstance(fn, FunctionDef)
         assert fn.parameters == [Parameter(name="x")]
+
+    def test_too_deep_type_annotation_raises_parse_error(self) -> None:
+        """Regression (found in review): ``List[`` 1,111 times used to hit RecursionError."""
+        with pytest.raises(ParseError, match="nested too deeply"):
+            check("let x: " + "List[" * 1111)
 
 
 class TestParseReturnTypes:

@@ -112,15 +112,13 @@ _NEGATIVE_SHIFT_GUARDED: frozenset[OpCode] = frozenset(
     }
 )
 
-# Binary ops where booleans are allowed as operands
+# Binary ops where booleans are allowed as operands. Not the ordering
+# comparisons (<, <=, >, >=): the VM refuses ``0 < true``, so folding it
+# would turn a run-time error into a quiet answer.
 _BOOL_SAFE_OPS: frozenset[OpCode] = frozenset(
     {
         OpCode.EQUAL,
         OpCode.NOT_EQUAL,
-        OpCode.LESS_THAN,
-        OpCode.LESS_EQUAL,
-        OpCode.GREATER_THAN,
-        OpCode.GREATER_EQUAL,
         OpCode.AND,
         OpCode.OR,
     }
@@ -286,12 +284,17 @@ def _can_binary_fold(
     i: int,
     jump_targets: frozenset[int],
 ) -> bool:
-    """Check if instructions at *i* form a foldable binary pattern."""
+    """Check if instructions at *i* form a foldable binary pattern.
+
+    As with unary folds, nothing may jump into the middle or onto the
+    operator, or the jump would land in the wrong place after folding.
+    """
     return (
         instructions[i].opcode == OpCode.LOAD_CONST
         and i + 2 < len(instructions)
         and instructions[i + 1].opcode == OpCode.LOAD_CONST
         and (i + 1) not in jump_targets
+        and (i + 2) not in jump_targets
         and instructions[i + 2].opcode in _BINARY_FOLDERS
     )
 
@@ -326,11 +329,17 @@ def _can_unary_fold(
     i: int,
     jump_targets: frozenset[int],
 ) -> bool:
-    """Check if instructions at *i* form a foldable unary pattern."""
+    """Check if instructions at *i* form a foldable unary pattern.
+
+    Neither instruction may be a jump target: in ``-(1 or 0)`` the ``or``
+    jumps straight to the ``-`` with 1 on the stack, so folding ``0, -``
+    into one constant would make that jump land in the wrong place.
+    """
     return (
         instructions[i].opcode == OpCode.LOAD_CONST
         and i not in jump_targets
         and i + 1 < len(instructions)
+        and (i + 1) not in jump_targets
         and instructions[i + 1].opcode in _UNARY_FOLDERS
     )
 
@@ -388,7 +397,11 @@ def _try_fold_binary(  # noqa: PLR0911
     if op == OpCode.ADD and isinstance(a, str) != isinstance(b, str):
         return _NO_FOLD
 
-    result = func(a, b)  # type: ignore[operator]
+    try:
+        result = func(a, b)  # type: ignore[operator]
+    except ArithmeticError:
+        # 0 ** -1 or 10.0 ** 400: leave it for the VM, which reports it properly
+        return _NO_FOLD
 
     # POWER can produce complex (e.g. (-1)**0.5) — not a valid Pebble type
     if isinstance(result, complex):

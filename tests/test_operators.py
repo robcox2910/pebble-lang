@@ -44,6 +44,16 @@ class TestExponentiation:
         with pytest.raises(PebbleRuntimeError, match="complex"):
             run_source("print((-1) ** 0.5)")
 
+    def test_zero_to_a_negative_power_raises(self) -> None:
+        """Regression (found by a property test): ``0 ** -1`` used to crash Python itself."""
+        with pytest.raises(PebbleRuntimeError, match="Division by zero"):
+            run_source("print(0 ** -1)")
+
+    def test_power_too_big_for_a_float_raises(self) -> None:
+        """Regression: ``10.0 ** 400`` used to crash Python itself with OverflowError."""
+        with pytest.raises(PebbleRuntimeError, match="too large"):
+            run_source("print(10.0 ** 400)")
+
 
 # -- Bitwise operators ---------------------------------------------------------
 

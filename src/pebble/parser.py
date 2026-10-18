@@ -4,7 +4,8 @@ The parser consumes a list of :class:`~pebble.tokens.Token` objects produced
 by the lexer and builds an :class:`~pebble.ast_nodes.Program` AST.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from typing import ClassVar, Never
 
 from pebble.ast_nodes import (
@@ -69,6 +70,14 @@ from pebble.ast_nodes import (
 )
 from pebble.errors import ParseError
 from pebble.tokens import Token, TokenKind
+
+# How deeply brackets, operators and blocks may nest. Real programs stay far
+# below this; it stops Python running out of stack on silly input.
+MAX_NESTING = 100
+NESTED_TOO_DEEPLY = (
+    f"Program is nested too deeply (about {MAX_NESTING} levels: "
+    "each block, bracket and operator counts one)"
+)
 
 # ---------------------------------------------------------------------------
 # Precedence levels (higher number = tighter binding)
@@ -157,6 +166,7 @@ class Parser:
         self._tokens = tokens
         self._pos = 0
         self._anon_counter = 0
+        self._depth = 0
 
     # -- Public API -----------------------------------------------------------
 
@@ -177,24 +187,25 @@ class Parser:
 
     def _parse_statement(self) -> Statement:
         """Parse a single statement."""
-        kind = self._peek().kind
+        with self._nested():
+            kind = self._peek().kind
 
-        # Keyword-driven dispatch
-        keyword_parser = self._statement_parsers.get(kind)
-        if keyword_parser is not None:
-            return keyword_parser(self)
+            # Keyword-driven dispatch
+            keyword_parser = self._statement_parsers.get(kind)
+            if keyword_parser is not None:
+                return keyword_parser(self)
 
-        # Identifier-specific: print, reassignment, or unpack reassignment
-        if kind == TokenKind.IDENTIFIER:
-            if self._peek().value == "print":
-                return self._parse_print()
-            if self._peek_next_kind() == TokenKind.EQUAL:
-                return self._parse_reassignment()
-            if self._peek_next_kind() == TokenKind.COMMA and self._is_unpack_reassignment():
-                return self._parse_unpack_reassignment()
+            # Identifier-specific: print, reassignment, or unpack reassignment
+            if kind == TokenKind.IDENTIFIER:
+                if self._peek().value == "print":
+                    return self._parse_print()
+                if self._peek_next_kind() == TokenKind.EQUAL:
+                    return self._parse_reassignment()
+                if self._peek_next_kind() == TokenKind.COMMA and self._is_unpack_reassignment():
+                    return self._parse_unpack_reassignment()
 
-        # Fall through to expression statement
-        return self._parse_expression_statement()
+            # Fall through to expression statement
+            return self._parse_expression_statement()
 
     def _parse_declaration(
         self, keyword: str
@@ -305,25 +316,36 @@ class Parser:
         return PrintStatement(expression=expr, location=print_token.location)
 
     def _parse_if(self) -> IfStatement:
-        """Parse an ``if cond { body } [else [if] { body }]`` statement."""
+        """Parse an ``if cond { body } [else [if] { body }]`` statement.
+
+        An ``else if`` chain is read in a loop, not by calling this method
+        again, so a long chain is fine. It still becomes nested
+        ``IfStatement`` nodes: each ``else if`` is the whole ``else_body``
+        of the one before.
+        """
+        chain = [self._parse_if_branch()]
+        final_else: list[Statement] | None = None
+        while not self._at_end() and self._peek().kind == TokenKind.ELSE:
+            self._advance()  # consume 'else'
+            if not self._at_end() and self._peek().kind == TokenKind.IF:
+                chain.append(self._parse_if_branch())
+            else:
+                final_else = self._parse_block()
+                break
+
+        # Build the nested nodes from the last branch back to the first.
+        if_token, condition, body = chain.pop()
+        node = IfStatement(condition, body, final_else, location=if_token.location)
+        for if_token, condition, body in reversed(chain):
+            node = IfStatement(condition, body, [node], location=if_token.location)
+        return node
+
+    def _parse_if_branch(self) -> tuple[Token, Expression, list[Statement]]:
+        """Parse one ``if cond { body }`` branch: the ``if`` token, condition and body."""
         if_token = self._advance()  # consume 'if'
         condition = self.parse_expression()
         body = self._parse_block()
-
-        else_body: list[Statement] | None = None
-        if not self._at_end() and self._peek().kind == TokenKind.ELSE:
-            self._advance()  # consume 'else'
-            if not self._at_end() and self._peek().kind == TokenKind.IF:
-                else_body = [self._parse_if()]
-            else:
-                else_body = self._parse_block()
-
-        return IfStatement(
-            condition=condition,
-            body=body,
-            else_body=else_body,
-            location=if_token.location,
-        )
+        return if_token, condition, body
 
     def _parse_while(self) -> WhileLoop:
         """Parse a ``while cond { body }`` loop."""
@@ -474,6 +496,11 @@ class Parser:
         Recursively handles nested parameterized types such as
         ``List[List[Int]]`` or ``Dict[String, List[Float]]``.
         """
+        with self._nested():
+            return self._parse_type_annotation_here()
+
+    def _parse_type_annotation_here(self) -> TypeAnnotation:
+        """Parse one type annotation (see :meth:`_parse_type_annotation`)."""
         type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name")
         name = type_token.value
 
@@ -849,64 +876,65 @@ class Parser:
 
     def _parse_precedence(self, *, min_precedence: int) -> Expression:
         """Parse an expression with at least *min_precedence* binding power."""
-        left = self._parse_prefix()
+        with self._nested():
+            left = self._parse_prefix()
 
-        while not self._at_end():
-            # Postfix index access: expr[index]
-            if self._peek().kind == TokenKind.LEFT_BRACKET:
-                left = self._parse_index_access(left)
-                continue
+            while not self._at_end():
+                # Postfix index access: expr[index]
+                if self._peek().kind == TokenKind.LEFT_BRACKET:
+                    left = self._parse_index_access(left)
+                    continue
 
-            # Postfix dot access: method call or field access
-            if self._peek().kind == TokenKind.DOT:
-                left = self._parse_dot_access(left)
-                continue
+                # Postfix dot access: method call or field access
+                if self._peek().kind == TokenKind.DOT:
+                    left = self._parse_dot_access(left)
+                    continue
 
-            if self._peek().kind not in _INFIX_PRECEDENCE:
-                break
-            prec = _INFIX_PRECEDENCE[self._peek().kind]
-            if prec < min_precedence:
-                break
+                if self._peek().kind not in _INFIX_PRECEDENCE:
+                    break
+                prec = _INFIX_PRECEDENCE[self._peek().kind]
+                if prec < min_precedence:
+                    break
 
-            op_token = self._advance()
-            op_text = _OPERATOR_TEXT[op_token.kind]
-            # Right-associative: use same precedence; left-associative: strictly higher
-            next_prec = prec if op_token.kind in _RIGHT_ASSOCIATIVE else prec + 1
-            right = self._parse_precedence(min_precedence=next_prec)
-            left = BinaryOp(
-                left=left,
-                operator=op_text,
-                right=right,
-                location=op_token.location,
-            )
+                op_token = self._advance()
+                op_text = _OPERATOR_TEXT[op_token.kind]
+                # Right-associative: use same precedence; left-associative: strictly higher
+                next_prec = prec if op_token.kind in _RIGHT_ASSOCIATIVE else prec + 1
+                right = self._parse_precedence(min_precedence=next_prec)
+                left = BinaryOp(
+                    left=left,
+                    operator=op_text,
+                    right=right,
+                    location=op_token.location,
+                )
 
-            # Desugar chained comparisons: 1 < x < 10 → (1 < x) and (x < 10)
-            if op_token.kind in _COMPARISON_OPS:
-                shared = right
-                while (
-                    not self._at_end()
-                    and self._peek().kind in _COMPARISON_OPS
-                    and _INFIX_PRECEDENCE[self._peek().kind] >= min_precedence
-                ):
-                    chain_op = self._advance()
-                    chain_text = _OPERATOR_TEXT[chain_op.kind]
-                    chain_min = _INFIX_PRECEDENCE[chain_op.kind] + 1
-                    chain_right = self._parse_precedence(min_precedence=chain_min)
-                    chain_cmp = BinaryOp(
-                        left=shared,
-                        operator=chain_text,
-                        right=chain_right,
-                        location=chain_op.location,
-                    )
-                    left = BinaryOp(
-                        left=left,
-                        operator="and",
-                        right=chain_cmp,
-                        location=chain_op.location,
-                    )
-                    shared = chain_right
+                # Desugar chained comparisons: 1 < x < 10 → (1 < x) and (x < 10)
+                if op_token.kind in _COMPARISON_OPS:
+                    shared = right
+                    while (
+                        not self._at_end()
+                        and self._peek().kind in _COMPARISON_OPS
+                        and _INFIX_PRECEDENCE[self._peek().kind] >= min_precedence
+                    ):
+                        chain_op = self._advance()
+                        chain_text = _OPERATOR_TEXT[chain_op.kind]
+                        chain_min = _INFIX_PRECEDENCE[chain_op.kind] + 1
+                        chain_right = self._parse_precedence(min_precedence=chain_min)
+                        chain_cmp = BinaryOp(
+                            left=shared,
+                            operator=chain_text,
+                            right=chain_right,
+                            location=chain_op.location,
+                        )
+                        left = BinaryOp(
+                            left=left,
+                            operator="and",
+                            right=chain_cmp,
+                            location=chain_op.location,
+                        )
+                        shared = chain_right
 
-        return left
+            return left
 
     # -- Prefix (atoms and unary operators) -----------------------------------
 
@@ -927,7 +955,13 @@ class Parser:
     def _parse_integer(self) -> IntegerLiteral:
         """Parse an integer literal."""
         token = self._advance()
-        return IntegerLiteral(value=int(token.value), location=token.location)
+        try:
+            value = int(token.value)
+        except ValueError:  # Python refuses to read more than 4,300 digits
+            msg = "Number is too long"
+            line, column = token.location.line, token.location.column
+            raise ParseError(msg, line=line, column=column) from None
+        return IntegerLiteral(value=value, location=token.location)
 
     def _parse_float(self) -> FloatLiteral:
         """Parse a float literal."""
@@ -1294,6 +1328,22 @@ class Parser:
             return
         if self._peek().kind == TokenKind.NEWLINE:
             self._advance()
+
+    @contextmanager
+    def _nested(self) -> Iterator[None]:
+        """Count one more level of nesting, refusing to go deeper than MAX_NESTING.
+
+        Every bracket, unary operator, right-hand side of ``**`` and block
+        goes one level deeper. Without a limit, ``"(" * 1111`` would crash
+        Python itself with RecursionError instead of giving a ParseError.
+        """
+        if self._depth >= MAX_NESTING:
+            self._error(NESTED_TOO_DEEPLY)
+        self._depth += 1
+        try:
+            yield
+        finally:
+            self._depth -= 1
 
     def _error(self, message: str) -> Never:
         """Raise a ParseError at the current token's location."""

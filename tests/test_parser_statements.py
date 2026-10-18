@@ -7,6 +7,7 @@ Covers ``let`` declarations, reassignments, ``print()``, ``if/else``,
 
 import pytest
 
+from pebble import check, run_source
 from pebble.ast_nodes import (
     Assignment,
     BinaryOp,
@@ -288,6 +289,17 @@ class TestElseIfChain:
         assert inner.else_body is not None
         assert len(inner.else_body) == ONE
         assert isinstance(inner.else_body[0], PrintStatement)
+
+    def test_long_else_if_chain_checks(self) -> None:
+        """Regression (found in review): a valid 1,111-branch ``else if`` chain used to hit RecursionError."""
+        source = "if x == 0 {\n    print(0)\n}" + " else if x == 1 {\n    print(1)\n}" * 1110
+        check(source)
+
+    def test_long_else_if_chain_still_runs(self) -> None:
+        """A 200-branch ``else if`` chain compiles and picks the right branch."""
+        branches = "".join(f" else if x == {i} {{\n    print({i})\n}}" for i in range(1, 200))
+        source = "let x = 150\nif x == 0 {\n    print(0)\n}" + branches
+        assert run_source(source) == "150\n"
 
 
 # -- While loop ---------------------------------------------------------------

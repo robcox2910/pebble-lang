@@ -100,7 +100,7 @@ class Lexer:
             self._skip_comment()
         elif ch == '"':
             self._scan_string()
-        elif ch.isdigit():
+        elif ch.isdecimal():  # not isdigit(): "²" is a digit, but int() can't read it
             self._scan_number()
         elif ch.isalpha() or ch == "_":
             self._scan_identifier_or_keyword()
@@ -275,7 +275,7 @@ class Lexer:
         """
         start_col = self._column
         chars: list[str] = []
-        while not self._at_end() and self._peek().isdigit():
+        while not self._at_end() and self._peek().isdecimal():
             chars.append(self._peek())
             self._advance()
 
@@ -284,12 +284,12 @@ class Lexer:
             not self._at_end()
             and self._peek() == "."
             and self._pos + 1 < len(self._source)
-            and self._source[self._pos + 1].isdigit()
+            and self._source[self._pos + 1].isdecimal()
         )
         if is_float:
             chars.append(".")
             self._advance()  # consume '.'
-            while not self._at_end() and self._peek().isdigit():
+            while not self._at_end() and self._peek().isdecimal():
                 chars.append(self._peek())
                 self._advance()
 
