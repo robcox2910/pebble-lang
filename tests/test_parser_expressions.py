@@ -65,6 +65,11 @@ class TestParserIntegerLiteral:
         assert isinstance(node, IntegerLiteral)
         assert node.value == ZERO
 
+    def test_number_too_long_raises_parse_error(self) -> None:
+        """Regression (found by a property test): 4,301 zeros used to crash with ValueError."""
+        with pytest.raises(ParseError, match="Number is too long"):
+            check("0" * 4301)
+
 
 class TestParserStringLiteral:
     """Verify parsing of string literals."""

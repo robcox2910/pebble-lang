@@ -935,7 +935,13 @@ class Parser:
     def _parse_integer(self) -> IntegerLiteral:
         """Parse an integer literal."""
         token = self._advance()
-        return IntegerLiteral(value=int(token.value), location=token.location)
+        try:
+            value = int(token.value)
+        except ValueError:  # Python refuses to read more than 4,300 digits
+            msg = "Number is too long"
+            line, column = token.location.line, token.location.column
+            raise ParseError(msg, line=line, column=column) from None
+        return IntegerLiteral(value=value, location=token.location)
 
     def _parse_float(self) -> FloatLiteral:
         """Parse a float literal."""
