@@ -41,6 +41,8 @@ from pebble.stdlib import StdlibHandler
 _DIVISION_BY_ZERO = "Division by zero"
 # Python refuses to write out a whole number of more than 4,300 digits.
 NUMBER_TOO_LONG = "Number is too long to turn into text (more than 4,300 digits)"
+# A sum mixing a float with a whole number bigger than about 1.8e308.
+TOO_BIG_FOR_A_FLOAT = "Number is too large to turn into a float"
 
 _TYPE_MAP: dict[str, type] = {
     "Int": int,
@@ -572,8 +574,9 @@ class VirtualMachine:
             return
         self._check_zero_divisor(right)
         if _both_numeric(left, right):
-            result = float(left) / float(right)  # type: ignore[arg-type]
-            self._stack.append(result)
+            # Python's ``/`` always gives a float, and works out 10 ** 400 / 10 ** 390
+            # exactly, just as the optimizer does when it folds a division.
+            self._apply_numeric("/", left, right, operator.truediv)
         else:
             self._type_error("/", left, right)
 
@@ -587,7 +590,7 @@ class VirtualMachine:
         if isinstance(left, str) and isinstance(right, str):
             self._stack.append(left + right)
         elif _both_numeric(left, right):
-            self._stack.append(left + right)  # type: ignore[operator]
+            self._apply_numeric("+", left, right, operator.add)
         else:
             self._type_error("+", left, right)
 
@@ -1728,7 +1731,11 @@ class VirtualMachine:
     ) -> None:
         """Apply *op* to two numeric operands (int or float), or raise a type error."""
         if _both_numeric(left, right):
-            self._stack.append(op(left, right))  # type: ignore[arg-type]
+            try:
+                result = op(left, right)  # type: ignore[arg-type]
+            except OverflowError:  # (10 ** 309) + 0.5: the int won't fit in a float
+                self._runtime_error(TOO_BIG_FOR_A_FLOAT)
+            self._stack.append(result)
         else:
             self._type_error(symbol, left, right)
 

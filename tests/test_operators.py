@@ -257,6 +257,8 @@ class TestErrorMessageTypeNames:
 
 # 10 ** 5000 has 5,001 digits: more than Python will turn into text.
 HUGE = "let a = 10 ** 5000\n"
+# 10 ** 309 is a whole number too big to fit in a float.
+TOO_BIG_FOR_A_FLOAT = "let a = 10 ** 309\n"
 
 
 class TestHugeNumbers:
@@ -290,3 +292,22 @@ class TestHugeNumbers:
         """Regression: the error for a huge list index crashed with ValueError."""
         with pytest.raises(PebbleRuntimeError, match="digits long"):
             run_source(HUGE + "let xs = [1]\nprint(xs[a])")
+
+    @pytest.mark.parametrize(
+        "line", ["0.0 + a", "a - 0.5", "a * 1.5", "a / 1", "a // 1.0", "a % 2.0"]
+    )
+    @pytest.mark.parametrize("run", [run_source, pebble.run_source])
+    def test_too_big_for_a_float_raises(self, run: Callable[[str], str], line: str) -> None:
+        """Regression (found by a property test): ``0.0 + 10 ** 309`` crashed with OverflowError."""
+        with pytest.raises(PebbleRuntimeError, match="too large"):
+            run(f"{TOO_BIG_FOR_A_FLOAT}print({line})")
+
+    def test_too_big_for_a_float_can_be_caught(self) -> None:
+        """The error is an ordinary Pebble error, so ``try``/``catch`` catches it."""
+        source = TOO_BIG_FOR_A_FLOAT + "try {\n    print(a / 2)\n} catch e {\n    print(e)\n}"
+        assert run_source(source) == "Number is too large to turn into a float\n"
+
+    @pytest.mark.parametrize("run", [run_source, pebble.run_source])
+    def test_dividing_huge_numbers_gives_a_float(self, run: Callable[[str], str]) -> None:
+        """Regression: ``10 ** 400 / 10 ** 390`` crashed without the optimizer, and gave 1e10 with it."""
+        assert run("let a = 10 ** 400\nlet b = 10 ** 390\nprint(a / b)") == "10000000000.0\n"
