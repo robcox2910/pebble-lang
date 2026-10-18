@@ -37,3 +37,6 @@ Thumbs.db
 
 # hatch-vcs generated
 src/pebble/_version.py
+
+# Hypothesis
+.hypothesis/
