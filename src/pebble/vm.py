@@ -13,7 +13,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 from heapq import heappop, heappush
-from typing import ClassVar, Never, Protocol, TextIO
+from typing import ClassVar, Never, Protocol, TextIO, cast
 
 from pebble.ast_nodes import TypeAnnotation
 from pebble.builtins import (
@@ -657,7 +657,11 @@ class VirtualMachine:
             case OpCode.LEFT_SHIFT:
                 if right < 0:  # type: ignore[operator]
                     self._runtime_error("Shift amount cannot be negative")
-                self._stack.append(left << right)  # type: ignore[operator]
+                try:
+                    shifted = cast("int", left) << cast("int", right)
+                except OverflowError, MemoryError:  # 1 << 10 ** 20 is too many bits
+                    self._runtime_error("Shift result is too large")
+                self._stack.append(shifted)
             case OpCode.RIGHT_SHIFT:
                 if right < 0:  # type: ignore[operator]
                     self._runtime_error("Shift amount cannot be negative")

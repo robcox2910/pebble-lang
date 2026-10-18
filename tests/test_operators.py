@@ -1,7 +1,10 @@
 """Tests for new operators: exponentiation, floor division, and bitwise."""
 
+from collections.abc import Callable
+
 import pytest
 
+import pebble
 from pebble.errors import PebbleRuntimeError
 from tests.conftest import run_source
 
@@ -119,6 +122,12 @@ class TestBitwiseOperators:
         """Verify ``1 >> -1`` raises a runtime error."""
         with pytest.raises(PebbleRuntimeError, match="negative"):
             run_source("print(1 >> -1)")
+
+    @pytest.mark.parametrize("run", [run_source, pebble.run_source])
+    def test_left_shift_too_big_raises(self, run: Callable[[str], str]) -> None:
+        """Regression (found by a property test): ``1 << 10 ** 20`` crashed with OverflowError."""
+        with pytest.raises(PebbleRuntimeError, match="Shift result is too large"):
+            run("let a = 1 << 10 ** 20\nprint(a)")
 
 
 # -- Precedence ----------------------------------------------------------------
