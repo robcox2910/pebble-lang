@@ -1,3 +1,8 @@
+---
+title: "How a compiler turns code into bytecode"
+description: "How a compiler turns a program into bytecode, a list of simple numbered instructions, explained simply with a working compiler in Python."
+---
+
 # Compiler
 
 The **compiler** is the part of Pebble that takes your program — after the

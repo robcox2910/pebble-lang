@@ -1,3 +1,8 @@
+---
+title: "How a parser builds an abstract syntax tree"
+description: "How a parser turns tokens into an abstract syntax tree, operator precedence included, explained simply with a working parser in Python."
+---
+
 # The Parser
 
 ## What Is a Parser?

@@ -1,3 +1,8 @@
+---
+title: "How a lexer (tokenizer) works"
+description: "How a lexer turns source code into tokens, the first step of every compiler, explained simply with a working lexer written in Python."
+---
+
 # The Lexer
 
 ## What Is a Lexer?
