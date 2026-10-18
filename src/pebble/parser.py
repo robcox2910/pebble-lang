@@ -74,6 +74,10 @@ from pebble.tokens import Token, TokenKind
 # How deeply brackets, operators and blocks may nest. Real programs stay far
 # below this; it stops Python running out of stack on silly input.
 MAX_NESTING = 100
+NESTED_TOO_DEEPLY = (
+    f"Program is nested too deeply (about {MAX_NESTING} levels: "
+    "each block, bracket and operator counts one)"
+)
 
 # ---------------------------------------------------------------------------
 # Precedence levels (higher number = tighter binding)
@@ -312,25 +316,36 @@ class Parser:
         return PrintStatement(expression=expr, location=print_token.location)
 
     def _parse_if(self) -> IfStatement:
-        """Parse an ``if cond { body } [else [if] { body }]`` statement."""
+        """Parse an ``if cond { body } [else [if] { body }]`` statement.
+
+        An ``else if`` chain is read in a loop, not by calling this method
+        again, so a long chain is fine. It still becomes nested
+        ``IfStatement`` nodes: each ``else if`` is the whole ``else_body``
+        of the one before.
+        """
+        chain = [self._parse_if_branch()]
+        final_else: list[Statement] | None = None
+        while not self._at_end() and self._peek().kind == TokenKind.ELSE:
+            self._advance()  # consume 'else'
+            if not self._at_end() and self._peek().kind == TokenKind.IF:
+                chain.append(self._parse_if_branch())
+            else:
+                final_else = self._parse_block()
+                break
+
+        # Build the nested nodes from the last branch back to the first.
+        if_token, condition, body = chain.pop()
+        node = IfStatement(condition, body, final_else, location=if_token.location)
+        for if_token, condition, body in reversed(chain):
+            node = IfStatement(condition, body, [node], location=if_token.location)
+        return node
+
+    def _parse_if_branch(self) -> tuple[Token, Expression, list[Statement]]:
+        """Parse one ``if cond { body }`` branch: the ``if`` token, condition and body."""
         if_token = self._advance()  # consume 'if'
         condition = self.parse_expression()
         body = self._parse_block()
-
-        else_body: list[Statement] | None = None
-        if not self._at_end() and self._peek().kind == TokenKind.ELSE:
-            self._advance()  # consume 'else'
-            if not self._at_end() and self._peek().kind == TokenKind.IF:
-                else_body = [self._parse_if()]
-            else:
-                else_body = self._parse_block()
-
-        return IfStatement(
-            condition=condition,
-            body=body,
-            else_body=else_body,
-            location=if_token.location,
-        )
+        return if_token, condition, body
 
     def _parse_while(self) -> WhileLoop:
         """Parse a ``while cond { body }`` loop."""
@@ -481,6 +496,11 @@ class Parser:
         Recursively handles nested parameterized types such as
         ``List[List[Int]]`` or ``Dict[String, List[Float]]``.
         """
+        with self._nested():
+            return self._parse_type_annotation_here()
+
+    def _parse_type_annotation_here(self) -> TypeAnnotation:
+        """Parse one type annotation (see :meth:`_parse_type_annotation`)."""
         type_token = self._expect(TokenKind.IDENTIFIER, "Expected type name")
         name = type_token.value
 
@@ -1318,7 +1338,7 @@ class Parser:
         Python itself with RecursionError instead of giving a ParseError.
         """
         if self._depth >= MAX_NESTING:
-            self._error(f"Program is nested too deeply (more than {MAX_NESTING} levels)")
+            self._error(NESTED_TOO_DEEPLY)
         self._depth += 1
         try:
             yield
