@@ -8,7 +8,7 @@ boolean operators.
 
 import pytest
 
-from pebble import check, run_source
+from pebble import check, format_source, run_source
 from pebble.ast_nodes import (
     BinaryOp,
     BooleanLiteral,
@@ -350,6 +350,38 @@ class TestParserGrouped:
         """Regression (found by a property test): ``"(" * 1111`` used to crash with RecursionError."""
         with pytest.raises(ParseError, match="nested too deeply"):
             check(opener * 1111)
+
+    @pytest.mark.parametrize(
+        ("start", "piece", "end"),
+        [
+            ("print(1", " + 1", ")"),
+            ("print(true", " and true", ")"),
+            ("print(0", " < 1", ")"),
+            ('print("a"', ".upper()", ")"),
+            ('print("a"', ".length", ")"),
+            ("let a = [0]\nprint(a", "[0]", ")"),
+        ],
+    )
+    def test_too_long_chain_raises_parse_error(self, start: str, piece: str, end: str) -> None:
+        """Regression (found by a property test): ``1 + 1 + ...`` 1,111 times crashed later stages.
+
+        The parser read the chain in a loop, but it builds a tree 1,111
+        levels deep, and the analyzer, compiler and formatter walked that
+        tree by calling themselves once per level, until RecursionError.
+        Each operator in a chain now counts one level, as the error says.
+        """
+        source = start + piece * 1111 + end
+        with pytest.raises(ParseError, match="nested too deeply"):
+            check(source)
+        with pytest.raises(ParseError, match="nested too deeply"):
+            run_source(source)
+
+    def test_chain_up_to_the_limit_still_runs(self) -> None:
+        """A sum as long as the parser allows still compiles, runs and formats."""
+        terms = MAX_NESTING - 2  # the statement and print's argument are a level each
+        source = "print(" + " + ".join(["1"] * terms) + ")\n"
+        assert run_source(source) == f"{terms}\n"
+        assert format_source(source) == source
 
     def test_nesting_up_to_the_limit_still_runs(self) -> None:
         """A program nested as deep as the parser allows still compiles and runs."""
