@@ -56,15 +56,21 @@ def pebble_soup() -> st.SearchStrategy[str]:
     return st.lists(pebble_pieces(), max_size=30).map("".join)
 
 
-def repeat(piece: str, times: int) -> str:
-    """Return *piece* written out *times* times in a row."""
-    return piece * times
+# What a tower starts with, and the piece it stacks: "List[" only nests
+# inside a type annotation, and "else if" only follows an "if".
+TOWER_PIECES = [
+    ("", "("), ("", "["), ("", "{"), ("", "-"), ("", "not "), ("", "~"),
+    ("", "0"), ("", "9"), ("", "if x { "),
+    ("let x: ", "List["), ("if x {}", " else if x {}"),
+]  # fmt: skip
 
 
-def towers() -> st.SearchStrategy[str]:
-    """Make one opener or digit stacked up to 5,000 times, like 5,000 open brackets."""
-    pieces = st.sampled_from(["(", "[", "{", "-", "not ", "~", "0", "9", "if x { "])
-    return st.builds(repeat, pieces, st.integers(min_value=0, max_value=LONGEST_REPEAT))
+@st.composite
+def towers(draw: st.DrawFn) -> str:
+    """Make one piece stacked up to 5,000 times, like 5,000 open brackets."""
+    start, piece = draw(st.sampled_from(TOWER_PIECES))
+    times = draw(st.integers(min_value=0, max_value=LONGEST_REPEAT))
+    return start + piece * times
 
 
 def scraps_of_text() -> st.SearchStrategy[str]:
@@ -87,8 +93,11 @@ Line by line:
 - **`pebble_soup()`** is the monkey that has learnt some Pebble. It glues
   real pieces together (`let`, `{`, `"`...), so the parser gets past the
   first character and has real work to do.
-- **`towers()`** stacks one opener or digit up to 5,000 times. Very deep
-  or very long input is where hand-written code most often gives up.
+- **`towers()`** stacks one piece up to 5,000 times: an opener, a digit,
+  `List[` after `let x: `, or `else if x {}` after `if x {}`. Very deep or
+  very long input is where hand-written code most often gives up.
+- **`@st.composite`** lets a strategy `draw` from other strategies, one
+  step at a time, and then build its answer from what it drew.
 - **`st.one_of(...)`** picks one of the three recipes each time.
 - **`@given(text=scraps_of_text())`** tells Hypothesis to run the test
   many times (100 in a normal run), each time with a fresh `text`.
@@ -188,6 +197,8 @@ E       text='(' * 1111,
 E   )
 ```
 
+(Shortened: Hypothesis prints all 1,111 brackets.)
+
 1,111 open brackets, and `check` didn't say "that's not a program". It
 crashed with a Python error instead.
 
@@ -198,12 +209,12 @@ gave up. No example test nested more than a few brackets. Nobody thinks
 to type 1,111.
 
 The fix gives the parser a counter. Every bracket, operator and block
-goes one level deeper, and past 100 levels it raises a polite
+goes one level deeper, and at about 100 levels it raises a polite
 `ParseError` instead:
 
 ```python
         if self._depth >= MAX_NESTING:  # was: (no limit at all)
-            self._error(f"Program is nested too deeply (more than {MAX_NESTING} levels)")
+            self._error(NESTED_TOO_DEEPLY)
 ```
 
 The shrunk input became an example test in
@@ -217,17 +228,24 @@ The shrunk input became an example test in
             check(opener * 1111)
 ```
 
-It wasn't the only one. The three properties found six more real bugs,
-and each now has its own example test:
+It wasn't the only one. The properties found five more real bugs, and
+reading the code while fixing them turned up the rest. Each now has its
+own example test:
 
-| What the monkey typed | What went wrong |
-|---|---|
-| `"0" * 4301` | `check` crashed: Python won't read a number that long |
-| `²` | `check` crashed: Python calls `²` a digit, but can't read it as a number |
-| `print(0 ** -1)` | the optimiser crashed, and so did the VM |
-| `print(0 < true)` | printed `true` with the optimiser, an error without |
-| `print(-(0.0))` | printed `0.0` with the optimiser, `-0.0` without |
-| `print(-(1 or 0))` | printed `0` with the optimiser, `-1` without |
+| Input | What went wrong | Found by |
+|---|---|---|
+| `"0" * 4301` | `check` crashed: Python won't read a number that long | property |
+| `print(0 ** -1)` | the optimiser crashed, and so did the VM | property |
+| `print(0 < true)` | printed `true` with the optimiser, an error without | property |
+| `print(-(0.0))` | printed `0.0` with the optimiser, `-0.0` without | property |
+| `print(-(1 or 0))` | printed `0` with the optimiser, `-1` without | property |
+| `print(10.0 ** 400)` | the optimiser crashed, and so did the VM | reading the code |
+| `²` | `check` crashed: Python calls `²` a digit, but can't read it as a number | reading the code |
+| 1,111 `else if`s | `check` crashed on a perfectly good program | reading the code |
+| `let x: List[List[...` | `check` crashed on 1,111 `List[`s | reading the code |
+
+The last two now have towers of their own in `towers()`, so the
+property keeps watching them.
 
 ## Run It Yourself
 
@@ -241,7 +259,7 @@ The `--no-cov` turns off the coverage check, which expects the *whole*
 test suite to run and would fail on one file.
 
 Run them the long way (2,000 random examples each, different every run)
-to hunt for rarer bugs. It takes about a minute:
+to hunt for rarer bugs. It takes a minute or two:
 
 ```bash
 uv run pytest tests/test_properties.py --no-cov --hypothesis-profile=thorough
