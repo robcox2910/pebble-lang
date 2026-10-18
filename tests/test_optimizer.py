@@ -800,6 +800,10 @@ fn add(a, b) {
         assert "add" in result.functions
         assert result.functions["add"].parameters == ["a", "b"]
 
+    def test_minus_zero_survives_folding(self) -> None:
+        """Regression (found by a property test): ``-(0.0)`` printed ``0.0`` once optimised."""
+        assert pebble.run_source("print(-(0.0))") == "-0.0\n"
+
     @pytest.mark.parametrize("expression", ["0 ** -1", "10.0 ** 400"])
     def test_fold_that_would_fail_is_left_to_the_vm(self, expression: str) -> None:
         """Regression (found by a property test): a fold that fails is left for the VM to report."""

@@ -10,6 +10,7 @@ compilation unit (the main program or a single function).
 dictionary of function ``CodeObject``s.
 """
 
+import math
 from dataclasses import dataclass, field
 from enum import StrEnum
 
@@ -168,7 +169,7 @@ class CodeObject:
     is_generator: bool = False
     is_async: bool = False
 
-    _constant_index: dict[tuple[type, int | float | str | bool | None], int] = field(
+    _constant_index: dict[tuple[type, int | float | str | bool | None, float], int] = field(
         default_factory=lambda: {},
         repr=False,
     )
@@ -176,10 +177,13 @@ class CodeObject:
     def add_constant(self, value: int | float | str | bool | None) -> int:
         """Add *value* to the constant pool and return its index.
 
-        Duplicate entries (same value *and* type) are reused.  A cache
-        dictionary keeps lookups O(1) instead of scanning the pool.
+        Duplicate entries (same value, type *and* sign) are reused.  The
+        sign keeps ``0.0`` and ``-0.0`` apart: Python says they are equal,
+        but they print differently.  A cache dictionary keeps lookups O(1)
+        instead of scanning the pool.
         """
-        key = (type(value), value)
+        sign = math.copysign(1.0, value) if isinstance(value, float) else 1.0
+        key = (type(value), value, sign)
         if key in self._constant_index:
             return self._constant_index[key]
         idx = len(self.constants)
