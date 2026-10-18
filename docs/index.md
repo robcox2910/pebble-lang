@@ -1,3 +1,8 @@
+---
+title: "Build your own programming language and compiler in Python"
+description: "Pebble is a small programming language built from scratch in Python: lexer, parser, compiler and bytecode virtual machine, explained step by step."
+---
+
 # What Is a Compiler?
 
 Imagine you only speak English, and you need to give instructions to a robot

@@ -1,3 +1,8 @@
+---
+title: "How a bytecode virtual machine runs programs"
+description: "How a stack-based virtual machine reads bytecode one instruction at a time and runs it, explained simply with a working VM in Python."
+---
+
 # Virtual Machine
 
 The **virtual machine** (VM) is the part of Pebble that actually *runs*
