@@ -912,11 +912,16 @@ class Parser:
                 if prec < min_precedence:
                     break
 
-                self._one_level_deeper()
+                # A right-associative operator (``**``) reads its right-hand
+                # side by calling this method again, which already counts a
+                # level, so only left-associative ones count one here.
+                right_associative = self._peek().kind in _RIGHT_ASSOCIATIVE
+                if not right_associative:
+                    self._one_level_deeper()
                 op_token = self._advance()
                 op_text = _OPERATOR_TEXT[op_token.kind]
                 # Right-associative: use same precedence; left-associative: strictly higher
-                next_prec = prec if op_token.kind in _RIGHT_ASSOCIATIVE else prec + 1
+                next_prec = prec if right_associative else prec + 1
                 right = self._parse_precedence(min_precedence=next_prec)
                 left = BinaryOp(
                     left=left,

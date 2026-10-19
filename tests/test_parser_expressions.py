@@ -376,12 +376,28 @@ class TestParserGrouped:
         with pytest.raises(ParseError, match="nested too deeply"):
             run_source(source)
 
-    def test_chain_up_to_the_limit_still_runs(self) -> None:
-        """A sum as long as the parser allows still compiles, runs and formats."""
+    @pytest.mark.parametrize(
+        ("term", "operator", "answer"),
+        [("1", "+", str(MAX_NESTING - 2)), ("true", "and", "true"), ("1", "**", "1")],
+    )
+    def test_chain_up_to_the_limit_still_runs(self, term: str, operator: str, answer: str) -> None:
+        """A chain as long as the parser allows still compiles, runs and formats.
+
+        Regression (found in review): each ``**`` used to count two levels,
+        because its right-hand side is read by the parser calling itself, so
+        a ``**`` chain stopped at about half the limit.
+        """
         terms = MAX_NESTING - 2  # the statement and print's argument are a level each
-        source = "print(" + " + ".join(["1"] * terms) + ")\n"
-        assert run_source(source) == f"{terms}\n"
+        source = "print(" + f" {operator} ".join([term] * terms) + ")\n"
+        assert run_source(source) == f"{answer}\n"
         assert format_source(source) == source
+
+    @pytest.mark.parametrize("operator", ["+", "and", "**"])
+    def test_chain_past_the_limit_raises(self, operator: str) -> None:
+        """A chain of more operators than the limit is refused, whichever operator it is."""
+        terms = MAX_NESTING + 1
+        with pytest.raises(ParseError, match="nested too deeply"):
+            check("print(" + f" {operator} ".join(["1"] * terms) + ")")
 
     def test_nesting_up_to_the_limit_still_runs(self) -> None:
         """A program nested as deep as the parser allows still compiles and runs."""
