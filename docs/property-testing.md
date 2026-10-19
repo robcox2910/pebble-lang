@@ -121,6 +121,7 @@ why the formatter also gets a rule that only real tidying can pass.
 | However oddly a program is spaced, the [formatter](concepts/formatter.md) turns it into the same tidy text | `test_formatting_ignores_how_a_program_was_spaced` |
 | Any program we can parse still parses, and means the same, after formatting (in `tests/test_format_roundtrip.py`) | `test_random_programs_survive_formatting` |
 | Every comment appears exactly once after formatting (in `tests/test_format_roundtrip.py`) | `test_comments_survive_formatting_once_each` |
+| Formatting tidy code with comments anywhere -- before lines, after code, on a closing `}`, in an empty block -- keeps each one once and in its place, and formatting again changes nothing (in `tests/test_format_roundtrip.py`) | `test_formatting_twice_is_formatting_once` |
 
 The `run_source` one is the `check` rule again, one step further: the
 program has to get past the parser and actually *run*. Its programs are
@@ -270,6 +271,9 @@ Pebble's own documentation through the formatter:
 | `int(inf)`, `float(10 ** 309)`, `floor(inf)`, `sqrt(10 ** 309)`, `pow(0, -1)`... | the built-ins and the math module let Python's errors out | property |
 | `print x` in the debugger, for a 5,001-digit `x` | the debugger crashed | reading the code |
 | `print(triple(4))  # prints: 12`, after a one-line `fn` value | the formatter crashed with `IndexError` | formatting the docs |
+| `if c {` / `    # x` / `}` | the comment in the empty block jumped to the top of the file | formatting the docs |
+| `while true {` / `}  # end` | a comment on a closing `}` moved into the block | review |
+| `struct Point {` / `    x,` / `    y  # up` / `}` | a comment beside a field (or variant, method or `case`) drifted to the end | property |
 
 Each one now stops with a polite error instead (see
 [Really Big Numbers](concepts/operators.md#really-big-numbers)), or just
