@@ -15,16 +15,22 @@ in ``tests/test_format_roundtrip.py``.
 See ``docs/property-testing.md`` for the walk-through.
 """
 
+import math
+import operator
+import time
 from collections.abc import Callable
 from contextlib import suppress
 from functools import cache
 from io import StringIO
 
-from hypothesis import given
+from hypothesis import example, given
 from hypothesis import strategies as st
 
 from pebble import PebbleError, check, format_source, run_source
+from pebble.builtins import MAX_INT_BITS, NUMBER_TOO_LARGE, Value
 from pebble.bytecode import CompiledProgram
+from pebble.optimizer import optimize
+from pebble.stdlib import MATH_MODULE
 from pebble.tokens import KEYWORDS
 from pebble.vm import VirtualMachine
 from tests.conftest import compile_source, compile_source_optimized
@@ -119,12 +125,14 @@ def literals() -> st.SearchStrategy[Tokens]:
 
 
 def small_numbers() -> st.SearchStrategy[Tokens]:
-    """Make a whole number from -2 to 6, for the right of ``**``, ``<<`` and ``>>``."""
-    # Kept small on purpose: ``9 ** 9 ** 9`` or ``1 << 10 ** 9`` would take
-    # ages and eat all the memory, which is a different test from this one.
+    """Make a whole number from -2 to 6, or now and then 10 ** 9, for the right of ``**``, ``<<`` and ``>>``."""
+    # Mostly small, so most sums give an answer. ``10 ** 9`` makes answers
+    # like ``9 ** 10 ** 9``, far past the size limit for whole numbers:
+    # Pebble refuses those at once, optimised or not.
     positive = st.integers(min_value=0, max_value=6).map(str).map(one_token)
     negative = st.sampled_from(["1", "2"]).map(minus)
-    return st.one_of(positive, negative)
+    huge = st.just(["(", "10", "**", "9", ")"])
+    return st.one_of(positive, negative, huge)
 
 
 def bigger_sums(smaller: st.SearchStrategy[Tokens]) -> st.SearchStrategy[Tokens]:
@@ -248,10 +256,11 @@ def runnable_towers(draw: st.DrawFn) -> str:
 
 
 def huge_numbers() -> st.SearchStrategy[Tokens]:
-    """Make a number at the edge: ``( 10 ** 309 )``, ``( 10 ** 5000 )``, ``( 1 << 10 ** 20 )``, inf or nan."""
+    """Make a number at the edge: ``( 10 ** 309 )``, ``( 10 ** 5000 )``, ``( 1 << 999999 )``, inf or nan."""
     exponents = st.sampled_from(HUGE_POWERS_OF_TEN).map(one_token)
     power = st.builds(in_brackets, st.just(["10"]), st.just("**"), exponents)
-    shift = st.just(["(", "1", "<<", "10", "**", "20", ")"])
+    # 1 << 999999 has 1,000,000 bits: the biggest size a whole number may be.
+    shift = st.just(["(", "1", "<<", "999999", ")"])
     # Pebble has no literal for infinity or nan, so make them from floats.
     infinity = ["(", "10.0", "**", "308", "*", "10", ")"]
     nan = ["(", *infinity, "-", *infinity, ")"]
@@ -267,12 +276,13 @@ def decimals() -> st.SearchStrategy[Tokens]:
 def programs_with_huge_numbers(draw: st.DrawFn) -> str:
     """Make a program that hands a huge number to functions, prints it, then does sums with it."""
     # Every built-in or math function gets a go, each inside try/catch so
-    # one polite error doesn't stop the rest. ``pow`` gets a float on the
-    # other side only: pow(2, 10 ** 5000) is a whole number with more
-    # digits than there are atoms in the universe, and takes ages. Then the
-    # number is printed, mixed with a number like 2 or 0.5 (a float), and
-    # with anything at all. Some programs end by throwing.
-    other = draw(decimals())
+    # one polite error doesn't stop the rest. ``pow`` gets a float or a
+    # whole number on the other side: pow(2, 10 ** 5000) would have more
+    # digits than there are atoms in the universe, so it stops at once with
+    # "Number is too large". Then the number is printed, mixed with a
+    # number like 2 or 0.5 (a float), and with anything at all. Some
+    # programs end by throwing.
+    other = draw(st.one_of(decimals(), numbers()))
     calls = [[name, "(", "a", ")"] for name in ONE_NUMBER_FUNCTIONS]
     calls += [["pow", "(", "a", ",", *other, ")"], ["pow", "(", *other, ",", "a", ")"]]
     operator = draw(st.sampled_from(ARITHMETIC_OPERATORS))
@@ -356,3 +366,182 @@ def test_formatting_ignores_how_a_program_was_spaced(versions: tuple[str, str]) 
     """However oddly a program is spaced, the formatter turns it into the same tidy text."""
     messy, tidy_version = versions
     assert format_source(messy) == format_source(tidy_version)
+
+
+# --- Whole numbers: the right answer, or the size error, and quickly ---------
+
+# The operations that can make a whole number bigger. ``pow`` is math.pow.
+GROWING_OPERATIONS = ["+", "-", "*", "**", "<<", "~", "pow"]
+# Bit lengths right by the edges that matter: half the limit (for ``*``),
+# a third (for ``** 3``) and the limit itself.
+EDGE_BITS = [MAX_INT_BITS // 3, MAX_INT_BITS // 2, MAX_INT_BITS]
+# How far to land from the limit when aiming at it.
+NUDGE = 2
+# Python's own answer is only worked out when it has at most this many
+# bits, so the test stays quick. Past it, the answer can't fit (see
+# ``most_bits``), so Pebble must refuse it.
+MOST_BITS_TO_CHECK = 2 * MAX_INT_BITS + 2
+QUICKLY = 2.0
+# Stand-ins for the two operands: compiled into a program, then swapped
+# for the real (maybe huge) numbers, which are too long to write out.
+LEFT_STAND_IN = 7
+RIGHT_STAND_IN = 11
+
+
+@st.composite
+def numbers_of(draw: st.DrawFn, bits: int) -> int:
+    """Make a whole number with exactly *bits* bits, either sign."""
+    if bits <= 0:
+        return 0
+    top = 1 << (bits - 1)
+    shape = draw(st.sampled_from(["power of two", "all ones", "a few low bits"]))
+    if shape == "power of two":
+        value = top
+    elif shape == "all ones":
+        value = (top << 1) - 1
+    else:
+        value = top | (draw(st.integers(0, 2**64)) & (top - 1))
+    return -value if draw(st.booleans()) else value
+
+
+def nudged(bits: int, nudge: int) -> int:
+    """Return *bits* moved by *nudge*, kept between 0 and the limit."""
+    return max(0, min(MAX_INT_BITS, bits + nudge))
+
+
+def whole_numbers() -> st.SearchStrategy[int]:
+    """Make a whole number of up to 1,000,000 bits, often right by an edge."""
+    near_an_edge = st.builds(nudged, st.sampled_from(EDGE_BITS), st.integers(-NUDGE, NUDGE))
+    bits = st.one_of(st.integers(0, 70), st.integers(0, MAX_INT_BITS), near_an_edge)
+    return bits.flatmap(numbers_of)
+
+
+def exponents() -> st.SearchStrategy[int]:
+    """Make a right-hand side for ``**``, ``<<`` and ``pow``: small, big or absurd."""
+    return st.one_of(
+        st.integers(0, 70),
+        st.integers(0, 3 * MAX_INT_BITS),
+        st.integers(0, 10**30),
+        whole_numbers().map(abs),
+    )
+
+
+@st.composite
+def aimed_at_the_limit(draw: st.DrawFn, operation: str, left: int) -> int:
+    """Make a right-hand side that puts the answer within a few bits of the limit."""
+    nudge = draw(st.integers(-NUDGE, NUDGE))
+    bits = left.bit_length()
+    match operation:
+        case "**" | "pow":
+            size = math.log2(abs(left)) if abs(left) > 1 else 1.0
+            return max(0, int(MAX_INT_BITS / size) + nudge)
+        case "<<":
+            return max(0, MAX_INT_BITS - bits + nudge)
+        case "*":
+            return draw(numbers_of(nudged(MAX_INT_BITS + 1 - bits, nudge)))
+        case _:  # "+" and "-"
+            return draw(numbers_of(nudged(bits, nudge)))
+
+
+@st.composite
+def growing_sums(draw: st.DrawFn) -> tuple[str, int, int]:
+    """Make an operation that can grow a number, and its two operands."""
+    operation = draw(st.sampled_from(GROWING_OPERATIONS))
+    is_a_power = operation in {"**", "<<", "pow"}
+    # A small base (like 3) makes the most interesting powers: 3 ** 630929
+    # fits, but 3 ** 630930 doesn't.
+    small = st.builds(operator.mul, st.integers(2, 1000), st.sampled_from([1, -1]))
+    left = draw(small if is_a_power and draw(st.booleans()) else whole_numbers())
+    if draw(st.integers(0, 3)):  # three times in four, aim right at the limit
+        right = draw(aimed_at_the_limit(operation, left))
+    else:
+        right = draw(exponents() if is_a_power else whole_numbers())
+    return operation, left, right
+
+
+def most_bits(operation: str, left: int, right: int) -> int:
+    """Return the most bits Python's answer could have, without working it out.
+
+    The answer always has more than half this many bits, so when this is
+    past ``MOST_BITS_TO_CHECK`` the answer is past the limit.
+    """
+    match operation:
+        case "+" | "-":
+            return max(left.bit_length(), right.bit_length()) + 1
+        case "*":
+            return left.bit_length() + right.bit_length()
+        case "**" | "pow":
+            return 1 if abs(left) <= 1 else left.bit_length() * right
+        case "<<":
+            return left.bit_length() + right if left else 0
+        case _:  # "~"
+            return left.bit_length() + 1
+
+
+def python_answer(operation: str, left: int, right: int) -> int:
+    """Return Python's answer to ``left operation right``."""
+    match operation:
+        case "+":
+            return left + right
+        case "-":
+            return left - right
+        case "*":
+            return left * right
+        case "**" | "pow":
+            return left**right
+        case "<<":
+            return left << right
+        case _:  # "~"
+            return ~left
+
+
+def pebble_answers(operation: str, left: int, right: int) -> list[Value]:
+    """Return Pebble's answer, or its error message, with and without the optimiser."""
+    if operation == "pow":
+        handler = MATH_MODULE.functions["pow"][1]
+        assert handler is not None
+        try:
+            return [handler([left, right])]
+        except PebbleError as error:
+            return [error.message]
+    source = "let r = ~7" if operation == "~" else f"let r = 7 {operation} 11"
+    plain = compile_source(source)
+    constants = plain.main.constants
+    constants[constants.index(LEFT_STAND_IN)] = left
+    if operation != "~":
+        constants[constants.index(RIGHT_STAND_IN)] = right
+    answers: list[Value] = []
+    for build in (lambda: plain, lambda: optimize(plain)):
+        try:
+            answers.append(VirtualMachine().run_repl(build(), {})["r"])
+        except PebbleError as error:
+            answers.append(error.message)
+    return answers
+
+
+# The edges, always tried: 3 ** 630929 has 999,999 bits and 3 ** 630930
+# has 1,000,001; 2 ** 500000 * 2 ** 499999 adds up to 1,000,001 bits but
+# has 1,000,000; and so on.
+@given(growing_sum=growing_sums())
+@example(growing_sum=("**", 3, 630929))
+@example(growing_sum=("**", -3, 630930))
+@example(growing_sum=("pow", 3, 630929))
+@example(growing_sum=("pow", 3, 630930))
+@example(growing_sum=("*", 1 << 500000, 1 << 499999))
+@example(growing_sum=("*", (1 << 500000) - 1, (1 << 500001) - 1))
+@example(growing_sum=("<<", -1, MAX_INT_BITS - 1))
+@example(growing_sum=("<<", 1, MAX_INT_BITS))
+@example(growing_sum=("+", 1 << (MAX_INT_BITS - 1), 1 << (MAX_INT_BITS - 1)))
+@example(growing_sum=("~", (1 << MAX_INT_BITS) - 1, 0))
+def test_whole_numbers_are_right_or_too_large(growing_sum: tuple[str, int, int]) -> None:
+    """A sum gives Python's answer when it fits in 1,000,000 bits, the size error when not, and quickly."""
+    operation, left, right = growing_sum
+    start = time.perf_counter()
+    answers = pebble_answers(operation, left, right)
+    assert time.perf_counter() - start < QUICKLY
+    if most_bits(operation, left, right) <= MOST_BITS_TO_CHECK:
+        answer = python_answer(operation, left, right)
+        expected = answer if answer.bit_length() <= MAX_INT_BITS else NUMBER_TOO_LARGE
+    else:
+        expected = NUMBER_TOO_LARGE
+    assert all(answer == expected for answer in answers)

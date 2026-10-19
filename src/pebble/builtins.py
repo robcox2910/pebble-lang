@@ -170,6 +170,9 @@ class SleepMarker:
 NUMBER_TOO_LONG = "Number is too long to turn into text (more than 4,300 digits)"
 # A whole number bigger than about 1.8e308, the biggest float there is.
 TOO_BIG_FOR_A_FLOAT = "Number is too large to turn into a float"
+# The most bits a whole number may have: about 300,000 digits.
+MAX_INT_BITS = 1_000_000
+NUMBER_TOO_LARGE = f"Number is too large (more than {MAX_INT_BITS:,} bits)"
 
 
 def _format_scalar(value: Value) -> str | None:
@@ -252,6 +255,85 @@ def to_float(value: float) -> float:
         return float(value)
     except OverflowError:
         raise PebbleRuntimeError(TOO_BIG_FOR_A_FLOAT, line=0, column=0) from None
+
+
+# -- Whole-number size limit --------------------------------------------------
+#
+# A whole number may have at most MAX_INT_BITS bits. ``*``, ``**`` and ``<<``
+# work out how big their answer will be *before* making it, so a sum like
+# ``2 ** 10 ** 9`` is refused at once instead of eating all the memory. The
+# bounds below never refuse an answer that would actually fit.
+
+
+def _too_large() -> PebbleRuntimeError:
+    """Return the error for a whole number past the limit."""
+    return PebbleRuntimeError(NUMBER_TOO_LARGE, line=0, column=0)
+
+
+def check_int_size[T: Value](value: T) -> T:
+    """Return *value*, or raise if it's a whole number of more than ``MAX_INT_BITS`` bits.
+
+    Raises:
+        PebbleRuntimeError: ``NUMBER_TOO_LARGE``.
+
+    """
+    if isinstance(value, int) and value.bit_length() > MAX_INT_BITS:
+        raise _too_large()
+    return value
+
+
+def int_multiply(left: int, right: int) -> int:
+    """Return ``left * right``, refusing an answer past the limit before working it out.
+
+    The answer has the two bit lengths added up, or one fewer, so only a
+    sum more than one past the limit is refused straight away.
+
+    Raises:
+        PebbleRuntimeError: ``NUMBER_TOO_LARGE``.
+
+    """
+    if left.bit_length() + right.bit_length() - 1 > MAX_INT_BITS:
+        raise _too_large()
+    return check_int_size(left * right)
+
+
+def int_power(base: int, exponent: int) -> int:
+    """Return ``base ** exponent`` for an exponent of 0 or more, within the limit.
+
+    0, 1 and -1 stay small whatever the exponent, so they are answered
+    straight away. Any other base has at least ``b - 1`` bits' worth of
+    value, where ``b`` is its bit length, so the answer has more than
+    ``(b - 1) * exponent`` bits: past the limit, it is refused before it
+    is worked out. Otherwise the answer has at most ``b * exponent`` bits,
+    under twice the limit, and is checked exactly once made.
+
+    Raises:
+        PebbleRuntimeError: ``NUMBER_TOO_LARGE``.
+
+    """
+    if exponent == 0:
+        return 1
+    if base in {0, 1}:
+        return base
+    if base == -1:
+        return -1 if exponent % 2 else 1
+    if (base.bit_length() - 1) * exponent >= MAX_INT_BITS:
+        raise _too_large()
+    return check_int_size(base**exponent)
+
+
+def int_left_shift(value: int, shift: int) -> int:
+    """Return ``value << shift`` for a shift of 0 or more, within the limit.
+
+    Shifting adds exactly *shift* bits to any number but 0.
+
+    Raises:
+        PebbleRuntimeError: ``NUMBER_TOO_LARGE``.
+
+    """
+    if value and value.bit_length() + shift > MAX_INT_BITS:
+        raise _too_large()
+    return value << shift
 
 
 # -- Builtin handlers ---------------------------------------------------------

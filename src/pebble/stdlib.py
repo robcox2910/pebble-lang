@@ -10,7 +10,7 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from pebble.builtins import Value, to_float
+from pebble.builtins import Value, int_power, to_float
 from pebble.errors import PebbleRuntimeError
 
 type StdlibHandler = Callable[[list[Value]], Value] | None
@@ -123,6 +123,8 @@ def _math_pow(args: list[Value]) -> Value:
     x, y = _require_two_numeric(args[0], args[1], "pow")
     if isinstance(x, float) or isinstance(y, float):
         x, y = to_float(x), to_float(y)
+    if isinstance(x, int) and isinstance(y, int) and y >= 0:
+        return int_power(x, y)  # refuses a huge answer before making it
     try:
         result = x**y
     except ZeroDivisionError:  # pow(0, -1)

@@ -11,8 +11,11 @@ Current passes:
 """
 
 import operator
+from typing import cast
 
+from pebble.builtins import MAX_INT_BITS, int_left_shift, int_multiply, int_power
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
+from pebble.errors import PebbleRuntimeError
 
 # ---------------------------------------------------------------------------
 # Shared constants
@@ -52,11 +55,25 @@ def _logical_or(a: object, b: object) -> object:
     return a or b
 
 
+def _multiply(a: _Numeric, b: _Numeric) -> _Numeric:
+    """Multiply, refusing a whole number past the size limit before making it."""
+    if isinstance(a, int) and isinstance(b, int):
+        return int_multiply(a, b)
+    return a * b
+
+
+def _power(a: _Numeric, b: _Numeric) -> _Numeric:
+    """Raise *a* to the power *b*, refusing a whole number past the size limit before making it."""
+    if isinstance(a, int) and isinstance(b, int) and b >= 0:
+        return int_power(a, b)
+    return a**b
+
+
 _BINARY_FOLDERS: dict[OpCode, tuple[_TypeSpec, _TypeSpec, object]] = {
     OpCode.ADD: ((int, float, str), (int, float, str), operator.add),
     OpCode.SUBTRACT: ((int, float), (int, float), operator.sub),
-    OpCode.MULTIPLY: ((int, float), (int, float), operator.mul),
-    OpCode.POWER: ((int, float), (int, float), operator.pow),
+    OpCode.MULTIPLY: ((int, float), (int, float), _multiply),
+    OpCode.POWER: ((int, float), (int, float), _power),
     OpCode.DIVIDE: ((int, float), (int, float), operator.truediv),
     OpCode.FLOOR_DIVIDE: ((int, float), (int, float), operator.floordiv),
     OpCode.MODULO: ((int, float), (int, float), operator.mod),
@@ -91,7 +108,7 @@ _BINARY_FOLDERS: dict[OpCode, tuple[_TypeSpec, _TypeSpec, object]] = {
     OpCode.BIT_AND: ((int,), (int,), operator.and_),
     OpCode.BIT_OR: ((int,), (int,), operator.or_),
     OpCode.BIT_XOR: ((int,), (int,), operator.xor),
-    OpCode.LEFT_SHIFT: ((int,), (int,), operator.lshift),
+    OpCode.LEFT_SHIFT: ((int,), (int,), int_left_shift),
     OpCode.RIGHT_SHIFT: ((int,), (int,), operator.rshift),
 }
 
@@ -398,16 +415,18 @@ def _try_fold_binary(  # noqa: PLR0911
         return _NO_FOLD
 
     try:
-        result = func(a, b)  # type: ignore[operator]
-    except ArithmeticError:
-        # 0 ** -1 or 10.0 ** 400: leave it for the VM, which reports it properly
+        result = cast("object", func(a, b))  # type: ignore[operator]
+    except ArithmeticError, PebbleRuntimeError:
+        # 0 ** -1, 10.0 ** 400 or 2 ** 10 ** 9: leave it for the VM, which
+        # reports it properly (and *, ** and << refuse a whole number past
+        # the size limit before making it, so this never takes long)
         return _NO_FOLD
 
     # POWER can produce complex (e.g. (-1)**0.5) — not a valid Pebble type
-    if isinstance(result, complex):
+    if isinstance(result, complex) or _too_large(result):
         return _NO_FOLD
 
-    return result  # pyright: ignore[reportUnknownVariableType]
+    return result
 
 
 def _try_fold_unary(
@@ -430,7 +449,13 @@ def _try_fold_unary(
     if not isinstance(a, allowed):
         return _NO_FOLD
 
-    return func(a)  # type: ignore[operator]
+    result = cast("object", func(a))  # type: ignore[operator]
+    return _NO_FOLD if _too_large(result) else result
+
+
+def _too_large(value: object) -> bool:
+    """Return True if *value* is a whole number past the size limit, which only the VM may report."""
+    return isinstance(value, int) and value.bit_length() > MAX_INT_BITS
 
 
 # ---------------------------------------------------------------------------

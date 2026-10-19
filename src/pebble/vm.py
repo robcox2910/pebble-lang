@@ -33,7 +33,11 @@ from pebble.builtins import (
     SleepMarker,
     StructInstance,
     Value,
+    check_int_size,
     format_value,
+    int_left_shift,
+    int_multiply,
+    int_power,
 )
 from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 from pebble.errors import PebbleRuntimeError, TraceEntry
@@ -62,6 +66,14 @@ _TYPE_DISPLAY: dict[str, str] = {
     "dict": "Dict",
 }
 
+
+def _multiply(left: int | float, right: int | float) -> int | float:
+    """Return ``left * right``, refusing a whole number past the size limit before making it."""
+    if isinstance(left, int) and isinstance(right, int):
+        return int_multiply(left, right)
+    return left * right
+
+
 # Dispatch table for binary arithmetic ops that share a dunder + _apply_numeric pattern.
 # Each entry: (dunder_name, symbol, operator_func, check_zero_divisor).
 _ARITH_OPS: dict[
@@ -69,7 +81,7 @@ _ARITH_OPS: dict[
     tuple[str, str, Callable[[int | float, int | float], int | float], bool],
 ] = {
     OpCode.SUBTRACT: ("__sub__", "-", operator.sub, False),
-    OpCode.MULTIPLY: ("__mul__", "*", operator.mul, False),
+    OpCode.MULTIPLY: ("__mul__", "*", _multiply, False),
     OpCode.FLOOR_DIVIDE: ("__floordiv__", "//", operator.floordiv, True),
     OpCode.MODULO: ("__mod__", "%", operator.mod, True),
 }
@@ -613,7 +625,12 @@ class VirtualMachine:
         if not _both_numeric(left, right):
             self._type_error("**", left, right)
         try:
-            result = left**right  # type: ignore[operator]
+            if isinstance(left, int) and isinstance(right, int) and right >= 0:
+                result = int_power(left, right)  # refuses a huge answer before making it
+            else:
+                result = left**right  # type: ignore[operator]
+        except PebbleRuntimeError as exc:  # 2 ** 10 ** 9: past the size limit
+            self._runtime_error(exc.message)
         except ZeroDivisionError:  # 0 ** -1
             self._runtime_error(_DIVISION_BY_ZERO)
         except OverflowError:  # 10.0 ** 400 is too big for a float
@@ -636,7 +653,7 @@ class VirtualMachine:
                     self._runtime_error(
                         f"Unsupported operand type for bitwise NOT: {_display_type(operand)}"
                     )
-                self._stack.append(~operand)  # type: ignore[operator]
+                self._stack.append(self._checked(~operand))  # type: ignore[operator]
             case _:
                 right, left = self._stack.pop(), self._stack.pop()
                 self._apply_bitwise(instruction.opcode, left, right)
@@ -663,9 +680,9 @@ class VirtualMachine:
                 if right < 0:  # type: ignore[operator]
                     self._runtime_error("Shift amount cannot be negative")
                 try:
-                    shifted = cast("int", left) << cast("int", right)
-                except OverflowError, MemoryError:  # 1 << 10 ** 20 is too many bits
-                    self._runtime_error("Shift result is too large")
+                    shifted = int_left_shift(cast("int", left), cast("int", right))
+                except PebbleRuntimeError as exc:  # 1 << 10 ** 20: past the size limit
+                    self._runtime_error(exc.message)
                 self._stack.append(shifted)
             case OpCode.RIGHT_SHIFT:
                 if right < 0:  # type: ignore[operator]
@@ -1732,9 +1749,18 @@ class VirtualMachine:
                 result = op(left, right)  # type: ignore[arg-type]
             except OverflowError:  # (10 ** 309) + 0.5: the int won't fit in a float
                 self._runtime_error(TOO_BIG_FOR_A_FLOAT)
-            self._stack.append(result)
+            except PebbleRuntimeError as exc:  # a whole number past the size limit
+                self._runtime_error(exc.message)
+            self._stack.append(self._checked(result))
         else:
             self._type_error(symbol, left, right)
+
+    def _checked(self, value: Value) -> Value:
+        """Return *value*, or stop with a Pebble error if it's a whole number past the size limit."""
+        try:
+            return check_int_size(value)
+        except PebbleRuntimeError as exc:
+            self._runtime_error(exc.message)
 
     def _apply_comparison(
         self,
