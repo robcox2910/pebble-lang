@@ -23,6 +23,7 @@ from pebble.builtins import (
     METHOD_NONE,
     SLICE_NONE,
     STRING_METHODS,
+    TOO_BIG_FOR_A_FLOAT,
     Cell,
     Closure,
     CoroutineObject,
@@ -39,10 +40,6 @@ from pebble.errors import PebbleRuntimeError, TraceEntry
 from pebble.stdlib import StdlibHandler
 
 _DIVISION_BY_ZERO = "Division by zero"
-# Python refuses to write out a whole number of more than 4,300 digits.
-NUMBER_TOO_LONG = "Number is too long to turn into text (more than 4,300 digits)"
-# A sum mixing a float with a whole number bigger than about 1.8e308.
-TOO_BIG_FOR_A_FLOAT = "Number is too large to turn into a float"
 
 _TYPE_MAP: dict[str, type] = {
     "Int": int,
@@ -552,8 +549,8 @@ class VirtualMachine:
                 return result
         try:
             return format_value(value)
-        except ValueError:  # a whole number of more than 4,300 digits
-            self._runtime_error(NUMBER_TOO_LONG)
+        except PebbleRuntimeError as exc:  # a whole number of more than 4,300 digits
+            self._runtime_error(exc.message)
 
     def _exec_binary_arith(self, opcode: OpCode) -> None:
         """Handle SUBTRACT, MULTIPLY, FLOOR_DIVIDE, MODULO via dispatch table."""

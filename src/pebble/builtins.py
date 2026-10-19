@@ -165,6 +165,11 @@ class SleepMarker:
 
 # -- Value formatting ----------------------------------------------------------
 
+# Python refuses to write out a whole number of more than 4,300 digits.
+NUMBER_TOO_LONG = "Number is too long to turn into text (more than 4,300 digits)"
+# A whole number bigger than about 1.8e308, the biggest float there is.
+TOO_BIG_FOR_A_FLOAT = "Number is too large to turn into a float"
+
 
 def _format_scalar(value: Value) -> str | None:
     """Format scalar types (null, bool, numbers, strings).
@@ -176,7 +181,10 @@ def _format_scalar(value: Value) -> str | None:
     if isinstance(value, bool):
         return "true" if value else "false"
     if isinstance(value, int | float):
-        return str(value)
+        try:
+            return str(value)
+        except ValueError:  # a whole number of more than 4,300 digits
+            raise PebbleRuntimeError(NUMBER_TOO_LONG, line=0, column=0) from None
     if isinstance(value, str):
         return value
     return None
@@ -215,7 +223,13 @@ def _format_internal(value: Value) -> str:
 
 
 def format_value(value: Value) -> str:
-    """Format *value* for Pebble-native output."""
+    """Format *value* for Pebble-native output.
+
+    Raises:
+        PebbleRuntimeError: If *value* is, or holds, a whole number too long
+            to write out (``NUMBER_TOO_LONG``).
+
+    """
     scalar = _format_scalar(value)
     if scalar is not None:
         return scalar
