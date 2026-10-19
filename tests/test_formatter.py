@@ -742,6 +742,31 @@ class TestCommentPlacement:
         """
         assert Formatter(source).format() == source
 
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "while true {\n}  # end\n",
+            "while true {\n    print(1)\n}  # end\nprint(2)\n",
+            "if a {\n    print(1)\n} else {  # c\n    print(2)\n}  # d\n",
+            "if a {\n    print(1)\n} else {  # c\n}  # d\n",
+            "if a {\n} else if b {  # c\n}  # d\n",
+            "fn f() {\n    return 1\n}  # c\n\nprint(f())\n",
+            "if a {\n    if b {\n        print(1)\n    }  # inner\n}  # outer\n",
+            "class A {\n    x\n}  # c\n",
+            "struct P {\n    x,\n    y\n}  # c\n",
+            "enum C {\n    R,\n    G\n}  # c\n",
+            "match x {\n    case 1 {\n        print(1)\n    }  # c\n}\n",
+            "try {\n    print(1)\n} catch e {  # c\n    print(e)\n}  # d\n",
+        ],
+    )
+    def test_comment_on_a_closing_brace_line_stays_there(self, source: str) -> None:
+        """Regression (found in review): ``}  # end`` moved into the block, or to the top of the file.
+
+        The closing brace's output line remembers the statement it closes,
+        not its own source line, so the comment found no line to sit on.
+        """
+        assert Formatter(source).format() == source
+
     def test_comment_before_else_stays_in_the_if_branch(self) -> None:
         """A comment just before ``} else {`` ends the if-branch, not the else-branch."""
         source = "if true {\n    print(1)\n    # end of if\n} else {\n    print(2)\n}"

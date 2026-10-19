@@ -332,6 +332,8 @@ class Formatter:
         for source_line, comment in sorted(inline.items()):
             holder = self._inside_function_value.get(source_line, source_line)
             target = self._first_line_from(holder)
+            if target is None:  # e.g. "}  # end": no statement starts on that line
+                target = self._closing_brace_line(holder)
             if target is None:
                 standalone[source_line] = comment  # nowhere to hang it; keep it nearby
             else:
@@ -375,6 +377,48 @@ class Formatter:
                 if braces == 0:
                     return token.location.line
         return start.line  # pragma: no cover - the parser already matched the braces
+
+    def _closing_brace_line(self, source_line: int) -> int | None:
+        """Return the output line holding the ``}`` that starts *source_line*, if it does.
+
+        A closing line (``}``, ``} else {``...) remembers the statement it
+        belongs to, not its own source line, so find it by counting: after
+        the last code written before *source_line*, the closing braces at
+        this depth come out in the same order as in the source.
+        """
+        first = next(
+            (t for t in self._tokens if t.location.line == source_line),
+            None,
+        )
+        if first is None or first.kind != TokenKind.RIGHT_BRACE:
+            return None
+        depth = self._brace_depth_before(source_line)
+        start, start_origin = -1, 0
+        for index, (origin, _indent) in enumerate(self._line_origins):
+            if origin is None or origin >= source_line:
+                continue
+            if not self._lines[index].lstrip().startswith("}"):
+                start, start_origin = index, origin
+        # Which closing brace at this depth is it, counting from start?
+        wanted = sum(
+            1
+            for line in range(start_origin + 1, source_line + 1)
+            if self._starts_with_closing_brace(line) and self._brace_depth_before(line) == depth
+        )
+        for index in range(start + 1, len(self._lines)):
+            _origin, indent = self._line_origins[index]
+            if indent == depth - 1 and self._lines[index].lstrip().startswith("}"):
+                wanted -= 1
+                if wanted == 0:
+                    return index
+        return None
+
+    def _starts_with_closing_brace(self, source_line: int) -> bool:
+        """Return True if the first token on *source_line* is a ``}``."""
+        for token in self._tokens:
+            if token.location.line == source_line:
+                return token.kind == TokenKind.RIGHT_BRACE
+        return False
 
     def _brace_depth_before(self, source_line: int) -> int:
         """Count how many ``{ }`` blocks are still open before *source_line*."""
