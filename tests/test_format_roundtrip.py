@@ -198,6 +198,14 @@ _PIECES: list[CodeLines] = [
     [(0, "class Dog {"), (1, "name,"), (1, "fn bark(self) {"), (2, "print(1)"), (1, "}"), (0, "}")],
     [(0, "match n {"), (1, "case 1 {"), (2, "print(1)"), (1, "}"), (1, "case _ {"), (1, "}"), (0, "}")],
     [(0, "try {"), (1, "print(1)"), (0, "} catch e {"), (0, "}")],
+    # Typed fields, one named like another field's type.
+    [(0, "struct Pair {"), (1, "a: b,"), (1, "b: Int,"), (1, "c: List[b]"), (0, "}")],
+    [(0, "class Box {"), (1, "size: Int,"), (1, "Int"), (0, "}")],
+    # Braces inside strings and dict literals aren't blocks.
+    [(0, 'print("a } b \\{ c")')],
+    [(0, 'print("n is {n} }")')],
+    [(0, 'let d = {"a": 1, "b": {"c": "}"}}')],
+    [(0, "if true {"), (1, 'let e = {"k": "{n}"}'), (0, "}")],
 ]  # fmt: skip
 # The lines of a fn value are printed as part of one line, so a comment
 # written inside one moves to the end of that line: it's checked for
