@@ -402,7 +402,8 @@ class Formatter:
         source. If the comment sat at the end of a block (just before ``}`` or
         ``} else {``), that next statement is *past* the block's end -- so step
         back over any shallower lines (closing braces, blank lines) until we're
-        at the comment's own depth again.
+        at the comment's own depth again. In an empty block there's nothing
+        at that depth, so stop just inside the block's opening line instead.
         """
         position = len(self._lines)
         for index, (origin, _indent) in enumerate(self._line_origins):
@@ -416,8 +417,18 @@ class Formatter:
             origin, indent = self._line_origins[position - 1]
             if origin is not None and indent >= depth:
                 break
+            if self._opens_empty_block(position - 1, depth):
+                break
             position -= 1
         return position
+
+    def _opens_empty_block(self, index: int, depth: int) -> bool:
+        """Return True if output line *index* opens a block at *depth* that closes on the next line."""
+        _origin, indent = self._line_origins[index]
+        if indent != depth - 1 or not self._lines[index].endswith("{"):
+            return False
+        following = index + 1
+        return following < len(self._lines) and self._lines[following].lstrip().startswith("}")
 
     # -- Program ---------------------------------------------------------------
 

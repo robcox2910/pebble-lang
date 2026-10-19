@@ -12,11 +12,15 @@ programs to try, so we catch the cases nobody thought to write down.
 """
 
 import dataclasses
+import re
+from contextlib import suppress
+from pathlib import Path
 
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
+from pebble import PebbleError, check, format_source
 from pebble.formatter import Formatter
 from pebble.lexer import Lexer
 from pebble.parser import Parser
@@ -141,3 +145,32 @@ def test_comments_survive_formatting_once_each(case: tuple[str, list[str]]) -> N
         if line.strip().startswith("# tail"):
             pytest.fail(f"inline comment became a standalone line: {formatted!r}")
     _check_round_trip(source)
+
+
+DOCS = Path(__file__).parent.parent / "docs"
+_PEBBLE_FENCE = re.compile(r"```pebble\n(.*?)```", re.DOTALL)
+
+
+def _docs_snippets() -> list[str]:
+    """Return every ```pebble snippet in the docs that parses (some show errors on purpose)."""
+    snippets: list[str] = []
+    for page in sorted(DOCS.rglob("*.md")):
+        for match in _PEBBLE_FENCE.finditer(page.read_text(encoding="utf-8")):
+            with suppress(PebbleError):
+                check(match.group(1))
+                snippets.append(match.group(1))
+    return snippets
+
+
+def test_docs_snippets_format_once_and_stay_put() -> None:
+    """Formatting every docs snippet works, and formatting the result changes nothing.
+
+    Regression (found in review): the comment in linter.md's empty-block
+    example jumped to the top of the file, indented, and moved again on the
+    next format.
+    """
+    snippets = _docs_snippets()
+    assert snippets, "no ```pebble snippets found in docs/"
+    for snippet in snippets:
+        formatted = format_source(snippet)
+        assert format_source(formatted) == formatted, snippet

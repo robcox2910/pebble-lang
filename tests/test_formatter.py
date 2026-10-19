@@ -722,6 +722,26 @@ class TestCommentPlacement:
         assert Formatter(source).format() == expected
         assert Formatter(expected).format() == expected
 
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "if c {\n    # x\n}\n",
+            "let a = 1\nif c {\n    # x\n}\nprint(2)\n",
+            "fn f() {\n    # todo\n}\n",
+            "if a {\n    if b {\n        # x\n    }\n}\n",
+            "if c {\n    # x\n} else {\n    print(1)\n}\n",
+            "if c {\n    print(1)\n} else {\n    # nothing to do\n}\n",
+        ],
+    )
+    def test_comment_in_an_empty_block_stays_inside(self, source: str) -> None:
+        """Regression (found in review): a comment alone in a block jumped to the top of the file.
+
+        It was placed before the next statement after it, and stepped back
+        over the block's closing ``}`` -- and its opening line too, because
+        an empty block has nothing at the comment's depth to stop at.
+        """
+        assert Formatter(source).format() == source
+
     def test_comment_before_else_stays_in_the_if_branch(self) -> None:
         """A comment just before ``} else {`` ends the if-branch, not the else-branch."""
         source = "if true {\n    print(1)\n    # end of if\n} else {\n    print(2)\n}"
