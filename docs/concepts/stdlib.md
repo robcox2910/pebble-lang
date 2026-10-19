@@ -491,6 +491,21 @@ print(pow(2, 10))    # prints: 1024
 !!! tip
     `abs`, `min`, and `max` work with both integers and floats.
 
+#### When a Number Is Too Big (or Not a Number at All)
+
+Some numbers are too much for some functions. Each case stops the
+program with an error you can catch with `try`/`catch`:
+
+| What you tried | Example | Error |
+|---|---|---|
+| `floor`, `ceil`, `round`, `sin` or `cos` of infinity or nan | `floor(10.0 ** 308 * 10)` | "floor() needs a finite number, got inf" |
+| `sqrt`, `sin`, `cos` or `pow` with a float and a whole number bigger than about 1.8 × 10<sup>308</sup> | `sqrt(10 ** 309)` | "Number is too large to turn into a float" |
+| `pow` of zero to a negative power | `pow(0, -1)` | "Division by zero" |
+| `pow` whose answer is too big for a float | `pow(10, 400.0)` | "Exponentiation result is too large" |
+
+These are the same rules and errors as the operators (see
+[Really Big Numbers](operators.md#really-big-numbers)).
+
 ### The `io` Module
 
 The `io` module gives you one function — `input()` — for reading text

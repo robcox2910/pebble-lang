@@ -84,6 +84,14 @@ catch with [`try`/`catch`](error-handling.md):
 | Mixing a float with a whole number bigger than about 1.8 × 10<sup>308</sup>, the biggest float there is | `print(10 ** 309 + 0.5)` | "Number is too large to turn into a float" |
 | A float power too big for a float | `print(10.0 ** 400)` | "Exponentiation result is too large" |
 | A left shift too big for the computer to hold | `print(1 << 10 ** 20)` | "Shift result is too large" |
+| Turning one that big into a float | `float(10 ** 309)` | "Number is too large to turn into a float" |
+| Turning infinity or "not a number" into a whole number | `int(10.0 ** 308 * 10)` | "Cannot convert inf to int" |
+
+Floats have two strange values of their own. A float sum too big for a
+float, like `10.0 ** 308 * 10`, gives `inf` (infinity), and `inf - inf`
+gives `nan` ("not a number"). You can print them, but no whole number is
+infinity, so `int()` refuses them. The [math module](stdlib.md#the-math-module)
+has the same rules for its functions.
 
 `/` always gives a float, so dividing two huge whole numbers works when
 the answer fits: `10 ** 400 / 10 ** 390` is `10000000000.0`.

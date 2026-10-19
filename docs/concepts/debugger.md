@@ -73,6 +73,11 @@ y = 7
 Each `s` (step) command moves to the next source line. Between steps you can
 inspect variables with `print` or see everything with `locals`.
 
+A value the debugger can't show, like a whole number with more than 4,300
+digits, appears as the error that stops it being written out, for example
+`x = <error: Number is too long to turn into text (more than 4,300 digits)>`.
+Your program keeps going.
+
 ## Source-Line vs Instruction Stepping
 
 Pebble compiles your code into **bytecode instructions** — small operations

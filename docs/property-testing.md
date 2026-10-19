@@ -124,8 +124,9 @@ why the formatter also gets a rule that only real tidying can pass.
 
 The `run_source` one is the `check` rule again, one step further: the
 program has to get past the parser and actually *run*. Its programs are
-ordinary little ones, ones that do sums with huge numbers like
-`10 ** 5000`, and towers that are whole programs, like
+ordinary little ones, ones that take a number at the edge (`10 ** 5000`,
+infinity, nan...), hand it to every built-in and math function and do
+sums with it, and towers that are whole programs, like
 `print(1 + 1 + 1 + ...)` or an `if` with 5,000 `else if`s.
 
 The optimiser one is a **reference check**: Pebble with the optimiser
@@ -266,6 +267,8 @@ Pebble's own documentation through the formatter:
 | `print(10 ** 5000)` | Python won't write out a number with more than 4,300 digits | property |
 | `print(10 ** 309 + 0.5)` | the whole number is too big to turn into a float | property |
 | `print(1 << 10 ** 20)` | the VM crashed: too many bits to hold | property |
+| `int(inf)`, `float(10 ** 309)`, `floor(inf)`, `sqrt(10 ** 309)`, `pow(0, -1)`... | the built-ins and the math module let Python's errors out | property |
+| `print x` in the debugger, for a 5,001-digit `x` | the debugger crashed | reading the code |
 | `print(triple(4))  # prints: 12`, after a one-line `fn` value | the formatter crashed with `IndexError` | formatting the docs |
 
 Each one now stops with a polite error instead (see
