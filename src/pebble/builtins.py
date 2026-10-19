@@ -10,6 +10,7 @@ like ``print`` and ``range``) so the analyzer can validate calls from a
 single source of truth.
 """
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -239,6 +240,20 @@ def format_value(value: Value) -> str:
     return _format_internal(value)
 
 
+def to_float(value: float) -> float:
+    """Return *value* as a float, or raise a Pebble error if it's too big to be one.
+
+    Raises:
+        PebbleRuntimeError: ``TOO_BIG_FOR_A_FLOAT``, for a whole number
+            bigger than about 1.8e308.
+
+    """
+    try:
+        return float(value)
+    except OverflowError:
+        raise PebbleRuntimeError(TOO_BIG_FOR_A_FLOAT, line=0, column=0) from None
+
+
 # -- Builtin handlers ---------------------------------------------------------
 
 
@@ -248,6 +263,9 @@ def _builtin_int(args: list[Value]) -> Value:
     if isinstance(arg, int) and not isinstance(arg, bool):
         return arg
     if isinstance(arg, float):
+        if not math.isfinite(arg):  # inf and nan aren't any whole number
+            msg = f"Cannot convert {arg} to int"
+            raise PebbleRuntimeError(msg, line=0, column=0)
         return int(arg)
     if isinstance(arg, str):
         try:
@@ -266,7 +284,7 @@ def _builtin_float(args: list[Value]) -> Value:
     if isinstance(arg, float):
         return arg
     if isinstance(arg, int) and not isinstance(arg, bool):
-        return float(arg)
+        return to_float(arg)
     if isinstance(arg, str):
         try:
             return float(arg)

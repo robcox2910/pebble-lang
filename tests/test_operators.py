@@ -311,3 +311,27 @@ class TestHugeNumbers:
     def test_dividing_huge_numbers_gives_a_float(self, run: Callable[[str], str]) -> None:
         """Regression: ``10 ** 400 / 10 ** 390`` crashed without the optimizer, and gave 1e10 with it."""
         assert run("let a = 10 ** 400\nlet b = 10 ** 390\nprint(a / b)") == "10000000000.0\n"
+
+
+# Infinity and not-a-number, made from floats: Pebble has no literal for them.
+INFINITY = "let a = 10.0 ** 308 * 10\n"
+NOT_A_NUMBER = "let a = 10.0 ** 308 * 10 - 10.0 ** 308 * 10\n"
+
+
+class TestConvertingHugeNumbers:
+    """``int()`` and ``float()`` refuse values they can't convert, with a Pebble error."""
+
+    @pytest.mark.parametrize(
+        ("setup", "shown"),
+        [(INFINITY, "inf"), ("let a = -(10.0 ** 308) * 10\n", "-inf"), (NOT_A_NUMBER, "nan")],
+    )
+    def test_int_of_infinity_or_nan_raises(self, setup: str, shown: str) -> None:
+        """Regression: ``int()`` of inf or nan crashed with OverflowError or ValueError."""
+        with pytest.raises(PebbleRuntimeError, match=f"Cannot convert {shown} to int"):
+            pebble.run_source(setup + "print(int(a))")
+
+    @pytest.mark.parametrize("setup", [TOO_BIG_FOR_A_FLOAT, HUGE])
+    def test_float_of_a_huge_number_raises(self, setup: str) -> None:
+        """Regression: ``float(10 ** 309)`` crashed with OverflowError."""
+        with pytest.raises(PebbleRuntimeError, match="Number is too large to turn into a float"):
+            pebble.run_source(setup + "print(float(a))")
