@@ -174,3 +174,87 @@ def test_docs_snippets_format_once_and_stay_put() -> None:
     for snippet in snippets:
         formatted = format_source(snippet)
         assert format_source(formatted) == formatted, snippet
+
+
+# Pieces of program to build from, as (indent level, code) lines. Each one
+# opens and closes its own blocks, and some blocks are left empty, because
+# a comment alone in a block, or on a closing ``}``, is where comments used
+# to go missing.
+type CodeLines = list[tuple[int, str]]
+_PIECES: list[CodeLines] = [
+    [(0, "print(1)")],
+    [(0, "let n = 2")],
+    [(0, "if true {"), (1, "print(1)"), (0, "}")],
+    [(0, "if true {"), (0, "}")],
+    [(0, "if true {"), (1, "print(1)"), (0, "} else {"), (1, "print(2)"), (0, "}")],
+    [(0, "if true {"), (0, "} else if false {"), (1, "print(2)"), (0, "} else {"), (0, "}")],
+    [(0, "while false {"), (0, "}")],
+    [(0, "while false {"), (1, "if true {"), (2, "print(1)"), (1, "}"), (0, "}")],
+    [(0, "fn helper() {"), (1, "return 1"), (0, "}")],
+    [(0, "fn nothing() {"), (0, "}")],
+    [(0, "struct Point {"), (1, "x,"), (1, "y"), (0, "}")],
+    [(0, "let f = fn(x) {"), (1, "return x"), (0, "}")],
+    [(0, "enum Color {"), (1, "Red,"), (1, "Green"), (0, "}")],
+    [(0, "class Dog {"), (1, "name,"), (1, "fn bark(self) {"), (2, "print(1)"), (1, "}"), (0, "}")],
+    [(0, "match n {"), (1, "case 1 {"), (2, "print(1)"), (1, "}"), (1, "case _ {"), (1, "}"), (0, "}")],
+    [(0, "try {"), (1, "print(1)"), (0, "} catch e {"), (0, "}")],
+]  # fmt: skip
+# The lines of a fn value are printed as part of one line, so a comment
+# written inside one moves to the end of that line: it's checked for
+# turning up once, but not for staying standalone.
+_FN_VALUE_START = "let f = fn(x) {"
+
+
+@st.composite
+def _programs_with_comments_everywhere(draw: st.DrawFn) -> tuple[str, list[str], list[str]]:
+    """Invent a program with comments before lines, after code, and on closing braces.
+
+    Return the program, the inline comments (written after code) and the
+    standalone comments (alone on a line, outside fn values).
+    """
+    pieces = draw(st.lists(st.sampled_from(_PIECES), min_size=1, max_size=5))
+    written: list[str] = []
+    inline: list[str] = []
+    standalone: list[str] = []
+    for piece in pieces:
+        is_fn_value = piece[0][1] == _FN_VALUE_START
+        for index, (level, code) in enumerate(piece):
+            inside_fn_value = is_fn_value and index > 0
+            place = draw(st.sampled_from(["none", "before", "after", "both"]))
+            number = len(inline) + len(standalone)
+            if place in {"before", "both"}:
+                comment = f"# s{number}"
+                written.append("    " * level + comment)
+                (inline if inside_fn_value else standalone).append(comment)
+            line = "    " * level + code
+            if place in {"after", "both"}:
+                comment = f"# i{number}"
+                line += f"  {comment}"
+                inline.append(comment)
+            written.append(line)
+    if draw(st.booleans()):
+        standalone.append("# the end")
+        written.append("# the end")
+    return "\n".join(written) + "\n", inline, standalone
+
+
+@given(_programs_with_comments_everywhere())
+def test_formatting_twice_is_formatting_once(case: tuple[str, list[str], list[str]]) -> None:
+    """Formatting tidy, commented code keeps every comment once, in its place, and is idempotent."""
+    source, inline, standalone = case
+    formatted = format_source(source)
+    assert format_source(formatted) == formatted, formatted
+    check(formatted)
+    lines = formatted.splitlines()
+    for comment in inline + standalone:
+        assert formatted.count(comment + "\n") + formatted.count(comment + "  ") == 1, (
+            comment,
+            formatted,
+        )
+    for comment in inline:
+        assert not any(line.strip().split("  ")[0] == comment for line in lines), (
+            comment,
+            formatted,
+        )
+    for comment in standalone:
+        assert any(line.strip() == comment for line in lines), (comment, formatted)
