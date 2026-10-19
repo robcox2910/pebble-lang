@@ -233,6 +233,10 @@ RUNNABLE_TOWERS = [
 # Powers of ten for huge numbers: 10 ** 309 is too big for a float, and
 # 10 ** 5000 has 5,001 digits, more than Python will turn into text.
 HUGE_POWERS_OF_TEN = ["309", "5000"]
+# Built-in and math functions that take one number, to call on a huge one.
+ONE_NUMBER_FUNCTIONS = [
+    "int", "float", "str", "abs", "floor", "ceil", "round", "sqrt", "sin", "cos", "log",
+]  # fmt: skip
 
 
 @st.composite
@@ -244,21 +248,47 @@ def runnable_towers(draw: st.DrawFn) -> str:
 
 
 def huge_numbers() -> st.SearchStrategy[Tokens]:
-    """Make a huge whole number: ``( 10 ** 309 )``, ``( 10 ** 5000 )`` or ``( 1 << 10 ** 20 )``."""
+    """Make a number at the edge: ``( 10 ** 309 )``, ``( 10 ** 5000 )``, ``( 1 << 10 ** 20 )``, inf or nan."""
     exponents = st.sampled_from(HUGE_POWERS_OF_TEN).map(one_token)
     power = st.builds(in_brackets, st.just(["10"]), st.just("**"), exponents)
     shift = st.just(["(", "1", "<<", "10", "**", "20", ")"])
-    return st.one_of(power, shift)
+    # Pebble has no literal for infinity or nan, so make them from floats.
+    infinity = ["(", "10.0", "**", "308", "*", "10", ")"]
+    nan = ["(", *infinity, "-", *infinity, ")"]
+    return st.one_of(power, shift, st.sampled_from([infinity, nan]))
+
+
+def decimals() -> st.SearchStrategy[Tokens]:
+    """Make a decimal number, like 2.5 (a float, never a whole number)."""
+    return st.builds("{}.{}".format, st.integers(0, 9), st.integers(0, 99)).map(one_token)
 
 
 @st.composite
 def programs_with_huge_numbers(draw: st.DrawFn) -> str:
-    """Make a program that prints a huge number, then does sums with it and prints those."""
-    # The second line mixes it with a number like 2 or 0.5 (a float), the
-    # rest with anything at all. Some programs end by throwing an answer.
+    """Make a program that hands a huge number to functions, prints it, then does sums with it."""
+    # Every built-in or math function gets a go, each inside try/catch so
+    # one polite error doesn't stop the rest. ``pow`` gets a float on the
+    # other side only: pow(2, 10 ** 5000) is a whole number with more
+    # digits than there are atoms in the universe, and takes ages. Then the
+    # number is printed, mixed with a number like 2 or 0.5 (a float), and
+    # with anything at all. Some programs end by throwing.
+    other = draw(decimals())
+    calls = [[name, "(", "a", ")"] for name in ONE_NUMBER_FUNCTIONS]
+    calls += [["pow", "(", "a", ",", *other, ")"], ["pow", "(", *other, ",", "a", ")"]]
     operator = draw(st.sampled_from(ARITHMETIC_OPERATORS))
     lines: Lines = [
+        (0, ["import", '"math"']),
         (0, ["let", "a", "=", *draw(huge_numbers())]),
+    ]
+    for call in calls:
+        lines += [
+            (0, ["try", "{"]),
+            (1, ["print", "(", *call, ")"]),
+            (0, ["}", "catch", "e", "{"]),
+            (1, ["print", "(", "e", ")"]),
+            (0, ["}"]),
+        ]
+    lines += [
         (0, ["print", "(", "a", ")"]),
         (0, ["print", "(", "a", operator, *draw(numbers()), ")"]),
     ]
