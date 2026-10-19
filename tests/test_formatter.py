@@ -787,6 +787,23 @@ class TestCommentPlacement:
         """
         assert Formatter(source).format() == source
 
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "struct P {\n    a: b,  # ca\n    b  # cb\n}\n",
+            "struct P {\n    a: int,\n    int  # ci\n}\n",
+            "struct P {\n    a: List[b],\n    b: Int  # cb\n}\n",
+            "class C {\n    a: b,\n    b  # cb\n}\n",
+        ],
+    )
+    def test_comment_beside_a_field_named_like_a_type(self, source: str) -> None:
+        """Regression (found in review): a field named like an earlier field's type lost its comment.
+
+        Fields were found by looking for their name anywhere in the tokens,
+        so ``b`` matched the type in ``a: b`` on the line before.
+        """
+        assert Formatter(source).format() == source
+
     def test_comment_before_else_stays_in_the_if_branch(self) -> None:
         """A comment just before ``} else {`` ends the if-branch, not the else-branch."""
         source = "if true {\n    print(1)\n    # end of if\n} else {\n    print(2)\n}"

@@ -79,6 +79,10 @@ from pebble.tokens import SourceLocation, Token, TokenKind
 
 __all__ = ["Formatter", "extract_comments"]
 
+# Brackets that nest inside a definition's body, as in ``a: List[b]``.
+_OPENERS = frozenset({TokenKind.LEFT_BRACE, TokenKind.LEFT_BRACKET, TokenKind.LEFT_PAREN})
+_CLOSERS = frozenset({TokenKind.RIGHT_BRACE, TokenKind.RIGHT_BRACKET, TokenKind.RIGHT_PAREN})
+
 # -- Escape map (inverse of Lexer._ESCAPE_MAP) --------------------------------
 
 _REVERSE_ESCAPE: dict[str, str] = {
@@ -729,8 +733,11 @@ class Formatter:
         """Return the source line of each of *names*, the fields or variants after ``{``.
 
         The AST doesn't keep where each field or variant was written, so
-        find their names in the tokens, in order, after the definition's
-        opening brace. That lets a comment beside a field stay beside it.
+        find them in the tokens: a member's name is the first name after the
+        opening brace or after a comma, outside any brackets. Anything else
+        (a ``: Type`` annotation, say ``a: b``) is skipped, so a field named
+        ``b`` isn't mistaken for that type. That lets a comment beside a
+        field stay beside it.
         """
         tokens = iter(
             token
@@ -740,11 +747,30 @@ class Formatter:
         for token in tokens:
             if token.kind == TokenKind.LEFT_BRACE:
                 break
-        lines: list[int | None] = []
-        for name in names:
-            line = next((t.location.line for t in tokens if t.value == name), None)
-            lines.append(line)
-        return lines
+        found: list[tuple[str, int]] = []
+        depth = 0
+        expecting_name = True
+        for token in tokens:
+            if len(found) == len(names):
+                break
+            if token.kind in _OPENERS:
+                depth += 1
+            elif token.kind in _CLOSERS:
+                if depth == 0:
+                    break  # the definition's closing brace
+                depth -= 1
+            elif depth == 0 and token.kind == TokenKind.COMMA:
+                expecting_name = True
+            elif depth == 0 and expecting_name and token.kind == TokenKind.IDENTIFIER:
+                found.append((token.value, token.location.line))
+                expecting_name = False
+        lines: list[int | None] = [line for _name, line in found]
+        lines += [None] * (len(names) - len(lines))
+        # If the tokens don't line up with the AST, don't guess.
+        return [
+            line if i < len(found) and found[i][0] == name else None
+            for i, (name, line) in enumerate(zip(names, lines, strict=True))
+        ]
 
     # -- Block helper ----------------------------------------------------------
 
