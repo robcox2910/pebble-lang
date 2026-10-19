@@ -10,7 +10,7 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from pebble.builtins import Value
+from pebble.builtins import Value, to_float
 from pebble.errors import PebbleRuntimeError
 
 type StdlibHandler = Callable[[list[Value]], Value] | None
@@ -50,6 +50,15 @@ def _require_numeric(value: Value, fn_name: str) -> int | float:
     raise PebbleRuntimeError(msg, line=0, column=0)
 
 
+def _require_finite(value: Value, fn_name: str) -> int | float:
+    """Validate that *value* is a number that isn't inf, -inf or nan."""
+    x = _require_numeric(value, fn_name)
+    if isinstance(x, float) and not math.isfinite(x):
+        msg = f"{fn_name}() needs a finite number, got {x}"
+        raise PebbleRuntimeError(msg, line=0, column=0)
+    return x
+
+
 def _require_two_numeric(a: Value, b: Value, fn_name: str) -> tuple[int | float, int | float]:
     """Validate that both *a* and *b* are plain int or float."""
     if isinstance(a, bool) or isinstance(b, bool):
@@ -84,19 +93,19 @@ def _math_max(args: list[Value]) -> Value:
 
 def _math_floor(args: list[Value]) -> Value:
     """Round down to the nearest integer."""
-    x = _require_numeric(args[0], "floor")
+    x = _require_finite(args[0], "floor")
     return math.floor(x)
 
 
 def _math_ceil(args: list[Value]) -> Value:
     """Round up to the nearest integer."""
-    x = _require_numeric(args[0], "ceil")
+    x = _require_finite(args[0], "ceil")
     return math.ceil(x)
 
 
 def _math_round(args: list[Value]) -> Value:
     """Round to the nearest integer."""
-    x = _require_numeric(args[0], "round")
+    x = _require_finite(args[0], "round")
     return round(x)
 
 
@@ -106,13 +115,22 @@ def _math_sqrt(args: list[Value]) -> Value:
     if x < 0:
         msg = "sqrt() argument must not be negative"
         raise PebbleRuntimeError(msg, line=0, column=0)
-    return math.sqrt(x)
+    return math.sqrt(to_float(x))
 
 
 def _math_pow(args: list[Value]) -> Value:
     """Return x raised to the power y."""
     x, y = _require_two_numeric(args[0], args[1], "pow")
-    result = x**y
+    if isinstance(x, float) or isinstance(y, float):
+        x, y = to_float(x), to_float(y)
+    try:
+        result = x**y
+    except ZeroDivisionError:  # pow(0, -1)
+        msg = "Division by zero"
+        raise PebbleRuntimeError(msg, line=0, column=0) from None
+    except OverflowError:  # pow(10, 400.0) is too big for a float
+        msg = "Exponentiation result is too large"
+        raise PebbleRuntimeError(msg, line=0, column=0) from None
     if isinstance(result, complex):
         msg = "pow() produced a complex result (negative base with fractional exponent)"
         raise PebbleRuntimeError(msg, line=0, column=0)
@@ -121,13 +139,13 @@ def _math_pow(args: list[Value]) -> Value:
 
 def _math_sin(args: list[Value]) -> Value:
     """Return the sine of x (radians)."""
-    x = _require_numeric(args[0], "sin")
+    x = _require_finite(to_float(_require_numeric(args[0], "sin")), "sin")
     return math.sin(x)
 
 
 def _math_cos(args: list[Value]) -> Value:
     """Return the cosine of x (radians)."""
-    x = _require_numeric(args[0], "cos")
+    x = _require_finite(to_float(_require_numeric(args[0], "cos")), "cos")
     return math.cos(x)
 
 

@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 
+import pebble
 from pebble.analyzer import SemanticAnalyzer
 from pebble.builtins import (
     BUILTIN_ARITIES,
@@ -886,3 +887,44 @@ class TestMathPowComplexGuard:
         """``pow(-2, 3)`` is fine: -8."""
         output = run_source_with_stdlib('import "math"\nprint(pow(-2, 3))')  # type: ignore[no-any-return]
         assert output == "-8\n"
+
+
+# -- Math with huge, infinite and impossible numbers --------------------------
+
+_MATH_HUGE = 'import "math"\nlet a = 10 ** 309\n'
+_MATH_INFINITY = 'import "math"\nlet a = 10.0 ** 308 * 10\n'
+_MATH_NAN = 'import "math"\nlet a = 10.0 ** 308 * 10 - 10.0 ** 308 * 10\n'
+
+
+class TestMathEdgeNumbers:
+    """Math functions stop with a Pebble error, never a Python one, on numbers they can't handle."""
+
+    @pytest.mark.parametrize("call", ["sqrt(a)", "sin(a)", "cos(a)", "pow(a, 0.5)", "pow(2.0, a)"])
+    def test_whole_number_too_big_for_a_float(self, call: str) -> None:
+        """Regression: ``sqrt(10 ** 309)`` and friends crashed with OverflowError."""
+        with pytest.raises(PebbleRuntimeError, match="Number is too large to turn into a float"):
+            pebble.run_source(f"{_MATH_HUGE}print({call})")
+
+    @pytest.mark.parametrize("setup", [_MATH_INFINITY, _MATH_NAN])
+    @pytest.mark.parametrize("name", ["floor", "ceil", "round", "sin", "cos"])
+    def test_infinity_or_nan(self, setup: str, name: str) -> None:
+        """Regression: ``floor`` of inf (or ``sin`` of inf, ``round`` of nan...) crashed Python."""
+        with pytest.raises(PebbleRuntimeError, match=rf"{name}\(\) needs a finite number"):
+            pebble.run_source(f"{setup}print({name}(a))")
+
+    @pytest.mark.parametrize("call", ["pow(0, -1)", "pow(0.0, -1)"])
+    def test_pow_zero_to_a_negative_power(self, call: str) -> None:
+        """Regression: ``pow(0, -1)`` crashed with ZeroDivisionError."""
+        with pytest.raises(PebbleRuntimeError, match="Division by zero"):
+            pebble.run_source(f'import "math"\nprint({call})')
+
+    @pytest.mark.parametrize("call", ["pow(10.0 ** 308, 2)", "pow(10, 400.0)"])
+    def test_pow_too_big(self, call: str) -> None:
+        """Regression: ``pow(10, 400.0)`` crashed with OverflowError."""
+        with pytest.raises(PebbleRuntimeError, match="Exponentiation result is too large"):
+            pebble.run_source(f'import "math"\nprint({call})')
+
+    def test_ordinary_numbers_still_work(self) -> None:
+        """The checks don't get in the way of normal maths."""
+        source = 'import "math"\nprint(floor(2.5))\nprint(pow(2, 10))\nprint(sqrt(16))\nprint(pow(2.0, 0.5))'
+        assert pebble.run_source(source) == "2\n1024\n4.0\n1.4142135623730951\n"
