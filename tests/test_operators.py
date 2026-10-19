@@ -126,7 +126,7 @@ class TestBitwiseOperators:
     @pytest.mark.parametrize("run", [run_source, pebble.run_source])
     def test_left_shift_too_big_raises(self, run: Callable[[str], str]) -> None:
         """Regression (found by a property test): ``1 << 10 ** 20`` crashed with OverflowError."""
-        with pytest.raises(PebbleRuntimeError, match="Shift result is too large"):
+        with pytest.raises(PebbleRuntimeError, match="Number is too large"):
             run("let a = 1 << 10 ** 20\nprint(a)")
 
 

@@ -502,6 +502,7 @@ program with an error you can catch with `try`/`catch`:
 | `sqrt`, `sin`, `cos` or `pow` with a float and a whole number bigger than about 1.8 × 10<sup>308</sup> | `sqrt(10 ** 309)` | "Number is too large to turn into a float" |
 | `pow` of zero to a negative power | `pow(0, -1)` | "Division by zero" |
 | `pow` whose answer is too big for a float | `pow(10, 400.0)` | "Exponentiation result is too large" |
+| `pow` of two whole numbers whose answer would have more than 1,000,000 bits | `pow(2, 10 ** 9)` | "Number is too large (more than 1,000,000 bits)" |
 
 These are the same rules and errors as the operators (see
 [Really Big Numbers](operators.md#really-big-numbers)).
