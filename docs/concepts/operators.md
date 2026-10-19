@@ -73,17 +73,18 @@ print(2 ** -1)   # prints: 0.5   (same as 1 / 2)
 
 ### Really Big Numbers
 
-A whole number (`int`) can be as big as you like, so `10 ** 400` is
-fine, and so is doing sums with it. A few things can't be done with a
+A whole number (`int`) can be very big indeed: up to 1,000,000 **bits**
+(binary digits), which is about 300,000 ordinary digits. So `10 ** 400`
+is fine, and so is doing sums with it. A few things can't be done with a
 number that big, and each stops your program with an error you can
 catch with [`try`/`catch`](error-handling.md):
 
 | What you tried | Example | Error |
 |---|---|---|
+| Making a whole number of more than 1,000,000 bits, with any operator or with `pow` | `print(2 ** 10 ** 9)` | "Number is too large (more than 1,000,000 bits)" |
 | Printing a number with more than 4,300 digits (or turning it into text with `str` or `"{a}"`) | `print(10 ** 5000)` | "Number is too long to turn into text (more than 4,300 digits)" |
 | Mixing a float with a whole number bigger than about 1.8 × 10<sup>308</sup>, the biggest float there is | `print(10 ** 309 + 0.5)` | "Number is too large to turn into a float" |
 | A float power too big for a float | `print(10.0 ** 400)` | "Exponentiation result is too large" |
-| A left shift too big for the computer to hold | `print(1 << 10 ** 20)` | "Shift result is too large" |
 | Turning one that big into a float | `float(10 ** 309)` | "Number is too large to turn into a float" |
 | Turning infinity or "not a number" into a whole number | `int(10.0 ** 308 * 10)` | "Cannot convert inf to int" |
 
@@ -95,6 +96,30 @@ has the same rules for its functions.
 
 `/` always gives a float, so dividing two huge whole numbers works when
 the answer fits: `10 ** 400 / 10 ** 390` is `10000000000.0`.
+
+Why have a limit at all? Without one, `2 ** 10 ** 9` would make Pebble
+try to build a number with a billion bits. That takes ages and eats all
+the computer's memory, so the program would just freeze. Instead, `**`,
+`*` and `<<` (and the [math module's](stdlib.md#the-math-module) `pow`)
+work out how big the answer *would* be before making it, and stop at
+once if it's too big. So does a loop that keeps squaring a number:
+
+```pebble
+let x = 3
+try {
+    while true {
+        x = x * x
+    }
+} catch e {
+    print(e)   # prints: Number is too large (more than 1,000,000 bits)
+}
+```
+
+The limit never stops an answer that fits: `1 << 999999` (exactly
+1,000,000 bits) is allowed, and `1 << 1000000` is not. `0`, `1` and `-1`
+stay small whatever power you raise them to, so `1 ** (10 ** 5000)` is
+just `1`. Floats have their own limits (see above), and the 4,300-digit
+limit on turning a number into text is a separate, smaller one.
 
 ## Unary Operators
 
@@ -272,8 +297,9 @@ print(16 >> 2)   # prints: 4    (16 → 8 → 4)
 ```
 
 You cannot shift by a negative amount -- that gives an error. Nor can
-you shift by an amount so big the answer wouldn't fit in the computer
-(`1 << 10 ** 20`): that's the error "Shift result is too large".
+you shift so far that the answer would have more than 1,000,000 bits
+(`1 << 10 ** 20`): that's the error "Number is too large (more than
+1,000,000 bits)" (see [Really Big Numbers](#really-big-numbers)).
 
 ## Operator Precedence
 

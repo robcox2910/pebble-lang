@@ -84,6 +84,10 @@ errors:
 - **Negative shifts** — `1 << -1` is kept for the same reason
 - **Answers Python can't give** — `0 ** -1` and `10.0 ** 400` are
   kept too, so the VM reports them as Pebble errors
+- **Whole numbers past the size limit** — `2 ** 10 ** 9` or
+  `1 << 1000000` would have more than 1,000,000 bits, so they're kept
+  for the VM to report too. The optimizer works out the size first, just
+  like the VM, so it never spends ages building a giant number
 - **Booleans in arithmetic** — Pebble doesn't treat `true` as the
   number 1, so `-true` and `0 < true` are left alone
 - **Jump boundaries** — if another instruction might jump into the

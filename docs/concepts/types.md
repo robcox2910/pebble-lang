@@ -146,6 +146,10 @@ print(type(3.14))  # prints: float
 print(type(1.0))   # prints: float   (the .0 makes it a float!)
 ```
 
+An integer can be huge -- up to 1,000,000 bits, about 300,000 digits.
+Going past that is an error (see
+[Really Big Numbers](operators.md#really-big-numbers)).
+
 ### Mixed Arithmetic
 
 When you mix `int` and `float` in a calculation, the result is always a

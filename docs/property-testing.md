@@ -121,6 +121,7 @@ why the formatter also gets a rule that only real tidying can pass.
 | However oddly a program is spaced, the [formatter](concepts/formatter.md) turns it into the same tidy text | `test_formatting_ignores_how_a_program_was_spaced` |
 | Any program we can parse still parses, and means the same, after formatting (in `tests/test_format_roundtrip.py`) | `test_random_programs_survive_formatting` |
 | Every comment appears exactly once after formatting (in `tests/test_format_roundtrip.py`) | `test_comments_survive_formatting_once_each` |
+| A whole-number sum (`+`, `-`, `*`, `**`, `<<`, `~` or `pow`) gives exactly Python's answer when it fits in 1,000,000 bits, the "Number is too large" error when it doesn't, and never takes long | `test_whole_numbers_are_right_or_too_large` |
 | Formatting tidy code with comments anywhere -- before lines, after code, on a closing `}`, in an empty block -- keeps each one once and in its place, and formatting again changes nothing (in `tests/test_format_roundtrip.py`) | `test_formatting_twice_is_formatting_once` |
 
 The `run_source` one is the `check` rule again, one step further: the
@@ -129,6 +130,24 @@ ordinary little ones, ones that take a number at the edge (`10 ** 5000`,
 infinity, nan...), hand it to every built-in and math function and do
 sums with it, and towers that are whole programs, like
 `print(1 + 1 + 1 + ...)` or an `if` with 5,000 `else if`s.
+
+The whole-number one is a reference check too, with Python as the right
+answer. It makes numbers right up against the
+[size limit](concepts/operators.md#really-big-numbers) -- powers of two,
+runs of 1s, `3 ** 630929` (999,999 bits) and `3 ** 630930` (1,000,001
+bits) -- and absurd ones like `2 ** 10 ** 30`, then checks Pebble gives
+Python's answer if it fits and the size error if not, with and without
+the optimiser. It can't ask Python for the answer to `2 ** 10 ** 30` (it
+would never finish), so for those it uses a rule instead: when even a
+rough guess at the answer's size is more than twice the limit, it can't
+possibly fit.
+
+That limit is new. The programs used to be kept small on purpose, with
+`pow` handed only floats and nothing bigger than `6` on the right of
+`**`, because `9 ** 9 ** 9` or `pow(2, 10 ** 5000)` would take ages and
+eat all the memory. Now Pebble refuses those at once, so the programs
+put `10 ** 9` on the right of `**`, `<<` and `>>` now and then, and hand
+`pow` whole numbers too.
 
 The optimiser one is a **reference check**: Pebble with the optimiser
 switched off is the "right answer", and Pebble with it switched on must
@@ -268,6 +287,7 @@ Pebble's own documentation through the formatter:
 | `print(10 ** 5000)` | Python won't write out a number with more than 4,300 digits | property |
 | `print(10 ** 309 + 0.5)` | the whole number is too big to turn into a float | property |
 | `print(1 << 10 ** 20)` | the VM crashed: too many bits to hold | property |
+| `print(2 ** 10 ** 9)`, `pow(2, 10 ** 5000)`, squaring in a loop | Pebble froze, building a number with a billion bits | reading the code |
 | `int(inf)`, `float(10 ** 309)`, `floor(inf)`, `sqrt(10 ** 309)`, `pow(0, -1)`... | the built-ins and the math module let Python's errors out | property |
 | `print x` in the debugger, for a 5,001-digit `x` | the debugger crashed | reading the code |
 | `print(triple(4))  # prints: 12`, after a one-line `fn` value | the formatter crashed with `IndexError` | formatting the docs |
