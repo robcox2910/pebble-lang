@@ -345,6 +345,21 @@ class TestStackInspection:
         dbg_out, _ = debug_run_source(source, commands)
         assert "TOS" in dbg_out
 
+    def test_huge_numbers_show_the_pebble_error(self) -> None:
+        """Regression: print, locals and stack crashed with ValueError on a 5,001-digit number.
+
+        The debugger shows the Pebble error in place of the value, so the
+        session (and the program being debugged) carries on.
+        """
+        source = "let x = 10 ** 5000\nlet y = x - x\nprint(y)"
+        commands = "s\nprint x\nlocals\nn\nn\nstack\ncontinue\n"
+        dbg_out, prog_out = debug_run_source(source, commands)
+        shown = "<error: Number is too long to turn into text (more than 4,300 digits)>"
+        assert f"x = {shown}" in dbg_out
+        assert f"  x = {shown}" in dbg_out
+        assert f"TOS: {shown}" in dbg_out
+        assert prog_out == "0\n"
+
     def test_stack_empty(self) -> None:
         """Stack on empty stack shows message."""
         source = "let x = 1"

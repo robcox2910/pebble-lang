@@ -71,6 +71,7 @@ from pebble.ast_nodes import (
     UnpackReassignment,
     WhileLoop,
     YieldStatement,
+    else_if_chain,
 )
 from pebble.lexer import Lexer
 from pebble.parser import Parser
@@ -277,11 +278,14 @@ class Linter:
     # -- Statement visitors ----------------------------------------------------
 
     def _visit_if(self, stmt: IfStatement) -> None:
-        """Visit an if/else statement."""
-        self._visit_expression(stmt.condition)
-        self._visit_block(stmt.body, stmt.location.line, stmt.location.column)
-        if stmt.else_body is not None:
-            self._visit_block(stmt.else_body, stmt.location.line, stmt.location.column)
+        """Visit an if/else statement, walking an ``else if`` chain in a loop."""
+        branches, final_else = else_if_chain(stmt)
+        for branch in branches:
+            self._visit_expression(branch.condition)
+            self._visit_block(branch.body, branch.location.line, branch.location.column)
+        if final_else is not None:
+            last = branches[-1].location
+            self._visit_block(final_else, last.line, last.column)
 
     def _visit_while(self, stmt: WhileLoop) -> None:
         """Visit a while loop."""

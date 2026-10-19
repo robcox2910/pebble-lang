@@ -10,6 +10,9 @@ and brace placement. Comments are extracted separately and interleaved
 at their original line positions.
 """
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+
 from pebble.ast_nodes import (
     ArrayLiteral,
     Assignment,
@@ -68,12 +71,17 @@ from pebble.ast_nodes import (
     WhileLoop,
     WildcardPattern,
     YieldStatement,
+    else_if_chain,
 )
 from pebble.lexer import Lexer
 from pebble.parser import Parser
-from pebble.tokens import Token, TokenKind
+from pebble.tokens import SourceLocation, Token, TokenKind
 
 __all__ = ["Formatter", "extract_comments"]
+
+# Brackets that nest inside a definition's body, as in ``a: List[b]``.
+_OPENERS = frozenset({TokenKind.LEFT_BRACE, TokenKind.LEFT_BRACKET, TokenKind.LEFT_PAREN})
+_CLOSERS = frozenset({TokenKind.RIGHT_BRACE, TokenKind.RIGHT_BRACKET, TokenKind.RIGHT_PAREN})
 
 # -- Escape map (inverse of Lexer._ESCAPE_MAP) --------------------------------
 
@@ -271,6 +279,10 @@ class Formatter:
         self._line_origins: list[tuple[int | None, int]] = []
         self._current_source_line: int | None = None
         self._tokens: list[Token] = []
+        # Source lines written inside an ``fn(x) { ... }`` value, mapped to
+        # the line of the statement holding it. That whole value is printed
+        # as part of one output line, so its comments go on that line too.
+        self._inside_function_value: dict[int, int] = {}
 
     def format(self) -> str:
         """Return the formatted source code."""
@@ -319,10 +331,16 @@ class Formatter:
             return "\n".join(self._lines)
 
         standalone, inline = _classify_comments(self._source, self._comments)
+        for source_line in self._inside_function_value.keys() & self._comments.keys():
+            standalone.pop(source_line, None)
+            inline[source_line] = self._comments[source_line]
         lines = list(self._lines)
 
-        for source_line, comment in inline.items():
-            target = self._first_line_from(source_line)
+        for source_line, comment in sorted(inline.items()):
+            holder = self._inside_function_value.get(source_line, source_line)
+            target = self._first_line_from(holder)
+            if target is None:  # e.g. "}  # end": no statement starts on that line
+                target = self._closing_brace_line(holder)
             if target is None:
                 standalone[source_line] = comment  # nowhere to hang it; keep it nearby
             else:
@@ -348,6 +366,66 @@ class Formatter:
             if origin == source_line:
                 return index
         return None
+
+    def _function_value_end_line(self, start: SourceLocation) -> int:
+        """Return the line of the ``}`` closing the ``fn`` value that starts at *start*."""
+        parens = braces = 0
+        for token in self._tokens:
+            if (token.location.line, token.location.column) < (start.line, start.column):
+                continue
+            if token.kind == TokenKind.LEFT_PAREN:
+                parens += 1
+            elif token.kind == TokenKind.RIGHT_PAREN:
+                parens -= 1
+            elif token.kind == TokenKind.LEFT_BRACE and (braces or parens == 0):
+                braces += 1
+            elif token.kind == TokenKind.RIGHT_BRACE and braces:
+                braces -= 1
+                if braces == 0:
+                    return token.location.line
+        return start.line  # pragma: no cover - the parser already matched the braces
+
+    def _closing_brace_line(self, source_line: int) -> int | None:
+        """Return the output line holding the ``}`` that starts *source_line*, if it does.
+
+        A closing line (``}``, ``} else {``...) remembers the statement it
+        belongs to, not its own source line, so find it by counting: after
+        the last code written before *source_line*, the closing braces at
+        this depth come out in the same order as in the source.
+        """
+        first = next(
+            (t for t in self._tokens if t.location.line == source_line),
+            None,
+        )
+        if first is None or first.kind != TokenKind.RIGHT_BRACE:
+            return None
+        depth = self._brace_depth_before(source_line)
+        start, start_origin = -1, 0
+        for index, (origin, _indent) in enumerate(self._line_origins):
+            if origin is None or origin >= source_line:
+                continue
+            if not self._lines[index].lstrip().startswith("}"):
+                start, start_origin = index, origin
+        # Which closing brace at this depth is it, counting from start?
+        wanted = sum(
+            1
+            for line in range(start_origin + 1, source_line + 1)
+            if self._starts_with_closing_brace(line) and self._brace_depth_before(line) == depth
+        )
+        for index in range(start + 1, len(self._lines)):
+            _origin, indent = self._line_origins[index]
+            if indent == depth - 1 and self._lines[index].lstrip().startswith("}"):
+                wanted -= 1
+                if wanted == 0:
+                    return index
+        return None
+
+    def _starts_with_closing_brace(self, source_line: int) -> bool:
+        """Return True if the first token on *source_line* is a ``}``."""
+        for token in self._tokens:
+            if token.location.line == source_line:
+                return token.kind == TokenKind.RIGHT_BRACE
+        return False
 
     def _brace_depth_before(self, source_line: int) -> int:
         """Count how many ``{ }`` blocks are still open before *source_line*."""
@@ -375,7 +453,8 @@ class Formatter:
         source. If the comment sat at the end of a block (just before ``}`` or
         ``} else {``), that next statement is *past* the block's end -- so step
         back over any shallower lines (closing braces, blank lines) until we're
-        at the comment's own depth again.
+        at the comment's own depth again. In an empty block there's nothing
+        at that depth, so stop just inside the block's opening line instead.
         """
         position = len(self._lines)
         for index, (origin, _indent) in enumerate(self._line_origins):
@@ -389,8 +468,18 @@ class Formatter:
             origin, indent = self._line_origins[position - 1]
             if origin is not None and indent >= depth:
                 break
+            if self._opens_empty_block(position - 1, depth):
+                break
             position -= 1
         return position
+
+    def _opens_empty_block(self, index: int, depth: int) -> bool:
+        """Return True if output line *index* opens a block at *depth* that closes on the next line."""
+        _origin, indent = self._line_origins[index]
+        if indent != depth - 1 or not self._lines[index].endswith("{"):
+            return False
+        following = index + 1
+        return following < len(self._lines) and self._lines[following].lstrip().startswith("}")
 
     # -- Program ---------------------------------------------------------------
 
@@ -507,35 +596,17 @@ class Formatter:
         self._emit(f"{keyword} {names} = {self._format_expression(stmt.value)}")
 
     def _format_if(self, stmt: IfStatement) -> None:
-        """Format an if/else statement."""
-        cond = self._format_expression(stmt.condition)
-        self._emit(f"if {cond} {{")
-        self._format_block(stmt.body)
-        if stmt.else_body is None:
-            self._emit("}")
-            return
-        # Detect else-if chain
-        if len(stmt.else_body) == 1 and isinstance(stmt.else_body[0], IfStatement):
-            self._format_else_if(stmt.else_body[0])
-        else:
+        """Format an if/else statement, walking an ``else if`` chain in a loop."""
+        branches, final_else = else_if_chain(stmt)
+        opener = "if"
+        for branch in branches:
+            self._emit(f"{opener} {self._format_expression(branch.condition)} {{")
+            self._format_block(branch.body)
+            opener = "} else if"
+        if final_else is not None:
             self._emit("} else {")
-            self._format_block(stmt.else_body)
-            self._emit("}")
-
-    def _format_else_if(self, inner: IfStatement) -> None:
-        """Format an else-if chain continuation."""
-        inner_cond = self._format_expression(inner.condition)
-        self._emit(f"}} else if {inner_cond} {{")
-        self._format_block(inner.body)
-        if inner.else_body is None:
-            self._emit("}")
-            return
-        if len(inner.else_body) == 1 and isinstance(inner.else_body[0], IfStatement):
-            self._format_else_if(inner.else_body[0])
-        else:
-            self._emit("} else {")
-            self._format_block(inner.else_body)
-            self._emit("}")
+            self._format_block(final_else)
+        self._emit("}")
 
     def _format_while(self, stmt: WhileLoop) -> None:
         """Format a while loop."""
@@ -591,19 +662,22 @@ class Formatter:
 
     def _format_match_case(self, case: MatchCase) -> None:
         """Format a single match case."""
-        pattern = self._format_pattern(case.pattern)
-        self._emit(f"case {pattern} {{")
-        self._format_block(case.body)
-        self._emit("}")
+        with self._from_source_line(case.location.line):
+            pattern = self._format_pattern(case.pattern)
+            self._emit(f"case {pattern} {{")
+            self._format_block(case.body)
+            self._emit("}")
 
     def _format_struct(self, stmt: StructDef) -> None:
         """Format a struct definition."""
         self._emit(f"struct {stmt.name} {{")
         self._indent += 1
+        lines = self._member_lines(stmt.location, [field.name for field in stmt.fields])
         for i, field in enumerate(stmt.fields):
             suffix = "," if i < len(stmt.fields) - 1 else ""
             type_str = f": {field.type_annotation}" if field.type_annotation else ""
-            self._emit(f"{field.name}{type_str}{suffix}")
+            with self._from_source_line(lines[i]):
+                self._emit(f"{field.name}{type_str}{suffix}")
         self._indent -= 1
         self._emit("}")
 
@@ -612,18 +686,21 @@ class Formatter:
         extends = f" extends {stmt.parent}" if stmt.parent else ""
         self._emit(f"class {stmt.name}{extends} {{")
         self._indent += 1
+        lines = self._member_lines(stmt.location, [field.name for field in stmt.fields])
         for i, field in enumerate(stmt.fields):
             suffix = "," if i < len(stmt.fields) - 1 or stmt.methods else ""
             type_str = f": {field.type_annotation}" if field.type_annotation else ""
-            self._emit(f"{field.name}{type_str}{suffix}")
+            with self._from_source_line(lines[i]):
+                self._emit(f"{field.name}{type_str}{suffix}")
         if stmt.fields and stmt.methods:
             self._emit_blank()  # blank line between fields and methods
         for i, method in enumerate(stmt.methods):
             params = self._format_params(method.parameters)
             ret = f" -> {method.return_type}" if method.return_type else ""
-            self._emit(f"fn {method.name}({params}){ret} {{")
-            self._format_block(method.body)
-            self._emit("}")
+            with self._from_source_line(method.location.line):
+                self._emit(f"fn {method.name}({params}){ret} {{")
+                self._format_block(method.body)
+                self._emit("}")
             if i < len(stmt.methods) - 1:
                 self._emit_blank()  # blank line between methods
         self._indent -= 1
@@ -633,11 +710,67 @@ class Formatter:
         """Format an enum definition."""
         self._emit(f"enum {stmt.name} {{")
         self._indent += 1
+        lines = self._member_lines(stmt.location, stmt.variants)
         for i, variant in enumerate(stmt.variants):
             suffix = "," if i < len(stmt.variants) - 1 else ""
-            self._emit(f"{variant}{suffix}")
+            with self._from_source_line(lines[i]):
+                self._emit(f"{variant}{suffix}")
         self._indent -= 1
         self._emit("}")
+
+    @contextmanager
+    def _from_source_line(self, line: int | None) -> Iterator[None]:
+        """Mark the lines emitted inside as coming from source *line* (if known)."""
+        outer_line = self._current_source_line
+        if line is not None:
+            self._current_source_line = line
+        try:
+            yield
+        finally:
+            self._current_source_line = outer_line
+
+    def _member_lines(self, start: SourceLocation, names: list[str]) -> list[int | None]:
+        """Return the source line of each of *names*, the fields or variants after ``{``.
+
+        The AST doesn't keep where each field or variant was written, so
+        find them in the tokens: a member's name is the first name after the
+        opening brace or after a comma, outside any brackets. Anything else
+        (a ``: Type`` annotation, say ``a: b``) is skipped, so a field named
+        ``b`` isn't mistaken for that type. That lets a comment beside a
+        field stay beside it.
+        """
+        tokens = iter(
+            token
+            for token in self._tokens
+            if (token.location.line, token.location.column) > (start.line, start.column)
+        )
+        for token in tokens:
+            if token.kind == TokenKind.LEFT_BRACE:
+                break
+        found: list[tuple[str, int]] = []
+        depth = 0
+        expecting_name = True
+        for token in tokens:
+            if len(found) == len(names):
+                break
+            if token.kind in _OPENERS:
+                depth += 1
+            elif token.kind in _CLOSERS:
+                if depth == 0:
+                    break  # the definition's closing brace
+                depth -= 1
+            elif depth == 0 and token.kind == TokenKind.COMMA:
+                expecting_name = True
+            elif depth == 0 and expecting_name and token.kind == TokenKind.IDENTIFIER:
+                found.append((token.value, token.location.line))
+                expecting_name = False
+        lines: list[int | None] = [line for _name, line in found]
+        lines += [None] * (len(names) - len(lines))
+        # If the tokens don't line up with the AST, don't guess.
+        return [
+            line if i < len(found) and found[i][0] == name else None
+            for i, (name, line) in enumerate(zip(names, lines, strict=True))
+        ]
 
     # -- Block helper ----------------------------------------------------------
 
@@ -811,24 +944,22 @@ class Formatter:
         """Format an anonymous function expression."""
         params = self._format_params(expr.parameters)
         ret = f" -> {expr.return_type}" if expr.return_type else ""
-        # Function expressions get their body formatted inline
+        # Function expressions get their body formatted inline, into lists
+        # of their own: the body becomes part of one outer line, so its lines
+        # (and where they came from) mustn't land in the outer lists.
+        if self._current_source_line is not None:
+            end = self._function_value_end_line(expr.location)
+            for line in range(expr.location.line, end + 1):
+                self._inside_function_value.setdefault(line, self._current_source_line)
         body_lines: list[str] = []
-        saved_lines = self._lines
-        saved_indent = self._indent
-        self._lines = body_lines
-        self._indent = 0
+        saved_lines, saved_origins = self._lines, self._line_origins
+        self._lines, self._line_origins = body_lines, []
+        # The body is formatted at its real depth, so every line it makes
+        # (nested blocks and nested fn values included) is already indented.
         self._format_block(expr.body)
-        self._lines = saved_lines
-        self._indent = saved_indent
+        self._lines, self._line_origins = saved_lines, saved_origins
 
         if not body_lines:
             return f"fn({params}){ret} {{}}"
-
-        result = f"fn({params}){ret} {{\n"
-        for line in body_lines:
-            if line:
-                result += f"{_INDENT * (self._indent + 1)}{line.lstrip()}\n"
-            else:
-                result += "\n"
-        result += f"{_INDENT * self._indent}}}"
-        return result
+        body = "\n".join(body_lines)
+        return f"fn({params}){ret} {{\n{body}\n{_INDENT * self._indent}}}"

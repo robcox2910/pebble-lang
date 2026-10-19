@@ -12,6 +12,7 @@ from typing import TextIO
 
 from pebble.builtins import Value, format_value
 from pebble.bytecode import CodeObject, Instruction
+from pebble.errors import PebbleRuntimeError
 from pebble.vm import DebugAction, Frame
 
 
@@ -269,7 +270,7 @@ class Debugger:
         if value is _SENTINEL:
             self.output.write(f"Undefined variable: {arg}\n")
             return
-        self.output.write(f"{arg} = {format_value(value)}\n")
+        self.output.write(f"{arg} = {_show(value)}\n")
 
     def _cmd_locals(self, frames: list[Frame]) -> None:
         """Print all local variables and closure cells."""
@@ -281,9 +282,9 @@ class Debugger:
             self.output.write("No locals.\n")
             return
         for name, value in sorted(frame.variables.items()):
-            self.output.write(f"  {name} = {format_value(value)}\n")
+            self.output.write(f"  {name} = {_show(value)}\n")
         for name, cell in sorted(frame.cells.items()):
-            self.output.write(f"  {name} = {format_value(cell.value)} (cell)\n")
+            self.output.write(f"  {name} = {_show(cell.value)} (cell)\n")
 
     def _cmd_stack(self, stack: list[Value]) -> None:
         """Print the operand stack (TOS first)."""
@@ -292,7 +293,7 @@ class Debugger:
             return
         for i, value in enumerate(reversed(stack)):
             label = "TOS" if i == 0 else f"  {i}"
-            self.output.write(f"  {label}: {format_value(value)}\n")
+            self.output.write(f"  {label}: {_show(value)}\n")
 
     def _cmd_backtrace(self, frames: list[Frame]) -> None:
         """Print the call stack with line numbers."""
@@ -356,3 +357,16 @@ class Debugger:
 
 # Sentinel for "variable not found" — distinct from any Pebble value.
 _SENTINEL: Value = object()  # type: ignore[assignment]
+
+
+def _show(value: Value) -> str:
+    """Return *value* as the debugger shows it, or the Pebble error that stops it being shown.
+
+    A whole number of more than 4,300 digits can't be written out. The
+    debugger shows that error in its place rather than stopping the
+    program being debugged.
+    """
+    try:
+        return format_value(value)
+    except PebbleRuntimeError as exc:
+        return f"<error: {exc.message}>"

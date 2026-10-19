@@ -13,7 +13,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 from heapq import heappop, heappush
-from typing import ClassVar, Never, Protocol, TextIO
+from typing import ClassVar, Never, Protocol, TextIO, cast
 
 from pebble.ast_nodes import TypeAnnotation
 from pebble.builtins import (
@@ -23,6 +23,7 @@ from pebble.builtins import (
     METHOD_NONE,
     SLICE_NONE,
     STRING_METHODS,
+    TOO_BIG_FOR_A_FLOAT,
     Cell,
     Closure,
     CoroutineObject,
@@ -225,7 +226,7 @@ class VirtualMachine:
         except _PebbleThrowError as exc:
             line, column = self._throw_location()
             raise PebbleRuntimeError(
-                str(exc.value),
+                _show(exc.value),
                 line=line,
                 column=column,
                 traceback=self._build_traceback(),
@@ -261,7 +262,7 @@ class VirtualMachine:
         except _PebbleThrowError as exc:
             line, column = self._throw_location()
             raise PebbleRuntimeError(
-                str(exc.value),
+                _show(exc.value),
                 line=line,
                 column=column,
                 traceback=self._build_traceback(),
@@ -546,7 +547,10 @@ class VirtualMachine:
                 if not isinstance(result, str):
                     self._runtime_error("__str__ must return a string")
                 return result
-        return format_value(value)
+        try:
+            return format_value(value)
+        except PebbleRuntimeError as exc:  # a whole number of more than 4,300 digits
+            self._runtime_error(exc.message)
 
     def _exec_binary_arith(self, opcode: OpCode) -> None:
         """Handle SUBTRACT, MULTIPLY, FLOOR_DIVIDE, MODULO via dispatch table."""
@@ -567,8 +571,9 @@ class VirtualMachine:
             return
         self._check_zero_divisor(right)
         if _both_numeric(left, right):
-            result = float(left) / float(right)  # type: ignore[arg-type]
-            self._stack.append(result)
+            # Python's ``/`` always gives a float, and works out 10 ** 400 / 10 ** 390
+            # exactly, just as the optimizer does when it folds a division.
+            self._apply_numeric("/", left, right, operator.truediv)
         else:
             self._type_error("/", left, right)
 
@@ -582,7 +587,7 @@ class VirtualMachine:
         if isinstance(left, str) and isinstance(right, str):
             self._stack.append(left + right)
         elif _both_numeric(left, right):
-            self._stack.append(left + right)  # type: ignore[operator]
+            self._apply_numeric("+", left, right, operator.add)
         else:
             self._type_error("+", left, right)
 
@@ -657,7 +662,11 @@ class VirtualMachine:
             case OpCode.LEFT_SHIFT:
                 if right < 0:  # type: ignore[operator]
                     self._runtime_error("Shift amount cannot be negative")
-                self._stack.append(left << right)  # type: ignore[operator]
+                try:
+                    shifted = cast("int", left) << cast("int", right)
+                except OverflowError, MemoryError:  # 1 << 10 ** 20 is too many bits
+                    self._runtime_error("Shift result is too large")
+                self._stack.append(shifted)
             case OpCode.RIGHT_SHIFT:
                 if right < 0:  # type: ignore[operator]
                     self._runtime_error("Shift amount cannot be negative")
@@ -825,7 +834,9 @@ class VirtualMachine:
             type_name = type(index).__name__
             self._runtime_error(f"List index must be an integer, got {type_name}")
         if index < -len(target) or index >= len(target):
-            self._runtime_error(f"Index {index} out of bounds for list of length {len(target)}")
+            self._runtime_error(
+                f"Index {_show(index)} out of bounds for list of length {len(target)}"
+            )
         if index < 0:
             return index + len(target)
         return index
@@ -1404,7 +1415,7 @@ class VirtualMachine:
         """Mark *task* (and its awaiter) as failed after an exception."""
         error_msg = exc.value if isinstance(exc, _PebbleThrowError) else exc.message
         task.state = "failed"
-        task.error = str(error_msg)
+        task.error = _show(error_msg)
         if task.awaiter is not None:
             task.awaiter.state = "failed"
             task.awaiter.error = task.error
@@ -1717,7 +1728,11 @@ class VirtualMachine:
     ) -> None:
         """Apply *op* to two numeric operands (int or float), or raise a type error."""
         if _both_numeric(left, right):
-            self._stack.append(op(left, right))  # type: ignore[arg-type]
+            try:
+                result = op(left, right)  # type: ignore[arg-type]
+            except OverflowError:  # (10 ** 309) + 0.5: the int won't fit in a float
+                self._runtime_error(TOO_BIG_FOR_A_FLOAT)
+            self._stack.append(result)
         else:
             self._type_error(symbol, left, right)
 
@@ -1736,6 +1751,14 @@ class VirtualMachine:
 
 
 # -- Module-level helpers (no self needed) ------------------------------------
+
+
+def _show(value: object) -> str:
+    """Return *value* as text for an error message, even a number too long to write out."""
+    try:
+        return str(value)
+    except ValueError:  # a whole number of more than 4,300 digits
+        return "(a number more than 4,300 digits long)"
 
 
 def _display_type(value: Value) -> str:

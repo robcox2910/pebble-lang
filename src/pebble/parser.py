@@ -875,18 +875,34 @@ class Parser:
     # -- Pratt precedence climbing --------------------------------------------
 
     def _parse_precedence(self, *, min_precedence: int) -> Expression:
-        """Parse an expression with at least *min_precedence* binding power."""
+        """Parse an expression with at least *min_precedence* binding power.
+
+        A chain like ``1 + 1 + 1`` or ``s.upper().lower()`` is read in a
+        loop, but it builds a tree one level deeper per operator, so each
+        one counts a level of nesting (see ``_one_level_deeper``) until the
+        whole expression is read.
+        """
+        outer_depth = self._depth
+        try:
+            return self._parse_precedence_chain(min_precedence)
+        finally:
+            self._depth = outer_depth
+
+    def _parse_precedence_chain(self, min_precedence: int) -> Expression:
+        """Parse a prefix and then every postfix and infix operator that follows it."""
         with self._nested():
             left = self._parse_prefix()
 
             while not self._at_end():
                 # Postfix index access: expr[index]
                 if self._peek().kind == TokenKind.LEFT_BRACKET:
+                    self._one_level_deeper()
                     left = self._parse_index_access(left)
                     continue
 
                 # Postfix dot access: method call or field access
                 if self._peek().kind == TokenKind.DOT:
+                    self._one_level_deeper()
                     left = self._parse_dot_access(left)
                     continue
 
@@ -896,10 +912,16 @@ class Parser:
                 if prec < min_precedence:
                     break
 
+                # A right-associative operator (``**``) reads its right-hand
+                # side by calling this method again, which already counts a
+                # level, so only left-associative ones count one here.
+                right_associative = self._peek().kind in _RIGHT_ASSOCIATIVE
+                if not right_associative:
+                    self._one_level_deeper()
                 op_token = self._advance()
                 op_text = _OPERATOR_TEXT[op_token.kind]
                 # Right-associative: use same precedence; left-associative: strictly higher
-                next_prec = prec if op_token.kind in _RIGHT_ASSOCIATIVE else prec + 1
+                next_prec = prec if right_associative else prec + 1
                 right = self._parse_precedence(min_precedence=next_prec)
                 left = BinaryOp(
                     left=left,
@@ -916,6 +938,7 @@ class Parser:
                         and self._peek().kind in _COMPARISON_OPS
                         and _INFIX_PRECEDENCE[self._peek().kind] >= min_precedence
                     ):
+                        self._one_level_deeper()
                         chain_op = self._advance()
                         chain_text = _OPERATOR_TEXT[chain_op.kind]
                         chain_min = _INFIX_PRECEDENCE[chain_op.kind] + 1
@@ -1344,6 +1367,16 @@ class Parser:
             yield
         finally:
             self._depth -= 1
+
+    def _one_level_deeper(self) -> None:
+        """Count one more level of nesting for an operator in a chain.
+
+        Unlike ``_nested``, this doesn't step back out by itself:
+        ``_parse_precedence`` puts the depth back once the chain is read.
+        """
+        if self._depth >= MAX_NESTING:
+            self._error(NESTED_TOO_DEEPLY)
+        self._depth += 1
 
     def _error(self, message: str) -> Never:
         """Raise a ParseError at the current token's location."""

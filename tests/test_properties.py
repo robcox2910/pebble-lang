@@ -23,7 +23,7 @@ from io import StringIO
 from hypothesis import given
 from hypothesis import strategies as st
 
-from pebble import PebbleError, check, format_source
+from pebble import PebbleError, check, format_source, run_source
 from pebble.bytecode import CompiledProgram
 from pebble.tokens import KEYWORDS
 from pebble.vm import VirtualMachine
@@ -218,6 +218,92 @@ def messy_and_tidy_programs(draw: st.DrawFn) -> tuple[str, str]:
     return messy, tidy(lines)
 
 
+# Towers that are whole programs, so they get past the parser and run:
+# what goes before the stacked piece, the piece, and what closes it off.
+RUNNABLE_TOWERS = [
+    ("print(1", " + 1", ")"),
+    ("print(true", " and true", ")"),
+    ("print(0", " < 1", ")"),
+    ('print("a"', ".upper()", ")"),
+    ("let a = [0]\nprint(a", "[0]", ")"),
+    ("print(", "-", "1)"),
+    ("print(2", " ** 1", ")"),
+    ("let x = 1\nif x == 0 {}", " else if x == 0 {}", " else {\n    print(x)\n}"),
+]  # fmt: skip
+# Powers of ten for huge numbers: 10 ** 309 is too big for a float, and
+# 10 ** 5000 has 5,001 digits, more than Python will turn into text.
+HUGE_POWERS_OF_TEN = ["309", "5000"]
+# Built-in and math functions that take one number, to call on a huge one.
+ONE_NUMBER_FUNCTIONS = [
+    "int", "float", "str", "abs", "floor", "ceil", "round", "sqrt", "sin", "cos", "log",
+]  # fmt: skip
+
+
+@st.composite
+def runnable_towers(draw: st.DrawFn) -> str:
+    """Make a whole program with one piece stacked up to 5,000 times, like ``1 + 1 + 1 ...``."""
+    start, piece, end = draw(st.sampled_from(RUNNABLE_TOWERS))
+    times = draw(st.integers(min_value=0, max_value=LONGEST_REPEAT))
+    return start + piece * times + end
+
+
+def huge_numbers() -> st.SearchStrategy[Tokens]:
+    """Make a number at the edge: ``( 10 ** 309 )``, ``( 10 ** 5000 )``, ``( 1 << 10 ** 20 )``, inf or nan."""
+    exponents = st.sampled_from(HUGE_POWERS_OF_TEN).map(one_token)
+    power = st.builds(in_brackets, st.just(["10"]), st.just("**"), exponents)
+    shift = st.just(["(", "1", "<<", "10", "**", "20", ")"])
+    # Pebble has no literal for infinity or nan, so make them from floats.
+    infinity = ["(", "10.0", "**", "308", "*", "10", ")"]
+    nan = ["(", *infinity, "-", *infinity, ")"]
+    return st.one_of(power, shift, st.sampled_from([infinity, nan]))
+
+
+def decimals() -> st.SearchStrategy[Tokens]:
+    """Make a decimal number, like 2.5 (a float, never a whole number)."""
+    return st.builds("{}.{}".format, st.integers(0, 9), st.integers(0, 99)).map(one_token)
+
+
+@st.composite
+def programs_with_huge_numbers(draw: st.DrawFn) -> str:
+    """Make a program that hands a huge number to functions, prints it, then does sums with it."""
+    # Every built-in or math function gets a go, each inside try/catch so
+    # one polite error doesn't stop the rest. ``pow`` gets a float on the
+    # other side only: pow(2, 10 ** 5000) is a whole number with more
+    # digits than there are atoms in the universe, and takes ages. Then the
+    # number is printed, mixed with a number like 2 or 0.5 (a float), and
+    # with anything at all. Some programs end by throwing.
+    other = draw(decimals())
+    calls = [[name, "(", "a", ")"] for name in ONE_NUMBER_FUNCTIONS]
+    calls += [["pow", "(", "a", ",", *other, ")"], ["pow", "(", *other, ",", "a", ")"]]
+    operator = draw(st.sampled_from(ARITHMETIC_OPERATORS))
+    lines: Lines = [
+        (0, ["import", '"math"']),
+        (0, ["let", "a", "=", *draw(huge_numbers())]),
+    ]
+    for call in calls:
+        lines += [
+            (0, ["try", "{"]),
+            (1, ["print", "(", *call, ")"]),
+            (0, ["}", "catch", "e", "{"]),
+            (1, ["print", "(", "e", ")"]),
+            (0, ["}"]),
+        ]
+    lines += [
+        (0, ["print", "(", "a", ")"]),
+        (0, ["print", "(", "a", operator, *draw(numbers()), ")"]),
+    ]
+    for _ in range(draw(st.integers(min_value=0, max_value=2))):
+        lines.append((0, ["print", "(", *draw(expressions(("a",))), ")"]))
+    if draw(st.booleans()):
+        lines.append((0, ["throw", *draw(expressions(("a",)))]))
+    return tidy(lines)
+
+
+def runnable_programs() -> st.SearchStrategy[str]:
+    """Make a program to run: an ordinary one, one with huge numbers, or a tall tower."""
+    return st.one_of(tidy_programs(), programs_with_huge_numbers(), runnable_towers())
+
+
 # --- Helpers -----------------------------------------------------------------
 
 
@@ -239,6 +325,16 @@ def test_check_only_ever_raises_pebble_error(text: str) -> None:
     """Whatever text you hand to ``check``, it either accepts it or raises a PebbleError."""
     with suppress(PebbleError):
         check(text)
+
+
+# --- Running a program: it prints, or stops with a Pebble error -------------
+
+
+@given(source=runnable_programs())
+def test_run_source_only_ever_raises_pebble_error(source: str) -> None:
+    """Whatever program you run, ``run_source`` returns what it printed or raises a PebbleError."""
+    with suppress(PebbleError):
+        run_source(source)
 
 
 # --- The optimiser: faster, never different ----------------------------------

@@ -6,6 +6,8 @@ classes, enums, match/case, try/catch, imports, comment interleaving,
 idempotency, and edge cases.
 """
 
+import pytest
+
 from pebble.formatter import Formatter, extract_comments
 
 # -- Cycle 1: Comment extraction -----------------------------------------------
@@ -302,6 +304,23 @@ class TestFormatterFunctions:
         source = "let f = fn(x) { return x + 1 }"
         expected = "let f = fn(x) {\n    return x + 1\n}\n"
         assert Formatter(source).format() == expected
+
+    def test_blocks_inside_a_function_expression_keep_their_indent(self) -> None:
+        """Regression: blocks inside ``fn(x) { ... }`` were flattened to one indent level."""
+        source = (
+            "if true {\n"
+            "    let g = fn(a) {\n"
+            "        if a {\n"
+            "            print(1)\n"
+            "        }\n"
+            "        let h = fn(y) {\n"
+            "            return y\n"
+            "        }\n"
+            "        return h\n"
+            "    }\n"
+            "}\n"
+        )
+        assert Formatter(source).format() == source
 
     def test_blank_line_between_top_level_defs(self) -> None:
         """Blank line between top-level definitions."""
@@ -670,6 +689,120 @@ class TestCommentPlacement:
         source = "while false {\nlet a = 1  # first\nlet b = 2\n}"
         expected = "while false {\n    let a = 1  # first\n    let b = 2\n}\n"
         assert Formatter(source).format() == expected
+
+    def test_inline_comment_after_a_function_expression(self) -> None:
+        """Regression: a comment after an ``fn(x) { ... }`` value crashed with IndexError.
+
+        Formatting the function's body recorded where its lines came from
+        in the outer program's list, so that list no longer lined up.
+        """
+        source = "let triple = fn(x) { return x * 3 }\nprint(triple(4))   # prints: 12"
+        expected = "let triple = fn(x) {\n    return x * 3\n}\nprint(triple(4))  # prints: 12\n"
+        assert Formatter(source).format() == expected
+
+    def test_comments_around_a_function_expression_keep_their_lines(self) -> None:
+        """Comments before and after a multi-line function expression stay with their statements."""
+        source = "let a = 1  # one\nlet f = fn(x) {\n    return x\n}\nlet b = 2  # two\n"
+        assert Formatter(source).format() == source
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "print(map(fn(x) {\n    return x  # inside\n}, [1]))\nprint(2)",
+            "print(map(fn(x) {\n    # inside\n    return x\n}, [1]))\nprint(2)",
+        ],
+    )
+    def test_comment_inside_a_function_expression(self, source: str) -> None:
+        """Regression: a comment inside ``fn(x) { ... }`` crashed, or moved to the wrong place.
+
+        The whole function value is printed as part of one line, so the
+        comment goes at the end of that line, and stays there next time.
+        """
+        expected = "print(map(fn(x) {\n    return x\n}, [1]))  # inside\nprint(2)\n"
+        assert Formatter(source).format() == expected
+        assert Formatter(expected).format() == expected
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "if c {\n    # x\n}\n",
+            "let a = 1\nif c {\n    # x\n}\nprint(2)\n",
+            "fn f() {\n    # todo\n}\n",
+            "if a {\n    if b {\n        # x\n    }\n}\n",
+            "if c {\n    # x\n} else {\n    print(1)\n}\n",
+            "if c {\n    print(1)\n} else {\n    # nothing to do\n}\n",
+        ],
+    )
+    def test_comment_in_an_empty_block_stays_inside(self, source: str) -> None:
+        """Regression (found in review): a comment alone in a block jumped to the top of the file.
+
+        It was placed before the next statement after it, and stepped back
+        over the block's closing ``}`` -- and its opening line too, because
+        an empty block has nothing at the comment's depth to stop at.
+        """
+        assert Formatter(source).format() == source
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "while true {\n}  # end\n",
+            "while true {\n    print(1)\n}  # end\nprint(2)\n",
+            "if a {\n    print(1)\n} else {  # c\n    print(2)\n}  # d\n",
+            "if a {\n    print(1)\n} else {  # c\n}  # d\n",
+            "if a {\n} else if b {  # c\n}  # d\n",
+            "fn f() {\n    return 1\n}  # c\n\nprint(f())\n",
+            "if a {\n    if b {\n        print(1)\n    }  # inner\n}  # outer\n",
+            "class A {\n    x\n}  # c\n",
+            "struct P {\n    x,\n    y\n}  # c\n",
+            "enum C {\n    R,\n    G\n}  # c\n",
+            "match x {\n    case 1 {\n        print(1)\n    }  # c\n}\n",
+            "try {\n    print(1)\n} catch e {  # c\n    print(e)\n}  # d\n",
+        ],
+    )
+    def test_comment_on_a_closing_brace_line_stays_there(self, source: str) -> None:
+        """Regression (found in review): ``}  # end`` moved into the block, or to the top of the file.
+
+        The closing brace's output line remembers the statement it closes,
+        not its own source line, so the comment found no line to sit on.
+        """
+        assert Formatter(source).format() == source
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "struct Point {\n    x,  # across\n    y  # up\n}\n",
+            "enum Color {\n    Red,  # stop\n    Green  # go\n}\n",
+            "class Dog {\n    name,  # what to call it\n\n    fn bark(self) {  # loud\n        print(1)\n    }\n}\n",
+            "class Dog {\n    name,\n\n    # makes a noise\n    fn bark(self) {\n        print(1)\n    }\n}\n",
+            "struct Point {\n    x,\n    # the height\n    y\n}\n",
+            "match n {\n    case 1 {  # one\n        print(1)\n    }\n    # anything else\n    case _ {\n    }\n}\n",
+        ],
+    )
+    def test_comments_beside_fields_variants_methods_and_cases_stay_put(self, source: str) -> None:
+        """Regression (found by a property test): these comments moved to the end of the definition.
+
+        Fields, variants, methods and cases were all written out as if they
+        came from the definition's first line, so a comment beside one had
+        nowhere to go.
+        """
+        assert Formatter(source).format() == source
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "struct P {\n    a: b,  # ca\n    b  # cb\n}\n",
+            "struct P {\n    a: int,\n    int  # ci\n}\n",
+            "struct P {\n    a: List[b],\n    b: Int  # cb\n}\n",
+            "class C {\n    a: b,\n    b  # cb\n}\n",
+        ],
+    )
+    def test_comment_beside_a_field_named_like_a_type(self, source: str) -> None:
+        """Regression (found in review): a field named like an earlier field's type lost its comment.
+
+        Fields were found by looking for their name anywhere in the tokens,
+        so ``b`` matched the type in ``a: b`` on the line before.
+        """
+        assert Formatter(source).format() == source
 
     def test_comment_before_else_stays_in_the_if_branch(self) -> None:
         """A comment just before ``} else {`` ends the if-branch, not the else-branch."""
