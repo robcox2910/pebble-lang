@@ -10,6 +10,9 @@ and brace placement. Comments are extracted separately and interleaved
 at their original line positions.
 """
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+
 from pebble.ast_nodes import (
     ArrayLiteral,
     Assignment,
@@ -655,19 +658,22 @@ class Formatter:
 
     def _format_match_case(self, case: MatchCase) -> None:
         """Format a single match case."""
-        pattern = self._format_pattern(case.pattern)
-        self._emit(f"case {pattern} {{")
-        self._format_block(case.body)
-        self._emit("}")
+        with self._from_source_line(case.location.line):
+            pattern = self._format_pattern(case.pattern)
+            self._emit(f"case {pattern} {{")
+            self._format_block(case.body)
+            self._emit("}")
 
     def _format_struct(self, stmt: StructDef) -> None:
         """Format a struct definition."""
         self._emit(f"struct {stmt.name} {{")
         self._indent += 1
+        lines = self._member_lines(stmt.location, [field.name for field in stmt.fields])
         for i, field in enumerate(stmt.fields):
             suffix = "," if i < len(stmt.fields) - 1 else ""
             type_str = f": {field.type_annotation}" if field.type_annotation else ""
-            self._emit(f"{field.name}{type_str}{suffix}")
+            with self._from_source_line(lines[i]):
+                self._emit(f"{field.name}{type_str}{suffix}")
         self._indent -= 1
         self._emit("}")
 
@@ -676,18 +682,21 @@ class Formatter:
         extends = f" extends {stmt.parent}" if stmt.parent else ""
         self._emit(f"class {stmt.name}{extends} {{")
         self._indent += 1
+        lines = self._member_lines(stmt.location, [field.name for field in stmt.fields])
         for i, field in enumerate(stmt.fields):
             suffix = "," if i < len(stmt.fields) - 1 or stmt.methods else ""
             type_str = f": {field.type_annotation}" if field.type_annotation else ""
-            self._emit(f"{field.name}{type_str}{suffix}")
+            with self._from_source_line(lines[i]):
+                self._emit(f"{field.name}{type_str}{suffix}")
         if stmt.fields and stmt.methods:
             self._emit_blank()  # blank line between fields and methods
         for i, method in enumerate(stmt.methods):
             params = self._format_params(method.parameters)
             ret = f" -> {method.return_type}" if method.return_type else ""
-            self._emit(f"fn {method.name}({params}){ret} {{")
-            self._format_block(method.body)
-            self._emit("}")
+            with self._from_source_line(method.location.line):
+                self._emit(f"fn {method.name}({params}){ret} {{")
+                self._format_block(method.body)
+                self._emit("}")
             if i < len(stmt.methods) - 1:
                 self._emit_blank()  # blank line between methods
         self._indent -= 1
@@ -697,11 +706,45 @@ class Formatter:
         """Format an enum definition."""
         self._emit(f"enum {stmt.name} {{")
         self._indent += 1
+        lines = self._member_lines(stmt.location, stmt.variants)
         for i, variant in enumerate(stmt.variants):
             suffix = "," if i < len(stmt.variants) - 1 else ""
-            self._emit(f"{variant}{suffix}")
+            with self._from_source_line(lines[i]):
+                self._emit(f"{variant}{suffix}")
         self._indent -= 1
         self._emit("}")
+
+    @contextmanager
+    def _from_source_line(self, line: int | None) -> Iterator[None]:
+        """Mark the lines emitted inside as coming from source *line* (if known)."""
+        outer_line = self._current_source_line
+        if line is not None:
+            self._current_source_line = line
+        try:
+            yield
+        finally:
+            self._current_source_line = outer_line
+
+    def _member_lines(self, start: SourceLocation, names: list[str]) -> list[int | None]:
+        """Return the source line of each of *names*, the fields or variants after ``{``.
+
+        The AST doesn't keep where each field or variant was written, so
+        find their names in the tokens, in order, after the definition's
+        opening brace. That lets a comment beside a field stay beside it.
+        """
+        tokens = iter(
+            token
+            for token in self._tokens
+            if (token.location.line, token.location.column) > (start.line, start.column)
+        )
+        for token in tokens:
+            if token.kind == TokenKind.LEFT_BRACE:
+                break
+        lines: list[int | None] = []
+        for name in names:
+            line = next((t.location.line for t in tokens if t.value == name), None)
+            lines.append(line)
+        return lines
 
     # -- Block helper ----------------------------------------------------------
 

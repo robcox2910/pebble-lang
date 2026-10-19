@@ -767,6 +767,26 @@ class TestCommentPlacement:
         """
         assert Formatter(source).format() == source
 
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "struct Point {\n    x,  # across\n    y  # up\n}\n",
+            "enum Color {\n    Red,  # stop\n    Green  # go\n}\n",
+            "class Dog {\n    name,  # what to call it\n\n    fn bark(self) {  # loud\n        print(1)\n    }\n}\n",
+            "class Dog {\n    name,\n\n    # makes a noise\n    fn bark(self) {\n        print(1)\n    }\n}\n",
+            "struct Point {\n    x,\n    # the height\n    y\n}\n",
+            "match n {\n    case 1 {  # one\n        print(1)\n    }\n    # anything else\n    case _ {\n    }\n}\n",
+        ],
+    )
+    def test_comments_beside_fields_variants_methods_and_cases_stay_put(self, source: str) -> None:
+        """Regression (found by a property test): these comments moved to the end of the definition.
+
+        Fields, variants, methods and cases were all written out as if they
+        came from the definition's first line, so a comment beside one had
+        nowhere to go.
+        """
+        assert Formatter(source).format() == source
+
     def test_comment_before_else_stays_in_the_if_branch(self) -> None:
         """A comment just before ``} else {`` ends the if-branch, not the else-branch."""
         source = "if true {\n    print(1)\n    # end of if\n} else {\n    print(2)\n}"
