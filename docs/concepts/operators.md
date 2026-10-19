@@ -71,6 +71,23 @@ A negative exponent produces a `float`:
 print(2 ** -1)   # prints: 0.5   (same as 1 / 2)
 ```
 
+### Really Big Numbers
+
+A whole number (`int`) can be as big as you like, so `10 ** 400` is
+fine, and so is doing sums with it. A few things can't be done with a
+number that big, and each stops your program with an error you can
+catch with [`try`/`catch`](error-handling.md):
+
+| What you tried | Example | Error |
+|---|---|---|
+| Printing a number with more than 4,300 digits (or turning it into text with `str` or `"{a}"`) | `print(10 ** 5000)` | "Number is too long to turn into text (more than 4,300 digits)" |
+| Mixing a float with a whole number bigger than about 1.8 × 10<sup>308</sup>, the biggest float there is | `print(10 ** 309 + 0.5)` | "Number is too large to turn into a float" |
+| A float power too big for a float | `print(10.0 ** 400)` | "Exponentiation result is too large" |
+| A left shift too big for the computer to hold | `print(1 << 10 ** 20)` | "Shift result is too large" |
+
+`/` always gives a float, so dividing two huge whole numbers works when
+the answer fits: `10 ** 400 / 10 ** 390` is `10000000000.0`.
+
 ## Unary Operators
 
 Unary operators work on a **single** value (unlike `+` and `*` which need
@@ -246,7 +263,9 @@ right **halves** the number (rounding down):
 print(16 >> 2)   # prints: 4    (16 → 8 → 4)
 ```
 
-You cannot shift by a negative amount -- that gives an error.
+You cannot shift by a negative amount -- that gives an error. Nor can
+you shift by an amount so big the answer wouldn't fit in the computer
+(`1 << 10 ** 20`): that's the error "Shift result is too large".
 
 ## Operator Precedence
 

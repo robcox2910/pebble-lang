@@ -116,10 +116,17 @@ why the formatter also gets a rule that only real tidying can pass.
 
 | Rule | Test |
 |---|---|
+| Whatever program you run, [`run_source`](concepts/using-pebble-from-python.md) returns what it printed or raises a `PebbleError` | `test_run_source_only_ever_raises_pebble_error` |
 | A program prints exactly the same thing, errors included, with or without the [optimizer](concepts/optimizer.md) | `test_optimiser_never_changes_what_a_program_prints` |
 | However oddly a program is spaced, the [formatter](concepts/formatter.md) turns it into the same tidy text | `test_formatting_ignores_how_a_program_was_spaced` |
 | Any program we can parse still parses, and means the same, after formatting (in `tests/test_format_roundtrip.py`) | `test_random_programs_survive_formatting` |
 | Every comment appears exactly once after formatting (in `tests/test_format_roundtrip.py`) | `test_comments_survive_formatting_once_each` |
+
+The `run_source` one is the `check` rule again, one step further: the
+program has to get past the parser and actually *run*. Its programs are
+ordinary little ones, ones that do sums with huge numbers like
+`10 ** 5000`, and towers that are whole programs, like
+`print(1 + 1 + 1 + ...)` or an `if` with 5,000 `else if`s.
 
 The optimiser one is a **reference check**: Pebble with the optimiser
 switched off is the "right answer", and Pebble with it switched on must
@@ -171,7 +178,9 @@ With it, `0 * 0` is worked out before the program runs, comes out as
 `0.0`, and that's what gets printed.
 
 The optimiser property catches it. The check and formatter properties
-stay green, because neither of them runs a program.
+stay green, because neither of them runs a program. So does the
+`run_source` one: it runs programs, but `0.0` is a perfectly polite
+answer, and that property only asks that nothing crashes.
 
 The example tests all still pass. Only the property notices. The
 optimiser's own tests check that `3 * 4` folds to `12`, and in Python
@@ -246,6 +255,24 @@ own example test:
 
 The last two now have towers of their own in `towers()`, so the
 property keeps watching them.
+
+The `run_source` property came later, and it found more. So did running
+Pebble's own documentation through the formatter:
+
+| Input | What went wrong | Found by |
+|---|---|---|
+| 1,111 `else if`s, run or formatted | `check` was happy, but every later stage called itself once per `else if` and crashed | reading the code |
+| `print(1 + 1 + 1 + ...)`, 1,111 `+`s | the parser read it fine, but every later stage crashed on a sum 1,111 levels deep | property |
+| `print(10 ** 5000)` | Python won't write out a number with more than 4,300 digits | property |
+| `print(10 ** 309 + 0.5)` | the whole number is too big to turn into a float | property |
+| `print(1 << 10 ** 20)` | the VM crashed: too many bits to hold | property |
+| `print(triple(4))  # prints: 12`, after a one-line `fn` value | the formatter crashed with `IndexError` | formatting the docs |
+
+Each one now stops with a polite error instead (see
+[Really Big Numbers](concepts/operators.md#really-big-numbers)), or just
+works: an `else if` chain is now walked in a loop, so any length runs, and
+each operator in a long chain counts towards the nesting limit, so
+`1 + 1 + ...` past about 100 levels is a `ParseError`.
 
 ## Run It Yourself
 
