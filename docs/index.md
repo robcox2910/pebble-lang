@@ -87,6 +87,14 @@ know how it works, you understand it on a completely different level.
 | **Optimizer** | Smart cook | Remove unnecessary steps |
 | **VM** | Cook following the recipe | Execute the bytecode |
 
+## Install
+
+```bash
+pip install fromscratch-pebble
+```
+
+Or get the whole series at once with `pip install fromscratch-pystack`. To read the code or run the tests, clone it from [GitHub](https://github.com/robcox2910/pebble-lang).
+
 ## Let's Start!
 
 Head to [Lexer](concepts/lexer.md) to see how source code gets
