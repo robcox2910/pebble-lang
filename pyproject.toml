@@ -1,5 +1,5 @@
 [project]
-name = "pebble-lang"
+name = "fromscratch-pebble"
 dynamic = ["version"]
 description = "An educational compiler and bytecode VM for the Pebble language"
 readme = "README.md"
