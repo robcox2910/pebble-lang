@@ -7,12 +7,19 @@ between versions. See :mod:`pebble.api`.
 from pebble._pipeline import Program
 from pebble.api import check, compile_source, format_source, run_source
 from pebble.builtins import Value
+from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 from pebble.errors import PebbleError
 from pebble.stdlib import StdlibModule
+from pebble.tokens import SourceLocation
 
 __all__ = [
+    "CodeObject",
+    "CompiledProgram",
+    "Instruction",
+    "OpCode",
     "PebbleError",
     "Program",
+    "SourceLocation",
     "StdlibModule",
     "Value",
     "check",

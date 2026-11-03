@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 
+import pebble
 from pebble import (
     PebbleError,
     Program,
@@ -21,7 +22,9 @@ from pebble import (
     format_source,
     run_source,
 )
+from pebble.bytecode import CodeObject, CompiledProgram, Instruction, OpCode
 from pebble.stdlib import STDLIB_MODULES
+from pebble.tokens import SourceLocation
 
 RUNS_PER_THREAD = 50
 
@@ -136,3 +139,31 @@ class TestCheckAndFormat:
         """Formatting refuses source that doesn't parse."""
         with pytest.raises(PebbleError):
             format_source("let = 1")
+
+
+class TestBytecodeTypes:
+    """The bytecode types are public, for tools that read the compiler's output."""
+
+    @pytest.mark.parametrize(
+        ("name", "original"),
+        [
+            ("CompiledProgram", CompiledProgram),
+            ("CodeObject", CodeObject),
+            ("Instruction", Instruction),
+            ("OpCode", OpCode),
+            ("SourceLocation", SourceLocation),
+        ],
+    )
+    def test_each_type_is_exported_and_is_the_original(self, name: str, original: object) -> None:
+        """The name is in ``__all__`` and is the very same object as in its home module."""
+        assert name in pebble.__all__
+        assert getattr(pebble, name) is original
+
+    def test_a_compiled_program_can_be_read_with_public_names_only(self) -> None:
+        """The first instruction of ``print(1)`` is reachable through the public types."""
+        compiled = compile_source("print(1)").compiled
+        assert isinstance(compiled, pebble.CompiledProgram)
+        assert isinstance(compiled.main, pebble.CodeObject)
+        first = compiled.main.instructions[0]
+        assert isinstance(first, pebble.Instruction)
+        assert first.opcode is pebble.OpCode.LOAD_CONST
