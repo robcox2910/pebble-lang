@@ -194,7 +194,12 @@ Some tools don't want to *run* a Pebble program at all. They want to read
 it, the way a translator reads a recipe before cooking it in a different
 kitchen. [PyCPU](https://github.com/robcox2910/pycpu), a computer built
 from logic gates, does exactly this: it takes the instructions Pebble's
-compiler makes and turns them into its own machine code.
+compiler makes and turns them into its own **machine code** (the numbers
+a real or simulated CPU follows).
+
+Those instructions are called **bytecode**: the list of small steps
+Pebble's compiler makes from your program, for its **virtual machine**
+(the little pretend machine inside Pebble) to follow.
 
 For those tools, these five names are public too. A few words first:
 
@@ -203,12 +208,10 @@ For those tools, these five names are public too. A few words first:
   on, like which constant to fetch.
 - The **stack** is a pile of plates. Steps put values on top of the pile
   and take them off the top again.
-- The **virtual machine** is the little pretend machine inside Pebble
-  that follows the steps one by one and runs your program.
+- The virtual machine follows the steps one by one and so runs your
+  program.
 - A **code object** is one function's list of steps, plus its constants
   (the fixed values, such as the `1` in `print(1)`, that it uses).
-- **Machine code** is the numbers a real (or simulated) CPU follows. It
-  is what a tool like PyCPU turns Pebble's steps into.
 
 | Name | What it is |
 |---|---|
@@ -244,9 +247,9 @@ the step came from line 1 of your code.
 Only the names you can import straight from `pebble` are **promised**:
 `run_source`, `compile_source`, `check`, `format_source`, `Program`,
 `StdlibModule`, `Value`, `PebbleError` and the five bytecode types
-listed above in "Reading the Compiler's Instructions". If a new version of Pebble
-changes one of those, its version number says so (the middle number goes
-up, like `0.2.0` to `0.3.0`).
+listed above in "Reading the Compiler's Instructions". If a new version
+of Pebble changes one of those, its version number says so (the middle
+number goes up, like `0.2.0` to `0.3.0`).
 
 Everything else -- `pebble.lexer`, `pebble.vm` and friends -- is still
 there for you to explore and learn from, but it may change between
