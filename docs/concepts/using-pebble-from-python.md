@@ -184,11 +184,46 @@ with tempfile.TemporaryDirectory() as folder:
 assert output == "42\n"
 ```
 
+## Reading the Compiler's Instructions
+
+Some tools don't want to *run* a Pebble program at all. They want to read
+it, the way a translator reads a recipe before cooking it in a different
+kitchen. [PyCPU](https://github.com/robcox2910/pycpu), a computer built
+from logic gates, does exactly this: it takes the instructions Pebble's
+compiler makes and turns them into its own machine code.
+
+For those tools, these five names are public too:
+
+| Name | What it is |
+|---|---|
+| `CompiledProgram` | The whole compiled program: a `main` code object plus its functions |
+| `CodeObject` | One list of instructions, such as `main` or a single function |
+| `Instruction` | One step: an `opcode` and, if it needs one, an `operand` |
+| `OpCode` | The list of every step the virtual machine knows how to do |
+| `SourceLocation` | Which line and column of your code an instruction came from |
+
+A `Program` keeps its `CompiledProgram` in `program.compiled`:
+
+```python
+from pebble import CodeObject, Instruction, OpCode, compile_source
+
+compiled = compile_source("print(1)").compiled
+assert isinstance(compiled.main, CodeObject)
+first = compiled.main.instructions[0]
+assert isinstance(first, Instruction)
+assert first.opcode is OpCode.LOAD_CONST
+```
+
+The instruction `LOAD_CONST` means "put this constant value on the
+stack", which is how `print(1)` starts: it fetches the `1` before it can
+print it.
+
 ## What's Public?
 
 Only the names you can import straight from `pebble` are **promised**:
 `run_source`, `compile_source`, `check`, `format_source`, `Program`,
-`StdlibModule`, `Value` and `PebbleError`. If a new version of Pebble
+`StdlibModule`, `Value`, `PebbleError` and the five bytecode types in
+the next section. If a new version of Pebble
 changes one of those, its version number says so (the middle number goes
 up, like `0.2.0` to `0.3.0`).
 
