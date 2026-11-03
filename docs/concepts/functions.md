@@ -145,6 +145,22 @@ fn maybe_print(x) {
 }
 ```
 
+A function that reaches the end of its body without running a `return`
+also gives back `null` -- even when its last statement is an `if` or a
+`while` that contains a `return`, and the condition was false:
+
+```pebble
+fn first_positive(x) {
+    if x > 0 {
+        return x
+    }
+}
+
+print(first_positive(-1))
+```
+
+This prints `null`.
+
 ## Returning Multiple Values
 
 Sometimes a function needs to hand back more than one result -- like a

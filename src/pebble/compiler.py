@@ -153,6 +153,19 @@ class _CompilerSnapshot:
     try_stack: list[_TryContext]
 
 
+# Opcodes whose operand is an instruction index to jump to.
+_JUMP_OPCODES: frozenset[OpCode] = frozenset(
+    {
+        OpCode.JUMP,
+        OpCode.JUMP_IF_FALSE,
+        OpCode.JUMP_IF_FALSE_OR_POP,
+        OpCode.JUMP_IF_TRUE_OR_POP,
+        OpCode.FOR_ITER,
+        OpCode.SETUP_TRY,
+    }
+)
+
+
 class Compiler:
     """Compile a validated AST into stack-based bytecode.
 
@@ -650,7 +663,7 @@ class Compiler:
         for stmt in body:
             self._compile_statement(stmt)
 
-        if not fn_code.instructions or fn_code.instructions[-1].opcode is not OpCode.RETURN:
+        if self._can_fall_off_end(fn_code):
             self._emit_constant(None)
             if return_type is not None:
                 self._emit(OpCode.CHECK_TYPE, str(return_type))
@@ -659,6 +672,20 @@ class Compiler:
         self._functions[name] = fn_code
         self._restore_state(snapshot)
         return fn_code
+
+    @staticmethod
+    def _can_fall_off_end(code: CodeObject) -> bool:
+        """Return True if *code* needs an implicit ``return null`` tail.
+
+        That is the case when the last instruction is not ``RETURN``, or when a
+        jump targets the index one past the last instruction (for example the
+        false branch of a trailing ``if`` whose body ends in ``return``).
+        """
+        instructions = code.instructions
+        if not instructions or instructions[-1].opcode is not OpCode.RETURN:
+            return True
+        end = len(instructions)
+        return any(instr.opcode in _JUMP_OPCODES and instr.operand == end for instr in instructions)
 
     def _compile_function_def(self, node: FunctionDef) -> None:
         """Compile a function definition into a separate CodeObject."""
